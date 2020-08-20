@@ -40,7 +40,7 @@ LOG_MODULE_REGISTER(main);
 // 	}
 // }
 
-static void App_USBH_MSC_ClassNotify(void *p_class_dev, CPU_INT08U is_conn,
+static void App_USBH_MSC_ClassNotify(void *p_class_dev, uint8_t is_conn,
 				     void *p_ctx)
 {
 	USBH_MSC_DEV *p_msc_dev;

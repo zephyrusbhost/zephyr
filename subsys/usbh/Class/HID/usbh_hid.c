@@ -169,33 +169,33 @@ static  USBH_ERR     USBH_HID_DevLock          (USBH_HID_DEV  *p_hid_dev);
 
 static  void         USBH_HID_DevUnlock        (USBH_HID_DEV  *p_hid_dev);
 
-static  CPU_INT32U   USBH_HID_TxData           (USBH_HID_DEV  *p_hid_dev,
-                                                CPU_INT08U     report_id,
+static  uint32_t   USBH_HID_TxData           (USBH_HID_DEV  *p_hid_dev,
+                                                uint8_t     report_id,
                                                 void          *p_buf,
-                                                CPU_INT32U     buf_len,
-                                                CPU_INT16U     timeout_ms,
+                                                uint32_t     buf_len,
+                                                uint16_t     timeout_ms,
                                                 USBH_ERR      *p_err);
 
-static  CPU_INT32U   USBH_HID_RxData           (USBH_HID_DEV  *p_hid_dev,
-                                                CPU_INT08U     report_id,
+static  uint32_t   USBH_HID_RxData           (USBH_HID_DEV  *p_hid_dev,
+                                                uint8_t     report_id,
                                                 void          *p_buf,
-                                                CPU_INT32U     buf_len,
-                                                CPU_INT16U     timeout_ms,
+                                                uint32_t     buf_len,
+                                                uint16_t     timeout_ms,
                                                 USBH_ERR      *p_err);
 
 static  USBH_ERR     USBH_HID_MemReadHIDDesc   (USBH_HID_DEV  *p_hid_dev);
 
 static  void         USBH_HID_IntrRxCB         (USBH_EP       *p_ep,
                                                 void          *p_buf,
-                                                CPU_INT32U     buf_len,
-                                                CPU_INT32U     xfer_len,
+                                                uint32_t     buf_len,
+                                                uint32_t     xfer_len,
                                                 void          *p_arg,
                                                 USBH_ERR       err);
 
 static  void         USBH_HID_DispatchReport   (USBH_HID_DEV  *p_hid_dev,
-                                                CPU_INT08U    *p_buf,
-                                                CPU_INT32U     buf_len,
-                                                CPU_INT32U     xfer_len,
+                                                uint8_t    *p_buf,
+                                                uint32_t     buf_len,
+                                                uint32_t     xfer_len,
                                                 USBH_ERR       err);
 
 static  USBH_ERR     USBH_HID_ProcessReportDesc(USBH_HID_DEV  *p_hid_dev);
@@ -217,13 +217,13 @@ static  USBH_ERR     USBH_HID_RxReportAsync    (USBH_HID_DEV  *p_hid_dev);
 */
 
 USBH_CLASS_DRV  USBH_HID_ClassDrv = {
-    (CPU_INT08U *)"HID",
-                  USBH_HID_GlobalInit,
-                  0,
-                  USBH_HID_ProbeIF,
-                  USBH_HID_Suspend,
-                  USBH_HID_Resume,
-                  USBH_HID_Disconn
+    (uint8_t *)"HID",
+    USBH_HID_GlobalInit,
+    0,
+    USBH_HID_ProbeIF,
+    USBH_HID_Suspend,
+    USBH_HID_Resume,
+    USBH_HID_Disconn
 };
 
 
@@ -432,7 +432,7 @@ USBH_ERR  USBH_HID_RefRel (USBH_HID_DEV  *p_hid_dev)
 
 USBH_ERR  USBH_HID_GetReportIDArray (USBH_HID_DEV         *p_hid_dev,
                                      USBH_HID_REPORT_ID  **p_report_id,
-                                     CPU_INT08U           *p_nbr_report_id)
+                                     uint8_t           *p_nbr_report_id)
 {
     USBH_ERR  err;
 
@@ -488,14 +488,14 @@ USBH_ERR  USBH_HID_GetReportIDArray (USBH_HID_DEV         *p_hid_dev,
 
 USBH_ERR  USBH_HID_GetAppCollArray (USBH_HID_DEV        *p_hid_dev,
                                     USBH_HID_APP_COLL  **p_app_coll,
-                                    CPU_INT08U          *p_nbr_app_coll)
+                                    uint8_t          *p_nbr_app_coll)
 {
     USBH_ERR  err;
 
 
     if ((p_hid_dev      == (USBH_HID_DEV       *)0) ||
         (p_app_coll     == (USBH_HID_APP_COLL **)0) ||
-        (p_nbr_app_coll == (CPU_INT08U         *)0)) {
+        (p_nbr_app_coll == (uint8_t         *)0)) {
         return (USBH_ERR_INVALID_ARG);
     }
 
@@ -543,10 +543,10 @@ USBH_ERR  USBH_HID_GetAppCollArray (USBH_HID_DEV        *p_hid_dev,
 *********************************************************************************************************
 */
 
-CPU_BOOLEAN  USBH_HID_IsBootDev (USBH_HID_DEV  *p_hid_dev,
+bool  USBH_HID_IsBootDev (USBH_HID_DEV  *p_hid_dev,
                                  USBH_ERR      *p_err)
 {
-    CPU_BOOLEAN  is_boot;
+    bool  is_boot;
 
 
     if (p_hid_dev == (USBH_HID_DEV *)0) {
@@ -613,14 +613,14 @@ CPU_BOOLEAN  USBH_HID_IsBootDev (USBH_HID_DEV  *p_hid_dev,
 *********************************************************************************************************
 */
 
-CPU_INT08U  USBH_HID_RxReport (USBH_HID_DEV  *p_hid_dev,
-                               CPU_INT08U     report_id,
+uint8_t  USBH_HID_RxReport (USBH_HID_DEV  *p_hid_dev,
+                               uint8_t     report_id,
                                void          *p_buf,
-                               CPU_INT08U     buf_len,
-                               CPU_INT16U     timeout_ms,
+                               uint8_t     buf_len,
+                               uint16_t     timeout_ms,
                                USBH_ERR      *p_err)
 {
-    CPU_INT08U  xfer_len;
+    uint8_t  xfer_len;
 
 
     if (p_hid_dev == (USBH_HID_DEV *)0) {
@@ -639,7 +639,7 @@ CPU_INT08U  USBH_HID_RxReport (USBH_HID_DEV  *p_hid_dev,
         return (0u);
     }
 
-    xfer_len = (CPU_INT08U)USBH_HID_RxData(p_hid_dev,           /* Receive input report.                                */
+    xfer_len = (uint8_t)USBH_HID_RxData(p_hid_dev,           /* Receive input report.                                */
                                            report_id,
                                            p_buf,
                                            buf_len,
@@ -697,14 +697,14 @@ CPU_INT08U  USBH_HID_RxReport (USBH_HID_DEV  *p_hid_dev,
 *********************************************************************************************************
 */
 
-CPU_INT08U  USBH_HID_TxReport (USBH_HID_DEV  *p_hid_dev,
-                               CPU_INT08U     report_id,
+uint8_t  USBH_HID_TxReport (USBH_HID_DEV  *p_hid_dev,
+                               uint8_t     report_id,
                                void          *p_buf,
-                               CPU_INT08U     buf_len,
-                               CPU_INT16U     timeout_ms,
+                               uint8_t     buf_len,
+                               uint16_t     timeout_ms,
                                USBH_ERR      *p_err)
 {
-    CPU_INT08U  xfer_len;
+    uint8_t  xfer_len;
 
 
     if (p_hid_dev == (USBH_HID_DEV *)0) {
@@ -723,7 +723,7 @@ CPU_INT08U  USBH_HID_TxReport (USBH_HID_DEV  *p_hid_dev,
         return (0u);
     }
 
-    xfer_len = (CPU_INT08U)USBH_HID_TxData(p_hid_dev,           /* Send the output report.                              */
+    xfer_len = (uint8_t)USBH_HID_TxData(p_hid_dev,           /* Send the output report.                              */
                                            report_id,
                                            p_buf,
                                            buf_len,
@@ -766,12 +766,12 @@ CPU_INT08U  USBH_HID_TxReport (USBH_HID_DEV  *p_hid_dev,
 */
 
 USBH_ERR  USBH_HID_RegRxCB (USBH_HID_DEV        *p_hid_dev,
-                            CPU_INT08U           report_id,
+                            uint8_t           report_id,
                             USBH_HID_RXCB_FNCT   async_fnct,
                             void                *p_async_arg)
 {
-    CPU_INT08U      ix;
-    CPU_INT32U      report_len_bytes;
+    uint8_t      ix;
+    uint32_t      report_len_bytes;
     USBH_HID_RXCB  *p_rx_cb;
     USBH_ERR        err;
 
@@ -869,9 +869,9 @@ USBH_ERR  USBH_HID_RegRxCB (USBH_HID_DEV        *p_hid_dev,
 */
 
 USBH_ERR  USBH_HID_UnregRxCB (USBH_HID_DEV  *p_hid_dev,
-                              CPU_INT08U     report_id)
+                              uint8_t     report_id)
 {
-    CPU_INT08U  ix;
+    uint8_t  ix;
     USBH_ERR    err;
 
 
@@ -939,7 +939,7 @@ USBH_ERR  USBH_HID_UnregRxCB (USBH_HID_DEV  *p_hid_dev,
 */
 
 USBH_ERR  USBH_HID_ProtocolSet (USBH_HID_DEV  *p_hid_dev,
-                                CPU_INT16U     protocol)
+                                uint16_t     protocol)
 {
     USBH_ERR  err;
 
@@ -1009,7 +1009,7 @@ USBH_ERR  USBH_HID_ProtocolSet (USBH_HID_DEV  *p_hid_dev,
 */
 
 USBH_ERR  USBH_HID_ProtocolGet (USBH_HID_DEV  *p_hid_dev,
-                                CPU_INT16U    *p_protocol)
+                                uint16_t    *p_protocol)
 {
     USBH_ERR  err;
 
@@ -1078,8 +1078,8 @@ USBH_ERR  USBH_HID_ProtocolGet (USBH_HID_DEV  *p_hid_dev,
 */
 
 USBH_ERR  USBH_HID_IdleSet (USBH_HID_DEV  *p_hid_dev,
-                            CPU_INT08U     report_id,
-                            CPU_INT32U     dur)
+                            uint8_t     report_id,
+                            uint32_t     dur)
 {
     USBH_ERR  err;
 
@@ -1154,11 +1154,11 @@ USBH_ERR  USBH_HID_IdleSet (USBH_HID_DEV  *p_hid_dev,
 *********************************************************************************************************
 */
 
-CPU_INT32U  USBH_HID_IdleGet (USBH_HID_DEV  *p_hid_dev,
-                              CPU_INT08U     report_id,
+uint32_t  USBH_HID_IdleGet (USBH_HID_DEV  *p_hid_dev,
+                              uint8_t     report_id,
                               USBH_ERR      *p_err)
 {
-    CPU_INT32U  dur;
+    uint32_t  dur;
 
 
     if (p_hid_dev == (USBH_HID_DEV *)0) {
@@ -1225,7 +1225,7 @@ CPU_INT32U  USBH_HID_IdleGet (USBH_HID_DEV  *p_hid_dev,
 
 static  void  USBH_HID_GlobalInit (USBH_ERR  *p_err)
 {
-    CPU_INT08U  ix;
+    uint8_t  ix;
     LIB_ERR     err_lib;
     CPU_SIZE_T  octets_reqd;
 
@@ -1497,7 +1497,7 @@ static  void  USBH_HID_DevClr (USBH_HID_DEV  *p_hid_dev)
 
 static  USBH_ERR  USBH_HID_DevLock (USBH_HID_DEV  *p_hid_dev)
 {
-    CPU_INT08U  state;
+    uint8_t  state;
     CPU_SR_ALLOC();
 
 
@@ -1585,14 +1585,14 @@ static  void  USBH_HID_DevUnlock (USBH_HID_DEV  *p_hid_dev)
 *********************************************************************************************************
 */
 
-static  CPU_INT32U  USBH_HID_TxData (USBH_HID_DEV  *p_hid_dev,
-                                     CPU_INT08U     report_id,
+static  uint32_t  USBH_HID_TxData (USBH_HID_DEV  *p_hid_dev,
+                                     uint8_t     report_id,
                                      void          *p_buf,
-                                     CPU_INT32U     buf_len,
-                                     CPU_INT16U     timeout_ms,
+                                     uint32_t     buf_len,
+                                     uint16_t     timeout_ms,
                                      USBH_ERR      *p_err)
 {
-    CPU_INT32U  xfer_len;
+    uint32_t  xfer_len;
 
 
     if ((p_buf   == (void *)0 ) ||
@@ -1691,14 +1691,14 @@ static  CPU_INT32U  USBH_HID_TxData (USBH_HID_DEV  *p_hid_dev,
 *********************************************************************************************************
 */
 
-static  CPU_INT32U  USBH_HID_RxData (USBH_HID_DEV  *p_hid_dev,
-                                     CPU_INT08U     report_id,
+static  uint32_t  USBH_HID_RxData (USBH_HID_DEV  *p_hid_dev,
+                                     uint8_t     report_id,
                                      void          *p_buf,
-                                     CPU_INT32U     buf_len,
-                                     CPU_INT16U     timeout_ms,
+                                     uint32_t     buf_len,
+                                     uint16_t     timeout_ms,
                                      USBH_ERR      *p_err)
 {
-    CPU_INT32U  xfer_len;
+    uint32_t  xfer_len;
 
 
     if ((p_buf   == (void *)0 ) ||
@@ -1749,18 +1749,18 @@ static  CPU_INT32U  USBH_HID_RxData (USBH_HID_DEV  *p_hid_dev,
 static  USBH_ERR  USBH_HID_MemReadHIDDesc (USBH_HID_DEV  *p_hid_dev)
 {
     USBH_HID_DESC  *p_hid_desc;
-    CPU_INT08U     *p_mem;
-    CPU_INT08U      len;
-    CPU_INT08U      b_type;
-    CPU_INT16U      tot_len;
-    CPU_INT16U      w_len;
+    uint8_t     *p_mem;
+    uint8_t      len;
+    uint8_t      b_type;
+    uint16_t      tot_len;
+    uint16_t      w_len;
 
 
                                                                 /* Get HID desc from extra desc.                        */
-    p_mem  = (CPU_INT08U *)USBH_IF_ExtraDescGet(p_hid_dev->IfPtr,
+    p_mem  = (uint8_t *)USBH_IF_ExtraDescGet(p_hid_dev->IfPtr,
                                                 0u,
                                                &tot_len);
-    if (p_mem == (CPU_INT08U *)0) {
+    if (p_mem == (uint8_t *)0) {
         return (USBH_ERR_DESC_EXTRA_NOT_FOUND);
     }
 
@@ -1771,27 +1771,27 @@ static  USBH_ERR  USBH_HID_MemReadHIDDesc (USBH_HID_DEV  *p_hid_dev)
     if (len < USBH_HID_LEN_HID_DESC) {                          /* Chk len.                                             */
         return (USBH_ERR_DESC_INVALID);
     }
-    p_mem += sizeof(CPU_INT08U);
-    len   -= sizeof(CPU_INT08U);
+    p_mem += sizeof(uint8_t);
+    len   -= sizeof(uint8_t);
                                                                 /* Get desc type.                                       */
     p_hid_desc->bDescriptorType = MEM_VAL_GET_INT08U_LITTLE((void *)p_mem);
     if (p_hid_desc->bDescriptorType != USBH_HID_DESC_TYPE_HID) {/* Type should be USBH_HID_DESC_TYPE_HID.               */
         return (USBH_ERR_DESC_INVALID);
     }
-    p_mem += sizeof(CPU_INT08U);
-    len   -= sizeof(CPU_INT08U);
+    p_mem += sizeof(uint8_t);
+    len   -= sizeof(uint8_t);
                                                                 /* -------------------- GET bcdHID -------------------- */
     p_hid_desc->bcdHID = MEM_VAL_GET_INT16U_LITTLE((void *)p_mem);
-    p_mem += sizeof(CPU_INT16U);
-    len  -= sizeof(CPU_INT16U);
+    p_mem += sizeof(uint16_t);
+    len  -= sizeof(uint16_t);
                                                                 /* ----------------- GET COUNTRY CODE ----------------- */
     p_hid_desc->bCountryCode = MEM_VAL_GET_INT08U_LITTLE((void *)p_mem);
-    p_mem += sizeof(CPU_INT08U);
-    len   -= sizeof(CPU_INT08U);
+    p_mem += sizeof(uint8_t);
+    len   -= sizeof(uint8_t);
                                                                 /* -------------- GET NBR OF CLASS DESC --------------- */
     p_hid_desc->bNbrDescriptors = MEM_VAL_GET_INT08U_LITTLE((void *)p_mem);
-    p_mem += sizeof(CPU_INT08U);
-    len   -= sizeof(CPU_INT08U);
+    p_mem += sizeof(uint8_t);
+    len   -= sizeof(uint8_t);
 
     if (p_hid_desc->bNbrDescriptors < 1u) {                     /* Nbr of desc should be at least one.                  */
         return (USBH_ERR_DESC_INVALID);
@@ -1799,12 +1799,12 @@ static  USBH_ERR  USBH_HID_MemReadHIDDesc (USBH_HID_DEV  *p_hid_dev)
                                                                 /* ----------------- GET REPORT DESC ------------------ */
     while (len > 0) {
         b_type = MEM_VAL_GET_INT08U_LITTLE((void *)p_mem);
-        p_mem += sizeof(CPU_INT08U);
-        len   -= sizeof(CPU_INT08U);
+        p_mem += sizeof(uint8_t);
+        len   -= sizeof(uint8_t);
 
         w_len  = MEM_VAL_GET_INT16U_LITTLE((void *)p_mem);
-        p_mem += sizeof(CPU_INT16U);
-        len   -= sizeof(CPU_INT16U);
+        p_mem += sizeof(uint16_t);
+        len   -= sizeof(uint16_t);
                                                                 /* If this is a report desc ...                         */
         if ((b_type == USBH_HID_DESC_TYPE_REPORT) &&
             (w_len   > 0u                       )) {
@@ -1859,16 +1859,16 @@ static  USBH_ERR  USBH_HID_MemReadHIDDesc (USBH_HID_DEV  *p_hid_dev)
 
 static  void  USBH_HID_IntrRxCB (USBH_EP     *p_ep,
                                  void        *p_buf,
-                                 CPU_INT32U   buf_len,
-                                 CPU_INT32U   xfer_len,
+                                 uint32_t   buf_len,
+                                 uint32_t   xfer_len,
                                  void        *p_arg,
                                  USBH_ERR     err)
 {
     USBH_ERR       temp_err;
     USBH_HID_DEV  *p_hid_dev;
     USBH_ERR       lock_err;
-    CPU_INT08U     state;
-    CPU_INT08U     ix;
+    uint8_t     state;
+    uint8_t     ix;
     CPU_SR_ALLOC();
 
 
@@ -1975,13 +1975,13 @@ static  void  USBH_HID_IntrRxCB (USBH_EP     *p_ep,
 */
 
 static  void  USBH_HID_DispatchReport (USBH_HID_DEV  *p_hid_dev,
-                                       CPU_INT08U    *p_buf,
-                                       CPU_INT32U     buf_len,
-                                       CPU_INT32U     xfer_len,
+                                       uint8_t    *p_buf,
+                                       uint32_t     buf_len,
+                                       uint32_t     xfer_len,
                                        USBH_ERR       err)
 {
-    CPU_INT08U           report_id;
-    CPU_INT08U           ix;
+    uint8_t           report_id;
+    uint8_t           ix;
     void                *p_arg;
     USBH_ERR             lock_err;
     USBH_HID_RXCB_FNCT   fnct;
@@ -2093,7 +2093,7 @@ static  void  USBH_HID_DispatchReport (USBH_HID_DEV  *p_hid_dev,
 
 static  USBH_ERR  USBH_HID_ProcessReportDesc (USBH_HID_DEV  *p_hid_dev)
 {
-    CPU_INT32U  len;
+    uint32_t  len;
     USBH_ERR    err;
 
 
@@ -2157,7 +2157,7 @@ static  USBH_ERR  USBH_HID_ProcessReportDesc (USBH_HID_DEV  *p_hid_dev)
 static  USBH_ERR  USBH_HID_RxReportAsync (USBH_HID_DEV  *p_hid_dev)
 {
     USBH_ERR    err;
-    CPU_INT08U  len;
+    uint8_t  len;
 
 
     len = p_hid_dev->MaxReportPtr->Size / 8u;

@@ -34,7 +34,7 @@
 
 #define   USBH_HC_CFG_MODULE
 #define   MICRIUM_SOURCE
-#include  "usbh_hc_cfg.h"
+#include  <usbh_hc_cfg.h>
 
 
 /*
