@@ -63,11 +63,11 @@
 
 typedef struct usbh_cdc_union_desc
 {
-    CPU_INT08U bFunctionLength;    /* Size of desc in bytes.                               */
-    CPU_INT08U bDescriptorType;    /* IF desc type.                                        */
-    CPU_INT08U bDescriptorSubtype; /* Union functional desc subtype.                       */
-    CPU_INT08U bMasterInterface;   /* Nbr of comm or Data Class IF, designated as master.  */
-    CPU_INT08U bSlaveInterface0;   /* IF nbr of first slave or associated IF in union.     */
+    uint8_t bFunctionLength;    /* Size of desc in bytes.                               */
+    uint8_t bDescriptorType;    /* IF desc type.                                        */
+    uint8_t bDescriptorSubtype; /* Union functional desc subtype.                       */
+    uint8_t bMasterInterface;   /* Nbr of comm or Data Class IF, designated as master.  */
+    uint8_t bSlaveInterface0;   /* IF nbr of first slave or associated IF in union.     */
 } USBH_CDC_UNION_DESC;
 
 /*
@@ -109,15 +109,15 @@ static void USBH_CDC_Disconn(void *p_class_dev);
 
 static void USBH_CDC_DIC_DataTxCmpl(USBH_EP *p_ep,
                                     void *p_buf,
-                                    CPU_INT32U buf_len,
-                                    CPU_INT32U xfer_len,
+                                    uint32_t buf_len,
+                                    uint32_t xfer_len,
                                     void *p_arg,
                                     USBH_ERR err);
 
 static void USBH_CDC_DIC_DataRxCmpl(USBH_EP *p_ep,
                                     void *p_buf,
-                                    CPU_INT32U buf_len,
-                                    CPU_INT32U xfer_len,
+                                    uint32_t buf_len,
+                                    uint32_t xfer_len,
                                     void *p_arg,
                                     USBH_ERR err);
 
@@ -125,8 +125,8 @@ static USBH_ERR USBH_CDC_EventRxAsync(USBH_CDC_DEV *p_cdc_dev);
 
 static void USBH_CDC_CIC_EventRxCmpl(USBH_EP *p_ep,
                                      void *p_buf,
-                                     CPU_INT32U buf_len,
-                                     CPU_INT32U xfer_len,
+                                     uint32_t buf_len,
+                                     uint32_t xfer_len,
                                      void *p_arg,
                                      USBH_ERR err);
 
@@ -143,7 +143,7 @@ static void USBH_CDC_CIC_EventRxCmpl(USBH_EP *p_ep,
 */
 
 USBH_CLASS_DRV USBH_CDC_ClassDrv = {
-    (CPU_INT08U *)"CDC",
+    (uint8_t *)"CDC",
     USBH_CDC_GlobalInit,
     USBH_CDC_ProbeDev,
     0,
@@ -325,11 +325,11 @@ USBH_ERR USBH_CDC_EventNotifyReg(USBH_CDC_DEV *p_cdc_dev,
 */
 
 USBH_ERR USBH_CDC_CmdTx(USBH_CDC_DEV *p_cdc_dev,
-                        CPU_INT08U b_req,
-                        CPU_INT08U bm_req_type,
-                        CPU_INT16U w_val,
+                        uint8_t b_req,
+                        uint8_t bm_req_type,
+                        uint16_t w_val,
                         void *p_buf,
-                        CPU_INT32U buf_len)
+                        uint32_t buf_len)
 {
     USBH_ERR err;
 
@@ -397,11 +397,11 @@ USBH_ERR USBH_CDC_CmdTx(USBH_CDC_DEV *p_cdc_dev,
 */
 
 USBH_ERR USBH_CDC_RespRx(USBH_CDC_DEV *p_cdc_dev,
-                         CPU_INT08U b_req,
-                         CPU_INT08U bm_req_type,
-                         CPU_INT16U w_val,
+                         uint8_t b_req,
+                         uint8_t bm_req_type,
+                         uint16_t w_val,
                          void *p_buf,
-                         CPU_INT32U buf_len)
+                         uint32_t buf_len)
 {
     USBH_ERR err;
 
@@ -461,12 +461,12 @@ USBH_ERR USBH_CDC_RespRx(USBH_CDC_DEV *p_cdc_dev,
 *********************************************************************************************************
 */
 
-CPU_INT32U USBH_CDC_DataTx(USBH_CDC_DEV *p_cdc_dev,
-                           CPU_INT08U *p_buf,
-                           CPU_INT32U buf_len,
+uint32_t USBH_CDC_DataTx(USBH_CDC_DEV *p_cdc_dev,
+                           uint8_t *p_buf,
+                           uint32_t buf_len,
                            USBH_ERR *p_err)
 {
-    CPU_INT32U xfer_len;
+    uint32_t xfer_len;
 
     xfer_len = USBH_BulkTx(&p_cdc_dev->DIC_BulkOut,
                            (void *)p_buf,
@@ -521,8 +521,8 @@ CPU_INT32U USBH_CDC_DataTx(USBH_CDC_DEV *p_cdc_dev,
 */
 
 USBH_ERR USBH_CDC_DataTxAsync(USBH_CDC_DEV *p_cdc_dev,
-                              CPU_INT08U *p_buf,
-                              CPU_INT32U buf_len,
+                              uint8_t *p_buf,
+                              uint32_t buf_len,
                               SUBCLASS_NOTIFY tx_cmpl_notify,
                               void *p_arg)
 {
@@ -578,12 +578,12 @@ USBH_ERR USBH_CDC_DataTxAsync(USBH_CDC_DEV *p_cdc_dev,
 *********************************************************************************************************
 */
 
-CPU_INT32U USBH_CDC_DataRx(USBH_CDC_DEV *p_cdc_dev,
-                           CPU_INT08U *p_buf,
-                           CPU_INT32U buf_len,
+uint32_t USBH_CDC_DataRx(USBH_CDC_DEV *p_cdc_dev,
+                           uint8_t *p_buf,
+                           uint32_t buf_len,
                            USBH_ERR *p_err)
 {
-    CPU_INT32U xfer_len;
+    uint32_t xfer_len;
 
     xfer_len = USBH_BulkRx(&p_cdc_dev->DIC_BulkIn,
                            (void *)p_buf,
@@ -638,8 +638,8 @@ CPU_INT32U USBH_CDC_DataRx(USBH_CDC_DEV *p_cdc_dev,
 */
 
 USBH_ERR USBH_CDC_DataRxAsync(USBH_CDC_DEV *p_cdc_dev,
-                              CPU_INT08U *p_buf,
-                              CPU_INT32U buf_len,
+                              uint8_t *p_buf,
+                              uint32_t buf_len,
                               SUBCLASS_NOTIFY rx_cmpl_notify,
                               void *p_arg)
 {
@@ -751,7 +751,7 @@ USBH_IF *USBH_CDC_CommIF_Get(USBH_CDC_DEV *p_cdc_dev)
 */
 
 USBH_ERR USBH_CDC_SubclassGet(USBH_CDC_DEV *p_cdc_dev,
-                              CPU_INT08U *p_subclass)
+                              uint8_t *p_subclass)
 {
     USBH_IF_DESC if_desc;
     USBH_ERR err;
@@ -790,7 +790,7 @@ USBH_ERR USBH_CDC_SubclassGet(USBH_CDC_DEV *p_cdc_dev,
 */
 
 USBH_ERR USBH_CDC_ProtocolGet(USBH_CDC_DEV *p_cdc_dev,
-                              CPU_INT08U *p_protocol)
+                              uint8_t *p_protocol)
 {
     USBH_IF_DESC if_desc;
     USBH_ERR err;
@@ -838,7 +838,7 @@ USBH_ERR USBH_CDC_ProtocolGet(USBH_CDC_DEV *p_cdc_dev,
 
 static void USBH_CDC_GlobalInit(USBH_ERR *p_err)
 {
-    CPU_INT08U ix;
+    uint8_t ix;
     CPU_SIZE_T octets_reqd;
     CPU_SIZE_T cdc_len;
     LIB_ERR err_lib;
@@ -920,10 +920,10 @@ static void USBH_CDC_GlobalInit(USBH_ERR *p_err)
 static void *USBH_CDC_ProbeDev(USBH_DEV *p_dev,
                                USBH_ERR *p_err)
 {
-    CPU_INT08U if_ix;
-    CPU_INT08U cic_if_nbr = 0u;
-    CPU_INT08U dic_if_nbr = 0u;
-    CPU_INT08U nbr_ifs;
+    uint8_t if_ix;
+    uint8_t cic_if_nbr = 0u;
+    uint8_t dic_if_nbr = 0u;
+    uint8_t nbr_ifs;
     USBH_CFG *p_cfg;
     USBH_DEV_DESC dev_desc;
     USBH_IF_DESC if_desc;
@@ -1237,10 +1237,10 @@ static USBH_ERR USBH_CDC_UnionDescParse(USBH_CDC_UNION_DESC *p_union_desc,
                                         USBH_IF *p_if)
 {
     USBH_ERR err;
-    CPU_INT08U *p_if_desc;
+    uint8_t *p_if_desc;
 
     err = USBH_ERR_DESC_INVALID;
-    p_if_desc = (CPU_INT08U *)p_if->IF_DataPtr;
+    p_if_desc = (uint8_t *)p_if->IF_DataPtr;
 
     while (p_if_desc[1] != USBH_DESC_TYPE_EP)
     {
@@ -1290,8 +1290,8 @@ static USBH_ERR USBH_CDC_UnionDescParse(USBH_CDC_UNION_DESC *p_union_desc,
 
 static void USBH_CDC_DIC_DataTxCmpl(USBH_EP *p_ep,
                                     void *p_buf,
-                                    CPU_INT32U buf_len,
-                                    CPU_INT32U xfer_len,
+                                    uint32_t buf_len,
+                                    uint32_t xfer_len,
                                     void *p_arg,
                                     USBH_ERR err)
 {
@@ -1313,7 +1313,7 @@ static void USBH_CDC_DIC_DataTxCmpl(USBH_EP *p_ep,
     }
 
     p_cdc_dev->DataTxNotifyPtr(p_cdc_dev->DataTxNotifyArgPtr,
-                               (CPU_INT08U *)p_buf,
+                               (uint8_t *)p_buf,
                                xfer_len,
                                err);
 }
@@ -1344,8 +1344,8 @@ static void USBH_CDC_DIC_DataTxCmpl(USBH_EP *p_ep,
 
 static void USBH_CDC_DIC_DataRxCmpl(USBH_EP *p_ep,
                                     void *p_buf,
-                                    CPU_INT32U buf_len,
-                                    CPU_INT32U xfer_len,
+                                    uint32_t buf_len,
+                                    uint32_t xfer_len,
                                     void *p_arg,
                                     USBH_ERR err)
 {
@@ -1367,7 +1367,7 @@ static void USBH_CDC_DIC_DataRxCmpl(USBH_EP *p_ep,
     }
 
     p_cdc_dev->DataRxNotifyPtr(p_cdc_dev->DataRxNotifyArgPtr,
-                               (CPU_INT08U *)p_buf,
+                               (uint8_t *)p_buf,
                                xfer_len,
                                err);
 }
@@ -1398,8 +1398,8 @@ static void USBH_CDC_DIC_DataRxCmpl(USBH_EP *p_ep,
 
 static void USBH_CDC_CIC_EventRxCmpl(USBH_EP *p_ep,
                                      void *p_buf,
-                                     CPU_INT32U buf_len,
-                                     CPU_INT32U xfer_len,
+                                     uint32_t buf_len,
+                                     uint32_t xfer_len,
                                      void *p_arg,
                                      USBH_ERR err)
 {
@@ -1422,7 +1422,7 @@ static void USBH_CDC_CIC_EventRxCmpl(USBH_EP *p_ep,
     if (p_cdc_dev->EvtNotifyPtr != (SUBCLASS_NOTIFY)0)
     {
         p_cdc_dev->EvtNotifyPtr(p_cdc_dev->EvtNotifyArgPtr,
-                                (CPU_INT08U *)p_buf,
+                                (uint8_t *)p_buf,
                                 xfer_len,
                                 err);
     }

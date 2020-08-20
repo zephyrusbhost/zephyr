@@ -89,25 +89,25 @@
 typedef  struct  usbh_hid_global  USBH_HID_GLOBAL;
 
 struct  usbh_hid_global {
-    CPU_INT16U        UsagePage;                                /* Usage Page.                                          */
-    CPU_INT08U        ReportID;                                 /* Report ID.                                           */
-    CPU_INT32S        LogMin;                                   /* Logical Minimun.                                     */
-    CPU_INT32S        LogMax;                                   /* Logical Maximum.                                     */
-    CPU_INT32S        PhyMin;                                   /* Physical Minimum.                                    */
-    CPU_INT32S        PhyMax;                                   /* Physical Maximum.                                    */
-    CPU_INT32S        UnitExp;                                  /* Unit exponent.                                       */
-    CPU_INT32S        Unit;                                     /* Unit.                                                */
-    CPU_INT32U        ReportSize;                               /* Report Size (bits).                                  */
-    CPU_INT32U        ReportCnt;                                /* Report Count.                                        */
+    uint16_t        UsagePage;                                /* Usage Page.                                          */
+    uint8_t        ReportID;                                 /* Report ID.                                           */
+    int32_t        LogMin;                                   /* Logical Minimun.                                     */
+    int32_t        LogMax;                                   /* Logical Maximum.                                     */
+    int32_t        PhyMin;                                   /* Physical Minimum.                                    */
+    int32_t        PhyMax;                                   /* Physical Maximum.                                    */
+    int32_t        UnitExp;                                  /* Unit exponent.                                       */
+    int32_t        Unit;                                     /* Unit.                                                */
+    uint32_t        ReportSize;                               /* Report Size (bits).                                  */
+    uint32_t        ReportCnt;                                /* Report Count.                                        */
     USBH_HID_GLOBAL  *NextPtr;                                  /* Pointer to next global this for global stack.        */
 };
 
                                                                 /* --------------- LOCAL ITEM DATA TYPE --------------- */
 typedef  struct  usbh_hid_local {
-    CPU_INT32U  Usage[USBH_HID_CFG_MAX_NBR_USAGE];              /* Usage array.                                         */
-    CPU_INT32U  NbrUsage;                                       /* Number of usages.                                    */
-    CPU_INT32U  UsageMin;                                       /* Usage Minimum.                                       */
-    CPU_INT32U  UsageMax;                                       /* Usage Maximum.                                       */
+    uint32_t  Usage[USBH_HID_CFG_MAX_NBR_USAGE];              /* Usage array.                                         */
+    uint32_t  NbrUsage;                                       /* Number of usages.                                    */
+    uint32_t  UsageMin;                                       /* Usage Minimum.                                       */
+    uint32_t  UsageMax;                                       /* Usage Maximum.                                       */
 } USBH_HID_LOCAL;
 
                                                                 /* ---------------------- PARSER ---------------------- */
@@ -116,17 +116,17 @@ typedef  struct  usbh_hid_parser {
     USBH_HID_GLOBAL   Global;                                   /* Global items.                                        */
     USBH_HID_GLOBAL  *GlobalStkPtr;                             /* Global items stack for push and pop.                 */
     USBH_HID_COLL    *CollStkPtr;                               /* Collection stack.                                    */
-    CPU_INT08U        AppCollNbr;                               /* Present Apllication Collection number.               */
-    CPU_INT08U        Type;                                     /* Item Type.                                           */
-    CPU_INT08U        Tag;                                      /* Item Tag.                                            */
-    CPU_INT08U        Size;                                     /* Item Size.                                           */
+    uint8_t        AppCollNbr;                               /* Present Apllication Collection number.               */
+    uint8_t        Type;                                     /* Item Type.                                           */
+    uint8_t        Tag;                                      /* Item Tag.                                            */
+    uint8_t        Size;                                     /* Item Size.                                           */
     union {
-        CPU_INT08U    U08;
-        CPU_INT08S    S08;
-        CPU_INT16U    U16;
-        CPU_INT16S    S16;
-        CPU_INT32U    U32;
-        CPU_INT32S    S32;
+        uint8_t    U08;
+        int8_t    S08;
+        uint16_t    U16;
+        int16_t    S16;
+        uint32_t    U32;
+        int32_t    S32;
     }                 Data;                                     /* Item Data.                                           */
 } USBH_HID_PARSER;
 
@@ -284,12 +284,12 @@ USBH_ERR  USBH_HID_ParserGlobalInit (void)
 */
 
 USBH_ERR  USBH_HID_ItemParser (USBH_HID_DEV  *p_hid_dev,
-                               CPU_INT08U    *p_report_desc,
-                               CPU_INT32U     desc_len)
+                               uint8_t    *p_report_desc,
+                               uint32_t     desc_len)
 {
     USBH_HID_PARSER  parser;
-    CPU_INT32U       pos;
-    CPU_INT08U       item;
+    uint32_t       pos;
+    uint8_t       item;
     USBH_ERR         err;
 
 
@@ -386,10 +386,10 @@ USBH_ERR  USBH_HID_ItemParser (USBH_HID_DEV  *p_hid_dev,
 
 USBH_ERR  USBH_HID_CreateReportID (USBH_HID_DEV  *p_hid_dev)
 {
-    CPU_BOOLEAN           found;
-    CPU_INT08U            coll_ix;
-    CPU_INT08U            report_fmt_ix;
-    CPU_INT08U            report_id_ix;
+    bool           found;
+    uint8_t            coll_ix;
+    uint8_t            report_fmt_ix;
+    uint8_t            report_id_ix;
     USBH_HID_REPORT_FMT  *p_report_fmt;
     USBH_HID_REPORT_ID   *p_report_id;
 
@@ -451,11 +451,11 @@ USBH_ERR  USBH_HID_CreateReportID (USBH_HID_DEV  *p_hid_dev)
 */
 
 USBH_HID_REPORT_ID  *USBH_HID_MaxReport (USBH_HID_DEV  *p_hid_dev,
-                                         CPU_INT08U     type)
+                                         uint8_t     type)
 {
     USBH_HID_REPORT_ID  *p_report_id;
-    CPU_INT32U           size;
-    CPU_INT08U           report_id_ix;
+    uint32_t           size;
+    uint8_t           report_id_ix;
 
 
     size        = 0u;
@@ -574,12 +574,12 @@ static  void  USBH_HID_InitGlobalItem (USBH_HID_GLOBAL  *p_global)
     Mem_Clr((void *)p_global,
                     sizeof(USBH_HID_GLOBAL));
 
-    p_global->LogMin  = (CPU_INT32S)USBH_HID_LOG_MIN_UNDEFINED;
-    p_global->LogMax  = (CPU_INT32S)USBH_HID_LOG_MAX_UNDEFINED;
-    p_global->PhyMin  = (CPU_INT32S)USBH_HID_PHY_MIN_UNDEFINED;
-    p_global->PhyMax  = (CPU_INT32S)USBH_HID_PHY_MAX_UNDEFINED;
-    p_global->UnitExp = (CPU_INT32S)USBH_HID_UNIT_EXP_UNDEFINED;
-    p_global->Unit    = (CPU_INT32S)USBH_HID_UNIT_UNDEFINED;
+    p_global->LogMin  = (int32_t)USBH_HID_LOG_MIN_UNDEFINED;
+    p_global->LogMax  = (int32_t)USBH_HID_LOG_MAX_UNDEFINED;
+    p_global->PhyMin  = (int32_t)USBH_HID_PHY_MIN_UNDEFINED;
+    p_global->PhyMax  = (int32_t)USBH_HID_PHY_MAX_UNDEFINED;
+    p_global->UnitExp = (int32_t)USBH_HID_UNIT_EXP_UNDEFINED;
+    p_global->Unit    = (int32_t)USBH_HID_UNIT_UNDEFINED;
 }
 
 
@@ -901,7 +901,7 @@ static  USBH_ERR  USBH_HID_OpenColl (USBH_HID_DEV     *p_hid_dev,
         return (USBH_ERR_ALLOC);
     }
                                                                 /* Initialize collection parameters.                    */
-    p_coll_new->Usage = (((CPU_INT32U)p_parser->Global.UsagePage << 16u) & 0xFFFF0000u) | (CPU_INT32U)p_parser->Local.Usage[0];
+    p_coll_new->Usage = (((uint32_t)p_parser->Global.UsagePage << 16u) & 0xFFFF0000u) | (uint32_t)p_parser->Local.Usage[0];
     p_coll_new->Type  = USBH_HID_UNSIGNED_DATA(p_parser);
 
     if ((p_parser->CollStkPtr == (USBH_HID_COLL *)0) &&         /* Check if first collection is app.                    */
@@ -1068,8 +1068,8 @@ static  USBH_ERR  USBH_HID_AddReport (USBH_HID_DEV     *p_hid_dev,
 
 static  USBH_ERR  USBH_HID_ValidateReport (USBH_HID_REPORT_FMT  *p_report_fmt)
 {
-    CPU_BOOLEAN  x_def;
-    CPU_BOOLEAN  y_def;
+    bool  x_def;
+    bool  y_def;
 
                                                                 /* --------------- CHK MANDATORY FIELDS --------------- */
     if ((p_report_fmt->UsagePage  == USBH_HID_USAGE_PAGE_UNDEFINED ) ||
@@ -1137,12 +1137,12 @@ static  void  USBH_HID_InitReport (USBH_HID_PARSER      *p_parser,
                                    USBH_HID_REPORT_FMT  *p_report_fmt)
 {
     USBH_HID_COLL  *p_coll_tmp;
-    CPU_INT08U      usage_ix;
+    uint8_t      usage_ix;
 
                                                                 /* Copy usages.                                         */
     for (usage_ix = 0u; usage_ix < p_parser->Local.NbrUsage; usage_ix++) {
-        p_report_fmt->Usage[usage_ix] = ((CPU_INT32U)p_parser->Global.UsagePage << 16u) |
-                                         (CPU_INT32U)p_parser->Local.Usage[usage_ix];
+        p_report_fmt->Usage[usage_ix] = ((uint32_t)p_parser->Global.UsagePage << 16u) |
+                                         (uint32_t)p_parser->Local.Usage[usage_ix];
     }
 
     p_report_fmt->UsagePage  = p_parser->Global.UsagePage;
@@ -1209,17 +1209,17 @@ static  void  USBH_HID_SetData (USBH_HID_PARSER  *p_parser,
     switch (p_parser->Size) {
         case 1:
              p_parser->Data.U08 =             MEM_VAL_GET_INT08U_LITTLE(p_buf);
-             p_parser->Data.S08 = (CPU_INT08S)MEM_VAL_GET_INT08U_LITTLE(p_buf);
+             p_parser->Data.S08 = (int8_t)MEM_VAL_GET_INT08U_LITTLE(p_buf);
              break;
 
         case 2:
              p_parser->Data.U16 =             MEM_VAL_GET_INT16U_LITTLE(p_buf);
-             p_parser->Data.S16 = (CPU_INT16S)MEM_VAL_GET_INT16U_LITTLE(p_buf);
+             p_parser->Data.S16 = (int16_t)MEM_VAL_GET_INT16U_LITTLE(p_buf);
              break;
 
         case 4:
              p_parser->Data.U32 =             MEM_VAL_GET_INT32U_LITTLE(p_buf);
-             p_parser->Data.S32 = (CPU_INT32S)MEM_VAL_GET_INT32U_LITTLE(p_buf);
+             p_parser->Data.S32 = (int32_t)MEM_VAL_GET_INT32U_LITTLE(p_buf);
              break;
 
         default:

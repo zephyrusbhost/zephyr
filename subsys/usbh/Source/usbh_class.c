@@ -80,7 +80,7 @@ static USBH_ERR USBH_ClassProbeIF(USBH_DEV *p_dev,
 static void USBH_ClassNotify(USBH_DEV *p_dev,
                              USBH_IF *p_if,
                              void *p_class_dev,
-                             CPU_INT08U is_conn);
+                             uint8_t is_conn);
 
 /*
 *********************************************************************************************************
@@ -120,7 +120,7 @@ USBH_ERR USBH_ClassDrvReg(USBH_CLASS_DRV *p_class_drv,
                           USBH_CLASS_NOTIFY_FNCT class_notify_fnct,
                           void *p_class_notify_ctx)
 {
-    CPU_INT32U ix;
+    uint32_t ix;
     USBH_ERR err;
     CPU_SR_ALLOC();
 
@@ -129,7 +129,7 @@ USBH_ERR USBH_ClassDrvReg(USBH_CLASS_DRV *p_class_drv,
         return (USBH_ERR_INVALID_ARG);
     }
 
-    if (p_class_drv->NamePtr == (CPU_INT08U *)0)
+    if (p_class_drv->NamePtr == (uint8_t *)0)
     {
         return (USBH_ERR_INVALID_ARG);
     }
@@ -183,7 +183,7 @@ USBH_ERR USBH_ClassDrvReg(USBH_CLASS_DRV *p_class_drv,
 
 USBH_ERR USBH_ClassDrvUnreg(USBH_CLASS_DRV *p_class_drv)
 {
-    CPU_INT32U ix;
+    uint32_t ix;
     CPU_SR_ALLOC();
 
     if (p_class_drv == (USBH_CLASS_DRV *)0)
@@ -232,8 +232,8 @@ USBH_ERR USBH_ClassDrvUnreg(USBH_CLASS_DRV *p_class_drv)
 
 void USBH_ClassSuspend(USBH_DEV *p_dev)
 {
-    CPU_INT08U if_ix;
-    CPU_INT08U nbr_ifs;
+    uint8_t if_ix;
+    uint8_t nbr_ifs;
     USBH_CFG *p_cfg;
     USBH_IF *p_if;
     USBH_CLASS_DRV *p_class_drv;
@@ -293,8 +293,8 @@ void USBH_ClassSuspend(USBH_DEV *p_dev)
 
 void USBH_ClassResume(USBH_DEV *p_dev)
 {
-    CPU_INT08U if_ix;
-    CPU_INT08U nbr_ifs;
+    uint8_t if_ix;
+    uint8_t nbr_ifs;
     USBH_CFG *p_cfg;
     USBH_IF *p_if;
     USBH_CLASS_DRV *p_class_drv;
@@ -369,9 +369,9 @@ void USBH_ClassResume(USBH_DEV *p_dev)
 
 USBH_ERR USBH_ClassDrvConn(USBH_DEV *p_dev)
 {
-    CPU_INT08U if_ix;
-    CPU_INT08U nbr_if;
-    CPU_BOOLEAN drv_found;
+    uint8_t if_ix;
+    uint8_t nbr_if;
+    bool drv_found;
     USBH_ERR err;
     USBH_CFG *p_cfg;
     USBH_IF *p_if;
@@ -483,8 +483,8 @@ USBH_ERR USBH_ClassDrvConn(USBH_DEV *p_dev)
 void USBH_ClassDrvDisconn(USBH_DEV *p_dev)
 {
     LOG_DBG("disconnect class driver");
-    CPU_INT08U if_ix;
-    CPU_INT08U nbr_ifs;
+    uint8_t if_ix;
+    uint8_t nbr_ifs;
     USBH_CFG *p_cfg;
     USBH_IF *p_if = (USBH_IF *)0;
     USBH_CLASS_DRV *p_class_drv;
@@ -570,7 +570,7 @@ void USBH_ClassDrvDisconn(USBH_DEV *p_dev)
 
 static USBH_ERR USBH_ClassProbeDev(USBH_DEV *p_dev)
 {
-    CPU_INT32U ix;
+    uint32_t ix;
     USBH_CLASS_DRV *p_class_drv;
     USBH_ERR err;
     void *p_class_dev;
@@ -623,7 +623,7 @@ static USBH_ERR USBH_ClassProbeIF(USBH_DEV *p_dev,
                                   USBH_IF *p_if)
 {
     LOG_DBG("ClassProbeIF");
-    CPU_INT32U ix;
+    uint32_t ix;
     USBH_CLASS_DRV *p_class_drv;
     void *p_class_dev;
     USBH_ERR err;
@@ -677,7 +677,7 @@ static USBH_ERR USBH_ClassProbeIF(USBH_DEV *p_dev,
 static void USBH_ClassNotify(USBH_DEV *p_dev,
                              USBH_IF *p_if,
                              void *p_class_dev,
-                             CPU_INT08U is_conn)
+                             uint8_t is_conn)
 {
     USBH_CLASS_DRV_REG *p_class_drv_reg;
 

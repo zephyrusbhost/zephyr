@@ -560,13 +560,13 @@
 *********************************************************************************************************
 */
 
-typedef  CPU_INT08U  USBH_EP_TYPE;
-typedef  CPU_INT08U  USBH_EP_DIR;
-typedef  CPU_INT08U  USBH_HOST_STATE;
-typedef  CPU_INT08U  USBH_DEV_STATE;
-typedef  CPU_INT08U  USBH_CLASS_DEV_STATE;
-typedef  CPU_INT08U  USBH_EP_STATE;
-typedef  CPU_INT08U  USBH_TOKEN;
+typedef  uint8_t  USBH_EP_TYPE;
+typedef  uint8_t  USBH_EP_DIR;
+typedef  uint8_t  USBH_HOST_STATE;
+typedef  uint8_t  USBH_DEV_STATE;
+typedef  uint8_t  USBH_CLASS_DEV_STATE;
+typedef  uint8_t  USBH_EP_STATE;
+typedef  uint8_t  USBH_TOKEN;
 
 
 /*
@@ -617,8 +617,8 @@ typedef enum  usbh_dev_spd {
 */
 
 typedef  struct  usbh_hub_port_status {
-    CPU_INT16U  wPortStatus;
-    CPU_INT16U  wPortChange;
+    uint16_t  wPortStatus;
+    uint16_t  wPortChange;
 } USBH_HUB_PORT_STATUS;
 
 
@@ -647,7 +647,7 @@ struct  usbh_hc_drv_api {
     void          (*Resume)      (USBH_HC_DRV  *p_hc_drv,       /* Resume HC.                                           */
                                   USBH_ERR     *p_err);
 
-    CPU_INT32U    (*FrmNbrGet)   (USBH_HC_DRV  *p_hc_drv,       /* Get HC frame number.                                 */
+    uint32_t    (*FrmNbrGet)   (USBH_HC_DRV  *p_hc_drv,       /* Get HC frame number.                                 */
                                   USBH_ERR     *p_err);
 
     void          (*EP_Open)     (USBH_HC_DRV  *p_hc_drv,       /* Open endpoint.                                       */
@@ -662,7 +662,7 @@ struct  usbh_hc_drv_api {
                                   USBH_EP      *p_ep,
                                   USBH_ERR     *p_err);
 
-    CPU_BOOLEAN   (*EP_IsHalt)   (USBH_HC_DRV  *p_hc_drv,       /* Get endpoint halt status.                            */
+    bool   (*EP_IsHalt)   (USBH_HC_DRV  *p_hc_drv,       /* Get endpoint halt status.                            */
                                   USBH_EP      *p_ep,
                                   USBH_ERR     *p_err);
 
@@ -688,56 +688,56 @@ struct  usbh_hc_drv_api {
 
 struct  usbh_hc_rh_api {
                                                                 /* Get port status.                                     */
-    CPU_BOOLEAN  (*PortStatusGet)   (USBH_HC_DRV           *p_hc_drv,
-                                     CPU_INT08U             port_nbr,
+    bool  (*PortStatusGet)   (USBH_HC_DRV           *p_hc_drv,
+                                     uint8_t             port_nbr,
                                      USBH_HUB_PORT_STATUS  *p_port_status);
 
                                                                 /* Get RH descriptor.                                   */
-    CPU_BOOLEAN  (*HubDescGet)      (USBH_HC_DRV           *p_hc_drv,
+    bool  (*HubDescGet)      (USBH_HC_DRV           *p_hc_drv,
                                      void                  *p_buf,
-                                     CPU_INT08U             buf_len);
+                                     uint8_t             buf_len);
 
                                                                 /* Set port enable.                                     */
-    CPU_BOOLEAN  (*PortEnSet)       (USBH_HC_DRV           *p_hc_drv,
-                                     CPU_INT08U             port_nbr);
+    bool  (*PortEnSet)       (USBH_HC_DRV           *p_hc_drv,
+                                     uint8_t             port_nbr);
 
                                                                 /* Clear port enable.                                   */
-    CPU_BOOLEAN  (*PortEnClr)       (USBH_HC_DRV           *p_hc_drv,
-                                     CPU_INT08U             port_nbr);
+    bool  (*PortEnClr)       (USBH_HC_DRV           *p_hc_drv,
+                                     uint8_t             port_nbr);
 
                                                                 /* Clear port enable change.                            */
-    CPU_BOOLEAN  (*PortEnChngClr)   (USBH_HC_DRV           *p_hc_drv,
-                                     CPU_INT08U             port_nbr);
+    bool  (*PortEnChngClr)   (USBH_HC_DRV           *p_hc_drv,
+                                     uint8_t             port_nbr);
 
                                                                 /* Set port power.                                      */
-    CPU_BOOLEAN  (*PortPwrSet)      (USBH_HC_DRV           *p_hc_drv,
-                                     CPU_INT08U             port_nbr);
+    bool  (*PortPwrSet)      (USBH_HC_DRV           *p_hc_drv,
+                                     uint8_t             port_nbr);
 
                                                                 /* Clear port power.                                    */
-    CPU_BOOLEAN  (*PortPwrClr)      (USBH_HC_DRV           *p_hc_drv,
-                                     CPU_INT08U             port_nbr);
+    bool  (*PortPwrClr)      (USBH_HC_DRV           *p_hc_drv,
+                                     uint8_t             port_nbr);
 
                                                                 /* Set port reset.                                      */
-    CPU_BOOLEAN  (*PortResetSet)    (USBH_HC_DRV           *p_hc_drv,
-                                     CPU_INT08U             port_nbr);
+    bool  (*PortResetSet)    (USBH_HC_DRV           *p_hc_drv,
+                                     uint8_t             port_nbr);
 
                                                                 /* Clear port reset change.                             */
-    CPU_BOOLEAN  (*PortResetChngClr)(USBH_HC_DRV           *p_hc_drv,
-                                     CPU_INT08U             port_nbr);
+    bool  (*PortResetChngClr)(USBH_HC_DRV           *p_hc_drv,
+                                     uint8_t             port_nbr);
 
                                                                 /* Clear port suspend.                                  */
-    CPU_BOOLEAN  (*PortSuspendClr)  (USBH_HC_DRV           *p_hc_drv,
-                                     CPU_INT08U             port_nbr);
+    bool  (*PortSuspendClr)  (USBH_HC_DRV           *p_hc_drv,
+                                     uint8_t             port_nbr);
 
                                                                 /* Clear port connection change.                        */
-    CPU_BOOLEAN  (*PortConnChngClr) (USBH_HC_DRV           *p_hc_drv,
-                                     CPU_INT08U             port_nbr);
+    bool  (*PortConnChngClr) (USBH_HC_DRV           *p_hc_drv,
+                                     uint8_t             port_nbr);
 
                                                                 /* Enable RH interrupt.                                 */
-    CPU_BOOLEAN  (*IntEn)           (USBH_HC_DRV           *p_hc_drv);
+    bool  (*IntEn)           (USBH_HC_DRV           *p_hc_drv);
 
                                                                 /* Disable RH interrupt.                                */
-    CPU_BOOLEAN  (*IntDis)          (USBH_HC_DRV           *p_hc_drv);
+    bool  (*IntDis)          (USBH_HC_DRV           *p_hc_drv);
 };
 
 
@@ -767,14 +767,14 @@ struct  usbh_hc_bsp_api {
 */
 
 typedef  struct  usbh_hub_desc {
-    CPU_INT08U  bDescLength;
-    CPU_INT08U  bDescriptorType;
-    CPU_INT08U  bNbrPorts;
-    CPU_INT16U  wHubCharacteristics;
-    CPU_INT08U  bPwrOn2PwrGood;
-    CPU_INT08U  bHubContrCurrent;
-    CPU_INT08U  DeviceRemovable;
-    CPU_INT32U  PortPwrCtrlMask[USBH_CFG_MAX_HUB_PORTS];
+    uint8_t  bDescLength;
+    uint8_t  bDescriptorType;
+    uint8_t  bNbrPorts;
+    uint16_t  wHubCharacteristics;
+    uint8_t  bPwrOn2PwrGood;
+    uint8_t  bHubContrCurrent;
+    uint8_t  DeviceRemovable;
+    uint32_t  PortPwrCtrlMask[USBH_CFG_MAX_HUB_PORTS];
 } USBH_HUB_DESC;
 
 
@@ -787,8 +787,8 @@ typedef  struct  usbh_hub_desc {
 */
 
 typedef  struct  usbh_hub_status {
-    CPU_INT16U  wHubStatus;
-    CPU_INT16U  wHubChange;
+    uint16_t  wHubStatus;
+    uint16_t  wHubChange;
 } USBH_HUB_STATUS;
 
 
@@ -801,11 +801,11 @@ typedef  struct  usbh_hub_status {
 */
 
 typedef  struct  usbh_setup_req {
-    CPU_INT08U  bmRequestType;
-    CPU_INT08U  bRequest;
-    CPU_INT16U  wValue;
-    CPU_INT16U  wIndex;
-    CPU_INT16U  wLength;
+    uint8_t  bmRequestType;
+    uint8_t  bRequest;
+    uint16_t  wValue;
+    uint16_t  wIndex;
+    uint16_t  wLength;
 } USBH_SETUP_REQ;
 
 
@@ -816,8 +816,8 @@ typedef  struct  usbh_setup_req {
 */
 
 typedef  struct  usbh_desc_hdr {
-    CPU_INT08U  bLength;
-    CPU_INT08U  bDescriptorType;
+    uint8_t  bLength;
+    uint8_t  bDescriptorType;
 } USBH_DESC_HDR;
 
 
@@ -830,20 +830,20 @@ typedef  struct  usbh_desc_hdr {
 */
 
 typedef  struct  usbh_dev_desc {
-    CPU_INT08U  bLength;
-    CPU_INT08U  bDescriptorType;
-    CPU_INT16U  bcdUSB;
-    CPU_INT08U  bDeviceClass;
-    CPU_INT08U  bDeviceSubClass;
-    CPU_INT08U  bDeviceProtocol;
-    CPU_INT08U  bMaxPacketSize0;
-    CPU_INT16U  idVendor;
-    CPU_INT16U  idProduct;
-    CPU_INT16U  bcdDevice;
-    CPU_INT08U  iManufacturer;
-    CPU_INT08U  iProduct;
-    CPU_INT08U  iSerialNumber;
-    CPU_INT08U  bNbrConfigurations;
+    uint8_t  bLength;
+    uint8_t  bDescriptorType;
+    uint16_t  bcdUSB;
+    uint8_t  bDeviceClass;
+    uint8_t  bDeviceSubClass;
+    uint8_t  bDeviceProtocol;
+    uint8_t  bMaxPacketSize0;
+    uint16_t  idVendor;
+    uint16_t  idProduct;
+    uint16_t  bcdDevice;
+    uint8_t  iManufacturer;
+    uint8_t  iProduct;
+    uint8_t  iSerialNumber;
+    uint8_t  bNbrConfigurations;
 } USBH_DEV_DESC;
 
 
@@ -856,15 +856,15 @@ typedef  struct  usbh_dev_desc {
 */
 
 typedef  struct  usbh_dev_qualifier_desc {
-    CPU_INT08U  bLength;
-    CPU_INT08U  bDescriptorType;
-    CPU_INT16U  bcdUSB;
-    CPU_INT08U  bDeviceClass;
-    CPU_INT08U  bDeviceSubClass;
-    CPU_INT08U  bDeviceProtocol;
-    CPU_INT08U  bMaxPacketSize0;
-    CPU_INT08U  bNbrConfigurations;
-    CPU_INT08U  bReserved;
+    uint8_t  bLength;
+    uint8_t  bDescriptorType;
+    uint16_t  bcdUSB;
+    uint8_t  bDeviceClass;
+    uint8_t  bDeviceSubClass;
+    uint8_t  bDeviceProtocol;
+    uint8_t  bMaxPacketSize0;
+    uint8_t  bNbrConfigurations;
+    uint8_t  bReserved;
 } USBH_DEV_QUALIFIER_DESC;
 
 
@@ -877,14 +877,14 @@ typedef  struct  usbh_dev_qualifier_desc {
 */
 
 typedef  struct  usbh_cfg_desc {
-    CPU_INT08U  bLength;
-    CPU_INT08U  bDescriptorType;
-    CPU_INT16U  wTotalLength;
-    CPU_INT08U  bNbrInterfaces;
-    CPU_INT08U  bConfigurationValue;
-    CPU_INT08U  iConfiguration;
-    CPU_INT08U  bmAttributes;
-    CPU_INT08U  bMaxPower;
+    uint8_t  bLength;
+    uint8_t  bDescriptorType;
+    uint16_t  wTotalLength;
+    uint8_t  bNbrInterfaces;
+    uint8_t  bConfigurationValue;
+    uint8_t  iConfiguration;
+    uint8_t  bmAttributes;
+    uint8_t  bMaxPower;
 } USBH_CFG_DESC;
 
 
@@ -897,14 +897,14 @@ typedef  struct  usbh_cfg_desc {
 */
 
 typedef  struct  usbh_other_spd_cfg_desc {
-    CPU_INT08U  bLength;
-    CPU_INT08U  bDescriptorType;
-    CPU_INT16U  wTotalLength;
-    CPU_INT08U  bNbrInterfaces;
-    CPU_INT08U  bConfigurationValue;
-    CPU_INT08U  iConfiguration;
-    CPU_INT08U  bmAttributes;
-    CPU_INT08U  bMaxPower;
+    uint8_t  bLength;
+    uint8_t  bDescriptorType;
+    uint16_t  wTotalLength;
+    uint8_t  bNbrInterfaces;
+    uint8_t  bConfigurationValue;
+    uint8_t  iConfiguration;
+    uint8_t  bmAttributes;
+    uint8_t  bMaxPower;
 } USBH_OTHER_SPD_CFG_DESC;
 
 
@@ -917,15 +917,15 @@ typedef  struct  usbh_other_spd_cfg_desc {
 */
 
 typedef  struct  usbh_if_desc {
-    CPU_INT08U  bLength;
-    CPU_INT08U  bDescriptorType;
-    CPU_INT08U  bInterfaceNumber;
-    CPU_INT08U  bAlternateSetting;
-    CPU_INT08U  bNbrEndpoints;
-    CPU_INT08U  bInterfaceClass;
-    CPU_INT08U  bInterfaceSubClass;
-    CPU_INT08U  bInterfaceProtocol;
-    CPU_INT08U  iInterface;
+    uint8_t  bLength;
+    uint8_t  bDescriptorType;
+    uint8_t  bInterfaceNumber;
+    uint8_t  bAlternateSetting;
+    uint8_t  bNbrEndpoints;
+    uint8_t  bInterfaceClass;
+    uint8_t  bInterfaceSubClass;
+    uint8_t  bInterfaceProtocol;
+    uint8_t  iInterface;
 } USBH_IF_DESC;
 
 
@@ -938,14 +938,14 @@ typedef  struct  usbh_if_desc {
 */
 
 typedef  struct  usbh_if_association_desc {
-    CPU_INT08U  bLength;
-    CPU_INT08U  bDescriptorType;
-    CPU_INT08U  bFirstInterface;
-    CPU_INT08U  bInterfaceCount;
-    CPU_INT08U  bFunctionClass;
-    CPU_INT08U  bFunctionSubClass;
-    CPU_INT08U  bFunctionProtocol;
-    CPU_INT08U  iFunction;
+    uint8_t  bLength;
+    uint8_t  bDescriptorType;
+    uint8_t  bFirstInterface;
+    uint8_t  bInterfaceCount;
+    uint8_t  bFunctionClass;
+    uint8_t  bFunctionSubClass;
+    uint8_t  bFunctionProtocol;
+    uint8_t  iFunction;
 } USBH_IF_ASSOCIATION_DESC;
 
 
@@ -958,14 +958,14 @@ typedef  struct  usbh_if_association_desc {
 */
 
 typedef  struct  usbh_ep_desc {
-    CPU_INT08U  bLength;
-    CPU_INT08U  bDescriptorType;
-    CPU_INT08U  bEndpointAddress;
-    CPU_INT08U  bmAttributes;
-    CPU_INT16U  wMaxPacketSize;
-    CPU_INT08U  bInterval;
-    CPU_INT08U  bRefresh;
-    CPU_INT08U  bSynchAddress;
+    uint8_t  bLength;
+    uint8_t  bDescriptorType;
+    uint8_t  bEndpointAddress;
+    uint8_t  bmAttributes;
+    uint16_t  wMaxPacketSize;
+    uint8_t  bInterval;
+    uint8_t  bRefresh;
+    uint8_t  bSynchAddress;
 } USBH_EP_DESC;
 
 
@@ -978,9 +978,9 @@ typedef  struct  usbh_ep_desc {
 */
 
 typedef  struct  usbh_otg_desc {
-    CPU_INT08U  bLength;
-    CPU_INT08U  bDescriptorType;
-    CPU_INT08U  bmAttributes;
+    uint8_t  bLength;
+    uint8_t  bDescriptorType;
+    uint8_t  bmAttributes;
 } USBH_OTG_DESC;
 
 
@@ -991,11 +991,11 @@ typedef  struct  usbh_otg_desc {
 */
 
 typedef  struct  usbh_isoc_desc {
-    CPU_INT08U  *BufPtr;
-    CPU_INT32U   BufLen;
-    CPU_INT32U   StartFrm;
-    CPU_INT32U   NbrFrm;
-    CPU_INT16U  *FrmLen;
+    uint8_t  *BufPtr;
+    uint32_t   BufLen;
+    uint32_t   StartFrm;
+    uint32_t   NbrFrm;
+    uint16_t  *FrmLen;
     USBH_ERR    *FrmErr;
 } USBH_ISOC_DESC;
 
@@ -1007,15 +1007,15 @@ typedef  struct  usbh_isoc_desc {
 */
 
 struct  usbh_urb {
-              CPU_REG08        State;                           /* State of URB.                                        */
+              volatile uint8_t        State;                           /* State of URB.                                        */
               USBH_EP         *EP_Ptr;                          /* EP the urb belongs to.                               */
     volatile  USBH_ERR         Err;                             /* The status of URB completion.                        */
 
               void            *UserBufPtr;                      /* Ptr to buf supplied by app.                          */
-              CPU_INT32U       UserBufLen;                      /* Buf len in bytes.                                    */
+              uint32_t       UserBufLen;                      /* Buf len in bytes.                                    */
               void            *DMA_BufPtr;                      /* DMA buf ptr used by DMA HW.                          */
-              CPU_INT32U       DMA_BufLen;                      /* DMA buf len.                                         */
-              CPU_INT32U       XferLen;                         /* Actual len xfer'd by ctrlr.                          */
+              uint32_t       DMA_BufLen;                      /* DMA buf len.                                         */
+              uint32_t       XferLen;                         /* Actual len xfer'd by ctrlr.                          */
 
               USBH_ISOC_DESC  *IsocDescPtr;                     /* Isoc xfer desc.                                      */
 
@@ -1026,7 +1026,7 @@ struct  usbh_urb {
 
               USBH_TOKEN       Token;                           /* Token (SETUP, IN, or OUT).                           */
 
-              CPU_BOOLEAN      URB_DoneSignal;
+              bool      URB_DoneSignal;
               USBH_URB        *AsyncURB_NxtPtr;                 /* Ptr to next URB (if any).                            */
               USBH_URB        *NxtPtr;                          /* Used for URB chained list in async task.             */
 
@@ -1042,17 +1042,17 @@ struct  usbh_urb {
 
 struct  usbh_ep {
     USBH_DEV_SPD   DevSpd;                                      /* USB dev spd.                                         */
-    CPU_INT08U     DevAddr;                                     /* USB dev addr.                                        */
+    uint8_t     DevAddr;                                     /* USB dev addr.                                        */
     USBH_DEV      *DevPtr;                                      /* Ptr to USB dev struct.                               */
     USBH_EP_DESC   Desc;                                        /* EP desc.                                             */
-    CPU_INT16U     Interval;                                    /* EP interval.                                         */
-    CPU_INT32U     HC_RefFrame;                                 /* Initial HC ref frame nbr.                            */
+    uint16_t     Interval;                                    /* EP interval.                                         */
+    uint32_t     HC_RefFrame;                                 /* Initial HC ref frame nbr.                            */
     void          *ArgPtr;                                      /* HCD private data.                                    */
     USBH_URB       URB;                                         /* URB used for data xfer on this endpoint.             */
     USBH_HMUTEX    Mutex;                                       /* Mutex for I/O access serialization on this EP.       */
-    CPU_BOOLEAN    IsOpen;                                      /* EP state.                                            */
-    CPU_INT32U     XferNbrInProgress;                           /* Nbr of URB(s) in progress. Used for async omm.       */
-    CPU_INT08U     DataPID;                                     /* EP Data Toggle PID tracker.                          */
+    bool    IsOpen;                                      /* EP state.                                            */
+    uint32_t     XferNbrInProgress;                           /* Nbr of URB(s) in progress. Used for async omm.       */
+    uint8_t     DataPID;                                     /* EP Data Toggle PID tracker.                          */
 };
 
 
@@ -1064,11 +1064,11 @@ struct  usbh_ep {
 
 struct  usbh_if {
     USBH_DEV            *DevPtr;                                /* Ptr to USB dev.                                      */
-    CPU_INT08U           AltIxSel;                              /* Selected alternate setting ix.                       */
+    uint8_t           AltIxSel;                              /* Selected alternate setting ix.                       */
     void                *ClassDevPtr;                           /* Ptr to class dev created by class drv.               */
     USBH_CLASS_DRV_REG  *ClassDrvRegPtr;                        /* Ptr to class drv registered for this IF.             */
-    CPU_INT08U          *IF_DataPtr;                            /* Buf pointer containing IF data.                      */
-    CPU_INT16U           IF_DataLen;                            /* Buf len.                                             */
+    uint8_t          *IF_DataPtr;                            /* Buf pointer containing IF data.                      */
+    uint16_t           IF_DataLen;                            /* Buf len.                                             */
 };
 
 
@@ -1079,8 +1079,8 @@ struct  usbh_if {
 */
 
 struct  usbh_cfg {
-    CPU_INT08U  CfgData[USBH_CFG_MAX_CFG_DATA_LEN];             /* Buf containing cfg desc data.                        */
-    CPU_INT16U  CfgDataLen;                                     /* Cfg desc data len.                                   */
+    uint8_t  CfgData[USBH_CFG_MAX_CFG_DATA_LEN];             /* Buf containing cfg desc data.                        */
+    uint16_t  CfgDataLen;                                     /* Cfg desc data len.                                   */
     USBH_IF     IF_List[USBH_CFG_MAX_NBR_IFS];                  /* Device IFs.                                          */
 };
 
@@ -1093,19 +1093,19 @@ struct  usbh_cfg {
 
 struct  usbh_dev {
     USBH_HC             *HC_Ptr;                                /* Ptr to HC struct.                                    */
-    CPU_INT08U           DevAddr;                               /* USB dev addr assigned by host.                       */
+    uint8_t           DevAddr;                               /* USB dev addr assigned by host.                       */
     USBH_DEV_SPD         DevSpd;                                /* Dev spd (low, full or high).                         */
     USBH_EP              DfltEP;                                /* Dflt ctrl EP.                                        */
     USBH_HMUTEX          DfltEP_Mutex;                          /* Dev dflt EP mutex.                                   */
-    CPU_INT16U           LangID;                                /* Language ID used by the str desc.                    */
+    uint16_t           LangID;                                /* Language ID used by the str desc.                    */
     void                *ClassDevPtr;                           /* Ptr to class dev created by class drv.               */
     USBH_CLASS_DRV_REG  *ClassDrvRegPtr;                        /* Ptr to class drv managing this dev.                  */
-    CPU_INT08U           DevDesc[USBH_LEN_DESC_DEV];            /* Dev desc.                                            */
+    uint8_t           DevDesc[USBH_LEN_DESC_DEV];            /* Dev desc.                                            */
     USBH_CFG             CfgList[USBH_CFG_MAX_NBR_CFGS];        /* Dev cfg.                                             */
-    CPU_INT08U           SelCfg;                                /* Selected dev cfg nbr.                                */
+    uint8_t           SelCfg;                                /* Selected dev cfg nbr.                                */
     USBH_DEV            *HubDevPtr;                             /* Ptr to up stream hub dev struct.                     */
-    CPU_INT32U           PortNbr;                               /* Port nbr to which this dev is connected.             */
-    CPU_BOOLEAN          IsRootHub;                             /* Indicate if this is a RH dev.                        */
+    uint32_t           PortNbr;                               /* Port nbr to which this dev is connected.             */
+    bool          IsRootHub;                             /* Indicate if this is a RH dev.                        */
     USBH_HUB_DEV        *HubHS_Ptr;                             /* Ptr to prev HS Hub.                                  */
 };
 
@@ -1122,12 +1122,12 @@ struct  usbh_hub_dev {
     USBH_DEV       *DevPtrList[USBH_CFG_MAX_HUB_PORTS];         /* Ptrs to USB devs connected to this hub.              */
     USBH_DEV       *DevPtr;                                     /* USB dev ptr of the hub IF.                           */
     USBH_IF        *IF_Ptr;                                     /* HUB IF ptr.                                          */
-    CPU_INT08U      HubIntrBuf[64];                             /* Buf to recv hub events.                              */
-    CPU_INT32U      ErrCnt;
-    CPU_INT08U      State;
-    CPU_INT08U      RefCnt;
+    uint8_t      HubIntrBuf[64];                             /* Buf to recv hub events.                              */
+    uint32_t      ErrCnt;
+    uint8_t      State;
+    uint8_t      RefCnt;
     USBH_HUB_DEV   *NxtPtr;
-    CPU_INT08U      ConnCnt;                                    /* Re-connection counter                                */
+    uint8_t      ConnCnt;                                    /* Re-connection counter                                */
 };
 
 
@@ -1138,7 +1138,7 @@ struct  usbh_hub_dev {
 */
 
 struct  usbh_hc_drv {
-    CPU_INT08U        Nbr;                                      /* HC nbr.                                              */
+    uint8_t        Nbr;                                      /* HC nbr.                                              */
     void             *DataPtr;                                  /* Drv's data.                                          */
     USBH_DEV         *RH_DevPtr;                                /* Ptr to RH dev struct.                                */
     USBH_HC_CFG      *HC_CfgPtr;                                /* Ptr to HC config struct.                             */
@@ -1157,12 +1157,12 @@ struct  usbh_hc_drv {
 struct  usbh_hc_cfg {
     CPU_ADDR     BaseAddr;                                      /* HC reg's base addr.                                  */
     CPU_ADDR     DedicatedMemAddr;                              /* Start addr of HC's dedicated mem.                    */
-    CPU_INT32U   DedicatedMemSize;                              /* Size of HC's dedicated mem.                          */
-    CPU_BOOLEAN  DataBufFromSysMemEn;                           /* Indicate if HC can access sys mem.                   */
-    CPU_INT32U   DataBufMaxLen;                                 /* Max len of data buf.                                 */
-    CPU_INT32U   MaxNbrEP_BulkOpen;                             /* Max nbr of opened bulk EP.                           */
-    CPU_INT32U   MaxNbrEP_IntrOpen;                             /* Max nbr of opened intr EP.                           */
-    CPU_INT32U   MaxNbrEP_IsocOpen;                             /* Max nbr of opened isoc EP.                           */
+    uint32_t   DedicatedMemSize;                              /* Size of HC's dedicated mem.                          */
+    bool  DataBufFromSysMemEn;                           /* Indicate if HC can access sys mem.                   */
+    uint32_t   DataBufMaxLen;                                 /* Max len of data buf.                                 */
+    uint32_t   MaxNbrEP_BulkOpen;                             /* Max nbr of opened bulk EP.                           */
+    uint32_t   MaxNbrEP_IntrOpen;                             /* Max nbr of opened intr EP.                           */
+    uint32_t   MaxNbrEP_IsocOpen;                             /* Max nbr of opened isoc EP.                           */
 };
 
 
@@ -1177,7 +1177,7 @@ struct usbh_hc {
     USBH_HOST     *HostPtr;                                     /* Host structure.                                      */
     USBH_HUB_DEV  *RH_ClassDevPtr;                              /* Root Hub class device pointer.                       */
     USBH_HMUTEX    HCD_Mutex;                                   /* Mutex to sync access to HCD.                         */
-    CPU_BOOLEAN    IsVirRootHub;                                /* Indicate if RH is virtual.                           */
+    bool    IsVirRootHub;                                /* Indicate if RH is virtual.                           */
 };
 
 
@@ -1197,7 +1197,7 @@ struct  usbh_host {
     MEM_POOL         AsyncURB_Pool;                             /* Pool of extra URB when using async comm.             */
 
     USBH_HC          HC_Tbl[USBH_CFG_MAX_NBR_HC];               /* Array of HC structs.                                 */
-    CPU_INT08U       HC_NbrNext;
+    uint8_t       HC_NbrNext;
 
     USBH_HTASK       HAsyncTask;                                /* Async task handle.                                   */
     USBH_HTASK       HHubTask;                                  /* Hub event task handle.                               */
@@ -1211,9 +1211,9 @@ struct  usbh_host {
 */
 
 typedef  const  struct  usbh_kernel_task_info {
-    CPU_INT32U   Prio;
+    uint32_t   Prio;
     void        *StackPtr;
-    CPU_INT32U   StackSize;
+    uint32_t   StackSize;
 } USBH_KERNEL_TASK_INFO;
 
 
@@ -1224,20 +1224,20 @@ typedef  const  struct  usbh_kernel_task_info {
 */
 
 typedef  void  (*USBH_ISOC_CMPL_FNCT)(USBH_EP     *p_ep,
-                                      CPU_INT08U  *p_buf,
-                                      CPU_INT32U   buf_len,
-                                      CPU_INT32U   cur_xfer_len,
-                                      CPU_INT32U   start_frm,
-                                      CPU_INT32U   nbr_frm,
-                                      CPU_INT16U  *p_frm_len,
+                                      uint8_t  *p_buf,
+                                      uint32_t   buf_len,
+                                      uint32_t   cur_xfer_len,
+                                      uint32_t   start_frm,
+                                      uint32_t   nbr_frm,
+                                      uint16_t  *p_frm_len,
                                       USBH_ERR    *p_frm_err,
                                       void        *p_arg,
                                       USBH_ERR     err);
 
 typedef  void  (*USBH_XFER_CMPL_FNCT)(USBH_EP     *p_ep,
                                       void        *p_buf,
-                                      CPU_INT32U   buf_len,
-                                      CPU_INT32U   xfer_len,
+                                      uint32_t   buf_len,
+                                      uint32_t   xfer_len,
                                       void        *p_arg,
                                       USBH_ERR     err);
 
@@ -1360,7 +1360,7 @@ typedef  void  (*USBH_XFER_CMPL_FNCT)(USBH_EP     *p_ep,
 */
 
                                                                 /* --------- USB HOST STACK GENERAL FUNCTIONS --------- */
-CPU_INT32U      USBH_VersionGet       (void);
+uint32_t      USBH_VersionGet       (void);
 
 USBH_ERR        USBH_Init             (USBH_KERNEL_TASK_INFO  *async_task_info,
                                        USBH_KERNEL_TASK_INFO  *hub_task_info);
@@ -1370,23 +1370,23 @@ USBH_ERR        USBH_Suspend          (void);
 USBH_ERR        USBH_Resume           (void);
 
                                                                 /* ------------ HOST CONTROLLER FUNCTIONS ------------- */
-CPU_INT08U      USBH_HC_Add           (USBH_HC_CFG            *p_hc_cfg,
+uint8_t      USBH_HC_Add           (USBH_HC_CFG            *p_hc_cfg,
                                        USBH_HC_DRV_API        *p_drv_api,
                                        USBH_HC_RH_API         *p_hc_rh_api,
                                        USBH_HC_BSP_API        *p_hc_bsp_api,
                                        USBH_ERR               *p_err);
 
-USBH_ERR        USBH_HC_Start         (CPU_INT08U              hc_nbr);
+USBH_ERR        USBH_HC_Start         (uint8_t              hc_nbr);
 
-USBH_ERR        USBH_HC_Stop          (CPU_INT08U              hc_nbr);
+USBH_ERR        USBH_HC_Stop          (uint8_t              hc_nbr);
 
-USBH_ERR        USBH_HC_PortEn        (CPU_INT08U              hc_nbr,
-                                       CPU_INT08U              port_nbr);
+USBH_ERR        USBH_HC_PortEn        (uint8_t              hc_nbr,
+                                       uint8_t              port_nbr);
 
-USBH_ERR        USBH_HC_PortDis       (CPU_INT08U              hc_nbr,
-                                       CPU_INT08U              port_nbr);
+USBH_ERR        USBH_HC_PortDis       (uint8_t              hc_nbr,
+                                       uint8_t              port_nbr);
 
-CPU_INT32U      USBH_HC_FrameNbrGet   (CPU_INT08U              hc_nbr,
+uint32_t      USBH_HC_FrameNbrGet   (uint8_t              hc_nbr,
                                        USBH_ERR               *p_err);
 
                                                                 /* ------------- DEVICE CONTROL FUNCTIONS ------------- */
@@ -1394,19 +1394,19 @@ USBH_ERR        USBH_DevConn          (USBH_DEV               *p_dev);
 
 void            USBH_DevDisconn       (USBH_DEV               *p_dev);
 
-CPU_INT08U      USBH_DevCfgNbrGet     (USBH_DEV               *p_dev);
+uint8_t      USBH_DevCfgNbrGet     (USBH_DEV               *p_dev);
 
 void            USBH_DevDescGet       (USBH_DEV               *p_dev,
                                        USBH_DEV_DESC          *p_dev_desc);
 
                                                                 /* ---------- DEVICE CONFIGURATION FUNCTIONS ---------- */
 USBH_ERR        USBH_CfgSet           (USBH_DEV               *p_dev,
-                                       CPU_INT08U              cfg_nbr);
+                                       uint8_t              cfg_nbr);
 
 USBH_CFG       *USBH_CfgGet           (USBH_DEV               *p_dev,
-                                       CPU_INT08U              cfg_ix);
+                                       uint8_t              cfg_ix);
 
-CPU_INT08U      USBH_CfgIF_NbrGet     (USBH_CFG               *p_cfg);
+uint8_t      USBH_CfgIF_NbrGet     (USBH_CFG               *p_cfg);
 
 USBH_ERR        USBH_CfgDescGet       (USBH_CFG               *p_cfg,
                                        USBH_CFG_DESC          *p_cfg_desc);
@@ -1416,25 +1416,25 @@ USBH_DESC_HDR  *USBH_CfgExtraDescGet  (USBH_CFG               *p_cfg,
 
                                                                 /* -------- DEVICE INTERFACE CONTROL FUNCTIONS -------- */
 USBH_ERR        USBH_IF_Set           (USBH_IF                *p_if,
-                                       CPU_INT08U              alt_nbr);
+                                       uint8_t              alt_nbr);
 
 USBH_IF        *USBH_IF_Get           (USBH_CFG               *p_cfg,
-                                       CPU_INT08U              if_ix);
+                                       uint8_t              if_ix);
 
-CPU_INT08U      USBH_IF_AltNbrGet     (USBH_IF                *p_if);
+uint8_t      USBH_IF_AltNbrGet     (USBH_IF                *p_if);
 
-CPU_INT08U      USBH_IF_NbrGet        (USBH_IF                *p_if);
+uint8_t      USBH_IF_NbrGet        (USBH_IF                *p_if);
 
-CPU_INT08U      USBH_IF_EP_NbrGet     (USBH_IF                *p_if,
-                                       CPU_INT08U              alt_ix);
+uint8_t      USBH_IF_EP_NbrGet     (USBH_IF                *p_if,
+                                       uint8_t              alt_ix);
 
 USBH_ERR        USBH_IF_DescGet       (USBH_IF                *p_if,
-                                       CPU_INT08U              alt_ix,
+                                       uint8_t              alt_ix,
                                        USBH_IF_DESC           *p_if_desc);
 
-CPU_INT08U     *USBH_IF_ExtraDescGet  (USBH_IF                *p_if,
-                                       CPU_INT08U              alt_ix,
-                                       CPU_INT16U             *p_data_len);
+uint8_t     *USBH_IF_ExtraDescGet  (USBH_IF                *p_if,
+                                       uint8_t              alt_ix,
+                                       uint16_t             *p_data_len);
 
                                                                 /* ---------- DEVICE ENDPOINT OPEN FUNCTIONS ---------- */
 USBH_ERR        USBH_BulkInOpen       (USBH_DEV               *p_dev,
@@ -1462,126 +1462,126 @@ USBH_ERR        USBH_IsocOutOpen      (USBH_DEV               *p_dev,
                                        USBH_EP                *p_ep);
 
                                                                 /* -------- DEVICE ENDPOINT TRANSFER FUNCTIONS -------- */
-CPU_INT16U      USBH_CtrlTx           (USBH_DEV               *p_dev,
-                                       CPU_INT08U              b_req,
-                                       CPU_INT08U              bm_req_type,
-                                       CPU_INT16U              w_val,
-                                       CPU_INT16U              w_ix,
+uint16_t      USBH_CtrlTx           (USBH_DEV               *p_dev,
+                                       uint8_t              b_req,
+                                       uint8_t              bm_req_type,
+                                       uint16_t              w_val,
+                                       uint16_t              w_ix,
                                        void                   *p_data,
-                                       CPU_INT16U              w_len,
-                                       CPU_INT32U              timeout_ms,
+                                       uint16_t              w_len,
+                                       uint32_t              timeout_ms,
                                        USBH_ERR               *p_err);
 
-CPU_INT16U      USBH_CtrlRx           (USBH_DEV               *p_dev,
-                                       CPU_INT08U              b_req,
-                                       CPU_INT08U              bm_req_type,
-                                       CPU_INT16U              w_val,
-                                       CPU_INT16U              w_ix,
+uint16_t      USBH_CtrlRx           (USBH_DEV               *p_dev,
+                                       uint8_t              b_req,
+                                       uint8_t              bm_req_type,
+                                       uint16_t              w_val,
+                                       uint16_t              w_ix,
                                        void                   *p_data,
-                                       CPU_INT16U              w_len,
-                                       CPU_INT32U              timeout_ms,
+                                       uint16_t              w_len,
+                                       uint32_t              timeout_ms,
                                        USBH_ERR               *p_err);
 
-CPU_INT32U      USBH_BulkTx           (USBH_EP                *p_ep,
+uint32_t      USBH_BulkTx           (USBH_EP                *p_ep,
                                        void                   *p_buf,
-                                       CPU_INT32U              buf_len,
-                                       CPU_INT32U              timeout_ms,
+                                       uint32_t              buf_len,
+                                       uint32_t              timeout_ms,
                                        USBH_ERR               *p_err);
 
 USBH_ERR        USBH_BulkTxAsync      (USBH_EP                *p_ep,
                                        void                   *p_buf,
-                                       CPU_INT32U              buf_len,
+                                       uint32_t              buf_len,
                                        USBH_XFER_CMPL_FNCT     fnct,
                                        void                   *p_fnct_arg);
 
-CPU_INT32U      USBH_BulkRx           (USBH_EP                *p_ep,
+uint32_t      USBH_BulkRx           (USBH_EP                *p_ep,
                                        void                   *p_buf,
-                                       CPU_INT32U              buf_len,
-                                       CPU_INT32U              timeout_ms,
+                                       uint32_t              buf_len,
+                                       uint32_t              timeout_ms,
                                        USBH_ERR               *p_err);
 
 USBH_ERR        USBH_BulkRxAsync      (USBH_EP                *p_ep,
                                        void                   *p_buf,
-                                       CPU_INT32U              buf_len,
+                                       uint32_t              buf_len,
                                        USBH_XFER_CMPL_FNCT     fnct,
                                        void                   *p_fnct_arg);
 
-CPU_INT32U      USBH_IntrTx           (USBH_EP                *p_ep,
+uint32_t      USBH_IntrTx           (USBH_EP                *p_ep,
                                        void                   *p_buf,
-                                       CPU_INT32U              buf_len,
-                                       CPU_INT32U              timeout_ms,
+                                       uint32_t              buf_len,
+                                       uint32_t              timeout_ms,
                                        USBH_ERR               *p_err);
 
 USBH_ERR        USBH_IntrTxAsync      (USBH_EP                *p_ep,
                                        void                   *p_buf,
-                                       CPU_INT32U              buf_len,
+                                       uint32_t              buf_len,
                                        USBH_XFER_CMPL_FNCT     fnct,
                                        void                   *p_fnct_arg);
 
-CPU_INT32U      USBH_IntrRx           (USBH_EP                *p_ep,
+uint32_t      USBH_IntrRx           (USBH_EP                *p_ep,
                                        void                   *p_buf,
-                                       CPU_INT32U              buf_len,
-                                       CPU_INT32U              timeout_ms,
+                                       uint32_t              buf_len,
+                                       uint32_t              timeout_ms,
                                        USBH_ERR               *p_err);
 
 USBH_ERR        USBH_IntrRxAsync      (USBH_EP                *p_ep,
                                        void                   *p_buf,
-                                       CPU_INT32U              buf_len,
+                                       uint32_t              buf_len,
                                        USBH_XFER_CMPL_FNCT     fnct,
                                        void                   *p_fnct_arg);
 
-CPU_INT32U      USBH_IsocTx           (USBH_EP                *p_ep,
-                                       CPU_INT08U             *p_buf,
-                                       CPU_INT32U              buf_len,
-                                       CPU_INT32U              start_frm,
-                                       CPU_INT32U              nbr_frm,
-                                       CPU_INT16U             *p_frm_len,
+uint32_t      USBH_IsocTx           (USBH_EP                *p_ep,
+                                       uint8_t             *p_buf,
+                                       uint32_t              buf_len,
+                                       uint32_t              start_frm,
+                                       uint32_t              nbr_frm,
+                                       uint16_t             *p_frm_len,
                                        USBH_ERR               *p_frm_err,
-                                       CPU_INT32U              timeout_ms,
+                                       uint32_t              timeout_ms,
                                        USBH_ERR               *p_err);
 
 USBH_ERR        USBH_IsocTxAsync      (USBH_EP                *p_ep,
-                                       CPU_INT08U             *p_buf,
-                                       CPU_INT32U              buf_len,
-                                       CPU_INT32U              start_frm,
-                                       CPU_INT32U              nbr_frm,
-                                       CPU_INT16U             *p_frm_len,
+                                       uint8_t             *p_buf,
+                                       uint32_t              buf_len,
+                                       uint32_t              start_frm,
+                                       uint32_t              nbr_frm,
+                                       uint16_t             *p_frm_len,
                                        USBH_ERR               *p_frm_err,
                                        USBH_ISOC_CMPL_FNCT     fnct,
                                        void                   *p_fnct_arg);
 
-CPU_INT32U      USBH_IsocRx           (USBH_EP                *p_ep,
-                                       CPU_INT08U             *p_buf,
-                                       CPU_INT32U              buf_len,
-                                       CPU_INT32U              start_frm,
-                                       CPU_INT32U              nbr_frm,
-                                       CPU_INT16U             *p_frm_len,
+uint32_t      USBH_IsocRx           (USBH_EP                *p_ep,
+                                       uint8_t             *p_buf,
+                                       uint32_t              buf_len,
+                                       uint32_t              start_frm,
+                                       uint32_t              nbr_frm,
+                                       uint16_t             *p_frm_len,
                                        USBH_ERR               *p_frm_err,
-                                       CPU_INT32U              timeout_ms,
+                                       uint32_t              timeout_ms,
                                        USBH_ERR               *p_err);
 
 USBH_ERR        USBH_IsocRxAsync      (USBH_EP                *p_ep,
-                                       CPU_INT08U             *p_buf,
-                                       CPU_INT32U              buf_len,
-                                       CPU_INT32U              start_frm,
-                                       CPU_INT32U              nbr_frm,
-                                       CPU_INT16U             *p_frm_len,
+                                       uint8_t             *p_buf,
+                                       uint32_t              buf_len,
+                                       uint32_t              start_frm,
+                                       uint32_t              nbr_frm,
+                                       uint16_t             *p_frm_len,
                                        USBH_ERR               *p_frm_err,
                                        USBH_ISOC_CMPL_FNCT     fnct,
                                        void                   *p_fnct_arg);
 
                                                                 /* ------------ DEVICE ENDPOINT FUNCTIONS ------------- */
-CPU_INT08U      USBH_EP_LogNbrGet     (USBH_EP                *p_ep);
+uint8_t      USBH_EP_LogNbrGet     (USBH_EP                *p_ep);
 
-CPU_INT08U      USBH_EP_DirGet        (USBH_EP                *p_ep);
+uint8_t      USBH_EP_DirGet        (USBH_EP                *p_ep);
 
-CPU_INT16U      USBH_EP_MaxPktSizeGet (USBH_EP                *p_ep);
+uint16_t      USBH_EP_MaxPktSizeGet (USBH_EP                *p_ep);
 
-CPU_INT08U      USBH_EP_TypeGet       (USBH_EP                *p_ep);
+uint8_t      USBH_EP_TypeGet       (USBH_EP                *p_ep);
 
 USBH_ERR        USBH_EP_Get           (USBH_IF                *p_if,
-                                       CPU_INT08U              alt_ix,
-                                       CPU_INT08U              ep_ix,
+                                       uint8_t              alt_ix,
+                                       uint8_t              ep_ix,
                                        USBH_EP                *p_ep);
 
 USBH_ERR        USBH_EP_StallSet      (USBH_EP                *p_ep);
@@ -1599,11 +1599,11 @@ void            USBH_URB_Done         (USBH_URB               *p_urb);
 USBH_ERR        USBH_URB_Complete     (USBH_URB               *p_urb);
 
                                                                 /* ------------- MISCELLENEOUS FUNCTIONS -------------- */
-CPU_INT32U      USBH_StrGet           (USBH_DEV               *p_dev,
-                                       CPU_INT08U              desc_ix,
-                                       CPU_INT16U              lang_id,
-                                       CPU_INT08U             *p_buf,
-                                       CPU_INT32U              buf_len,
+uint32_t      USBH_StrGet           (USBH_DEV               *p_dev,
+                                       uint8_t              desc_ix,
+                                       uint16_t              lang_id,
+                                       uint8_t             *p_buf,
+                                       uint32_t              buf_len,
                                        USBH_ERR               *p_err);
 
 

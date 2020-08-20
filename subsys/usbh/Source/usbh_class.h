@@ -94,7 +94,7 @@
 
 struct usbh_class_drv
 {
-    CPU_INT08U *NamePtr; /* Name of the class driver.                            */
+    uint8_t *NamePtr; /* Name of the class driver.                            */
 
     void (*GlobalInit)(USBH_ERR *p_err); /* Global initialization function.                      */
 
@@ -119,7 +119,7 @@ struct usbh_class_drv
 */
 
 typedef void (*USBH_CLASS_NOTIFY_FNCT)(void *p_class_dev,
-                                       CPU_INT08U is_conn,
+                                       uint8_t is_conn,
                                        void *p_ctx);
 
 /*
@@ -133,7 +133,7 @@ struct usbh_class_drv_reg
     USBH_CLASS_DRV *ClassDrvPtr;          /* Class driver structure                               */
     USBH_CLASS_NOTIFY_FNCT NotifyFnctPtr; /* Called when device connection status changes         */
     void *NotifyArgPtr;                   /* Context of the notification funtion                  */
-    CPU_INT08U InUse;
+    uint8_t InUse;
 };
 
 /*

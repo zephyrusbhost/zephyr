@@ -116,9 +116,9 @@ typedef  struct  usbh_ftdi_fnct {
     USBH_EP                   BulkInEP;                         /* Bulk IN EP.                                          */
     USBH_EP                   BulkOutEP;                        /* Bulk OUT EP.                                         */
 
-    CPU_INT08U                Port;                             /* Holds cur port.                                      */
-    CPU_INT08U                State;                            /* Holds cur dev state.                                 */
-    CPU_INT32U                MaxPktSize;                       /* Holds max pkt size.                                  */
+    uint8_t                Port;                             /* Holds cur port.                                      */
+    uint8_t                State;                            /* Holds cur dev state.                                 */
+    uint32_t                MaxPktSize;                       /* Holds max pkt size.                                  */
 
     USBH_HMUTEX               RxHMutex;                         /* Handle on RX mutex.                                  */
 
@@ -128,9 +128,9 @@ typedef  struct  usbh_ftdi_fnct {
     void                     *DataRxNotifyArgPtr;               /* Ptr to RX notify arg.                                */
     void                     *DataRxBuf;                        /* Ptr to data RX buf.                                  */
     USBH_FTDI_SERIAL_STATUS  *SerialStatusPtr;                  /* Ptr to serial status.                                */
-    CPU_INT32U                RxBufLen;                         /* Size of RX buf.                                      */
-    CPU_INT32U                XferLen;                          /* Tot len of data rx'd in octets.                      */
-    CPU_INT16U                LastBytes;                        /* Last two bytes of last RX pkt.                       */
+    uint32_t                RxBufLen;                         /* Size of RX buf.                                      */
+    uint32_t                XferLen;                          /* Tot len of data rx'd in octets.                      */
+    uint16_t                LastBytes;                        /* Last two bytes of last RX pkt.                       */
 } USBH_FTDI_FNCT;
 
 
@@ -167,7 +167,7 @@ static  USBH_FTDI_FNCT   USBH_FTDI_DevTbl[USBH_FTDI_CFG_MAX_DEV];
 static  MEM_POOL         USBH_FTDI_DevPool;
 
 static  USBH_DEV        *USBH_FTDI_DevPtrPrev;                  /* Last conn'd dev addr.                                */
-static  CPU_INT08U       USBH_FTDI_PortCnt;                     /* Cnt nbr of port of a dev.                            */
+static  uint8_t       USBH_FTDI_PortCnt;                     /* Cnt nbr of port of a dev.                            */
 
 
 /*
@@ -176,7 +176,7 @@ static  CPU_INT08U       USBH_FTDI_PortCnt;                     /* Cnt nbr of po
 *********************************************************************************************************
 */
 
-#define  USBH_FTDI_HANDLE_IX_GET(ftdi_handle)        ((CPU_INT08U)ftdi_handle);
+#define  USBH_FTDI_HANDLE_IX_GET(ftdi_handle)        ((uint8_t)ftdi_handle);
 
 
 /*
@@ -198,7 +198,7 @@ static  void   USBH_FTDI_Resume        (void              *p_class_dev);
 static  void   USBH_FTDI_Disconn       (void              *p_class_dev);
 
 static  void   USBH_FTDI_ClassDevNotify(void              *p_class_dev,
-                                        CPU_INT08U         state,
+                                        uint8_t         state,
                                         void              *p_ctx);
 
 
@@ -209,22 +209,22 @@ static  void   USBH_FTDI_ClassDevNotify(void              *p_class_dev,
 */
 
 static  void   USBH_FTDI_StdReq        (USBH_FTDI_HANDLE   ftdi_handle,
-                                        CPU_INT08U         request,
-                                        CPU_INT16U         value,
-                                        CPU_INT08U         index,
+                                        uint8_t         request,
+                                        uint16_t         value,
+                                        uint8_t         index,
                                         USBH_ERR          *p_err);
 
 static  void   USBH_FTDI_DataTxCmpl    (USBH_EP           *p_ep,
                                         void              *p_buf,
-                                        CPU_INT32U         buf_len,
-                                        CPU_INT32U         xfer_len,
+                                        uint32_t         buf_len,
+                                        uint32_t         xfer_len,
                                         void              *p_arg,
                                         USBH_ERR           err);
 
 static  void   USBH_FTDI_DataRxCmpl    (USBH_EP           *p_ep,
                                         void              *p_buf,
-                                        CPU_INT32U         buf_len,
-                                        CPU_INT32U         xfer_len,
+                                        uint32_t         buf_len,
+                                        uint32_t         xfer_len,
                                         void              *p_arg,
                                         USBH_ERR           err);
 
@@ -243,13 +243,13 @@ static  void   USBH_FTDI_DataRxCmpl    (USBH_EP           *p_ep,
 */
 
 static  USBH_CLASS_DRV  USBH_FTDI_ClassDrv = {
-    (CPU_INT08U *)"FTDI",
-                   USBH_FTDI_GlobalInit,
-                   0,
-                   USBH_FTDI_ProbeIF,
-                   USBH_FTDI_Suspend,
-                   USBH_FTDI_Resume,
-                   USBH_FTDI_Disconn
+    (uint8_t *)"FTDI",
+    USBH_FTDI_GlobalInit,
+    0,
+    USBH_FTDI_ProbeIF,
+    USBH_FTDI_Suspend,
+    USBH_FTDI_Resume,
+    USBH_FTDI_Disconn
 };
 
 
@@ -293,7 +293,7 @@ void  USBH_FTDI_Init (USBH_FTDI_CALLBACKS  *p_ftdi_callbacks,
                       USBH_ERR             *p_err)
 {
     CPU_SIZE_T  octets_reqd;
-    CPU_INT08U  ix;
+    uint8_t  ix;
     LIB_ERR     err_lib;
 
 
@@ -362,7 +362,7 @@ void  USBH_FTDI_Init (USBH_FTDI_CALLBACKS  *p_ftdi_callbacks,
 */
 
 void  USBH_FTDI_Reset (USBH_FTDI_HANDLE   ftdi_handle,
-                       CPU_INT16U         reset_ctrl,
+                       uint16_t         reset_ctrl,
                        USBH_ERR          *p_err)
 {
     if ((reset_ctrl != USBH_FTDI_RESET_CTRL_SIO) &&
@@ -419,7 +419,7 @@ void  USBH_FTDI_Reset (USBH_FTDI_HANDLE   ftdi_handle,
 */
 
 void  USBH_FTDI_ModemCtrlSet (USBH_FTDI_HANDLE   ftdi_handle,
-                              CPU_INT16U         modem_ctrl,
+                              uint16_t         modem_ctrl,
                               USBH_ERR          *p_err)
 {
     if ((modem_ctrl & 0xFCFCu) != 0u) {
@@ -473,12 +473,12 @@ void  USBH_FTDI_ModemCtrlSet (USBH_FTDI_HANDLE   ftdi_handle,
 */
 
 void  USBH_FTDI_FlowCtrlSet (USBH_FTDI_HANDLE   ftdi_handle,
-                             CPU_INT08U         protocol,
-                             CPU_INT08U         xon_char,
-                             CPU_INT08U         xoff_char,
+                             uint8_t         protocol,
+                             uint8_t         xon_char,
+                             uint8_t         xoff_char,
                              USBH_ERR          *p_err)
 {
-    CPU_INT16U  value;
+    uint16_t  value;
 
 
     if ((protocol != USBH_FTDI_PROTOCOL_RTS_CTS)  &&
@@ -489,7 +489,7 @@ void  USBH_FTDI_FlowCtrlSet (USBH_FTDI_HANDLE   ftdi_handle,
         return;
     }
 
-    value = (CPU_INT16U)(((CPU_INT16U)xoff_char << 8u) | xon_char);
+    value = (uint16_t)(((uint16_t)xoff_char << 8u) | xon_char);
 
     USBH_FTDI_StdReq(ftdi_handle,                               /* Send SetFlowCtrl req.                                */
                      USBH_FTDI_REQ_SET_FLOW_CTRL,
@@ -542,7 +542,7 @@ void  USBH_FTDI_FlowCtrlSet (USBH_FTDI_HANDLE   ftdi_handle,
 */
 
 void  USBH_FTDI_BaudRateSet (USBH_FTDI_HANDLE   ftdi_handle,
-                             CPU_INT16U         baud_rate,
+                             uint16_t         baud_rate,
                              USBH_ERR          *p_err)
 {
     if ((baud_rate != USBH_FTDI_BAUD_RATE_300)    &&
@@ -618,13 +618,13 @@ void  USBH_FTDI_BaudRateSet (USBH_FTDI_HANDLE   ftdi_handle,
 */
 
 void  USBH_FTDI_DataSet (USBH_FTDI_HANDLE   ftdi_handle,
-                         CPU_INT08U         data_size,
-                         CPU_INT08U         parity,
-                         CPU_INT08U         stop_bits,
-                         CPU_INT08U         break_bit,
+                         uint8_t         data_size,
+                         uint8_t         parity,
+                         uint8_t         stop_bits,
+                         uint8_t         break_bit,
                          USBH_ERR          *p_err)
 {
-    CPU_INT16U  value;
+    uint16_t  value;
 
 
     if ((parity != USBH_FTDI_DATA_PARITY_NONE) &&
@@ -648,7 +648,7 @@ void  USBH_FTDI_DataSet (USBH_FTDI_HANDLE   ftdi_handle,
         return;
     }
 
-    value = (CPU_INT16U)(((CPU_INT16U)(parity | stop_bits | break_bit) << 8u) | data_size);
+    value = (uint16_t)(((uint16_t)(parity | stop_bits | break_bit) << 8u) | data_size);
 
     USBH_FTDI_StdReq(ftdi_handle,                               /* Send SetData req.                                    */
                      USBH_FTDI_REQ_SET_DATA,
@@ -708,8 +708,8 @@ void  USBH_FTDI_ModemStatusGet (USBH_FTDI_HANDLE          ftdi_handle,
                                 USBH_ERR                 *p_err)
 {
     USBH_FTDI_FNCT  *p_ftdi_fnct;
-    CPU_INT08U       ftdi_ix;
-    CPU_INT08U       status[USBH_FTDI_SERIAL_STATUS_LEN];
+    uint8_t       ftdi_ix;
+    uint8_t       status[USBH_FTDI_SERIAL_STATUS_LEN];
 
 
     if (p_serial_status == (void *)0){
@@ -789,15 +789,15 @@ void  USBH_FTDI_ModemStatusGet (USBH_FTDI_HANDLE          ftdi_handle,
 *********************************************************************************************************
 */
 
-CPU_INT32U  USBH_FTDI_Tx (USBH_FTDI_HANDLE   ftdi_handle,
+uint32_t  USBH_FTDI_Tx (USBH_FTDI_HANDLE   ftdi_handle,
                           void              *p_buf,
-                          CPU_INT32U         buf_len,
-                          CPU_INT16U         timeout,
+                          uint32_t         buf_len,
+                          uint16_t         timeout,
                           USBH_ERR          *p_err)
 {
     USBH_FTDI_FNCT  *p_ftdi_fnct;
-    CPU_INT08U       ftdi_ix;
-    CPU_INT32U       xfer_len;
+    uint8_t       ftdi_ix;
+    uint32_t       xfer_len;
 
 
     if (buf_len == 0u) {
@@ -892,13 +892,13 @@ CPU_INT32U  USBH_FTDI_Tx (USBH_FTDI_HANDLE   ftdi_handle,
 
 void  USBH_FTDI_TxAsync (USBH_FTDI_HANDLE          ftdi_handle,
                          void                     *p_buf,
-                         CPU_INT32U                buf_len,
+                         uint32_t                buf_len,
                          USBH_FTDI_ASYNC_TX_FNCT   tx_cmpl_notify,
                          void                     *p_arg,
                          USBH_ERR                 *p_err)
 {
     USBH_FTDI_FNCT  *p_ftdi_fnct;
-    CPU_INT08U       ftdi_ix;
+    uint8_t       ftdi_ix;
 
 
     if (buf_len == 0u) {
@@ -1037,23 +1037,23 @@ void  USBH_FTDI_TxAsync (USBH_FTDI_HANDLE          ftdi_handle,
 *********************************************************************************************************
 */
 
-CPU_INT32U  USBH_FTDI_Rx (USBH_FTDI_HANDLE          ftdi_handle,
+uint32_t  USBH_FTDI_Rx (USBH_FTDI_HANDLE          ftdi_handle,
                           void                     *p_buf,
-                          CPU_INT32U                buf_len,
-                          CPU_INT16U                timeout,
+                          uint32_t                buf_len,
+                          uint16_t                timeout,
                           USBH_FTDI_SERIAL_STATUS  *p_serial_status,
                           USBH_ERR                 *p_err)
 {
     USBH_FTDI_FNCT  *p_ftdi_fnct;
-    CPU_INT08U       ftdi_ix;
-    CPU_INT32U       xfer_len;
-    CPU_INT32U       xfer_len_cur;
-    CPU_INT32U       buf_len_cur;
-    CPU_INT16U       data;
-    CPU_INT08U      *p_buf_cur08;
-    CPU_INT32U       pkt_size_rem;
-    CPU_INT32U       nbr_pkt;
-    CPU_INT32U       ix;
+    uint8_t       ftdi_ix;
+    uint32_t       xfer_len;
+    uint32_t       xfer_len_cur;
+    uint32_t       buf_len_cur;
+    uint16_t       data;
+    uint8_t      *p_buf_cur08;
+    uint32_t       pkt_size_rem;
+    uint32_t       nbr_pkt;
+    uint32_t       ix;
 
 
     if (buf_len < 2u) {
@@ -1083,7 +1083,7 @@ CPU_INT32U  USBH_FTDI_Rx (USBH_FTDI_HANDLE          ftdi_handle,
         return (0u);
     }
 
-    p_buf_cur08  = (CPU_INT08U *)p_buf;
+    p_buf_cur08  = (uint8_t *)p_buf;
                                                                 /* Get max nbr of rx pkt allowed.                       */
     nbr_pkt      =  1u + ((buf_len - 1u) / p_ftdi_fnct->MaxPktSize);
 
@@ -1145,8 +1145,8 @@ CPU_INT32U  USBH_FTDI_Rx (USBH_FTDI_HANDLE          ftdi_handle,
         p_buf_cur08 += p_ftdi_fnct->MaxPktSize;
 
         if (p_serial_status != (void *)0) {
-            p_serial_status->ModemStatus = *((CPU_INT08U *)p_buf);
-            p_serial_status->LineStatus  = *((CPU_INT08U *)p_buf + 1u);
+            p_serial_status->ModemStatus = *((uint8_t *)p_buf);
+            p_serial_status->LineStatus  = *((uint8_t *)p_buf + 1u);
         }
 
         pkt_size_rem = ((xfer_len - USBH_FTDI_SERIAL_STATUS_LEN) % (p_ftdi_fnct->MaxPktSize - USBH_FTDI_SERIAL_STATUS_LEN));
@@ -1227,14 +1227,14 @@ CPU_INT32U  USBH_FTDI_Rx (USBH_FTDI_HANDLE          ftdi_handle,
 
 void  USBH_FTDI_RxAsync (USBH_FTDI_HANDLE          ftdi_handle,
                          void                     *p_buf,
-                         CPU_INT32U                buf_len,
+                         uint32_t                buf_len,
                          USBH_FTDI_SERIAL_STATUS  *p_serial_status,
                          USBH_FTDI_ASYNC_RX_FNCT   rx_cmpl_notify,
                          void                     *p_arg,
                          USBH_ERR                 *p_err)
 {
     USBH_FTDI_FNCT  *p_ftdi_fnct;
-    CPU_INT08U       ftdi_ix;
+    uint8_t       ftdi_ix;
 
 
     if (buf_len < 2u) {
@@ -1314,7 +1314,7 @@ USBH_DEV  *USBH_FTDI_DevGet (USBH_FTDI_HANDLE   ftdi_handle,
                              USBH_ERR          *p_err)
 {
     USBH_FTDI_FNCT  *p_ftdi_fnct;
-    CPU_INT08U       ftdi_ix;
+    uint8_t       ftdi_ix;
 
 
    *p_err   = USBH_ERR_NONE;
@@ -1475,7 +1475,7 @@ static  void  *USBH_FTDI_ProbeIF (USBH_DEV  *p_dev,
             return ((void *)0);
         }
 
-        p_ftdi_fnct->MaxPktSize = (CPU_INT32U)USBH_EP_MaxPktSizeGet(&p_ftdi_fnct->BulkInEP);
+        p_ftdi_fnct->MaxPktSize = (uint32_t)USBH_EP_MaxPktSizeGet(&p_ftdi_fnct->BulkInEP);
 
        *p_err = USBH_BulkOutOpen(p_ftdi_fnct->DevPtr,           /* Open Bulk OUT EP.                                    */
                                  p_ftdi_fnct->IF_Ptr,
@@ -1598,7 +1598,7 @@ static  void  USBH_FTDI_Disconn (void  *p_class_dev)
 */
 
 static  void  USBH_FTDI_ClassDevNotify (void        *p_class_dev,
-                                        CPU_INT08U   state,
+                                        uint8_t   state,
                                         void        *p_ctx)
 {
     USBH_FTDI_CALLBACKS  *p_ftdi_callbacks;
@@ -1661,14 +1661,14 @@ static  void  USBH_FTDI_ClassDevNotify (void        *p_class_dev,
 */
 
 static  void  USBH_FTDI_StdReq (USBH_FTDI_HANDLE   ftdi_handle,
-                                CPU_INT08U         request,
-                                CPU_INT16U         value,
-                                CPU_INT08U         h_index,
+                                uint8_t         request,
+                                uint16_t         value,
+                                uint8_t         h_index,
                                 USBH_ERR          *p_err)
 {
     USBH_FTDI_FNCT  *p_ftdi_fnct;
-    CPU_INT08U       ftdi_ix;
-    CPU_INT16U       index;
+    uint8_t       ftdi_ix;
+    uint16_t       index;
 
 
     ftdi_ix = USBH_FTDI_HANDLE_IX_GET(ftdi_handle);
@@ -1688,7 +1688,7 @@ static  void  USBH_FTDI_StdReq (USBH_FTDI_HANDLE   ftdi_handle,
         return;
     }
 
-    index = (CPU_INT16U)(((CPU_INT16U)h_index << 8u) | p_ftdi_fnct->Port);
+    index = (uint16_t)(((uint16_t)h_index << 8u) | p_ftdi_fnct->Port);
 
     (void)USBH_CtrlTx(        p_ftdi_fnct->DevPtr,              /* Send ctrl req.                                       */
                               request,
@@ -1728,8 +1728,8 @@ static  void  USBH_FTDI_StdReq (USBH_FTDI_HANDLE   ftdi_handle,
 
 static  void  USBH_FTDI_DataTxCmpl (USBH_EP     *p_ep,
                                     void        *p_buf,
-                                    CPU_INT32U   buf_len,
-                                    CPU_INT32U   xfer_len,
+                                    uint32_t   buf_len,
+                                    uint32_t   xfer_len,
                                     void        *p_arg,
                                     USBH_ERR     err)
 {
@@ -1812,14 +1812,14 @@ static  void  USBH_FTDI_DataTxCmpl (USBH_EP     *p_ep,
 
 static  void  USBH_FTDI_DataRxCmpl (USBH_EP     *p_ep,
                                     void        *p_buf,
-                                    CPU_INT32U   buf_len,
-                                    CPU_INT32U   xfer_len,
+                                    uint32_t   buf_len,
+                                    uint32_t   xfer_len,
                                     void        *p_arg,
                                     USBH_ERR     err)
 {
     USBH_FTDI_FNCT           *p_ftdi_fnct;
-    CPU_INT08U               *p_buf_cur;
-    CPU_INT32U                rem_buf_size;
+    uint8_t               *p_buf_cur;
+    uint32_t                rem_buf_size;
     USBH_FTDI_SERIAL_STATUS  *p_serial_status;
 
 
@@ -1827,7 +1827,7 @@ static  void  USBH_FTDI_DataRxCmpl (USBH_EP     *p_ep,
 
     if (err == USBH_ERR_NONE) {
         p_serial_status =  p_ftdi_fnct->SerialStatusPtr;
-        p_buf_cur       = (CPU_INT08U *)p_buf;
+        p_buf_cur       = (uint8_t *)p_buf;
 
         if (p_serial_status != (void *)0) {
             p_serial_status->ModemStatus = *(p_buf_cur);

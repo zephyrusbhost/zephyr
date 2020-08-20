@@ -209,7 +209,7 @@ static USBH_HSEM USBH_URB_Sem;
 */
 
 static USBH_HOST USBH_Host;
-static CPU_INT32U USBH_Version;
+static uint32_t USBH_Version;
 
 /*
 *********************************************************************************************************
@@ -221,18 +221,22 @@ static USBH_ERR USBH_EP_Open(USBH_DEV *p_dev, USBH_IF *p_if,
 							 USBH_EP_TYPE ep_type, USBH_EP_DIR ep_dir,
 							 USBH_EP *p_ep);
 
-static CPU_INT32U USBH_SyncXfer(USBH_EP *p_ep, void *p_buf, CPU_INT32U buf_len,
+static uint32_t USBH_SyncXfer(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
 								USBH_ISOC_DESC *p_isoc_desc, USBH_TOKEN token,
-								CPU_INT32U timeout_ms, USBH_ERR *p_err);
+								uint32_t timeout_ms,
+								USBH_ERR *p_err);
 
-static USBH_ERR USBH_AsyncXfer(USBH_EP *p_ep, void *p_buf, CPU_INT32U buf_len,
+static USBH_ERR USBH_AsyncXfer(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
 							   USBH_ISOC_DESC *p_isoc_desc, USBH_TOKEN token,
 							   void *p_fnct, void *p_fnct_arg);
 
-static CPU_INT16U USBH_SyncCtrlXfer(USBH_EP *p_ep, CPU_INT08U b_req,
-									CPU_INT08U bm_req_type, CPU_INT16U w_val,
-									CPU_INT16U w_ix, void *p_arg,
-									CPU_INT16U w_len, CPU_INT32U timeout_ms,
+static uint16_t USBH_SyncCtrlXfer(USBH_EP *p_ep, uint8_t b_req,
+									uint8_t bm_req_type,
+									uint16_t w_val,
+									uint16_t w_ix,
+									void *p_arg,
+									uint16_t w_len,
+									uint32_t timeout_ms,
 									USBH_ERR *p_err);
 
 static void USBH_URB_Abort(USBH_URB *p_urb);
@@ -247,20 +251,22 @@ static USBH_ERR USBH_DfltEP_Open(USBH_DEV *p_dev);
 
 static USBH_ERR USBH_DevDescRd(USBH_DEV *p_dev);
 
-static USBH_ERR USBH_CfgRd(USBH_DEV *p_dev, CPU_INT08U cfg_ix);
+static USBH_ERR USBH_CfgRd(USBH_DEV *p_dev, uint8_t cfg_ix);
 
 static USBH_ERR USBH_CfgParse(USBH_DEV *p_dev, USBH_CFG *p_cfg);
 
 static USBH_ERR USBH_DevAddrSet(USBH_DEV *p_dev);
 
-static CPU_INT32U USBH_StrDescGet(USBH_DEV *p_dev, CPU_INT08U desc_ix,
-								  CPU_INT16U lang_id, void *p_buf,
-								  CPU_INT32U buf_len, USBH_ERR *p_err);
+static uint32_t USBH_StrDescGet(USBH_DEV *p_dev, uint8_t desc_ix,
+								  uint16_t lang_id,
+								  void *p_buf,
+								  uint32_t buf_len,
+								  USBH_ERR *p_err);
 
 // static void USBH_StrDescPrint(USBH_DEV *p_dev, CPU_INT08U *p_str_prefix,
 // 							  CPU_INT08U desc_idx);
 
-static USBH_DESC_HDR *USBH_NextDescGet(void *p_buf, CPU_INT32U *p_offset);
+static USBH_DESC_HDR *USBH_NextDescGet(void *p_buf, uint32_t *p_offset);
 
 static void USBH_FmtSetupReq(USBH_SETUP_REQ *p_setup_req, void *p_buf_dest);
 
@@ -303,9 +309,9 @@ static void USBH_AsyncTask(void *p_arg, void *p_arg2, void *p_arg3);
 *********************************************************************************************************
 */
 
-CPU_INT32U USBH_VersionGet(void)
+uint32_t USBH_VersionGet(void)
 {
-	CPU_INT32U version;
+	uint32_t version;
 
 	version = USBH_VERSION;
 
@@ -349,7 +355,7 @@ USBH_ERR USBH_Init(USBH_KERNEL_TASK_INFO *async_task_info,
 				   USBH_KERNEL_TASK_INFO *hub_task_info)
 {
 	USBH_ERR err;
-	CPU_INT08U ix;
+	uint8_t ix;
 
 	USBH_Version = USBH_VERSION;
 	(void)USBH_Version;
@@ -444,7 +450,7 @@ USBH_ERR USBH_Init(USBH_KERNEL_TASK_INFO *async_task_info,
 USBH_ERR USBH_Suspend(void)
 {
 
-	CPU_INT08U ix;
+	uint8_t ix;
 	USBH_HC *hc;
 	USBH_ERR err;
 
@@ -482,7 +488,7 @@ USBH_ERR USBH_Suspend(void)
 
 USBH_ERR USBH_Resume(void)
 {
-	CPU_INT08U ix;
+	uint8_t ix;
 	USBH_HC *hc;
 	USBH_ERR err;
 
@@ -535,12 +541,12 @@ USBH_ERR USBH_Resume(void)
 *********************************************************************************************************
 */
 
-CPU_INT08U USBH_HC_Add(USBH_HC_CFG *p_hc_cfg, USBH_HC_DRV_API *p_drv_api,
+uint8_t USBH_HC_Add(USBH_HC_CFG *p_hc_cfg, USBH_HC_DRV_API *p_drv_api,
 					   USBH_HC_RH_API *p_hc_rh_api,
 					   USBH_HC_BSP_API *p_hc_bsp_api, USBH_ERR *p_err)
 {
 	USBH_DEV *p_rh_dev;
-	CPU_INT08U hc_nbr;
+	uint8_t hc_nbr;
 	USBH_HC *p_hc;
 	USBH_HC_DRV *p_hc_drv;
 	CPU_SR_ALLOC();
@@ -580,7 +586,7 @@ CPU_INT08U USBH_HC_Add(USBH_HC_CFG *p_hc_cfg, USBH_HC_DRV_API *p_drv_api,
 		p_rh_dev = &USBH_Host.DevList[USBH_Host.DevCount--];
 	}
 
-	p_rh_dev->IsRootHub = (CPU_BOOLEAN)DEF_TRUE;
+	p_rh_dev->IsRootHub = (bool)DEF_TRUE;
 	p_rh_dev->HC_Ptr = p_hc;
 
 	p_hc->HostPtr = &USBH_Host;
@@ -652,7 +658,7 @@ CPU_INT08U USBH_HC_Add(USBH_HC_CFG *p_hc_cfg, USBH_HC_DRV_API *p_drv_api,
 *********************************************************************************************************
 */
 
-USBH_ERR USBH_HC_Start(CPU_INT08U hc_nbr)
+USBH_ERR USBH_HC_Start(uint8_t hc_nbr)
 {
 	LOG_DBG("Start.");
 	USBH_ERR err;
@@ -701,7 +707,7 @@ USBH_ERR USBH_HC_Start(CPU_INT08U hc_nbr)
 *********************************************************************************************************
 */
 
-USBH_ERR USBH_HC_Stop(CPU_INT08U hc_nbr)
+USBH_ERR USBH_HC_Stop(uint8_t hc_nbr)
 {
 	USBH_ERR err;
 	USBH_HC *p_hc;
@@ -749,7 +755,7 @@ USBH_ERR USBH_HC_Stop(CPU_INT08U hc_nbr)
 *********************************************************************************************************
 */
 
-USBH_ERR USBH_HC_PortEn(CPU_INT08U hc_nbr, CPU_INT08U port_nbr)
+USBH_ERR USBH_HC_PortEn(uint8_t hc_nbr, uint8_t port_nbr)
 {
 	LOG_DBG("PortEn");
 	USBH_ERR err;
@@ -793,7 +799,7 @@ USBH_ERR USBH_HC_PortEn(CPU_INT08U hc_nbr, CPU_INT08U port_nbr)
 *********************************************************************************************************
 */
 
-USBH_ERR USBH_HC_PortDis(CPU_INT08U hc_nbr, CPU_INT08U port_nbr)
+USBH_ERR USBH_HC_PortDis(uint8_t hc_nbr, uint8_t port_nbr)
 {
 	LOG_DBG("PortDis");
 	USBH_ERR err;
@@ -831,9 +837,9 @@ USBH_ERR USBH_HC_PortDis(CPU_INT08U hc_nbr, CPU_INT08U port_nbr)
 *********************************************************************************************************
 */
 
-CPU_INT32U USBH_HC_FrameNbrGet(CPU_INT08U hc_nbr, USBH_ERR *p_err)
+uint32_t USBH_HC_FrameNbrGet(uint8_t hc_nbr, USBH_ERR *p_err)
 {
-	CPU_INT32U frame_nbr;
+	uint32_t frame_nbr;
 	USBH_HC *p_hc;
 
 	if (hc_nbr >=
@@ -925,8 +931,8 @@ USBH_ERR USBH_DevConn(USBH_DEV *p_dev)
 {
 	LOG_DBG("DevConn");
 	USBH_ERR err;
-	CPU_INT08U nbr_cfgs;
-	CPU_INT08U cfg_ix;
+	uint8_t nbr_cfgs;
+	uint8_t cfg_ix;
 
 	p_dev->SelCfg = 0u;
 
@@ -1047,7 +1053,7 @@ void USBH_DevDisconn(USBH_DEV *p_dev)
 *********************************************************************************************************
 */
 
-CPU_INT08U USBH_DevCfgNbrGet(USBH_DEV *p_dev)
+uint8_t USBH_DevCfgNbrGet(USBH_DEV *p_dev)
 {
 	return (p_dev->DevDesc
 				[17]); /* See Note (1).                                        */
@@ -1120,7 +1126,7 @@ void USBH_DevDescGet(USBH_DEV *p_dev, USBH_DEV_DESC *p_dev_desc)
 *********************************************************************************************************
 */
 
-USBH_ERR USBH_CfgSet(USBH_DEV *p_dev, CPU_INT08U cfg_nbr)
+USBH_ERR USBH_CfgSet(USBH_DEV *p_dev, uint8_t cfg_nbr)
 {
 	USBH_ERR err;
 	USBH_SET_CFG(
@@ -1153,9 +1159,9 @@ USBH_ERR USBH_CfgSet(USBH_DEV *p_dev, CPU_INT08U cfg_nbr)
 *********************************************************************************************************
 */
 
-USBH_CFG *USBH_CfgGet(USBH_DEV *p_dev, CPU_INT08U cfg_ix)
+USBH_CFG *USBH_CfgGet(USBH_DEV *p_dev, uint8_t cfg_ix)
 {
-	CPU_INT08U nbr_cfgs;
+	uint8_t nbr_cfgs;
 
 	if (p_dev == (USBH_DEV *)0)
 	{
@@ -1188,7 +1194,7 @@ USBH_CFG *USBH_CfgGet(USBH_DEV *p_dev, CPU_INT08U cfg_ix)
 *********************************************************************************************************
 */
 
-CPU_INT08U USBH_CfgIF_NbrGet(USBH_CFG *p_cfg)
+uint8_t USBH_CfgIF_NbrGet(USBH_CFG *p_cfg)
 {
 	if (p_cfg != (USBH_CFG *)0)
 	{
@@ -1270,7 +1276,7 @@ USBH_DESC_HDR *USBH_CfgExtraDescGet(USBH_CFG *p_cfg, USBH_ERR *p_err)
 {
 	USBH_DESC_HDR *p_desc;
 	USBH_DESC_HDR *p_extra_desc;
-	CPU_INT32U cfg_off;
+	uint32_t cfg_off;
 
 	if (p_cfg == (USBH_CFG *)0)
 	{
@@ -1330,10 +1336,10 @@ USBH_DESC_HDR *USBH_CfgExtraDescGet(USBH_CFG *p_cfg, USBH_ERR *p_err)
 *********************************************************************************************************
 */
 
-USBH_ERR USBH_IF_Set(USBH_IF *p_if, CPU_INT08U alt_nbr)
+USBH_ERR USBH_IF_Set(USBH_IF *p_if, uint8_t alt_nbr)
 {
-	CPU_INT08U nbr_alts;
-	CPU_INT08U if_nbr;
+	uint8_t nbr_alts;
+	uint8_t if_nbr;
 	USBH_DEV *p_dev;
 	USBH_ERR err;
 
@@ -1384,9 +1390,9 @@ USBH_ERR USBH_IF_Set(USBH_IF *p_if, CPU_INT08U alt_nbr)
 *********************************************************************************************************
 */
 
-USBH_IF *USBH_IF_Get(USBH_CFG *p_cfg, CPU_INT08U if_ix)
+USBH_IF *USBH_IF_Get(USBH_CFG *p_cfg, uint8_t if_ix)
 {
-	CPU_INT08U nbr_ifs;
+	uint8_t nbr_ifs;
 
 	nbr_ifs = USBH_CfgIF_NbrGet(
 		p_cfg); /* Get nbr of IFs.                                      */
@@ -1416,11 +1422,11 @@ USBH_IF *USBH_IF_Get(USBH_CFG *p_cfg, CPU_INT08U if_ix)
 *********************************************************************************************************
 */
 
-CPU_INT08U USBH_IF_AltNbrGet(USBH_IF *p_if)
+uint8_t USBH_IF_AltNbrGet(USBH_IF *p_if)
 {
 	USBH_DESC_HDR *p_desc;
-	CPU_INT32U if_off;
-	CPU_INT08U nbr_alts;
+	uint32_t if_off;
+	uint8_t nbr_alts;
 
 	nbr_alts = 0u;
 	if_off = 0u;
@@ -1455,7 +1461,7 @@ CPU_INT08U USBH_IF_AltNbrGet(USBH_IF *p_if)
 *********************************************************************************************************
 */
 
-CPU_INT08U USBH_IF_NbrGet(USBH_IF *p_if)
+uint8_t USBH_IF_NbrGet(USBH_IF *p_if)
 {
 	return (p_if->IF_DataPtr
 				[2]); /* See Note (1)                                         */
@@ -1478,10 +1484,10 @@ CPU_INT08U USBH_IF_NbrGet(USBH_IF *p_if)
 *********************************************************************************************************
 */
 
-CPU_INT08U USBH_IF_EP_NbrGet(USBH_IF *p_if, CPU_INT08U alt_ix)
+uint8_t USBH_IF_EP_NbrGet(USBH_IF *p_if, uint8_t alt_ix)
 {
 	USBH_DESC_HDR *p_desc;
-	CPU_INT32U if_off;
+	uint32_t if_off;
 
 	if_off = 0u;
 	p_desc = (USBH_DESC_HDR *)p_if->IF_DataPtr;
@@ -1493,10 +1499,10 @@ CPU_INT08U USBH_IF_EP_NbrGet(USBH_IF *p_if, CPU_INT08U alt_ix)
 		if (p_desc->bDescriptorType == USBH_DESC_TYPE_IF)
 		{
 			if (alt_ix ==
-				((CPU_INT08U *)p_desc)
-					[3])
+				((uint8_t *)p_desc)
+				[3])
 			{ /* Chk alternate setting.                               */
-				return (((CPU_INT08U *)p_desc)
+				return (((uint8_t *)p_desc)
 							[4]); /* IF desc offset 4 contains nbr of EPs.                */
 			}
 		}
@@ -1524,11 +1530,11 @@ CPU_INT08U USBH_IF_EP_NbrGet(USBH_IF *p_if, CPU_INT08U alt_ix)
 *********************************************************************************************************
 */
 
-USBH_ERR USBH_IF_DescGet(USBH_IF *p_if, CPU_INT08U alt_ix,
+USBH_ERR USBH_IF_DescGet(USBH_IF *p_if, uint8_t alt_ix,
 						 USBH_IF_DESC *p_if_desc)
 {
 	USBH_DESC_HDR *p_desc;
-	CPU_INT32U if_off;
+	uint32_t if_off;
 
 	if_off = 0u;
 	p_desc = (USBH_DESC_HDR *)p_if->IF_DataPtr;
@@ -1539,7 +1545,7 @@ USBH_ERR USBH_IF_DescGet(USBH_IF *p_if, CPU_INT08U alt_ix,
 
 		if ((p_desc->bLength == USBH_LEN_DESC_IF) &&
 			(p_desc->bDescriptorType == USBH_DESC_TYPE_IF) &&
-			(alt_ix == ((CPU_INT08U *)p_desc)[3]))
+			(alt_ix == ((uint8_t *)p_desc)[3]))
 		{
 			USBH_ParseIF_Desc(p_if_desc, (void *)p_desc);
 			return (USBH_ERR_NONE);
@@ -1568,16 +1574,16 @@ USBH_ERR USBH_IF_DescGet(USBH_IF *p_if, CPU_INT08U alt_ix,
 *********************************************************************************************************
 */
 
-CPU_INT08U *USBH_IF_ExtraDescGet(USBH_IF *p_if, CPU_INT08U alt_ix,
-								 CPU_INT16U *p_data_len)
+uint8_t *USBH_IF_ExtraDescGet(USBH_IF *p_if, uint8_t alt_ix,
+								 uint16_t *p_data_len)
 {
 	USBH_DESC_HDR *p_desc;
-	CPU_INT08U *p_data;
-	CPU_INT32U if_off;
+	uint8_t *p_data;
+	uint32_t if_off;
 
-	if ((p_if == (USBH_IF *)0) || (p_if->IF_DataPtr == (CPU_INT08U *)0))
+	if ((p_if == (USBH_IF *)0) || (p_if->IF_DataPtr == (uint8_t *)0))
 	{
-		return ((CPU_INT08U *)0);
+		return ((uint8_t *)0);
 	}
 
 	if_off = 0u;
@@ -1591,14 +1597,14 @@ CPU_INT08U *USBH_IF_ExtraDescGet(USBH_IF *p_if, CPU_INT08U alt_ix,
 
 		if ((p_desc->bLength == USBH_LEN_DESC_IF) &&
 			(p_desc->bDescriptorType == USBH_DESC_TYPE_IF) &&
-			(alt_ix == ((CPU_INT08U *)p_desc)[3]))
+			(alt_ix == ((uint8_t *)p_desc)[3]))
 		{
 			if (if_off <
 				p_if->IF_DataLen)
 			{ /* Get desc that follows selected alternate setting.    */
 				p_desc = USBH_NextDescGet((void *)p_desc,
 										  &if_off);
-				p_data = (CPU_INT08U *)p_desc;
+				p_data = (uint8_t *)p_desc;
 				*p_data_len = 0u;
 
 				while ((p_desc->bDescriptorType !=
@@ -1618,17 +1624,17 @@ CPU_INT08U *USBH_IF_ExtraDescGet(USBH_IF *p_if, CPU_INT08U alt_ix,
 
 				if (*p_data_len == 0)
 				{
-					return ((CPU_INT08U *)0);
+					return ((uint8_t *)0);
 				}
 				else
 				{
-					return ((CPU_INT08U *)p_data);
+					return ((uint8_t *)p_data);
 				}
 			}
 		}
 	}
 
-	return ((CPU_INT08U *)0);
+	return ((uint8_t *)0);
 }
 
 /*
@@ -1879,13 +1885,16 @@ USBH_ERR USBH_IsocOutOpen(USBH_DEV *p_dev, USBH_IF *p_if, USBH_EP *p_ep)
 *********************************************************************************************************
 */
 
-CPU_INT16U USBH_CtrlTx(USBH_DEV *p_dev, CPU_INT08U b_req,
-					   CPU_INT08U bm_req_type, CPU_INT16U w_val,
-					   CPU_INT16U w_ix, void *p_data, CPU_INT16U w_len,
-					   CPU_INT32U timeout_ms, USBH_ERR *p_err)
+uint16_t USBH_CtrlTx(USBH_DEV *p_dev, uint8_t b_req,
+					   uint8_t bm_req_type,
+					   uint16_t w_val,
+					   uint16_t w_ix, void *p_data,
+					   uint16_t w_len,
+					   uint32_t timeout_ms,
+					   USBH_ERR *p_err)
 {
 	// LOG_DBG("CtrlTx");
-	CPU_INT16U xfer_len;
+	uint16_t xfer_len;
 
 	(void)USBH_OS_MutexLock(p_dev->DfltEP_Mutex);
 
@@ -1953,13 +1962,16 @@ CPU_INT16U USBH_CtrlTx(USBH_DEV *p_dev, CPU_INT08U b_req,
 *********************************************************************************************************
 */
 
-CPU_INT16U USBH_CtrlRx(USBH_DEV *p_dev, CPU_INT08U b_req,
-					   CPU_INT08U bm_req_type, CPU_INT16U w_val,
-					   CPU_INT16U w_ix, void *p_data, CPU_INT16U w_len,
-					   CPU_INT32U timeout_ms, USBH_ERR *p_err)
+uint16_t USBH_CtrlRx(USBH_DEV *p_dev, uint8_t b_req,
+					   uint8_t bm_req_type,
+					   uint16_t w_val,
+					   uint16_t w_ix, void *p_data,
+					   uint16_t w_len,
+					   uint32_t timeout_ms,
+					   USBH_ERR *p_err)
 {
 	// LOG_DBG("CtrlRx");
-	CPU_INT16U xfer_len;
+	uint16_t xfer_len;
 
 	(void)USBH_OS_MutexLock(p_dev->DfltEP_Mutex);
 
@@ -2018,12 +2030,13 @@ CPU_INT16U USBH_CtrlRx(USBH_DEV *p_dev, CPU_INT08U b_req,
 *********************************************************************************************************
 */
 
-CPU_INT32U USBH_BulkTx(USBH_EP *p_ep, void *p_buf, CPU_INT32U buf_len,
-					   CPU_INT32U timeout_ms, USBH_ERR *p_err)
+uint32_t USBH_BulkTx(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
+					   uint32_t timeout_ms,
+					   USBH_ERR *p_err)
 {
-	CPU_INT08U ep_type;
-	CPU_INT08U ep_dir;
-	CPU_INT32U xfer_len;
+	uint8_t ep_type;
+	uint8_t ep_dir;
+	uint32_t xfer_len;
 
 	if (p_ep == (USBH_EP *)0)
 	{
@@ -2078,12 +2091,12 @@ CPU_INT32U USBH_BulkTx(USBH_EP *p_ep, void *p_buf, CPU_INT32U buf_len,
 *********************************************************************************************************
 */
 
-USBH_ERR USBH_BulkTxAsync(USBH_EP *p_ep, void *p_buf, CPU_INT32U buf_len,
+USBH_ERR USBH_BulkTxAsync(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
 						  USBH_XFER_CMPL_FNCT fnct, void *p_fnct_arg)
 {
 	USBH_ERR err;
-	CPU_INT08U ep_type;
-	CPU_INT08U ep_dir;
+	uint8_t ep_type;
+	uint8_t ep_dir;
 
 	if (p_ep == (USBH_EP *)0)
 	{
@@ -2137,12 +2150,13 @@ USBH_ERR USBH_BulkTxAsync(USBH_EP *p_ep, void *p_buf, CPU_INT32U buf_len,
 *********************************************************************************************************
 */
 
-CPU_INT32U USBH_BulkRx(USBH_EP *p_ep, void *p_buf, CPU_INT32U buf_len,
-					   CPU_INT32U timeout_ms, USBH_ERR *p_err)
+uint32_t USBH_BulkRx(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
+					   uint32_t timeout_ms,
+					   USBH_ERR *p_err)
 {
-	CPU_INT08U ep_type;
-	CPU_INT08U ep_dir;
-	CPU_INT32U xfer_len;
+	uint8_t ep_type;
+	uint8_t ep_dir;
+	uint32_t xfer_len;
 
 	if (p_ep == (USBH_EP *)0)
 	{
@@ -2197,12 +2211,12 @@ CPU_INT32U USBH_BulkRx(USBH_EP *p_ep, void *p_buf, CPU_INT32U buf_len,
 *********************************************************************************************************
 */
 
-USBH_ERR USBH_BulkRxAsync(USBH_EP *p_ep, void *p_buf, CPU_INT32U buf_len,
+USBH_ERR USBH_BulkRxAsync(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
 						  USBH_XFER_CMPL_FNCT fnct, void *p_fnct_arg)
 {
 	USBH_ERR err;
-	CPU_INT08U ep_type;
-	CPU_INT08U ep_dir;
+	uint8_t ep_type;
+	uint8_t ep_dir;
 
 	if (p_ep == (USBH_EP *)0)
 	{
@@ -2256,12 +2270,13 @@ USBH_ERR USBH_BulkRxAsync(USBH_EP *p_ep, void *p_buf, CPU_INT32U buf_len,
 *********************************************************************************************************
 */
 
-CPU_INT32U USBH_IntrTx(USBH_EP *p_ep, void *p_buf, CPU_INT32U buf_len,
-					   CPU_INT32U timeout_ms, USBH_ERR *p_err)
+uint32_t USBH_IntrTx(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
+					   uint32_t timeout_ms,
+					   USBH_ERR *p_err)
 {
-	CPU_INT08U ep_type;
-	CPU_INT08U ep_dir;
-	CPU_INT32U xfer_len;
+	uint8_t ep_type;
+	uint8_t ep_dir;
+	uint32_t xfer_len;
 
 	if (p_ep == (USBH_EP *)0)
 	{
@@ -2314,12 +2329,12 @@ CPU_INT32U USBH_IntrTx(USBH_EP *p_ep, void *p_buf, CPU_INT32U buf_len,
 *********************************************************************************************************
 */
 
-USBH_ERR USBH_IntrTxAsync(USBH_EP *p_ep, void *p_buf, CPU_INT32U buf_len,
+USBH_ERR USBH_IntrTxAsync(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
 						  USBH_XFER_CMPL_FNCT fnct, void *p_fnct_arg)
 {
 	USBH_ERR err;
-	CPU_INT08U ep_type;
-	CPU_INT08U ep_dir;
+	uint8_t ep_type;
+	uint8_t ep_dir;
 
 	if (p_ep == (USBH_EP *)0)
 	{
@@ -2373,12 +2388,13 @@ USBH_ERR USBH_IntrTxAsync(USBH_EP *p_ep, void *p_buf, CPU_INT32U buf_len,
 *********************************************************************************************************
 */
 
-CPU_INT32U USBH_IntrRx(USBH_EP *p_ep, void *p_buf, CPU_INT32U buf_len,
-					   CPU_INT32U timeout_ms, USBH_ERR *p_err)
+uint32_t USBH_IntrRx(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
+					   uint32_t timeout_ms,
+					   USBH_ERR *p_err)
 {
-	CPU_INT08U ep_type;
-	CPU_INT08U ep_dir;
-	CPU_INT32U xfer_len;
+	uint8_t ep_type;
+	uint8_t ep_dir;
+	uint32_t xfer_len;
 
 	if (p_ep == (USBH_EP *)0)
 	{
@@ -2431,12 +2447,12 @@ CPU_INT32U USBH_IntrRx(USBH_EP *p_ep, void *p_buf, CPU_INT32U buf_len,
 *********************************************************************************************************
 */
 
-USBH_ERR USBH_IntrRxAsync(USBH_EP *p_ep, void *p_buf, CPU_INT32U buf_len,
+USBH_ERR USBH_IntrRxAsync(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
 						  USBH_XFER_CMPL_FNCT fnct, void *p_fnct_arg)
 {
 	USBH_ERR err;
-	CPU_INT08U ep_type;
-	CPU_INT08U ep_dir;
+	uint8_t ep_type;
+	uint8_t ep_dir;
 
 	/* Argument checks for valid settings                   */
 	if (p_ep == (USBH_EP *)0)
@@ -2504,14 +2520,17 @@ USBH_ERR USBH_IntrRxAsync(USBH_EP *p_ep, void *p_buf, CPU_INT32U buf_len,
 *********************************************************************************************************
 */
 
-CPU_INT32U USBH_IsocTx(USBH_EP *p_ep, CPU_INT08U *p_buf, CPU_INT32U buf_len,
-					   CPU_INT32U start_frm, CPU_INT32U nbr_frm,
-					   CPU_INT16U *p_frm_len, USBH_ERR *p_frm_err,
-					   CPU_INT32U timeout_ms, USBH_ERR *p_err)
+uint32_t USBH_IsocTx(USBH_EP *p_ep, uint8_t *p_buf, uint32_t buf_len,
+					   uint32_t start_frm,
+					   uint32_t nbr_frm,
+					   uint16_t *p_frm_len,
+					   USBH_ERR *p_frm_err,
+					   uint32_t timeout_ms,
+					   USBH_ERR *p_err)
 {
-	CPU_INT08U ep_type;
-	CPU_INT08U ep_dir;
-	CPU_INT32U xfer_len;
+	uint8_t ep_type;
+	uint8_t ep_dir;
+	uint32_t xfer_len;
 	USBH_ISOC_DESC isoc_desc;
 
 	if (p_ep == (USBH_EP *)0)
@@ -2580,14 +2599,16 @@ CPU_INT32U USBH_IsocTx(USBH_EP *p_ep, CPU_INT08U *p_buf, CPU_INT32U buf_len,
 *********************************************************************************************************
 */
 
-USBH_ERR USBH_IsocTxAsync(USBH_EP *p_ep, CPU_INT08U *p_buf, CPU_INT32U buf_len,
-						  CPU_INT32U start_frm, CPU_INT32U nbr_frm,
-						  CPU_INT16U *p_frm_len, USBH_ERR *p_frm_err,
+USBH_ERR USBH_IsocTxAsync(USBH_EP *p_ep, uint8_t *p_buf, uint32_t buf_len,
+						  uint32_t start_frm,
+						  uint32_t nbr_frm,
+						  uint16_t *p_frm_len,
+						  USBH_ERR *p_frm_err,
 						  USBH_ISOC_CMPL_FNCT fnct, void *p_fnct_arg)
 {
 	USBH_ERR err;
-	CPU_INT08U ep_type;
-	CPU_INT08U ep_dir;
+	uint8_t ep_type;
+	uint8_t ep_dir;
 	USBH_ISOC_DESC *p_isoc_desc;
 
 	if (p_ep == (USBH_EP *)0)
@@ -2670,14 +2691,17 @@ USBH_ERR USBH_IsocTxAsync(USBH_EP *p_ep, CPU_INT08U *p_buf, CPU_INT32U buf_len,
 *********************************************************************************************************
 */
 
-CPU_INT32U USBH_IsocRx(USBH_EP *p_ep, CPU_INT08U *p_buf, CPU_INT32U buf_len,
-					   CPU_INT32U start_frm, CPU_INT32U nbr_frm,
-					   CPU_INT16U *p_frm_len, USBH_ERR *p_frm_err,
-					   CPU_INT32U timeout_ms, USBH_ERR *p_err)
+uint32_t USBH_IsocRx(USBH_EP *p_ep, uint8_t *p_buf, uint32_t buf_len,
+					   uint32_t start_frm,
+					   uint32_t nbr_frm,
+					   uint16_t *p_frm_len,
+					   USBH_ERR *p_frm_err,
+					   uint32_t timeout_ms,
+					   USBH_ERR *p_err)
 {
-	CPU_INT08U ep_type;
-	CPU_INT08U ep_dir;
-	CPU_INT32U xfer_len;
+	uint8_t ep_type;
+	uint8_t ep_dir;
+	uint32_t xfer_len;
 	USBH_ISOC_DESC isoc_desc;
 
 	if (p_ep == (USBH_EP *)0)
@@ -2746,14 +2770,16 @@ CPU_INT32U USBH_IsocRx(USBH_EP *p_ep, CPU_INT08U *p_buf, CPU_INT32U buf_len,
 *********************************************************************************************************
 */
 
-USBH_ERR USBH_IsocRxAsync(USBH_EP *p_ep, CPU_INT08U *p_buf, CPU_INT32U buf_len,
-						  CPU_INT32U start_frm, CPU_INT32U nbr_frm,
-						  CPU_INT16U *p_frm_len, USBH_ERR *p_frm_err,
+USBH_ERR USBH_IsocRxAsync(USBH_EP *p_ep, uint8_t *p_buf, uint32_t buf_len,
+						  uint32_t start_frm,
+						  uint32_t nbr_frm,
+						  uint16_t *p_frm_len,
+						  USBH_ERR *p_frm_err,
 						  USBH_ISOC_CMPL_FNCT fnct, void *p_fnct_arg)
 {
 	USBH_ERR err;
-	CPU_INT08U ep_type;
-	CPU_INT08U ep_dir;
+	uint8_t ep_type;
+	uint8_t ep_dir;
 	USBH_ISOC_DESC *p_isoc_desc;
 
 	if (p_ep == (USBH_EP *)0)
@@ -2810,9 +2836,9 @@ USBH_ERR USBH_IsocRxAsync(USBH_EP *p_ep, CPU_INT08U *p_buf, CPU_INT32U buf_len,
 *********************************************************************************************************
 */
 
-CPU_INT08U USBH_EP_LogNbrGet(USBH_EP *p_ep)
+uint8_t USBH_EP_LogNbrGet(USBH_EP *p_ep)
 {
-	return ((CPU_INT08U)p_ep->Desc.bEndpointAddress &
+	return ((uint8_t)p_ep->Desc.bEndpointAddress &
 			0x7Fu); /* See Note (1).                                        */
 }
 
@@ -2836,9 +2862,9 @@ CPU_INT08U USBH_EP_LogNbrGet(USBH_EP *p_ep)
 *********************************************************************************************************
 */
 
-CPU_INT08U USBH_EP_DirGet(USBH_EP *p_ep)
+uint8_t USBH_EP_DirGet(USBH_EP *p_ep)
 {
-	CPU_INT08U ep_type;
+	uint8_t ep_type;
 
 	ep_type = USBH_EP_TypeGet(p_ep);
 	if (ep_type == USBH_EP_TYPE_CTRL)
@@ -2846,7 +2872,7 @@ CPU_INT08U USBH_EP_DirGet(USBH_EP *p_ep)
 		return (USBH_EP_DIR_NONE);
 	}
 
-	if (((CPU_INT08U)p_ep->Desc.bEndpointAddress & 0x80u) !=
+	if (((uint8_t)p_ep->Desc.bEndpointAddress & 0x80u) !=
 		0u)
 	{ /* See Note (1).                                        */
 		return (USBH_EP_DIR_IN);
@@ -2872,9 +2898,9 @@ CPU_INT08U USBH_EP_DirGet(USBH_EP *p_ep)
 *********************************************************************************************************
 */
 
-CPU_INT16U USBH_EP_MaxPktSizeGet(USBH_EP *p_ep)
+uint16_t USBH_EP_MaxPktSizeGet(USBH_EP *p_ep)
 {
-	return ((CPU_INT16U)p_ep->Desc.wMaxPacketSize &
+	return ((uint16_t)p_ep->Desc.wMaxPacketSize &
 			0x07FFu); /* See Note (1).                                        */
 }
 
@@ -2898,9 +2924,9 @@ CPU_INT16U USBH_EP_MaxPktSizeGet(USBH_EP *p_ep)
 *********************************************************************************************************
 */
 
-CPU_INT08U USBH_EP_TypeGet(USBH_EP *p_ep)
+uint8_t USBH_EP_TypeGet(USBH_EP *p_ep)
 {
-	return ((CPU_INT08U)p_ep->Desc.bmAttributes &
+	return ((uint8_t)p_ep->Desc.bmAttributes &
 			0x03u); /* See Note (1).                                        */
 }
 
@@ -2926,12 +2952,12 @@ CPU_INT08U USBH_EP_TypeGet(USBH_EP *p_ep)
 *********************************************************************************************************
 */
 
-USBH_ERR USBH_EP_Get(USBH_IF *p_if, CPU_INT08U alt_ix, CPU_INT08U ep_ix,
+USBH_ERR USBH_EP_Get(USBH_IF *p_if, uint8_t alt_ix, uint8_t ep_ix,
 					 USBH_EP *p_ep)
 {
 	USBH_DESC_HDR *p_desc;
-	CPU_INT32U if_off;
-	CPU_INT08U ix;
+	uint32_t if_off;
+	uint8_t ix;
 
 	if ((p_if == (USBH_IF *)0) || (p_ep == (USBH_EP *)0))
 	{
@@ -2950,8 +2976,8 @@ USBH_ERR USBH_EP_Get(USBH_IF *p_if, CPU_INT08U alt_ix, CPU_INT08U ep_ix,
 			USBH_DESC_TYPE_IF)
 		{ /* Chk if IF desc.                                      */
 			if (alt_ix ==
-				((CPU_INT08U *)p_desc)
-					[3])
+				((uint8_t *)p_desc)
+				[3])
 			{ /* Compare alternate setting ix.                        */
 				break;
 			}
@@ -3380,12 +3406,13 @@ USBH_ERR USBH_URB_Complete(USBH_URB *p_urb)
 *********************************************************************************************************
 */
 
-CPU_INT32U USBH_StrGet(USBH_DEV *p_dev, CPU_INT08U desc_ix, CPU_INT16U lang_id,
-					   CPU_INT08U *p_buf, CPU_INT32U buf_len, USBH_ERR *p_err)
+uint32_t USBH_StrGet(USBH_DEV *p_dev, uint8_t desc_ix, uint16_t lang_id,
+					   uint8_t *p_buf, uint32_t buf_len,
+					   USBH_ERR *p_err)
 {
-	CPU_INT32U ix;
-	CPU_INT32U str_len;
-	CPU_INT08U *p_str;
+	uint32_t ix;
+	uint32_t str_len;
+	uint8_t *p_str;
 	USBH_DESC_HDR *p_hdr;
 
 	if (desc_ix ==
@@ -3511,11 +3538,11 @@ static USBH_ERR USBH_EP_Open(USBH_DEV *p_dev, USBH_IF *p_if,
 							 USBH_EP_TYPE ep_type, USBH_EP_DIR ep_dir,
 							 USBH_EP *p_ep)
 {
-	CPU_INT08U ep_desc_dir;
-	CPU_INT08U ep_desc_type;
-	CPU_INT08U ep_ix;
-	CPU_INT08U nbr_eps;
-	CPU_BOOLEAN ep_found;
+	uint8_t ep_desc_dir;
+	uint8_t ep_desc_type;
+	uint8_t ep_ix;
+	uint8_t nbr_eps;
+	bool ep_found;
 	USBH_ERR err;
 
 	if (p_ep->IsOpen == DEF_TRUE)
@@ -3682,12 +3709,13 @@ static USBH_ERR USBH_EP_Open(USBH_DEV *p_dev, USBH_IF *p_if,
 *********************************************************************************************************
 */
 
-static CPU_INT32U USBH_SyncXfer(USBH_EP *p_ep, void *p_buf, CPU_INT32U buf_len,
+static uint32_t USBH_SyncXfer(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
 								USBH_ISOC_DESC *p_isoc_desc, USBH_TOKEN token,
-								CPU_INT32U timeout_ms, USBH_ERR *p_err)
+								uint32_t timeout_ms,
+								USBH_ERR *p_err)
 {
 	// LOG_DBG("SyncXfer");
-	CPU_INT32U len;
+	uint32_t len;
 	USBH_URB *p_urb;
 
 	/* Argument checks for valid settings                   */
@@ -3781,7 +3809,7 @@ static CPU_INT32U USBH_SyncXfer(USBH_EP *p_ep, void *p_buf, CPU_INT32U buf_len,
 *********************************************************************************************************
 */
 
-static USBH_ERR USBH_AsyncXfer(USBH_EP *p_ep, void *p_buf, CPU_INT32U buf_len,
+static USBH_ERR USBH_AsyncXfer(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
 							   USBH_ISOC_DESC *p_isoc_desc, USBH_TOKEN token,
 							   void *p_fnct, void *p_fnct_arg)
 {
@@ -3890,19 +3918,22 @@ static USBH_ERR USBH_AsyncXfer(USBH_EP *p_ep, void *p_buf, CPU_INT32U buf_len,
 *********************************************************************************************************
 */
 
-static CPU_INT16U USBH_SyncCtrlXfer(USBH_EP *p_ep, CPU_INT08U b_req,
-									CPU_INT08U bm_req_type, CPU_INT16U w_val,
-									CPU_INT16U w_ix, void *p_arg,
-									CPU_INT16U w_len, CPU_INT32U timeout_ms,
+static uint16_t USBH_SyncCtrlXfer(USBH_EP *p_ep, uint8_t b_req,
+									uint8_t bm_req_type,
+									uint16_t w_val,
+									uint16_t w_ix,
+									void *p_arg,
+									uint16_t w_len,
+									uint32_t timeout_ms,
 									USBH_ERR *p_err)
 {
 	// LOG_DBG("SyncCtrlXfer");
 	USBH_SETUP_REQ setup;
-	CPU_INT08U setup_buf[8];
-	CPU_BOOLEAN is_in;
-	CPU_INT32U len;
-	CPU_INT16U rtn_len;
-	CPU_INT08U *p_data_08;
+	uint8_t setup_buf[8];
+	bool is_in;
+	uint32_t len;
+	uint16_t rtn_len;
+	uint8_t *p_data_08;
 
 	setup.bmRequestType =
 		bm_req_type; /* ------------------- SETUP STAGE -------------------- */
@@ -3931,7 +3962,7 @@ static CPU_INT16U USBH_SyncCtrlXfer(USBH_EP *p_ep, CPU_INT08U b_req,
 	if (w_len >
 		0u)
 	{ /* -------------------- DATA STAGE -------------------- */
-		p_data_08 = (CPU_INT08U *)p_arg;
+		p_data_08 = (uint8_t *)p_arg;
 
 		rtn_len =
 			USBH_SyncXfer(p_ep, (void *)p_data_08, w_len,
@@ -3977,7 +4008,7 @@ static CPU_INT16U USBH_SyncCtrlXfer(USBH_EP *p_ep, CPU_INT08U b_req,
 
 static void USBH_URB_Abort(USBH_URB *p_urb)
 {
-	CPU_BOOLEAN cmpl;
+	bool cmpl;
 	CPU_SR_ALLOC();
 
 	cmpl = DEF_FALSE;
@@ -4025,11 +4056,11 @@ static void USBH_URB_Abort(USBH_URB *p_urb)
 
 static void USBH_URB_Notify(USBH_URB *p_urb)
 {
-	CPU_INT16U nbr_frm;
-	CPU_INT16U *p_frm_len;
-	CPU_INT32U buf_len;
-	CPU_INT32U xfer_len;
-	CPU_INT32U start_frm;
+	uint16_t nbr_frm;
+	uint16_t *p_frm_len;
+	uint32_t buf_len;
+	uint32_t xfer_len;
+	uint32_t start_frm;
 	void *p_buf;
 	void *p_arg;
 	USBH_EP *p_ep;
@@ -4109,7 +4140,7 @@ static void USBH_URB_Notify(USBH_URB *p_urb)
 static USBH_ERR USBH_URB_Submit(USBH_URB *p_urb)
 {
 	USBH_ERR err;
-	CPU_BOOLEAN ep_is_halt;
+	bool ep_is_halt;
 	USBH_DEV *p_dev;
 
 	p_dev = p_urb->EP_Ptr->DevPtr;
@@ -4177,7 +4208,7 @@ static void USBH_URB_Clr(USBH_URB *p_urb)
 
 static USBH_ERR USBH_DfltEP_Open(USBH_DEV *p_dev)
 {
-	CPU_INT16U ep_max_pkt_size;
+	uint16_t ep_max_pkt_size;
 	USBH_EP *p_ep;
 	USBH_ERR err;
 
@@ -4273,7 +4304,7 @@ static USBH_ERR USBH_DfltEP_Open(USBH_DEV *p_dev)
 static USBH_ERR USBH_DevDescRd(USBH_DEV *p_dev)
 {
 	USBH_ERR err;
-	CPU_INT08U retry;
+	uint8_t retry;
 	USBH_DEV_DESC dev_desc;
 
 	retry = 3u;
@@ -4416,13 +4447,13 @@ static USBH_ERR USBH_DevDescRd(USBH_DEV *p_dev)
 *********************************************************************************************************
 */
 
-static USBH_ERR USBH_CfgRd(USBH_DEV *p_dev, CPU_INT08U cfg_ix)
+static USBH_ERR USBH_CfgRd(USBH_DEV *p_dev, uint8_t cfg_ix)
 {
-	CPU_INT16U w_tot_len;
-	CPU_INT16U b_read;
+	uint16_t w_tot_len;
+	uint16_t b_read;
 	USBH_ERR err;
 	USBH_CFG *p_cfg;
-	CPU_INT08U retry;
+	uint8_t retry;
 
 	p_cfg = USBH_CfgGet(p_dev, cfg_ix);
 	if (p_cfg == (USBH_CFG *)0)
@@ -4544,9 +4575,9 @@ static USBH_ERR USBH_CfgRd(USBH_DEV *p_dev, CPU_INT08U cfg_ix)
 
 static USBH_ERR USBH_CfgParse(USBH_DEV *p_dev, USBH_CFG *p_cfg)
 {
-	CPU_INT08S if_ix;
-	CPU_INT08U nbr_ifs;
-	CPU_INT32U cfg_off;
+	int8_t if_ix;
+	uint8_t nbr_ifs;
+	uint32_t cfg_off;
 	USBH_IF *p_if;
 	USBH_DESC_HDR *p_desc;
 	USBH_CFG_DESC cfg_desc;
@@ -4630,7 +4661,7 @@ static USBH_ERR USBH_CfgParse(USBH_DEV *p_dev, USBH_CFG *p_cfg)
 			{
 				p_if = &p_cfg->IF_List[if_ix];
 				p_if->DevPtr = (USBH_DEV *)p_dev;
-				p_if->IF_DataPtr = (CPU_INT08U *)p_desc;
+				p_if->IF_DataPtr = (uint8_t *)p_desc;
 				p_if->IF_DataLen = 0u;
 				if_ix++;
 			}
@@ -4694,7 +4725,7 @@ static USBH_ERR USBH_DevAddrSet(USBH_DEV *p_dev)
 {
 	LOG_DBG("set device address");
 	USBH_ERR err;
-	CPU_INT08U retry;
+	uint8_t retry;
 
 	retry = 3u;
 	while (retry > 0u)
@@ -4779,13 +4810,15 @@ static USBH_ERR USBH_DevAddrSet(USBH_DEV *p_dev)
 *********************************************************************************************************
 */
 
-static CPU_INT32U USBH_StrDescGet(USBH_DEV *p_dev, CPU_INT08U desc_ix,
-								  CPU_INT16U lang_id, void *p_buf,
-								  CPU_INT32U buf_len, USBH_ERR *p_err)
+static uint32_t USBH_StrDescGet(USBH_DEV *p_dev, uint8_t desc_ix,
+								  uint16_t lang_id,
+								  void *p_buf,
+								  uint32_t buf_len,
+								  USBH_ERR *p_err)
 {
-	CPU_INT32U len;
-	CPU_INT32U req_len;
-	CPU_INT08U i;
+	uint32_t len;
+	uint32_t req_len;
+	uint8_t i;
 	USBH_DESC_HDR *p_hdr;
 
 	if (desc_ix == USBH_STRING_DESC_LANGID)
@@ -4945,7 +4978,7 @@ static CPU_INT32U USBH_StrDescGet(USBH_DEV *p_dev, CPU_INT08U desc_ix,
 *********************************************************************************************************
 */
 
-static USBH_DESC_HDR *USBH_NextDescGet(void *p_buf, CPU_INT32U *p_offset)
+static USBH_DESC_HDR *USBH_NextDescGet(void *p_buf, uint32_t *p_offset)
 {
 	USBH_DESC_HDR *p_next_hdr;
 	USBH_DESC_HDR *p_hdr;
@@ -4961,7 +4994,7 @@ static USBH_DESC_HDR *USBH_NextDescGet(void *p_buf, CPU_INT32U *p_offset)
 	else
 	{ /* Next desc is at end of current desc.                 */
 		p_next_hdr =
-			(USBH_DESC_HDR *)((CPU_INT08U *)p_buf + p_hdr->bLength);
+			(USBH_DESC_HDR *)((uint8_t *)p_buf + p_hdr->bLength);
 	}
 
 	*p_offset +=

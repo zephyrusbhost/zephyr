@@ -10,23 +10,7 @@
 #include <zephyr.h>
 #include <sys/math_extras.h>
 
-typedef void CPU_VOID;
-typedef char CPU_CHAR;
-typedef bool CPU_BOOLEAN;
-typedef uint8_t CPU_INT08U;
-typedef int8_t CPU_INT08S;
-typedef uint16_t CPU_INT16U;
-typedef int16_t CPU_INT16S;
-typedef uint32_t CPU_INT32U;
-typedef int32_t CPU_INT32S;
-typedef int64_t CPU_INT64U;
-typedef float CPU_FP32;
-typedef double CPU_FP64;
 typedef void (*CPU_FNCT_PTR)(void *);
-typedef volatile uint8_t CPU_REG08;
-typedef volatile uint16_t CPU_REG16;
-typedef volatile uint32_t CPU_REG32;
-typedef k_thread_stack_t CPU_STK;
 
 #define CPU_ENDIAN_TYPE_NONE 0u
 #define CPU_ENDIAN_TYPE_BIG 1u
@@ -74,8 +58,8 @@ typedef k_thread_stack_t CPU_STK;
 #error "Unknown byte order"
 #endif
 
-typedef CPU_INT32U CPU_ADDR;
-typedef CPU_INT32U CPU_DATA;
+typedef uint32_t CPU_ADDR;
+typedef uint32_t CPU_DATA;
 
 typedef CPU_DATA CPU_ALIGN;  /* Defines CPU data-word-alignment size.  */
 typedef CPU_ADDR CPU_SIZE_T; /* Defines CPU standard 'size_t'   size.  */
