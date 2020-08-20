@@ -540,13 +540,13 @@ LOG_MODULE_REGISTER(msc);
 
 typedef struct usbh_msc_cbw
 {
-    CPU_INT32U dCBWSignature;          /* Signature to identify this data pkt as CBW.          */
-    CPU_INT32U dCBWTag;                /* Command block tag sent by host.                      */
-    CPU_INT32U dCBWDataTransferLength; /* Number of bytes of data that host expects to xfer.   */
-    CPU_INT08U bmCBWFlags;             /* Flags (see Notes #2).                                */
-    CPU_INT08U bCBWLUN;                /* LUN to which the command block is being sent.        */
-    CPU_INT08U bCBWCBLength;           /* Length of CBWCB in bytes.                            */
-    CPU_INT08U CBWCB[16];              /* Command block to be executed by device.              */
+    uint32_t dCBWSignature;          /* Signature to identify this data pkt as CBW.          */
+    uint32_t dCBWTag;                /* Command block tag sent by host.                      */
+    uint32_t dCBWDataTransferLength; /* Number of bytes of data that host expects to xfer.   */
+    uint8_t bmCBWFlags;             /* Flags (see Notes #2).                                */
+    uint8_t bCBWLUN;                /* LUN to which the command block is being sent.        */
+    uint8_t bCBWCBLength;           /* Length of CBWCB in bytes.                            */
+    uint8_t CBWCB[16];              /* Command block to be executed by device.              */
 } USBH_MSC_CBW;
 
 /*
@@ -559,10 +559,10 @@ typedef struct usbh_msc_cbw
 
 typedef struct usbh_msc_csw
 {
-    CPU_INT32U dCSWSignature;   /* Signature to identify this data pkt as CSW.          */
-    CPU_INT32U dCSWTag;         /* Device shall set this to value in CBW's dCBWTag.     */
-    CPU_INT32U dCSWDataResidue; /* Difference between expected & actual nbr data bytes. */
-    CPU_INT08U bCSWStatus;      /* Indicates success or failure of command.             */
+    uint32_t dCSWSignature;   /* Signature to identify this data pkt as CSW.          */
+    uint32_t dCSWTag;         /* Device shall set this to value in CBW's dCBWTag.     */
+    uint32_t dCSWDataResidue; /* Difference between expected & actual nbr data bytes. */
+    uint8_t bCSWStatus;      /* Indicates success or failure of command.             */
 } USBH_MSC_CSW;
 
 /*
@@ -604,13 +604,13 @@ static USBH_ERR USBH_MSC_EP_Open(USBH_MSC_DEV *p_msc_dev);
 
 static void USBH_MSC_EP_Close(USBH_MSC_DEV *p_msc_dev);
 
-static CPU_INT32U USBH_MSC_XferCmd(USBH_MSC_DEV *p_msc_dev,
-                                   CPU_INT08U lun,
+static uint32_t USBH_MSC_XferCmd(USBH_MSC_DEV *p_msc_dev,
+                                   uint8_t lun,
                                    USBH_MSC_DATA_DIR dir,
                                    void *p_cb,
-                                   CPU_INT08U cb_len,
+                                   uint8_t cb_len,
                                    void *p_arg,
-                                   CPU_INT32U data_len,
+                                   uint32_t data_len,
                                    USBH_ERR *p_err);
 
 static USBH_ERR USBH_MSC_TxCBW(USBH_MSC_DEV *p_msc_dev,
@@ -621,11 +621,11 @@ static USBH_ERR USBH_MSC_RxCSW(USBH_MSC_DEV *p_msc_dev,
 
 static USBH_ERR USBH_MSC_TxData(USBH_MSC_DEV *p_msc_dev,
                                 void *p_arg,
-                                CPU_INT32U data_len);
+                                uint32_t data_len);
 
 static USBH_ERR USBH_MSC_RxData(USBH_MSC_DEV *p_msc_dev,
                                 void *p_arg,
-                                CPU_INT32U data_len);
+                                uint32_t data_len);
 
 static USBH_ERR USBH_MSC_ResetRecovery(USBH_MSC_DEV *p_msc_dev);
 
@@ -638,42 +638,42 @@ static void USBH_MSC_ParseCSW(USBH_MSC_CSW *p_csw,
                               void *p_buf_src);
 
 static USBH_ERR USBH_SCSI_CMD_TestUnitReady(USBH_MSC_DEV *p_msc_dev,
-                                            CPU_INT08U lun);
+                                            uint8_t lun);
 
 static USBH_ERR USBH_SCSI_CMD_StdInquiry(USBH_MSC_DEV *p_msc_dev,
                                          USBH_MSC_INQUIRY_INFO *p_msc_inquiry_info,
-                                         CPU_INT08U lun);
+                                         uint8_t lun);
 
-static CPU_INT32U USBH_SCSI_CMD_ReqSense(USBH_MSC_DEV *p_msc_dev,
-                                         CPU_INT08U lun,
-                                         CPU_INT08U *p_arg,
-                                         CPU_INT32U data_len,
+static uint32_t USBH_SCSI_CMD_ReqSense(USBH_MSC_DEV *p_msc_dev,
+                                         uint8_t lun,
+                                         uint8_t *p_arg,
+                                         uint32_t data_len,
                                          USBH_ERR *p_err);
 
 static USBH_ERR USBH_SCSI_GetSenseInfo(USBH_MSC_DEV *p_msc_dev,
-                                       CPU_INT08U lun,
-                                       CPU_INT08U *p_sense_key,
-                                       CPU_INT08U *p_asc,
-                                       CPU_INT08U *p_ascq);
+                                       uint8_t lun,
+                                       uint8_t *p_sense_key,
+                                       uint8_t *p_asc,
+                                       uint8_t *p_ascq);
 
 static USBH_ERR USBH_SCSI_CMD_CapacityRd(USBH_MSC_DEV *p_msc_dev,
-                                         CPU_INT08U lun,
-                                         CPU_INT32U *p_nbr_blks,
-                                         CPU_INT32U *p_blk_size);
+                                         uint8_t lun,
+                                         uint32_t *p_nbr_blks,
+                                         uint32_t *p_blk_size);
 
-static CPU_INT32U USBH_SCSI_Rd(USBH_MSC_DEV *p_msc_dev,
-                               CPU_INT08U lun,
-                               CPU_INT32U blk_addr,
-                               CPU_INT16U nbr_blks,
-                               CPU_INT32U blk_size,
+static uint32_t USBH_SCSI_Rd(USBH_MSC_DEV *p_msc_dev,
+                               uint8_t lun,
+                               uint32_t blk_addr,
+                               uint16_t nbr_blks,
+                               uint32_t blk_size,
                                void *p_arg,
                                USBH_ERR *p_err);
 
-static CPU_INT32U USBH_SCSI_Wr(USBH_MSC_DEV *p_msc_dev,
-                               CPU_INT08U lun,
-                               CPU_INT32U blk_addr,
-                               CPU_INT16U nbr_blks,
-                               CPU_INT32U blk_size,
+static uint32_t USBH_SCSI_Wr(USBH_MSC_DEV *p_msc_dev,
+                               uint8_t lun,
+                               uint32_t blk_addr,
+                               uint16_t nbr_blks,
+                               uint32_t blk_size,
                                const void *p_arg,
                                USBH_ERR *p_err);
 
@@ -690,7 +690,7 @@ static CPU_INT32U USBH_SCSI_Wr(USBH_MSC_DEV *p_msc_dev,
 */
 
 USBH_CLASS_DRV USBH_MSC_ClassDrv = {
-    (CPU_INT08U *)"MASS STORAGE",
+    (uint8_t *)"MASS STORAGE",
     USBH_MSC_GlobalInit,
     0,
     USBH_MSC_ProbeIF,
@@ -758,13 +758,13 @@ USBH_CLASS_DRV USBH_MSC_ClassDrv = {
 */
 
 USBH_ERR USBH_MSC_Init(USBH_MSC_DEV *p_msc_dev,
-                       CPU_INT08U lun)
+                       uint8_t lun)
 {
-    CPU_INT08U retry;
-    CPU_INT08U sense_key;
-    CPU_INT08U asc;
-    CPU_INT08U ascq;
-    CPU_BOOLEAN unit_ready;
+    uint8_t retry;
+    uint8_t sense_key;
+    uint8_t asc;
+    uint8_t ascq;
+    bool unit_ready;
     USBH_ERR err;
 
     /* ------------------- VALIDATE ARG ------------------- */
@@ -903,11 +903,11 @@ USBH_ERR USBH_MSC_Init(USBH_MSC_DEV *p_msc_dev,
 *********************************************************************************************************
 */
 
-CPU_INT08U USBH_MSC_MaxLUN_Get(USBH_MSC_DEV *p_msc_dev,
+uint8_t USBH_MSC_MaxLUN_Get(USBH_MSC_DEV *p_msc_dev,
                                USBH_ERR *p_err)
 {
-    CPU_INT08U if_nbr;
-    CPU_INT08U lun_nbr = 0u;
+    uint8_t if_nbr;
+    uint8_t lun_nbr = 0u;
 
     /* ------------------ VALIDATE ARG -------------------- */
     if (p_msc_dev == (USBH_MSC_DEV *)0)
@@ -997,11 +997,11 @@ CPU_INT08U USBH_MSC_MaxLUN_Get(USBH_MSC_DEV *p_msc_dev,
 *********************************************************************************************************
 */
 
-CPU_BOOLEAN USBH_MSC_UnitRdyTest(USBH_MSC_DEV *p_msc_dev,
-                                 CPU_INT08U lun,
+bool USBH_MSC_UnitRdyTest(USBH_MSC_DEV *p_msc_dev,
+                                 uint8_t lun,
                                  USBH_ERR *p_err)
 {
-    CPU_BOOLEAN unit_rdy = DEF_NO;
+    bool unit_rdy = DEF_NO;
 
     /* ------------------- VALIDATE PTR ------------------- */
     if (p_msc_dev == (USBH_MSC_DEV *)0)
@@ -1076,16 +1076,16 @@ CPU_BOOLEAN USBH_MSC_UnitRdyTest(USBH_MSC_DEV *p_msc_dev,
 */
 
 USBH_ERR USBH_MSC_CapacityRd(USBH_MSC_DEV *p_msc_dev,
-                             CPU_INT08U lun,
-                             CPU_INT32U *p_nbr_blks,
-                             CPU_INT32U *p_blk_size)
+                             uint8_t lun,
+                             uint32_t *p_nbr_blks,
+                             uint32_t *p_blk_size)
 {
     USBH_ERR err;
 
     /* ------------------- VALIDATE PTR ------------------- */
     if ((p_msc_dev == (USBH_MSC_DEV *)0) ||
-        (p_nbr_blks == (CPU_INT32U *)0) ||
-        (p_blk_size == (CPU_INT32U *)0))
+        (p_nbr_blks == (uint32_t *)0) ||
+        (p_blk_size == (uint32_t *)0))
     {
         err = USBH_ERR_INVALID_ARG;
         return (err);
@@ -1147,7 +1147,7 @@ USBH_ERR USBH_MSC_CapacityRd(USBH_MSC_DEV *p_msc_dev,
 
 USBH_ERR USBH_MSC_StdInquiry(USBH_MSC_DEV *p_msc_dev,
                              USBH_MSC_INQUIRY_INFO *p_msc_inquiry_info,
-                             CPU_INT08U lun)
+                             uint8_t lun)
 {
     USBH_ERR err;
 
@@ -1332,16 +1332,16 @@ USBH_ERR USBH_MSC_RefRel(USBH_MSC_DEV *p_msc_dev)
 *********************************************************************************************************
 */
 
-CPU_INT32U USBH_MSC_Rd(USBH_MSC_DEV *p_msc_dev,
-                       CPU_INT08U lun,
-                       CPU_INT32U blk_addr,
-                       CPU_INT16U nbr_blks,
-                       CPU_INT32U blk_size,
+uint32_t USBH_MSC_Rd(USBH_MSC_DEV *p_msc_dev,
+                       uint8_t lun,
+                       uint32_t blk_addr,
+                       uint16_t nbr_blks,
+                       uint32_t blk_size,
                        void *p_arg,
                        USBH_ERR *p_err)
 
 {
-    CPU_INT32U xfer_len;
+    uint32_t xfer_len;
 
     if (p_msc_dev == (USBH_MSC_DEV *)0)
     {
@@ -1421,16 +1421,16 @@ CPU_INT32U USBH_MSC_Rd(USBH_MSC_DEV *p_msc_dev,
 *********************************************************************************************************
 */
 
-CPU_INT32U USBH_MSC_Wr(USBH_MSC_DEV *p_msc_dev,
-                       CPU_INT08U lun,
-                       CPU_INT32U blk_addr,
-                       CPU_INT16U nbr_blks,
-                       CPU_INT32U blk_size,
+uint32_t USBH_MSC_Wr(USBH_MSC_DEV *p_msc_dev,
+                       uint8_t lun,
+                       uint32_t blk_addr,
+                       uint16_t nbr_blks,
+                       uint32_t blk_size,
                        const void *p_arg,
                        USBH_ERR *p_err)
 
 {
-    CPU_INT32U xfer_len;
+    uint32_t xfer_len;
 
     if (p_msc_dev == (USBH_MSC_DEV *)0)
     {
@@ -1494,7 +1494,7 @@ CPU_INT32U USBH_MSC_Wr(USBH_MSC_DEV *p_msc_dev,
 static void USBH_MSC_GlobalInit(USBH_ERR *p_err)
 {
 
-    CPU_INT08U ix;
+    uint8_t ix;
 
     /* --------------- INIT MSC DEV STRUCT ---------------- */
     for (ix = 0u; ix < USBH_MSC_CFG_MAX_DEV; ix++)
@@ -1570,7 +1570,7 @@ static void *USBH_MSC_ProbeIF(USBH_DEV *p_dev,
         }
 
         USBH_MSC_DevClr(p_msc_dev);
-        p_msc_dev->RefCnt = (CPU_INT08U)0;
+        p_msc_dev->RefCnt = (uint8_t)0;
         p_msc_dev->State = USBH_CLASS_DEV_STATE_CONN;
         p_msc_dev->DevPtr = p_dev;
         p_msc_dev->IF_Ptr = p_if;
@@ -1833,16 +1833,16 @@ static void USBH_MSC_EP_Close(USBH_MSC_DEV *p_msc_dev)
 *********************************************************************************************************
 */
 
-static CPU_INT32U USBH_MSC_XferCmd(USBH_MSC_DEV *p_msc_dev,
-                                   CPU_INT08U lun,
+static uint32_t USBH_MSC_XferCmd(USBH_MSC_DEV *p_msc_dev,
+                                   uint8_t lun,
                                    USBH_MSC_DATA_DIR dir,
                                    void *p_cb,
-                                   CPU_INT08U cb_len,
+                                   uint8_t cb_len,
                                    void *p_arg,
-                                   CPU_INT32U data_len,
+                                   uint32_t data_len,
                                    USBH_ERR *p_err)
 {
-    CPU_INT32U xfer_len;
+    uint32_t xfer_len;
     USBH_MSC_CBW msc_cbw;
     USBH_MSC_CSW msc_csw;
 
@@ -1958,9 +1958,9 @@ static CPU_INT32U USBH_MSC_XferCmd(USBH_MSC_DEV *p_msc_dev,
 static USBH_ERR USBH_MSC_TxCBW(USBH_MSC_DEV *p_msc_dev,
                                USBH_MSC_CBW *p_msc_cbw)
 {
-    CPU_INT08U cmd_buf[USBH_MSC_LEN_CBW];
+    uint8_t cmd_buf[USBH_MSC_LEN_CBW];
     USBH_ERR err;
-    CPU_INT32U len;
+    uint32_t len;
 
     Mem_Clr((void *)cmd_buf,
             USBH_MSC_LEN_CBW);
@@ -2019,10 +2019,10 @@ static USBH_ERR USBH_MSC_TxCBW(USBH_MSC_DEV *p_msc_dev,
 static USBH_ERR USBH_MSC_RxCSW(USBH_MSC_DEV *p_msc_dev,
                                USBH_MSC_CSW *p_msc_csw)
 {
-    CPU_INT32U retry;
-    CPU_INT08U status_buf[USBH_MSC_LEN_CSW];
+    uint32_t retry;
+    uint8_t status_buf[USBH_MSC_LEN_CSW];
     USBH_ERR err;
-    CPU_INT32U len;
+    uint32_t len;
 
     err = USBH_ERR_NONE;
     retry = 2u;
@@ -2089,19 +2089,19 @@ static USBH_ERR USBH_MSC_RxCSW(USBH_MSC_DEV *p_msc_dev,
 
 static USBH_ERR USBH_MSC_TxData(USBH_MSC_DEV *p_msc_dev,
                                 void *p_arg,
-                                CPU_INT32U data_len)
+                                uint32_t data_len)
 {
     USBH_ERR err;
-    CPU_BOOLEAN retry;
-    CPU_INT08U *p_data_08;
-    CPU_INT16U retry_cnt;
-    CPU_INT32U p_data_ix;
-    CPU_INT32U data_len_rem;
-    CPU_INT32U data_len_tx;
+    bool retry;
+    uint8_t *p_data_08;
+    uint16_t retry_cnt;
+    uint32_t p_data_ix;
+    uint32_t data_len_rem;
+    uint32_t data_len_tx;
 
     err = USBH_ERR_NONE;
     p_data_ix = 0u;
-    p_data_08 = (CPU_INT08U *)p_arg;
+    p_data_08 = (uint8_t *)p_arg;
     data_len_rem = data_len;
     retry_cnt = 0u;
     retry = DEF_TRUE;
@@ -2189,20 +2189,20 @@ static USBH_ERR USBH_MSC_TxData(USBH_MSC_DEV *p_msc_dev,
 
 static USBH_ERR USBH_MSC_RxData(USBH_MSC_DEV *p_msc_dev,
                                 void *p_arg,
-                                CPU_INT32U data_len)
+                                uint32_t data_len)
 
 {
     USBH_ERR err;
-    CPU_BOOLEAN retry;
-    CPU_INT08U *p_data_08;
-    CPU_INT16U retry_cnt;
-    CPU_INT32U p_data_ix;
-    CPU_INT32U data_len_rem;
-    CPU_INT32U data_len_rx;
+    bool retry;
+    uint8_t *p_data_08;
+    uint16_t retry_cnt;
+    uint32_t p_data_ix;
+    uint32_t data_len_rem;
+    uint32_t data_len_rx;
 
     err = USBH_ERR_NONE;
     p_data_ix = 0u;
-    p_data_08 = (CPU_INT08U *)p_arg;
+    p_data_08 = (uint8_t *)p_arg;
     data_len_rem = data_len;
     retry_cnt = 0u;
     retry = DEF_TRUE;
@@ -2335,7 +2335,7 @@ static USBH_ERR USBH_MSC_ResetRecovery(USBH_MSC_DEV *p_msc_dev)
 static USBH_ERR USBH_MSC_BulkOnlyReset(USBH_MSC_DEV *p_msc_dev)
 {
     USBH_ERR err;
-    CPU_INT08U if_nbr;
+    uint8_t if_nbr;
 
     err = USBH_ERR_NONE;
     if_nbr = USBH_IF_NbrGet(p_msc_dev->IF_Ptr);
@@ -2389,11 +2389,11 @@ static USBH_ERR USBH_MSC_BulkOnlyReset(USBH_MSC_DEV *p_msc_dev)
 
 static USBH_ERR USBH_SCSI_CMD_StdInquiry(USBH_MSC_DEV *p_msc_dev,
                                          USBH_MSC_INQUIRY_INFO *p_msc_inquiry_info,
-                                         CPU_INT08U lun)
+                                         uint8_t lun)
 {
     USBH_ERR err;
-    CPU_INT08U cmd[6];
-    CPU_INT08U data[0x24];
+    uint8_t cmd[6];
+    uint8_t data[0x24];
 
     /* ------- PREPARE SCSI CMD BLOCK (SEE NOTE #1) ------- */
     cmd[0] = USBH_SCSI_CMD_INQUIRY; /* Operation code (0x12).                               */
@@ -2458,10 +2458,10 @@ static USBH_ERR USBH_SCSI_CMD_StdInquiry(USBH_MSC_DEV *p_msc_dev,
 */
 
 static USBH_ERR USBH_SCSI_CMD_TestUnitReady(USBH_MSC_DEV *p_msc_dev,
-                                            CPU_INT08U lun)
+                                            uint8_t lun)
 {
     USBH_ERR err;
-    CPU_INT08U cmd[6];
+    uint8_t cmd[6];
     /* See Note #1.                                         */
     /* ------------ PREPARE SCSI COMMAND BLOCK ------------ */
     cmd[0] = USBH_SCSI_CMD_TEST_UNIT_READY; /* Operation code (0x00).                               */
@@ -2516,14 +2516,14 @@ static USBH_ERR USBH_SCSI_CMD_TestUnitReady(USBH_MSC_DEV *p_msc_dev,
 *********************************************************************************************************
 */
 
-static CPU_INT32U USBH_SCSI_CMD_ReqSense(USBH_MSC_DEV *p_msc_dev,
-                                         CPU_INT08U lun,
-                                         CPU_INT08U *p_arg,
-                                         CPU_INT32U data_len,
+static uint32_t USBH_SCSI_CMD_ReqSense(USBH_MSC_DEV *p_msc_dev,
+                                         uint8_t lun,
+                                         uint8_t *p_arg,
+                                         uint32_t data_len,
                                          USBH_ERR *p_err)
 {
-    CPU_INT08U cmd[6];
-    CPU_INT32U xfer_len;
+    uint8_t cmd[6];
+    uint32_t xfer_len;
 
     /* See Note(s) #1                                       */
     /* ------------ PREPARE SCSI COMMAND BLOCK ------------ */
@@ -2531,7 +2531,7 @@ static CPU_INT32U USBH_SCSI_CMD_ReqSense(USBH_MSC_DEV *p_msc_dev,
     cmd[1] = 0u;                          /* Reserved.                                            */
     cmd[2] = 0u;                          /* Reserved.                                            */
     cmd[3] = 0u;                          /* Reserved.                                            */
-    cmd[4] = (CPU_INT08U)data_len;        /* Allocation length.                                   */
+    cmd[4] = (uint8_t)data_len;        /* Allocation length.                                   */
     cmd[5] = 0u;                          /* Ctrl.                                                */
 
     /* ------------------ SEND SCSI CMD ------------------- */
@@ -2588,15 +2588,15 @@ static CPU_INT32U USBH_SCSI_CMD_ReqSense(USBH_MSC_DEV *p_msc_dev,
 */
 
 static USBH_ERR USBH_SCSI_GetSenseInfo(USBH_MSC_DEV *p_msc_dev,
-                                       CPU_INT08U lun,
-                                       CPU_INT08U *p_sense_key,
-                                       CPU_INT08U *p_asc,
-                                       CPU_INT08U *p_ascq)
+                                       uint8_t lun,
+                                       uint8_t *p_sense_key,
+                                       uint8_t *p_asc,
+                                       uint8_t *p_ascq)
 {
     USBH_ERR err;
-    CPU_INT32U xfer_len;
-    CPU_INT08U sense_data[18];
-    CPU_INT08U resp_code;
+    uint32_t xfer_len;
+    uint8_t sense_data[18];
+    uint8_t resp_code;
 
     xfer_len = USBH_SCSI_CMD_ReqSense(p_msc_dev, /* Issue SCSI request sense cmd.                        */
                                       lun,
@@ -2667,12 +2667,12 @@ static USBH_ERR USBH_SCSI_GetSenseInfo(USBH_MSC_DEV *p_msc_dev,
 */
 
 static USBH_ERR USBH_SCSI_CMD_CapacityRd(USBH_MSC_DEV *p_msc_dev,
-                                         CPU_INT08U lun,
-                                         CPU_INT32U *p_nbr_blks,
-                                         CPU_INT32U *p_blk_size)
+                                         uint8_t lun,
+                                         uint32_t *p_nbr_blks,
+                                         uint32_t *p_blk_size)
 {
-    CPU_INT08U cmd[10];
-    CPU_INT08U data[8];
+    uint8_t cmd[10];
+    uint8_t data[8];
     USBH_ERR err;
     /* See Note #1.                                         */
     /* -------------- PREPARE SCSI CMD BLOCK -------------- */
@@ -2742,17 +2742,17 @@ static USBH_ERR USBH_SCSI_CMD_CapacityRd(USBH_MSC_DEV *p_msc_dev,
 *********************************************************************************************************
 */
 
-static CPU_INT32U USBH_SCSI_Rd(USBH_MSC_DEV *p_msc_dev,
-                               CPU_INT08U lun,
-                               CPU_INT32U blk_addr,
-                               CPU_INT16U nbr_blks,
-                               CPU_INT32U blk_size,
+static uint32_t USBH_SCSI_Rd(USBH_MSC_DEV *p_msc_dev,
+                               uint8_t lun,
+                               uint32_t blk_addr,
+                               uint16_t nbr_blks,
+                               uint32_t blk_size,
                                void *p_arg,
                                USBH_ERR *p_err)
 {
-    CPU_INT08U cmd[10];
-    CPU_INT32U data_len;
-    CPU_INT32U xfer_len;
+    uint8_t cmd[10];
+    uint32_t data_len;
+    uint32_t xfer_len;
 
     data_len = nbr_blks * blk_size;
     /* See Note #1.                                         */
@@ -2774,7 +2774,7 @@ static CPU_INT32U USBH_SCSI_Rd(USBH_MSC_DEV *p_msc_dev,
                                 p_err);
     if (*p_err != USBH_ERR_NONE)
     {
-        xfer_len = (CPU_INT32U)0;
+        xfer_len = (uint32_t)0;
     }
 
     return (xfer_len);
@@ -2817,18 +2817,18 @@ static CPU_INT32U USBH_SCSI_Rd(USBH_MSC_DEV *p_msc_dev,
 *********************************************************************************************************
 */
 
-static CPU_INT32U USBH_SCSI_Wr(USBH_MSC_DEV *p_msc_dev,
-                               CPU_INT08U lun,
-                               CPU_INT32U blk_addr,
-                               CPU_INT16U nbr_blks,
-                               CPU_INT32U blk_size,
+static uint32_t USBH_SCSI_Wr(USBH_MSC_DEV *p_msc_dev,
+                               uint8_t lun,
+                               uint32_t blk_addr,
+                               uint16_t nbr_blks,
+                               uint32_t blk_size,
                                const void *p_arg,
                                USBH_ERR *p_err)
 
 {
-    CPU_INT08U cmd[10];
-    CPU_INT32U data_len;
-    CPU_INT32U xfer_len;
+    uint8_t cmd[10];
+    uint32_t data_len;
+    uint32_t xfer_len;
 
     data_len = nbr_blks * blk_size;
     /* See Note #1.                                         */
@@ -2875,7 +2875,7 @@ static CPU_INT32U USBH_SCSI_Wr(USBH_MSC_DEV *p_msc_dev,
 static void USBH_MSC_FmtCBW(USBH_MSC_CBW *p_cbw,
                             void *p_buf_dest)
 {
-    CPU_INT08U i;
+    uint8_t i;
     USBH_MSC_CBW *p_buf_dest_cbw;
 
     p_buf_dest_cbw = (USBH_MSC_CBW *)p_buf_dest;

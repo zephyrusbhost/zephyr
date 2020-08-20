@@ -93,25 +93,25 @@ extern  USBH_CLASS_DRV  USBH_HUB_Drv;
 */
 
 USBH_ERR    USBH_HUB_PortEn        (USBH_HUB_DEV   *p_hub_dev,
-                                    CPU_INT16U      port_nbr);
+                                    uint16_t      port_nbr);
 
 USBH_ERR    USBH_HUB_PortDis       (USBH_HUB_DEV   *p_hub_dev,
-                                    CPU_INT16U      port_nbr);
+                                    uint16_t      port_nbr);
 
 USBH_ERR    USBH_HUB_PortSuspendSet(USBH_HUB_DEV   *p_hub_dev,
-                                    CPU_INT16U      port_nbr);
+                                    uint16_t      port_nbr);
 
 void        USBH_HUB_ClassNotify   (void           *p_class_dev,
-                                    CPU_INT08U      state,
+                                    uint8_t      state,
                                     void           *p_ctx);
 
-CPU_INT32U  USBH_HUB_RH_CtrlReq    (USBH_HC        *p_hc,
-                                    CPU_INT08U      b_req,
-                                    CPU_INT08U      bm_req_type,
-                                    CPU_INT16U      w_val,
-                                    CPU_INT16U      w_ix,
+uint32_t  USBH_HUB_RH_CtrlReq    (USBH_HC        *p_hc,
+                                    uint8_t      b_req,
+                                    uint8_t      bm_req_type,
+                                    uint16_t      w_val,
+                                    uint16_t      w_ix,
                                     void           *p_buf,
-                                    CPU_INT32U      buf_len,
+                                    uint32_t      buf_len,
                                     USBH_ERR       *p_err);
 
 void        USBH_HUB_RH_Event      (USBH_DEV       *p_dev);

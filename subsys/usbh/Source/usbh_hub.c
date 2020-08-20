@@ -57,7 +57,7 @@ K_MEM_POOL_DEFINE(USBH_HUB_Pool, sizeof(USBH_HUB_DEV), sizeof(USBH_HUB_DEV), USB
 ********************************************************************************************************
 */
 
-static const CPU_INT08U USBH_HUB_RH_DevDesc[18] = {
+static const uint8_t USBH_HUB_RH_DevDesc[18] = {
     USBH_LEN_DESC_DEV,              /* bLength                                              */
     USBH_DESC_TYPE_DEV,             /* bDescriptorType: Device                              */
     0x10u, 0x01u,                   /* bcdUSB: v1.1                                         */
@@ -80,7 +80,7 @@ static const CPU_INT08U USBH_HUB_RH_DevDesc[18] = {
 ********************************************************************************************************
 */
 
-static const CPU_INT08U USBH_HUB_RH_FS_CfgDesc[] = {
+static const uint8_t USBH_HUB_RH_FS_CfgDesc[] = {
     /* ------------- CONFIGURATION DESCRIPTOR ------------- */
     USBH_LEN_DESC_CFG,  /* bLength                                              */
     USBH_DESC_TYPE_CFG, /* bDescriptorType CONFIGURATION                        */
@@ -123,7 +123,7 @@ static const CPU_INT08U USBH_HUB_RH_FS_CfgDesc[] = {
 ********************************************************************************************************
 */
 
-static const CPU_INT08U USBH_HUB_RH_LangID[] = {
+static const uint8_t USBH_HUB_RH_LangID[] = {
     0x04u,
     USBH_DESC_TYPE_STR,
     0x09u, 0x04u, /* Identifer for English (United States). See Note #1.  */
@@ -147,7 +147,7 @@ static const CPU_INT08U USBH_HUB_RH_LangID[] = {
 *********************************************************************************************************
 */
 
-static CPU_INT08U USBH_HUB_DescBuf[USBH_HUB_MAX_DESC_LEN];
+static uint8_t USBH_HUB_DescBuf[USBH_HUB_MAX_DESC_LEN];
 static USBH_HUB_DEV USBH_HUB_Arr[USBH_CFG_MAX_HUBS];
 static int8_t HubCount = USBH_CFG_MAX_HUBS;
 static volatile USBH_HUB_DEV *USBH_HUB_HeadPtr;
@@ -184,8 +184,8 @@ static USBH_ERR USBH_HUB_EventReq(USBH_HUB_DEV *p_hub_dev);
 
 static void USBH_HUB_ISR(USBH_EP *p_ep,
                          void *p_buf,
-                         CPU_INT32U buf_len,
-                         CPU_INT32U xfer_len,
+                         uint32_t buf_len,
+                         uint32_t xfer_len,
                          void *p_arg,
                          USBH_ERR err);
 
@@ -196,32 +196,32 @@ static USBH_ERR USBH_HUB_DescGet(USBH_HUB_DEV *p_hub_dev);
 static USBH_ERR USBH_HUB_PortsInit(USBH_HUB_DEV *p_hub_dev);
 
 static USBH_ERR USBH_HUB_PortStatusGet(USBH_HUB_DEV *p_hub_dev,
-                                       CPU_INT16U port_nbr,
+                                       uint16_t port_nbr,
                                        USBH_HUB_PORT_STATUS *p_port_status);
 
 static USBH_ERR USBH_HUB_PortResetSet(USBH_HUB_DEV *p_hub_dev,
-                                      CPU_INT16U port_nbr);
+                                      uint16_t port_nbr);
 
 static USBH_ERR USBH_HUB_PortRstChngClr(USBH_HUB_DEV *p_hub_dev,
-                                        CPU_INT16U port_nbr);
+                                        uint16_t port_nbr);
 
 static USBH_ERR USBH_HUB_PortEnChngClr(USBH_HUB_DEV *p_hub_dev,
-                                       CPU_INT16U port_nbr);
+                                       uint16_t port_nbr);
 
 static USBH_ERR USBH_HUB_PortConnChngClr(USBH_HUB_DEV *p_hub_dev,
-                                         CPU_INT16U port_nbr);
+                                         uint16_t port_nbr);
 
 static USBH_ERR USBH_HUB_PortPwrSet(USBH_HUB_DEV *p_hub_dev,
-                                    CPU_INT16U port_nbr);
+                                    uint16_t port_nbr);
 
 static USBH_ERR USBH_HUB_PortSuspendClr(USBH_HUB_DEV *p_hub_dev,
-                                        CPU_INT16U port_nbr);
+                                        uint16_t port_nbr);
 
 static USBH_ERR USBH_HUB_PortEnClr(USBH_HUB_DEV *p_hub_dev,
-                                   CPU_INT16U port_nbr);
+                                   uint16_t port_nbr);
 
 static USBH_ERR USBH_HUB_PortEnSet(USBH_HUB_DEV *p_hub_dev,
-                                   CPU_INT16U port_nbr);
+                                   uint16_t port_nbr);
 
 static void USBH_HUB_Clr(USBH_HUB_DEV *p_hub_dev);
 
@@ -242,7 +242,7 @@ static USBH_ERR USBH_HUB_RefRel(USBH_HUB_DEV *p_hub_dev);
 */
 
 USBH_CLASS_DRV USBH_HUB_Drv = {
-    (CPU_INT08U *)"HUB",
+    (uint8_t *)"HUB",
     USBH_HUB_GlobalInit,
     0,
     USBH_HUB_IF_Probe,
@@ -309,7 +309,7 @@ void USBH_HUB_EventTask(void *p_arg, void *p_arg2, void *p_arg3)
 */
 
 USBH_ERR USBH_HUB_PortDis(USBH_HUB_DEV *p_hub_dev,
-                          CPU_INT16U port_nbr)
+                          uint16_t port_nbr)
 {
     USBH_ERR err;
 
@@ -349,7 +349,7 @@ USBH_ERR USBH_HUB_PortDis(USBH_HUB_DEV *p_hub_dev,
 */
 
 USBH_ERR USBH_HUB_PortEn(USBH_HUB_DEV *p_hub_dev,
-                         CPU_INT16U port_nbr)
+                         uint16_t port_nbr)
 {
     USBH_ERR err;
 
@@ -393,7 +393,7 @@ USBH_ERR USBH_HUB_PortEn(USBH_HUB_DEV *p_hub_dev,
 
 static void USBH_HUB_GlobalInit(USBH_ERR *p_err)
 {
-    CPU_INT08U hub_ix;
+    uint8_t hub_ix;
 
     for (hub_ix = 0u; hub_ix < USBH_CFG_MAX_HUBS; hub_ix++)
     { /* Clr all HUB dev structs.                             */
@@ -487,7 +487,7 @@ static void *USBH_HUB_IF_Probe(USBH_DEV *p_dev,
         USBH_HUB_Clr(p_hub_dev);
         USBH_HUB_RefAdd(p_hub_dev);
 
-        p_hub_dev->State = (CPU_INT08U)USBH_CLASS_DEV_STATE_CONN;
+        p_hub_dev->State = (uint8_t)USBH_CLASS_DEV_STATE_CONN;
         p_hub_dev->DevPtr = p_dev;
         p_hub_dev->IF_Ptr = p_if;
         p_hub_dev->ErrCnt = 0u;
@@ -528,8 +528,8 @@ static void *USBH_HUB_IF_Probe(USBH_DEV *p_dev,
 
 static void USBH_HUB_Suspend(void *p_class_dev)
 {
-    CPU_INT16U nbr_ports;
-    CPU_INT16U port_ix;
+    uint16_t nbr_ports;
+    uint16_t port_ix;
     USBH_DEV *p_dev;
     USBH_HUB_DEV *p_hub_dev;
 
@@ -565,8 +565,8 @@ static void USBH_HUB_Suspend(void *p_class_dev)
 
 static void USBH_HUB_Resume(void *p_class_dev)
 {
-    CPU_INT16U nbr_ports;
-    CPU_INT16U port_ix;
+    uint16_t nbr_ports;
+    uint16_t port_ix;
     USBH_DEV *p_dev;
     USBH_HUB_DEV *p_hub_dev;
     USBH_HUB_PORT_STATUS port_status;
@@ -719,8 +719,8 @@ static USBH_ERR USBH_HUB_Init(USBH_HUB_DEV *p_hub_dev)
 
 static void USBH_HUB_Uninit(USBH_HUB_DEV *p_hub_dev)
 {
-    CPU_INT16U nbr_ports;
-    CPU_INT16U port_ix;
+    uint16_t nbr_ports;
+    uint16_t port_ix;
     USBH_DEV *p_dev;
 
     USBH_HUB_EP_Close(p_hub_dev);
@@ -823,8 +823,8 @@ static void USBH_HUB_EP_Close(USBH_HUB_DEV *p_hub_dev)
 
 static USBH_ERR USBH_HUB_EventReq(USBH_HUB_DEV *p_hub_dev)
 {
-    CPU_INT32U len;
-    CPU_BOOLEAN valid;
+    uint32_t len;
+    bool valid;
     USBH_HC_RH_API *p_rh_api;
     USBH_ERR err;
     USBH_DEV *p_dev;
@@ -882,8 +882,8 @@ static USBH_ERR USBH_HUB_EventReq(USBH_HUB_DEV *p_hub_dev)
 
 static void USBH_HUB_ISR(USBH_EP *p_ep,
                          void *p_buf,
-                         CPU_INT32U buf_len,
-                         CPU_INT32U xfer_len,
+                         uint32_t buf_len,
+                         uint32_t xfer_len,
                          void *p_arg,
                          USBH_ERR err)
 {
@@ -955,8 +955,8 @@ static void USBH_HUB_ISR(USBH_EP *p_ep,
 
 static void USBH_HUB_EventProcess(void)
 {
-    CPU_INT16U nbr_ports;
-    CPU_INT16U port_nbr;
+    uint16_t nbr_ports;
+    uint16_t port_nbr;
     USBH_DEV_SPD dev_spd;
     USBH_HUB_DEV *p_hub_dev;
     USBH_HUB_PORT_STATUS port_status;
@@ -1221,8 +1221,8 @@ static void USBH_HUB_EventProcess(void)
 static USBH_ERR USBH_HUB_DescGet(USBH_HUB_DEV *p_hub_dev)
 {
     USBH_ERR err;
-    CPU_INT32U len;
-    CPU_INT32U i;
+    uint32_t len;
+    uint32_t i;
     USBH_DESC_HDR hdr;
 
     for (i = 0u; i < USBH_CFG_STD_REQ_RETRY; i++)
@@ -1321,8 +1321,8 @@ static USBH_ERR USBH_HUB_DescGet(USBH_HUB_DEV *p_hub_dev)
 static USBH_ERR USBH_HUB_PortsInit(USBH_HUB_DEV *p_hub_dev)
 {
     USBH_ERR err;
-    CPU_INT32U i;
-    CPU_INT16U nbr_ports;
+    uint32_t i;
+    uint16_t nbr_ports;
 
     nbr_ports = DEF_MIN(p_hub_dev->Desc.bNbrPorts,
                         USBH_CFG_MAX_HUB_PORTS);
@@ -1370,14 +1370,14 @@ static USBH_ERR USBH_HUB_PortsInit(USBH_HUB_DEV *p_hub_dev)
 */
 
 static USBH_ERR USBH_HUB_PortStatusGet(USBH_HUB_DEV *p_hub_dev,
-                                       CPU_INT16U port_nbr,
+                                       uint16_t port_nbr,
                                        USBH_HUB_PORT_STATUS *p_port_status)
 {
-    CPU_INT08U *p_buf;
+    uint8_t *p_buf;
     USBH_HUB_PORT_STATUS port_status;
     USBH_ERR err;
 
-    p_buf = (CPU_INT08U *)&port_status;
+    p_buf = (uint8_t *)&port_status;
 
     (void)USBH_CtrlRx(p_hub_dev->DevPtr, /* See Note (1).                                        */
                       USBH_REQ_GET_STATUS,
@@ -1427,7 +1427,7 @@ static USBH_ERR USBH_HUB_PortStatusGet(USBH_HUB_DEV *p_hub_dev,
 */
 
 static USBH_ERR USBH_HUB_PortResetSet(USBH_HUB_DEV *p_hub_dev,
-                                      CPU_INT16U port_nbr)
+                                      uint16_t port_nbr)
 {
     USBH_ERR err;
 
@@ -1474,7 +1474,7 @@ static USBH_ERR USBH_HUB_PortResetSet(USBH_HUB_DEV *p_hub_dev,
 */
 
 static USBH_ERR USBH_HUB_PortRstChngClr(USBH_HUB_DEV *p_hub_dev,
-                                        CPU_INT16U port_nbr)
+                                        uint16_t port_nbr)
 {
     USBH_ERR err;
 
@@ -1521,7 +1521,7 @@ static USBH_ERR USBH_HUB_PortRstChngClr(USBH_HUB_DEV *p_hub_dev,
 */
 
 static USBH_ERR USBH_HUB_PortEnChngClr(USBH_HUB_DEV *p_hub_dev,
-                                       CPU_INT16U port_nbr)
+                                       uint16_t port_nbr)
 {
     USBH_ERR err;
 
@@ -1568,7 +1568,7 @@ static USBH_ERR USBH_HUB_PortEnChngClr(USBH_HUB_DEV *p_hub_dev,
 */
 
 static USBH_ERR USBH_HUB_PortConnChngClr(USBH_HUB_DEV *p_hub_dev,
-                                         CPU_INT16U port_nbr)
+                                         uint16_t port_nbr)
 {
     USBH_ERR err;
 
@@ -1615,7 +1615,7 @@ static USBH_ERR USBH_HUB_PortConnChngClr(USBH_HUB_DEV *p_hub_dev,
 */
 
 static USBH_ERR USBH_HUB_PortPwrSet(USBH_HUB_DEV *p_hub_dev,
-                                    CPU_INT16U port_nbr)
+                                    uint16_t port_nbr)
 {
     USBH_ERR err;
 
@@ -1662,7 +1662,7 @@ static USBH_ERR USBH_HUB_PortPwrSet(USBH_HUB_DEV *p_hub_dev,
 */
 
 static USBH_ERR USBH_HUB_PortSuspendClr(USBH_HUB_DEV *p_hub_dev,
-                                        CPU_INT16U port_nbr)
+                                        uint16_t port_nbr)
 {
     USBH_ERR err;
 
@@ -1709,7 +1709,7 @@ static USBH_ERR USBH_HUB_PortSuspendClr(USBH_HUB_DEV *p_hub_dev,
 */
 
 static USBH_ERR USBH_HUB_PortEnClr(USBH_HUB_DEV *p_hub_dev,
-                                   CPU_INT16U port_nbr)
+                                   uint16_t port_nbr)
 {
     USBH_ERR err;
 
@@ -1756,7 +1756,7 @@ static USBH_ERR USBH_HUB_PortEnClr(USBH_HUB_DEV *p_hub_dev,
 */
 
 static USBH_ERR USBH_HUB_PortEnSet(USBH_HUB_DEV *p_hub_dev,
-                                   CPU_INT16U port_nbr)
+                                   uint16_t port_nbr)
 {
     USBH_ERR err;
 
@@ -1803,7 +1803,7 @@ static USBH_ERR USBH_HUB_PortEnSet(USBH_HUB_DEV *p_hub_dev,
 */
 
 USBH_ERR USBH_HUB_PortSuspendSet(USBH_HUB_DEV *p_hub_dev,
-                                 CPU_INT16U port_nbr)
+                                 uint16_t port_nbr)
 {
     USBH_ERR err;
 
@@ -1840,7 +1840,7 @@ USBH_ERR USBH_HUB_PortSuspendSet(USBH_HUB_DEV *p_hub_dev,
 
 static void USBH_HUB_Clr(USBH_HUB_DEV *p_hub_dev)
 {
-    CPU_INT08U dev_ix;
+    uint8_t dev_ix;
 
     p_hub_dev->DevPtr = (USBH_DEV *)0;
     p_hub_dev->IF_Ptr = (USBH_IF *)0;
@@ -1957,19 +1957,19 @@ static USBH_ERR USBH_HUB_RefRel(USBH_HUB_DEV *p_hub_dev)
 *********************************************************************************************************
 */
 
-CPU_INT32U USBH_HUB_RH_CtrlReq(USBH_HC *p_hc,
-                               CPU_INT08U b_req,
-                               CPU_INT08U bm_req_type,
-                               CPU_INT16U w_val,
-                               CPU_INT16U w_ix,
+uint32_t USBH_HUB_RH_CtrlReq(USBH_HC *p_hc,
+                               uint8_t b_req,
+                               uint8_t bm_req_type,
+                               uint16_t w_val,
+                               uint16_t w_ix,
                                void *p_buf,
-                               CPU_INT32U buf_len,
+                               uint32_t buf_len,
                                USBH_ERR *p_err)
 {
-    CPU_INT32U len;
+    uint32_t len;
     USBH_HC_DRV *p_hc_drv;
     USBH_HC_RH_API *p_hc_rh_api;
-    CPU_BOOLEAN valid;
+    bool valid;
 
     p_hc_drv = &p_hc->HC_Drv;
     p_hc_rh_api = p_hc_drv->RH_API_Ptr;
@@ -2225,7 +2225,7 @@ void USBH_HUB_RH_Event(USBH_DEV *p_dev)
 */
 
 void USBH_HUB_ClassNotify(void *p_class_dev,
-                          CPU_INT08U state,
+                          uint8_t state,
                           void *p_ctx)
 {
     USBH_HUB_DEV *p_hub_dev;
@@ -2276,7 +2276,7 @@ void USBH_HUB_ParseHubDesc(USBH_HUB_DESC *p_hub_desc,
                            void *p_buf_src)
 {
     USBH_HUB_DESC *p_buf_src_desc;
-    CPU_INT08U i;
+    uint8_t i;
 
     p_buf_src_desc = (USBH_HUB_DESC *)p_buf_src;
 

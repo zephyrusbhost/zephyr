@@ -214,7 +214,7 @@ LOG_MODULE_REGISTER(hcd);
 *********************************************************************************************************
 */
 /* NVM software calibration area address                */
-#define ATSAMX_NVM_SW_CAL_AREA ((CPU_REG32 *)0x00800080u)
+#define ATSAMX_NVM_SW_CAL_AREA ((volatile uint32_t *)0x00800080u)
 #define ATSAMX_NVM_USB_TRANSN_POS 32u
 #define ATSAMX_NVM_USB_TRANSP_POS 37u
 #define ATSAMX_NVM_USB_TRIM_POS 42u
@@ -275,13 +275,13 @@ LOG_MODULE_REGISTER(hcd);
 typedef struct usbh_atsamx_desc_bank
 {
 	/* ----------- USB HOST PIPE DESCRIPTOR BANK ---------- */
-	CPU_REG32 ADDR;		 /* Address of the data buffer                           */
-	CPU_REG32 PCKSIZE;	 /* Packet size                                          */
-	CPU_REG16 EXTREG;	 /* Extended register                                    */
-	CPU_REG08 STATUS_BK; /* Host status bank                                     */
-	CPU_REG08 RSVD0;
-	CPU_REG16 CTRL_PIPE;   /* Host control pipe                                    */
-	CPU_REG16 STATUS_PIPE; /* Host Status pipe                                     */
+	volatile uint32_t ADDR;		 /* Address of the data buffer                           */
+	volatile uint32_t PCKSIZE;	 /* Packet size                                          */
+	volatile uint16_t EXTREG;	 /* Extended register                                    */
+	volatile uint8_t STATUS_BK; /* Host status bank                                     */
+	volatile uint8_t RSVD0;
+	volatile uint16_t CTRL_PIPE;   /* Host control pipe                                    */
+	volatile uint16_t STATUS_PIPE; /* Host Status pipe                                     */
 } USBH_ATSAMX_DESC_BANK;
 
 typedef struct usbh_atsamx_pipe_desc
@@ -292,58 +292,58 @@ typedef struct usbh_atsamx_pipe_desc
 typedef struct usbh_atsamx_pipe_reg
 {
 	/* -------------- USB HOST PIPE REGISTERS ------------- */
-	CPU_REG08 PCFG; /* Host pipe configuration                              */
-	CPU_REG08 RSVD0[2u];
-	CPU_REG08 BINTERVAL;  /* Interval for the Bulk-Out/Ping transaction           */
-	CPU_REG08 PSTATUSCLR; /* Pipe status clear                                    */
-	CPU_REG08 PSTATUSSET; /* Pipe status set                                      */
-	CPU_REG08 PSTATUS;	  /* Pipe status register                                 */
-	CPU_REG08 PINTFLAG;	  /* Host pipe interrupt flag register                    */
-	CPU_REG08 PINTENCLR;  /* Host pipe interrupt clear register                   */
-	CPU_REG08 PINTENSET;  /* Host pipe interrupt set register                     */
-	CPU_REG08 RSVD1[22u];
+	volatile uint8_t PCFG; /* Host pipe configuration                              */
+	volatile uint8_t RSVD0[2u];
+	volatile uint8_t BINTERVAL;  /* Interval for the Bulk-Out/Ping transaction           */
+	volatile uint8_t PSTATUSCLR; /* Pipe status clear                                    */
+	volatile uint8_t PSTATUSSET; /* Pipe status set                                      */
+	volatile uint8_t PSTATUS;	  /* Pipe status register                                 */
+	volatile uint8_t PINTFLAG;	  /* Host pipe interrupt flag register                    */
+	volatile uint8_t PINTENCLR;  /* Host pipe interrupt clear register                   */
+	volatile uint8_t PINTENSET;  /* Host pipe interrupt set register                     */
+	volatile uint8_t RSVD1[22u];
 } USBH_ATSAMX_PIPE_REG;
 
 typedef struct usbh_atsamx_reg
 {
 	/* ------------ USB HOST GENERAL REGISTERS ------------ */
-	CPU_REG08 CTRLA; /* Control A                                            */
-	CPU_REG08 RSVD0;
-	CPU_REG08 SYNCBUSY; /* Synchronization Busy                                 */
-	CPU_REG08 QOSCTRL;	/* QOS control                                          */
-	CPU_REG32 RSVD1;
-	CPU_REG16 CTRLB; /* Control B                                            */
-	CPU_REG08 HSOFC; /* Host Start-of-Frame control                          */
-	CPU_REG08 RSVD2;
-	CPU_REG08 STATUS;	 /* Status                                               */
-	CPU_REG08 FSMSTATUS; /* Finite state machine status                          */
-	CPU_REG16 RSVD3;
-	CPU_REG16 FNUM;		/* Host frame number                                    */
-	CPU_REG08 FLENHIGH; /* Host frame length                                    */
-	CPU_REG08 RSVD4;
-	CPU_REG16 INTENCLR; /* Host interrupt enable register clear                 */
-	CPU_REG16 RSVD5;
-	CPU_REG16 INTENSET; /* Host interrupt enable register set                   */
-	CPU_REG16 RSVD6;
-	CPU_REG16 INTFLAG; /* Host interrupt flag status and clear                 */
-	CPU_REG16 RSVD7;
-	CPU_REG16 PINTSMRY; /* Pipe interrupt summary                               */
-	CPU_REG16 RSVD8;
-	CPU_REG32 DESCADD; /* Descriptor address                                   */
-	CPU_REG16 PADCAL;  /* Pad calibration                                      */
-	CPU_REG08 RSVD9[214u];
+	volatile uint8_t CTRLA; /* Control A                                            */
+	volatile uint8_t RSVD0;
+	volatile uint8_t SYNCBUSY; /* Synchronization Busy                                 */
+	volatile uint8_t QOSCTRL;	/* QOS control                                          */
+	volatile uint32_t RSVD1;
+	volatile uint16_t CTRLB; /* Control B                                            */
+	volatile uint8_t HSOFC; /* Host Start-of-Frame control                          */
+	volatile uint8_t RSVD2;
+	volatile uint8_t STATUS;	 /* Status                                               */
+	volatile uint8_t FSMSTATUS; /* Finite state machine status                          */
+	volatile uint16_t RSVD3;
+	volatile uint16_t FNUM;		/* Host frame number                                    */
+	volatile uint8_t FLENHIGH; /* Host frame length                                    */
+	volatile uint8_t RSVD4;
+	volatile uint16_t INTENCLR; /* Host interrupt enable register clear                 */
+	volatile uint16_t RSVD5;
+	volatile uint16_t INTENSET; /* Host interrupt enable register set                   */
+	volatile uint16_t RSVD6;
+	volatile uint16_t INTFLAG; /* Host interrupt flag status and clear                 */
+	volatile uint16_t RSVD7;
+	volatile uint16_t PINTSMRY; /* Pipe interrupt summary                               */
+	volatile uint16_t RSVD8;
+	volatile uint32_t DESCADD; /* Descriptor address                                   */
+	volatile uint16_t PADCAL;  /* Pad calibration                                      */
+	volatile uint8_t RSVD9[214u];
 	USBH_ATSAMX_PIPE_REG HPIPE
 		[ATSAMX_MAX_NBR_PIPE]; /* Host pipes                                           */
 } USBH_ATSAMX_REG;
 
 typedef struct usbh_atsamx_pinfo
 {
-	CPU_INT16U
+	uint16_t
 	EP_Addr; /* Device addr | EP DIR | EP NBR.                       */
 	/* To ensure the URB EP xfer size is not corrupted ...  */
-	CPU_INT16U
+	uint16_t
 	AppBufLen; /* ... for multi-transaction transfer                   */
-	CPU_INT32U NextXferLen;
+	uint32_t NextXferLen;
 	USBH_URB *URB_Ptr;
 } USBH_ATSAMX_PINFO;
 
@@ -351,13 +351,13 @@ typedef struct usbh_drv_data
 {
 	USBH_ATSAMX_PIPE_DESC DescTbl[ATSAMX_MAX_NBR_PIPE];
 	USBH_ATSAMX_PINFO PipeTbl[ATSAMX_MAX_NBR_PIPE];
-	CPU_INT16U
+	uint16_t
 	PipeUsed; /* Bit array for BULK, ISOC, INTR, CTRL pipe mgmt.      */
-	CPU_INT08U RH_Desc
+	uint8_t RH_Desc
 		[USBH_HUB_LEN_HUB_DESC]; /* RH desc content.                                     */
-	CPU_INT16U
+	uint16_t
 	RH_PortStat; /* Root Hub Port status.                                */
-	CPU_INT16U
+	uint16_t
 	RH_PortChng; /* Root Hub Port status change.                         */
 } USBH_DRV_DATA;
 
@@ -397,7 +397,7 @@ static void USBH_ATSAMX_HCD_Suspend(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err);
 
 static void USBH_ATSAMX_HCD_Resume(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err);
 
-static CPU_INT32U USBH_ATSAMX_HCD_FrameNbrGet(USBH_HC_DRV *p_hc_drv,
+static uint32_t USBH_ATSAMX_HCD_FrameNbrGet(USBH_HC_DRV *p_hc_drv,
 											  USBH_ERR *p_err);
 
 static void USBH_ATSAMX_HCD_EP_Open(USBH_HC_DRV *p_hc_drv, USBH_EP *p_ep,
@@ -409,7 +409,7 @@ static void USBH_ATSAMX_HCD_EP_Close(USBH_HC_DRV *p_hc_drv, USBH_EP *p_ep,
 static void USBH_ATSAMX_HCD_EP_Abort(USBH_HC_DRV *p_hc_drv, USBH_EP *p_ep,
 									 USBH_ERR *p_err);
 
-static CPU_BOOLEAN USBH_ATSAMX_HCD_IsHalt_EP(USBH_HC_DRV *p_hc_drv,
+static bool USBH_ATSAMX_HCD_IsHalt_EP(USBH_HC_DRV *p_hc_drv,
 											 USBH_EP *p_ep, USBH_ERR *p_err);
 
 static void USBH_ATSAMX_HCD_URB_Submit(USBH_HC_DRV *p_hc_drv, USBH_URB *p_urb,
@@ -422,43 +422,44 @@ static void USBH_ATSAMX_HCD_URB_Abort(USBH_HC_DRV *p_hc_drv, USBH_URB *p_urb,
 									  USBH_ERR *p_err);
 
 /* -------------- ROOT HUB API FUNCTIONS -------------- */
-static CPU_BOOLEAN
-USBH_ATSAMX_HCD_PortStatusGet(USBH_HC_DRV *p_hc_drv, CPU_INT08U port_nbr,
+static bool
+USBH_ATSAMX_HCD_PortStatusGet(USBH_HC_DRV *p_hc_drv, uint8_t port_nbr,
 							  USBH_HUB_PORT_STATUS *p_port_status);
 
-static CPU_BOOLEAN USBH_ATSAMX_HCD_HubDescGet(USBH_HC_DRV *p_hc_drv,
-											  void *p_buf, CPU_INT08U buf_len);
+static bool USBH_ATSAMX_HCD_HubDescGet(USBH_HC_DRV *p_hc_drv,
+											  void *p_buf,
+											  uint8_t buf_len);
 
-static CPU_BOOLEAN USBH_ATSAMX_HCD_PortEnSet(USBH_HC_DRV *p_hc_drv,
-											 CPU_INT08U port_nbr);
+static bool USBH_ATSAMX_HCD_PortEnSet(USBH_HC_DRV *p_hc_drv,
+											 uint8_t port_nbr);
 
-static CPU_BOOLEAN USBH_ATSAMX_HCD_PortEnClr(USBH_HC_DRV *p_hc_drv,
-											 CPU_INT08U port_nbr);
+static bool USBH_ATSAMX_HCD_PortEnClr(USBH_HC_DRV *p_hc_drv,
+											 uint8_t port_nbr);
 
-static CPU_BOOLEAN USBH_ATSAMX_HCD_PortEnChngClr(USBH_HC_DRV *p_hc_drv,
-												 CPU_INT08U port_nbr);
+static bool USBH_ATSAMX_HCD_PortEnChngClr(USBH_HC_DRV *p_hc_drv,
+												 uint8_t port_nbr);
 
-static CPU_BOOLEAN USBH_ATSAMX_HCD_PortPwrSet(USBH_HC_DRV *p_hc_drv,
-											  CPU_INT08U port_nbr);
+static bool USBH_ATSAMX_HCD_PortPwrSet(USBH_HC_DRV *p_hc_drv,
+											  uint8_t port_nbr);
 
-static CPU_BOOLEAN USBH_ATSAMX_HCD_PortPwrClr(USBH_HC_DRV *p_hc_drv,
-											  CPU_INT08U port_nbr);
+static bool USBH_ATSAMX_HCD_PortPwrClr(USBH_HC_DRV *p_hc_drv,
+											  uint8_t port_nbr);
 
-static CPU_BOOLEAN USBH_ATSAMX_HCD_PortResetSet(USBH_HC_DRV *p_hc_drv,
-												CPU_INT08U port_nbr);
+static bool USBH_ATSAMX_HCD_PortResetSet(USBH_HC_DRV *p_hc_drv,
+												uint8_t port_nbr);
 
-static CPU_BOOLEAN USBH_ATSAMX_HCD_PortResetChngClr(USBH_HC_DRV *p_hc_drv,
-													CPU_INT08U port_nbr);
+static bool USBH_ATSAMX_HCD_PortResetChngClr(USBH_HC_DRV *p_hc_drv,
+													uint8_t port_nbr);
 
-static CPU_BOOLEAN USBH_ATSAMX_HCD_PortSuspendClr(USBH_HC_DRV *p_hc_drv,
-												  CPU_INT08U port_nbr);
+static bool USBH_ATSAMX_HCD_PortSuspendClr(USBH_HC_DRV *p_hc_drv,
+												  uint8_t port_nbr);
 
-static CPU_BOOLEAN USBH_ATSAMX_HCD_PortConnChngClr(USBH_HC_DRV *p_hc_drv,
-												   CPU_INT08U port_nbr);
+static bool USBH_ATSAMX_HCD_PortConnChngClr(USBH_HC_DRV *p_hc_drv,
+												   uint8_t port_nbr);
 
-static CPU_BOOLEAN USBH_ATSAMX_HCD_RHSC_IntEn(USBH_HC_DRV *p_hc_drv);
+static bool USBH_ATSAMX_HCD_RHSC_IntEn(USBH_HC_DRV *p_hc_drv);
 
-static CPU_BOOLEAN USBH_ATSAMX_HCD_RHSC_IntDis(USBH_HC_DRV *p_hc_drv);
+static bool USBH_ATSAMX_HCD_RHSC_IntDis(USBH_HC_DRV *p_hc_drv);
 
 /*
 *********************************************************************************************************
@@ -470,9 +471,9 @@ static void USBH_ATSAMX_ISR_Handler(void *p_drv);
 
 static void USBH_ATSAMX_URB_ProcTask(void *p_arg, void *p_arg2, void *p_arg3);
 
-static CPU_INT08U USBH_ATSAMX_GetFreePipe(USBH_DRV_DATA *p_drv_data);
+static uint8_t USBH_ATSAMX_GetFreePipe(USBH_DRV_DATA *p_drv_data);
 
-static CPU_INT08U USBH_ATSAMX_GetPipeNbr(USBH_DRV_DATA *p_drv_data,
+static uint8_t USBH_ATSAMX_GetPipeNbr(USBH_DRV_DATA *p_drv_data,
 										 USBH_EP *p_ep);
 
 static void USBH_ATSAMX_PipeCfg(USBH_URB *p_urb,
@@ -618,11 +619,11 @@ static void USBH_ATSAMX_HCD_Start(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err)
 	USBH_ATSAMX_REG *p_reg;
 	USBH_HC_BSP_API *p_bsp_api;
 	USBH_DRV_DATA *p_drv_data;
-	CPU_INT32U pad_transn;
-	CPU_INT32U pad_transp;
-	CPU_INT32U pad_trim;
-	CPU_INT08U reg_val;
-	CPU_INT08U i;
+	uint32_t pad_transn;
+	uint32_t pad_transp;
+	uint32_t pad_trim;
+	uint8_t reg_val;
+	uint8_t i;
 	CPU_SR_ALLOC();
 
 	p_reg = (USBH_ATSAMX_REG *)p_hc_drv->HC_CfgPtr->BaseAddr;
@@ -690,7 +691,7 @@ static void USBH_ATSAMX_HCD_Start(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err)
 									USBH_ATSAMX_CTRLA_RUNSTBY));
 
 	p_reg->DESCADD =
-		(CPU_INT32U)&p_drv_data->DescTbl
+		(uint32_t)&p_drv_data->DescTbl
 			[0u]; /* Set Pipe Descriptor address                          */
 
 	p_reg->CTRLB &=
@@ -822,7 +823,7 @@ static void USBH_ATSAMX_HCD_Suspend(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err)
 	LOG_DBG("Suspend");
 	USBH_ATSAMX_REG *p_reg;
 	USBH_DRV_DATA *p_drv_data;
-	CPU_INT08U pipe_nbr;
+	uint8_t pipe_nbr;
 
 	p_reg = (USBH_ATSAMX_REG *)p_hc_drv->HC_CfgPtr->BaseAddr;
 	p_drv_data = (USBH_DRV_DATA *)p_hc_drv->DataPtr;
@@ -867,7 +868,7 @@ static void USBH_ATSAMX_HCD_Resume(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err)
 	LOG_DBG("Resume");
 	USBH_ATSAMX_REG *p_reg;
 	USBH_DRV_DATA *p_drv_data;
-	CPU_INT08U pipe_nbr;
+	uint8_t pipe_nbr;
 
 	p_reg = (USBH_ATSAMX_REG *)p_hc_drv->HC_CfgPtr->BaseAddr;
 	p_drv_data = (USBH_DRV_DATA *)p_hc_drv->DataPtr;
@@ -910,11 +911,11 @@ static void USBH_ATSAMX_HCD_Resume(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err)
 *********************************************************************************************************
 */
 
-static CPU_INT32U USBH_ATSAMX_HCD_FrameNbrGet(USBH_HC_DRV *p_hc_drv,
+static uint32_t USBH_ATSAMX_HCD_FrameNbrGet(USBH_HC_DRV *p_hc_drv,
 											  USBH_ERR *p_err)
 {
 	USBH_ATSAMX_REG *p_reg;
-	CPU_INT32U frm_nbr;
+	uint32_t frm_nbr;
 
 	p_reg = (USBH_ATSAMX_REG *)p_hc_drv->HC_CfgPtr->BaseAddr;
 	frm_nbr = (p_reg->FNUM & USBH_ATSAMX_FNUM_MSK) >> USBH_ATSAMX_FNUM_POS;
@@ -991,7 +992,7 @@ static void USBH_ATSAMX_HCD_EP_Close(USBH_HC_DRV *p_hc_drv, USBH_EP *p_ep,
 	LOG_DBG("EP_Close");
 	USBH_ATSAMX_REG *p_reg;
 	USBH_DRV_DATA *p_drv_data;
-	CPU_INT08U pipe_nbr;
+	uint8_t pipe_nbr;
 
 	p_reg = (USBH_ATSAMX_REG *)p_hc_drv->HC_CfgPtr->BaseAddr;
 	p_drv_data = (USBH_DRV_DATA *)p_hc_drv->DataPtr;
@@ -1072,7 +1073,7 @@ static void USBH_ATSAMX_HCD_EP_Abort(USBH_HC_DRV *p_hc_drv, USBH_EP *p_ep,
 *********************************************************************************************************
 */
 
-static CPU_BOOLEAN USBH_ATSAMX_HCD_IsHalt_EP(USBH_HC_DRV *p_hc_drv,
+static bool USBH_ATSAMX_HCD_IsHalt_EP(USBH_HC_DRV *p_hc_drv,
 											 USBH_EP *p_ep, USBH_ERR *p_err)
 {
 	(void)p_hc_drv;
@@ -1112,8 +1113,8 @@ static void USBH_ATSAMX_HCD_URB_Submit(USBH_HC_DRV *p_hc_drv, USBH_URB *p_urb,
 {
 	USBH_ATSAMX_REG *p_reg;
 	USBH_DRV_DATA *p_drv_data;
-	CPU_INT08U ep_type;
-	CPU_INT08U pipe_nbr;
+	uint8_t ep_type;
+	uint8_t pipe_nbr;
 
 	p_reg = (USBH_ATSAMX_REG *)p_hc_drv->HC_CfgPtr->BaseAddr;
 	p_drv_data = (USBH_DRV_DATA *)p_hc_drv->DataPtr;
@@ -1250,8 +1251,8 @@ static void USBH_ATSAMX_HCD_URB_Complete(USBH_HC_DRV *p_hc_drv, USBH_URB *p_urb,
 {
 	USBH_ATSAMX_REG *p_reg;
 	USBH_DRV_DATA *p_drv_data;
-	CPU_INT08U pipe_nbr;
-	CPU_INT16U xfer_len;
+	uint8_t pipe_nbr;
+	uint16_t xfer_len;
 	CPU_SR_ALLOC();
 
 	*p_err = USBH_ERR_NONE;
@@ -1266,7 +1267,7 @@ static void USBH_ATSAMX_HCD_URB_Complete(USBH_HC_DRV *p_hc_drv, USBH_URB *p_urb,
 	if (p_urb->Token ==
 		USBH_TOKEN_IN)
 	{ /* -------------- HANDLE IN TRANSACTIONS -------------- */
-		Mem_Copy((void *)((CPU_INT32U)p_urb->UserBufPtr +
+		Mem_Copy((void *)((uint32_t)p_urb->UserBufPtr +
 						  p_urb->XferLen),
 				 p_urb->DMA_BufPtr, xfer_len);
 
@@ -1373,13 +1374,13 @@ static void USBH_ATSAMX_HCD_URB_Abort(USBH_HC_DRV *p_hc_drv, USBH_URB *p_urb,
 *********************************************************************************************************
 */
 
-static CPU_BOOLEAN
-USBH_ATSAMX_HCD_PortStatusGet(USBH_HC_DRV *p_hc_drv, CPU_INT08U port_nbr,
+static bool
+USBH_ATSAMX_HCD_PortStatusGet(USBH_HC_DRV *p_hc_drv, uint8_t port_nbr,
 							  USBH_HUB_PORT_STATUS *p_port_status)
 {
 	USBH_ATSAMX_REG *p_reg;
 	USBH_DRV_DATA *p_drv_data;
-	CPU_INT08U reg_val;
+	uint8_t reg_val;
 
 	p_reg = (USBH_ATSAMX_REG *)p_hc_drv->HC_CfgPtr->BaseAddr;
 	p_drv_data = (USBH_DRV_DATA *)p_hc_drv->DataPtr;
@@ -1463,8 +1464,9 @@ USBH_ATSAMX_HCD_PortStatusGet(USBH_HC_DRV *p_hc_drv, CPU_INT08U port_nbr,
 *********************************************************************************************************
 */
 
-static CPU_BOOLEAN USBH_ATSAMX_HCD_HubDescGet(USBH_HC_DRV *p_hc_drv,
-											  void *p_buf, CPU_INT08U buf_len)
+static bool USBH_ATSAMX_HCD_HubDescGet(USBH_HC_DRV *p_hc_drv,
+											  void *p_buf,
+											  uint8_t buf_len)
 {
 	USBH_DRV_DATA *p_drv_data;
 	USBH_HUB_DESC hub_desc;
@@ -1506,8 +1508,8 @@ static CPU_BOOLEAN USBH_ATSAMX_HCD_HubDescGet(USBH_HC_DRV *p_hc_drv,
 *********************************************************************************************************
 */
 
-static CPU_BOOLEAN USBH_ATSAMX_HCD_PortEnSet(USBH_HC_DRV *p_hc_drv,
-											 CPU_INT08U port_nbr)
+static bool USBH_ATSAMX_HCD_PortEnSet(USBH_HC_DRV *p_hc_drv,
+											 uint8_t port_nbr)
 {
 	(void)p_hc_drv;
 	(void)port_nbr;
@@ -1531,8 +1533,8 @@ static CPU_BOOLEAN USBH_ATSAMX_HCD_PortEnSet(USBH_HC_DRV *p_hc_drv,
 *********************************************************************************************************
 */
 
-static CPU_BOOLEAN USBH_ATSAMX_HCD_PortEnClr(USBH_HC_DRV *p_hc_drv,
-											 CPU_INT08U port_nbr)
+static bool USBH_ATSAMX_HCD_PortEnClr(USBH_HC_DRV *p_hc_drv,
+											 uint8_t port_nbr)
 {
 	USBH_DRV_DATA *p_drv_data;
 
@@ -1562,8 +1564,8 @@ static CPU_BOOLEAN USBH_ATSAMX_HCD_PortEnClr(USBH_HC_DRV *p_hc_drv,
 *********************************************************************************************************
 */
 
-static CPU_BOOLEAN USBH_ATSAMX_HCD_PortEnChngClr(USBH_HC_DRV *p_hc_drv,
-												 CPU_INT08U port_nbr)
+static bool USBH_ATSAMX_HCD_PortEnChngClr(USBH_HC_DRV *p_hc_drv,
+												 uint8_t port_nbr)
 {
 	USBH_DRV_DATA *p_drv_data;
 
@@ -1593,8 +1595,8 @@ static CPU_BOOLEAN USBH_ATSAMX_HCD_PortEnChngClr(USBH_HC_DRV *p_hc_drv,
 *********************************************************************************************************
 */
 
-static CPU_BOOLEAN USBH_ATSAMX_HCD_PortPwrSet(USBH_HC_DRV *p_hc_drv,
-											  CPU_INT08U port_nbr)
+static bool USBH_ATSAMX_HCD_PortPwrSet(USBH_HC_DRV *p_hc_drv,
+											  uint8_t port_nbr)
 {
 	USBH_DRV_DATA *p_drv_data;
 
@@ -1624,8 +1626,8 @@ static CPU_BOOLEAN USBH_ATSAMX_HCD_PortPwrSet(USBH_HC_DRV *p_hc_drv,
 *********************************************************************************************************
 */
 
-static CPU_BOOLEAN USBH_ATSAMX_HCD_PortPwrClr(USBH_HC_DRV *p_hc_drv,
-											  CPU_INT08U port_nbr)
+static bool USBH_ATSAMX_HCD_PortPwrClr(USBH_HC_DRV *p_hc_drv,
+											  uint8_t port_nbr)
 {
 	(void)p_hc_drv;
 	(void)port_nbr;
@@ -1649,8 +1651,8 @@ static CPU_BOOLEAN USBH_ATSAMX_HCD_PortPwrClr(USBH_HC_DRV *p_hc_drv,
 *********************************************************************************************************
 */
 
-static CPU_BOOLEAN USBH_ATSAMX_HCD_PortResetSet(USBH_HC_DRV *p_hc_drv,
-												CPU_INT08U port_nbr)
+static bool USBH_ATSAMX_HCD_PortResetSet(USBH_HC_DRV *p_hc_drv,
+												uint8_t port_nbr)
 {
 	USBH_ATSAMX_REG *p_reg;
 	USBH_DRV_DATA *p_drv_data;
@@ -1684,8 +1686,8 @@ static CPU_BOOLEAN USBH_ATSAMX_HCD_PortResetSet(USBH_HC_DRV *p_hc_drv,
 *********************************************************************************************************
 */
 
-static CPU_BOOLEAN USBH_ATSAMX_HCD_PortResetChngClr(USBH_HC_DRV *p_hc_drv,
-													CPU_INT08U port_nbr)
+static bool USBH_ATSAMX_HCD_PortResetChngClr(USBH_HC_DRV *p_hc_drv,
+													uint8_t port_nbr)
 {
 	USBH_DRV_DATA *p_drv_data;
 
@@ -1715,8 +1717,8 @@ static CPU_BOOLEAN USBH_ATSAMX_HCD_PortResetChngClr(USBH_HC_DRV *p_hc_drv,
 *********************************************************************************************************
 */
 
-static CPU_BOOLEAN USBH_ATSAMX_HCD_PortSuspendClr(USBH_HC_DRV *p_hc_drv,
-												  CPU_INT08U port_nbr)
+static bool USBH_ATSAMX_HCD_PortSuspendClr(USBH_HC_DRV *p_hc_drv,
+												  uint8_t port_nbr)
 {
 	(void)p_hc_drv;
 	(void)port_nbr;
@@ -1740,8 +1742,8 @@ static CPU_BOOLEAN USBH_ATSAMX_HCD_PortSuspendClr(USBH_HC_DRV *p_hc_drv,
 *********************************************************************************************************
 */
 
-static CPU_BOOLEAN USBH_ATSAMX_HCD_PortConnChngClr(USBH_HC_DRV *p_hc_drv,
-												   CPU_INT08U port_nbr)
+static bool USBH_ATSAMX_HCD_PortConnChngClr(USBH_HC_DRV *p_hc_drv,
+												   uint8_t port_nbr)
 {
 	USBH_DRV_DATA *p_drv_data;
 
@@ -1767,7 +1769,7 @@ static CPU_BOOLEAN USBH_ATSAMX_HCD_PortConnChngClr(USBH_HC_DRV *p_hc_drv,
 *********************************************************************************************************
 */
 
-static CPU_BOOLEAN USBH_ATSAMX_HCD_RHSC_IntEn(USBH_HC_DRV *p_hc_drv)
+static bool USBH_ATSAMX_HCD_RHSC_IntEn(USBH_HC_DRV *p_hc_drv)
 {
 	(void)p_hc_drv;
 
@@ -1788,7 +1790,7 @@ static CPU_BOOLEAN USBH_ATSAMX_HCD_RHSC_IntEn(USBH_HC_DRV *p_hc_drv)
 *********************************************************************************************************
 */
 
-static CPU_BOOLEAN USBH_ATSAMX_HCD_RHSC_IntDis(USBH_HC_DRV *p_hc_drv)
+static bool USBH_ATSAMX_HCD_RHSC_IntDis(USBH_HC_DRV *p_hc_drv)
 {
 
 	(void)p_hc_drv;
@@ -1823,11 +1825,11 @@ static void USBH_ATSAMX_ISR_Handler(void *p_drv)
 	USBH_ATSAMX_REG *p_reg;
 	USBH_DRV_DATA *p_drv_data;
 	USBH_HC_DRV *p_hc_drv;
-	CPU_INT16U int_stat;
-	CPU_INT16U pipe_stat;
-	CPU_INT16U pipe_nbr;
-	CPU_INT16U xfer_len;
-	CPU_INT16U max_pkt_size;
+	uint16_t int_stat;
+	uint16_t pipe_stat;
+	uint16_t pipe_nbr;
+	uint16_t xfer_len;
+	uint16_t max_pkt_size;
 	USBH_URB *p_urb;
 
 	p_hc_drv = (USBH_HC_DRV *)p_hc_drv_local;
@@ -2069,8 +2071,8 @@ static void USBH_ATSAMX_URB_ProcTask(void *p_arg, void *p_arg2, void *p_arg3)
 	USBH_DRV_DATA *p_drv_data;
 	USBH_ATSAMX_REG *p_reg;
 	USBH_URB *p_urb = NULL;
-	CPU_INT32U xfer_len;
-	CPU_INT08U pipe_nbr;
+	uint32_t xfer_len;
+	uint8_t pipe_nbr;
 	USBH_ERR p_err;
 	CPU_SR_ALLOC();
 
@@ -2101,7 +2103,7 @@ static void USBH_ATSAMX_URB_ProcTask(void *p_arg, void *p_arg2, void *p_arg3)
 				USBH_TOKEN_IN)
 			{ /* -------------- HANDLE IN TRANSACTIONS -------------- */
 				Mem_Copy(
-					(void *)((CPU_INT32U)p_urb->UserBufPtr +
+					(void *)((uint32_t)p_urb->UserBufPtr +
 							 p_urb->XferLen),
 					p_urb->DMA_BufPtr, xfer_len);
 				/* Check if it rx'd more data than what was expected    */
@@ -2186,9 +2188,9 @@ static void USBH_ATSAMX_PipeCfg(USBH_URB *p_urb,
 								USBH_ATSAMX_PINFO *p_pipe_info,
 								USBH_ATSAMX_DESC_BANK *p_desc_bank)
 {
-	CPU_INT08U ep_nbr;
-	CPU_INT08U reg_val;
-	CPU_INT16U max_pkt_size;
+	uint8_t ep_nbr;
+	uint8_t reg_val;
+	uint16_t max_pkt_size;
 	CPU_SR_ALLOC();
 
 	max_pkt_size = USBH_EP_MaxPktSizeGet(p_urb->EP_Ptr);
@@ -2204,7 +2206,7 @@ static void USBH_ATSAMX_PipeCfg(USBH_URB *p_urb,
 		p_pipe_info->AppBufLen = p_pipe_info->NextXferLen;
 
 		Mem_Copy(p_urb->DMA_BufPtr,
-				 (void *)((CPU_INT32U)p_urb->UserBufPtr +
+				 (void *)((uint32_t)p_urb->UserBufPtr +
 						  p_urb->XferLen),
 				 p_pipe_info->NextXferLen);
 
@@ -2215,7 +2217,7 @@ static void USBH_ATSAMX_PipeCfg(USBH_URB *p_urb,
 		p_desc_bank->PCKSIZE = (p_pipe_info->NextXferLen << 14u);
 	}
 
-	p_desc_bank->ADDR = (CPU_INT32U)p_urb->DMA_BufPtr;
+	p_desc_bank->ADDR = (uint32_t)p_urb->DMA_BufPtr;
 	p_desc_bank->PCKSIZE |= (CPU_CntTrailZeros(max_pkt_size >> 3u) << 28u);
 	p_desc_bank->CTRL_PIPE = (p_urb->EP_Ptr->DevAddr | (ep_nbr << 8u));
 
@@ -2262,9 +2264,9 @@ static void USBH_ATSAMX_PipeCfg(USBH_URB *p_urb,
 *********************************************************************************************************
 */
 
-static CPU_INT08U USBH_ATSAMX_GetFreePipe(USBH_DRV_DATA *p_drv_data)
+static uint8_t USBH_ATSAMX_GetFreePipe(USBH_DRV_DATA *p_drv_data)
 {
-	CPU_INT08U pipe_nbr;
+	uint8_t pipe_nbr;
 
 	for (pipe_nbr = 0u; pipe_nbr < ATSAMX_MAX_NBR_PIPE; pipe_nbr++)
 	{
@@ -2294,11 +2296,11 @@ static CPU_INT08U USBH_ATSAMX_GetFreePipe(USBH_DRV_DATA *p_drv_data)
 *********************************************************************************************************
 */
 
-static CPU_INT08U USBH_ATSAMX_GetPipeNbr(USBH_DRV_DATA *p_drv_data,
+static uint8_t USBH_ATSAMX_GetPipeNbr(USBH_DRV_DATA *p_drv_data,
 										 USBH_EP *p_ep)
 {
-	CPU_INT08U pipe_nbr;
-	CPU_INT16U ep_addr;
+	uint8_t pipe_nbr;
+	uint16_t ep_addr;
 
 	ep_addr = ((p_ep->DevAddr << 8u) | p_ep->Desc.bEndpointAddress);
 

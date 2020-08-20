@@ -65,10 +65,10 @@
 
 typedef struct usb_cdc_acm_desc
 {
-    CPU_INT08U bFunctionLength;    /* Desc len in bytes.                                   */
-    CPU_INT08U bDescriptorType;    /* IF desc type.                                        */
-    CPU_INT08U bDescriptorSubtype; /* ACM functional desc subtype.                         */
-    CPU_INT08U bmCapabilities;     /* Capabilities this config supports.                   */
+    uint8_t bFunctionLength;    /* Desc len in bytes.                                   */
+    uint8_t bDescriptorType;    /* IF desc type.                                        */
+    uint8_t bDescriptorSubtype; /* ACM functional desc subtype.                         */
+    uint8_t bmCapabilities;     /* Capabilities this config supports.                   */
 } USBH_CDC_ACM_DESC;
 
 /*
@@ -93,10 +93,10 @@ typedef struct usb_cdc_acm_desc
 
 typedef struct usbh_cdc_linecoding
 {
-    CPU_INT32U dwDTERate;   /* Data terminal rate in bps.                           */
-    CPU_INT08U bCharFormat; /* Stop bits. (See Notes #2)                            */
-    CPU_INT08U bParityTtpe; /* Parity type. (See Notes #3)                          */
-    CPU_INT08U bDataBits;   /* Nbr of character bits(5,6,7,8 or 16).                */
+    uint32_t dwDTERate;   /* Data terminal rate in bps.                           */
+    uint8_t bCharFormat; /* Stop bits. (See Notes #2)                            */
+    uint8_t bParityTtpe; /* Parity type. (See Notes #3)                          */
+    uint8_t bDataBits;   /* Nbr of character bits(5,6,7,8 or 16).                */
 } USBH_CDC_LINECODING;
 
 /*
@@ -127,18 +127,18 @@ static void USBH_CDC_ACM_SupportedReqEvtsGet(USBH_CDC_ACM_DEV *p_cdc_acm_dev,
                                              USBH_CDC_ACM_DESC *p_cdc_acm_desc);
 
 static void USBH_CDC_ACM_DataTxCmpl(void *p_context,
-                                    CPU_INT08U *p_buf,
-                                    CPU_INT32U xfer_len,
+                                    uint8_t *p_buf,
+                                    uint32_t xfer_len,
                                     USBH_ERR err);
 
 static void USBH_CDC_ACM_DataRxCmpl(void *p_context,
-                                    CPU_INT08U *p_buf,
-                                    CPU_INT32U xfer_len,
+                                    uint8_t *p_buf,
+                                    uint32_t xfer_len,
                                     USBH_ERR err);
 
 static void USBH_CDC_ACM_EventRxCmpl(void *p_context,
-                                     CPU_INT08U *p_buf,
-                                     CPU_INT32U xfer_len,
+                                     uint8_t *p_buf,
+                                     uint32_t xfer_len,
                                      USBH_ERR err);
 
 static void USBH_CDC_ACM_ParseLineCoding(USBH_CDC_LINECODING *p_linecoding,
@@ -366,10 +366,10 @@ void USBH_CDC_ACM_EventRxNotifyReg(USBH_CDC_ACM_DEV *p_cdc_acm_dev,
 */
 
 USBH_ERR USBH_CDC_ACM_LineCodingSet(USBH_CDC_ACM_DEV *p_cdc_acm_dev,
-                                    CPU_INT32U baud_rate,
-                                    CPU_INT08U stop_bits,
-                                    CPU_INT08U parity_val,
-                                    CPU_INT08U data_bits)
+                                    uint32_t baud_rate,
+                                    uint8_t stop_bits,
+                                    uint8_t parity_val,
+                                    uint8_t data_bits)
 {
     USBH_CDC_LINECODING line_coding;
     USBH_ERR err;
@@ -439,10 +439,10 @@ USBH_ERR USBH_CDC_ACM_LineCodingSet(USBH_CDC_ACM_DEV *p_cdc_acm_dev,
 */
 
 USBH_ERR USBH_CDC_ACM_LineCodingGet(USBH_CDC_ACM_DEV *p_cdc_acm_dev,
-                                    CPU_INT32U *p_baud_rate,
-                                    CPU_INT08U *p_stop_bits,
-                                    CPU_INT08U *p_parity_val,
-                                    CPU_INT08U *p_data_bits)
+                                    uint32_t *p_baud_rate,
+                                    uint8_t *p_stop_bits,
+                                    uint8_t *p_parity_val,
+                                    uint8_t *p_data_bits)
 {
     USBH_CDC_LINECODING line_coding;
     USBH_ERR err;
@@ -513,11 +513,11 @@ USBH_ERR USBH_CDC_ACM_LineCodingGet(USBH_CDC_ACM_DEV *p_cdc_acm_dev,
 */
 
 USBH_ERR USBH_CDC_ACM_LineStateSet(USBH_CDC_ACM_DEV *p_cdc_acm_dev,
-                                   CPU_INT08U dtr_bit,
-                                   CPU_INT08U rts_bit)
+                                   uint8_t dtr_bit,
+                                   uint8_t rts_bit)
 {
     USBH_ERR err;
-    CPU_INT08U bitmap_value;
+    uint8_t bitmap_value;
 
     if (p_cdc_acm_dev == (USBH_CDC_ACM_DEV *)0)
     {
@@ -537,7 +537,7 @@ USBH_ERR USBH_CDC_ACM_LineStateSet(USBH_CDC_ACM_DEV *p_cdc_acm_dev,
         return (err);
     }
 
-    bitmap_value = ((CPU_INT08U)(rts_bit << 1u) | dtr_bit);
+    bitmap_value = ((uint8_t)(rts_bit << 1u) | dtr_bit);
 
     err = USBH_CDC_CmdTx(p_cdc_acm_dev->CDC_DevPtr,
                          USBH_CDC_SET_CONTROL_LINESTATE,
@@ -579,7 +579,7 @@ USBH_ERR USBH_CDC_ACM_LineStateSet(USBH_CDC_ACM_DEV *p_cdc_acm_dev,
 */
 
 USBH_ERR USBH_CDC_ACM_BreakSend(USBH_CDC_ACM_DEV *p_cdc_acm_dev,
-                                CPU_INT16U break_time)
+                                uint16_t break_time)
 {
     USBH_ERR err;
 
@@ -635,8 +635,8 @@ USBH_ERR USBH_CDC_ACM_BreakSend(USBH_CDC_ACM_DEV *p_cdc_acm_dev,
 */
 
 USBH_ERR USBH_CDC_ACM_CmdSend(USBH_CDC_ACM_DEV *p_cdc_acm_dev,
-                              CPU_INT08U *p_buf,
-                              CPU_INT32U buf_len)
+                              uint8_t *p_buf,
+                              uint32_t buf_len)
 {
     USBH_ERR err;
 
@@ -685,8 +685,8 @@ USBH_ERR USBH_CDC_ACM_CmdSend(USBH_CDC_ACM_DEV *p_cdc_acm_dev,
 */
 
 USBH_ERR USBH_CDC_ACM_RespRx(USBH_CDC_ACM_DEV *p_cdc_acm_dev,
-                             CPU_INT08U *p_buf,
-                             CPU_INT32U buf_len)
+                             uint8_t *p_buf,
+                             uint32_t buf_len)
 {
     USBH_ERR err;
 
@@ -733,12 +733,12 @@ USBH_ERR USBH_CDC_ACM_RespRx(USBH_CDC_ACM_DEV *p_cdc_acm_dev,
 *********************************************************************************************************
 */
 
-CPU_INT32U USBH_CDC_ACM_DataTx(USBH_CDC_ACM_DEV *p_cdc_acm_dev,
+uint32_t USBH_CDC_ACM_DataTx(USBH_CDC_ACM_DEV *p_cdc_acm_dev,
                                void *p_buf,
-                               CPU_INT32U buf_len,
+                               uint32_t buf_len,
                                USBH_ERR *p_err)
 {
-    CPU_INT32U xfer_len;
+    uint32_t xfer_len;
 
     if (p_cdc_acm_dev == (USBH_CDC_ACM_DEV *)0)
     {
@@ -783,12 +783,12 @@ CPU_INT32U USBH_CDC_ACM_DataTx(USBH_CDC_ACM_DEV *p_cdc_acm_dev,
 *********************************************************************************************************
 */
 
-CPU_INT32U USBH_CDC_ACM_DataRx(USBH_CDC_ACM_DEV *p_cdc_acm_dev,
+uint32_t USBH_CDC_ACM_DataRx(USBH_CDC_ACM_DEV *p_cdc_acm_dev,
                                void *p_buf,
-                               CPU_INT32U buf_len,
+                               uint32_t buf_len,
                                USBH_ERR *p_err)
 {
-    CPU_INT32U xfer_len;
+    uint32_t xfer_len;
 
     if (p_cdc_acm_dev == (USBH_CDC_ACM_DEV *)0)
     {
@@ -839,7 +839,7 @@ CPU_INT32U USBH_CDC_ACM_DataRx(USBH_CDC_ACM_DEV *p_cdc_acm_dev,
 
 USBH_ERR USBH_CDC_ACM_DataTxAsync(USBH_CDC_ACM_DEV *p_cdc_acm_dev,
                                   void *p_buf,
-                                  CPU_INT32U buf_len,
+                                  uint32_t buf_len,
                                   USBH_CDC_DATA_NOTIFY tx_cmpl_notify,
                                   void *p_tx_cmpl_arg)
 {
@@ -899,7 +899,7 @@ USBH_ERR USBH_CDC_ACM_DataTxAsync(USBH_CDC_ACM_DEV *p_cdc_acm_dev,
 
 USBH_ERR USBH_CDC_ACM_DataRxAsync(USBH_CDC_ACM_DEV *p_cdc_acm_dev,
                                   void *p_buf,
-                                  CPU_INT32U buf_len,
+                                  uint32_t buf_len,
                                   USBH_CDC_DATA_NOTIFY rx_cmpl_notify,
                                   void *p_rx_cmpl_arg)
 {
@@ -953,10 +953,10 @@ static USBH_ERR USBH_CDC_ACM_DescParse(USBH_CDC_ACM_DESC *p_cdc_acm_desc,
                                        USBH_IF *p_if)
 {
     USBH_ERR err;
-    CPU_INT08U *p_if_desc;
+    uint8_t *p_if_desc;
 
     err = USBH_ERR_DESC_INVALID;
-    p_if_desc = (CPU_INT08U *)p_if->IF_DataPtr;
+    p_if_desc = (uint8_t *)p_if->IF_DataPtr;
 
     while (p_if_desc[1] != USBH_DESC_TYPE_EP)
     {
@@ -1045,8 +1045,8 @@ static void USBH_CDC_ACM_SupportedReqEvtsGet(USBH_CDC_ACM_DEV *p_cdc_acm_dev,
 */
 
 static void USBH_CDC_ACM_DataTxCmpl(void *p_context,
-                                    CPU_INT08U *p_buf,
-                                    CPU_INT32U xfer_len,
+                                    uint8_t *p_buf,
+                                    uint32_t xfer_len,
                                     USBH_ERR err)
 {
     USBH_CDC_ACM_DEV *p_cdc_acm_dev;
@@ -1080,8 +1080,8 @@ static void USBH_CDC_ACM_DataTxCmpl(void *p_context,
 */
 
 static void USBH_CDC_ACM_DataRxCmpl(void *p_context,
-                                    CPU_INT08U *p_buf,
-                                    CPU_INT32U xfer_len,
+                                    uint8_t *p_buf,
+                                    uint32_t xfer_len,
                                     USBH_ERR err)
 {
     USBH_CDC_ACM_DEV *p_cdc_acm_dev;
@@ -1115,14 +1115,14 @@ static void USBH_CDC_ACM_DataRxCmpl(void *p_context,
 */
 
 static void USBH_CDC_ACM_EventRxCmpl(void *p_context,
-                                     CPU_INT08U *p_buf,
-                                     CPU_INT32U xfer_len,
+                                     uint8_t *p_buf,
+                                     uint32_t xfer_len,
                                      USBH_ERR err)
 {
     USBH_CDC_ACM_DEV *p_cdc_acm_dev;
     USBH_CDC_SERIAL_STATE serial_state;
-    CPU_INT08U req;
-    CPU_INT16U value;
+    uint8_t req;
+    uint16_t value;
 
     p_cdc_acm_dev = (USBH_CDC_ACM_DEV *)p_context;
 
