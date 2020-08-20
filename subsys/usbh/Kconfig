@@ -1,0 +1,11 @@
+# Copyright (c) 2020 PHYTEC Messtechnik GmbH
+# SPDX-License-Identifier: Apache-2.0
+
+config USBH
+	bool "USB Host support"
+
+config UC_USBH_MSC
+	bool "USB MSC Class Support"
+
+config UC_USBH_CDC
+	bool "USB MSC Class Support"
