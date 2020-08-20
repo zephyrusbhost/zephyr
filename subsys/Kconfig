@@ -53,4 +53,7 @@ source "subsys/timing/Kconfig"
 
 source "subsys/tracing/Kconfig"
 
-endmenu
+source "subsys/canbus/Kconfig"
+
+source "subsys/usbh/Kconfig"
+

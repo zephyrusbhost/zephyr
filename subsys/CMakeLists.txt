@@ -23,3 +23,6 @@ add_subdirectory(testsuite)
 add_subdirectory(tracing)
 add_subdirectory_ifdef(CONFIG_JWT jwt)
 add_subdirectory(canbus)
+add_subdirectory_ifdef(CONFIG_USBH	usbh)
+
+
