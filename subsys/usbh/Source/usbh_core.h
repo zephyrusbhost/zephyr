@@ -592,12 +592,14 @@ typedef  const  struct  usbh_hc_rh_api      USBH_HC_RH_API;
 *********************************************************************************************************
 */
 
-typedef enum  usbh_dev_spd {
-    USBH_DEV_SPD_NONE = 0,
-    USBH_DEV_SPD_LOW  = 1,
-    USBH_DEV_SPD_FULL = 2,
-    USBH_DEV_SPD_HIGH = 3
-} USBH_DEV_SPD;
+enum usb_device_speed {
+	USB_SPEED_UNKNOWN = 0,			/* enumerating */
+	USB_SPEED_LOW, USB_SPEED_FULL,		/* usb 1.1 */
+	USB_SPEED_HIGH,				/* usb 2.0 */
+	USB_SPEED_WIRELESS,			/* wireless (usb 2.5) */
+	USB_SPEED_SUPER,			/* usb 3.0 */
+	USB_SPEED_SUPER_PLUS,			/* usb 3.1 */
+};
 
 
 /*
@@ -630,7 +632,7 @@ struct  usbh_hc_drv_api {
     void          (*Stop)        (USBH_HC_DRV  *p_hc_drv,       /* Stop  HC.                                            */
                                   USBH_ERR     *p_err);
 
-    USBH_DEV_SPD  (*SpdGet)      (USBH_HC_DRV  *p_hc_drv,       /* Get HC speed.                                        */
+    enum usb_device_speed  (*SpdGet)      (USBH_HC_DRV  *p_hc_drv,       /* Get HC speed.                                        */
                                   USBH_ERR     *p_err);
 
     void          (*Suspend)     (USBH_HC_DRV  *p_hc_drv,       /* Suspend HC.                                          */
@@ -1033,7 +1035,7 @@ struct  usbh_urb {
 */
 
 struct  usbh_ep {
-    USBH_DEV_SPD   DevSpd;                                      /* USB dev spd.                                         */
+    enum usb_device_speed   DevSpd;                                      /* USB dev spd.                                         */
     uint8_t     DevAddr;                                     /* USB dev addr.                                        */
     USBH_DEV      *DevPtr;                                      /* Ptr to USB dev struct.                               */
     USBH_EP_DESC   Desc;                                        /* EP desc.                                             */
@@ -1086,7 +1088,7 @@ struct  usbh_cfg {
 struct  usbh_dev {
     USBH_HC             *HC_Ptr;                                /* Ptr to HC struct.                                    */
     uint8_t           DevAddr;                               /* USB dev addr assigned by host.                       */
-    USBH_DEV_SPD         DevSpd;                                /* Dev spd (low, full or high).                         */
+    enum usb_device_speed         DevSpd;                                /* Dev spd (low, full or high).                         */
     USBH_EP              DfltEP;                                /* Dflt ctrl EP.                                        */
     struct k_mutex          DfltEP_Mutex;                          /* Dev dflt EP mutex.                                   */
     uint16_t           LangID;                                /* Language ID used by the str desc.                    */
