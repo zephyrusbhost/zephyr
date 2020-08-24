@@ -116,11 +116,11 @@ uint32_t  usbh_rh_ctrl_req    (USBH_HC        *p_hc,
 
 void        usbh_rh_event      (USBH_DEV       *p_dev);
 
-void        usbh_hub_parse_hub_desc  (USBH_HUB_DESC  *p_hub_desc,
-                                    void           *p_buf_src);
+void        usbh_hub_parse_hub_desc  (struct usbh_hub_desc  *p_hub_desc,
+				      void           *p_buf_src);
 
-void        usbh_hub_fmt_hub_desc    (USBH_HUB_DESC  *p_hub_desc,
-                                    void           *p_buf_dest);
+void        usbh_hub_fmt_hub_desc    (struct usbh_hub_desc  *p_hub_desc,
+				      void           *p_buf_dest);
 
 void        usbh_hub_event_task     (void           *p_arg, void *p_arg2, void *p_arg3);
 

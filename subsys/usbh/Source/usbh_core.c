@@ -223,13 +223,13 @@ static USBH_ERR usbh_ep_open(USBH_DEV *p_dev, USBH_IF *p_if,
 							 USBH_EP *p_ep);
 
 static uint32_t usbh_sync_transfer(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
-								USBH_ISOC_DESC *p_isoc_desc,
+								struct usbh_isoc_desc *p_isoc_desc,
 								uint8_t token,
 								uint32_t timeout_ms,
 								USBH_ERR *p_err);
 
 static USBH_ERR usbh_async_transfer(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
-							   USBH_ISOC_DESC *p_isoc_desc,
+							   struct usbh_isoc_desc *p_isoc_desc,
 							   uint8_t token,
 							   void *p_fnct, void *p_fnct_arg);
 
@@ -269,17 +269,22 @@ static uint32_t usbh_str_desc_get(USBH_DEV *p_dev, uint8_t desc_ix,
 // static void USBH_StrDescPrint(USBH_DEV *p_dev, CPU_INT08U *p_str_prefix,
 // 							  CPU_INT08U desc_idx);
 
-static USBH_DESC_HDR *usbh_next_desc_get(void *p_buf, uint32_t *p_offset);
+static struct usbh_desc_hdr *usbh_next_desc_get(void *p_buf, uint32_t *p_offset);
 
-static void usbh_fmt_setup_req(USBH_SETUP_REQ *p_setup_req, void *p_buf_dest);
+static void usbh_fmt_setup_req(struct usbh_setup_req *p_setup_req,
+			       void *p_buf_dest);
 
-static void usbh_parse_dev_desc(USBH_DEV_DESC *p_dev_desc, void *p_buf_src);
+static void usbh_parse_dev_desc(struct usbh_dev_desc *p_dev_desc,
+				void *p_buf_src);
 
-static void usbh_parse_cfg_desc(USBH_CFG_DESC *p_cfg_desc, void *p_buf_src);
+static void usbh_parse_cfg_desc(struct usbh_cfg_desc *p_cfg_desc,
+				void *p_buf_src);
 
-static void usbh_parse_if_desc(USBH_IF_DESC *p_if_desc, void *p_buf_src);
+static void usbh_parse_if_desc(struct usbh_if_desc *p_if_desc,
+			       void *p_buf_src);
 
-static void usbh_parse_ep_desc(USBH_EP_DESC *p_ep_desc, void *p_buf_src);
+static void usbh_parse_ep_desc(struct usbh_ep_desc *p_ep_desc,
+			       void *p_buf_src);
 
 static void usbh_async_task(void *p_arg, void *p_arg2, void *p_arg3);
 
@@ -1079,7 +1084,7 @@ uint8_t usbh_dev_cfg_nbr_get(USBH_DEV *p_dev)
 *********************************************************************************************************
 */
 
-void usbh_dev_desc_get(USBH_DEV *p_dev, USBH_DEV_DESC *p_dev_desc)
+void usbh_dev_desc_get(USBH_DEV *p_dev, struct usbh_dev_desc *p_dev_desc)
 {
 	usbh_parse_dev_desc(p_dev_desc, (void *)p_dev->DevDesc);
 }
@@ -1229,17 +1234,17 @@ uint8_t usbh_cfg_if_nbr_get(USBH_CFG *p_cfg)
 *********************************************************************************************************
 */
 
-USBH_ERR usbh_cfg_desc_get(USBH_CFG *p_cfg, USBH_CFG_DESC *p_cfg_desc)
+USBH_ERR usbh_cfg_desc_get(USBH_CFG *p_cfg, struct usbh_cfg_desc *p_cfg_desc)
 {
-	USBH_DESC_HDR *p_desc;
+	struct usbh_desc_hdr *p_desc;
 
-	if ((p_cfg == (USBH_CFG *)0) || (p_cfg_desc == (USBH_CFG_DESC *)0))
+	if ((p_cfg == (USBH_CFG *)0) || (p_cfg_desc == (struct usbh_cfg_desc *)0))
 	{
 		return (USBH_ERR_INVALID_ARG);
 	}
 
 	p_desc =
-		(USBH_DESC_HDR *)p_cfg
+		(struct usbh_desc_hdr *)p_cfg
 			->CfgData; /* Check for valid cfg desc.                            */
 
 	if ((p_desc->bLength == USBH_LEN_DESC_CFG) &&
@@ -1276,20 +1281,20 @@ USBH_ERR usbh_cfg_desc_get(USBH_CFG *p_cfg, USBH_CFG_DESC *p_cfg_desc)
 *********************************************************************************************************
 */
 
-USBH_DESC_HDR *usbh_cfg_extra_desc_get(USBH_CFG *p_cfg, USBH_ERR *p_err)
+struct usbh_desc_hdr *usbh_cfg_extra_desc_get(USBH_CFG *p_cfg, USBH_ERR *p_err)
 {
-	USBH_DESC_HDR *p_desc;
-	USBH_DESC_HDR *p_extra_desc;
+	struct usbh_desc_hdr *p_desc;
+	struct usbh_desc_hdr *p_extra_desc;
 	uint32_t cfg_off;
 
 	if (p_cfg == (USBH_CFG *)0)
 	{
 		*p_err = USBH_ERR_INVALID_ARG;
-		return ((USBH_DESC_HDR *)0);
+		return ((struct usbh_desc_hdr *)0);
 	}
 
 	p_desc =
-		(USBH_DESC_HDR *)p_cfg
+		(struct usbh_desc_hdr *)p_cfg
 			->CfgData; /* Get config desc data.                                */
 
 	if ((p_desc->bLength == USBH_LEN_DESC_CFG) &&
@@ -1311,7 +1316,7 @@ USBH_DESC_HDR *usbh_cfg_extra_desc_get(USBH_CFG *p_cfg, USBH_ERR *p_err)
 
 	*p_err = USBH_ERR_DESC_EXTRA_NOT_FOUND;
 
-	return ((USBH_DESC_HDR *)0);
+	return ((struct usbh_desc_hdr *)0);
 }
 
 /*
@@ -1428,13 +1433,13 @@ USBH_IF *usbu_if_get(USBH_CFG *p_cfg, uint8_t if_ix)
 
 uint8_t usbh_if_alt_nbr_get(USBH_IF *p_if)
 {
-	USBH_DESC_HDR *p_desc;
+	struct usbh_desc_hdr *p_desc;
 	uint32_t if_off;
 	uint8_t nbr_alts;
 
 	nbr_alts = 0u;
 	if_off = 0u;
-	p_desc = (USBH_DESC_HDR *)p_if->IF_DataPtr;
+	p_desc = (struct usbh_desc_hdr *)p_if->IF_DataPtr;
 
 	while (if_off <
 		   p_if->IF_DataLen)
@@ -1490,11 +1495,11 @@ uint8_t usbh_if_nbr_get(USBH_IF *p_if)
 
 uint8_t usbh_if_ep_nbr_get(USBH_IF *p_if, uint8_t alt_ix)
 {
-	USBH_DESC_HDR *p_desc;
+	struct usbh_desc_hdr *p_desc;
 	uint32_t if_off;
 
 	if_off = 0u;
-	p_desc = (USBH_DESC_HDR *)p_if->IF_DataPtr;
+	p_desc = (struct usbh_desc_hdr *)p_if->IF_DataPtr;
 
 	while (if_off < p_if->IF_DataLen)
 	{
@@ -1535,13 +1540,13 @@ uint8_t usbh_if_ep_nbr_get(USBH_IF *p_if, uint8_t alt_ix)
 */
 
 USBH_ERR usbh_if_desc_get(USBH_IF *p_if, uint8_t alt_ix,
-						 USBH_IF_DESC *p_if_desc)
+						 struct usbh_if_desc *p_if_desc)
 {
-	USBH_DESC_HDR *p_desc;
+	struct usbh_desc_hdr *p_desc;
 	uint32_t if_off;
 
 	if_off = 0u;
-	p_desc = (USBH_DESC_HDR *)p_if->IF_DataPtr;
+	p_desc = (struct usbh_desc_hdr *)p_if->IF_DataPtr;
 
 	while (if_off < p_if->IF_DataLen)
 	{
@@ -1581,7 +1586,7 @@ USBH_ERR usbh_if_desc_get(USBH_IF *p_if, uint8_t alt_ix,
 uint8_t *usbh_if_extra_desc_get(USBH_IF *p_if, uint8_t alt_ix,
 								 uint16_t *p_data_len)
 {
-	USBH_DESC_HDR *p_desc;
+	struct usbh_desc_hdr *p_desc;
 	uint8_t *p_data;
 	uint32_t if_off;
 
@@ -1591,7 +1596,7 @@ uint8_t *usbh_if_extra_desc_get(USBH_IF *p_if, uint8_t alt_ix,
 	}
 
 	if_off = 0u;
-	p_desc = (USBH_DESC_HDR *)p_if->IF_DataPtr;
+	p_desc = (struct usbh_desc_hdr *)p_if->IF_DataPtr;
 
 	while (if_off < p_if->IF_DataLen)
 	{
@@ -2057,7 +2062,8 @@ uint32_t usbh_bulk_tx(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
 		return (0u);
 	}
 
-	xfer_len = usbh_sync_transfer(p_ep, p_buf, buf_len, (USBH_ISOC_DESC *)0,
+	xfer_len = usbh_sync_transfer(p_ep, p_buf, buf_len,
+							 (struct usbh_isoc_desc *)0,
 							 USBH_TOKEN_OUT, timeout_ms, p_err);
 
 	return (xfer_len);
@@ -2115,7 +2121,8 @@ USBH_ERR usbh_bulk_tx_async(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
 		return (USBH_ERR_EP_INVALID_TYPE);
 	}
 
-	err = usbh_async_transfer(p_ep, p_buf, buf_len, (USBH_ISOC_DESC *)0,
+	err = usbh_async_transfer(p_ep, p_buf, buf_len,
+						 (struct usbh_isoc_desc *)0,
 						 USBH_TOKEN_OUT, (void *)fnct, p_fnct_arg);
 
 	return (err);
@@ -2177,7 +2184,8 @@ uint32_t usbh_bulk_rx(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
 		return (0u);
 	}
 
-	xfer_len = usbh_sync_transfer(p_ep, p_buf, buf_len, (USBH_ISOC_DESC *)0,
+	xfer_len = usbh_sync_transfer(p_ep, p_buf, buf_len,
+							 (struct usbh_isoc_desc *)0,
 							 USBH_TOKEN_IN, timeout_ms, p_err);
 
 	return (xfer_len);
@@ -2235,7 +2243,8 @@ USBH_ERR usbh_bulk_rx_async(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
 		return (USBH_ERR_EP_INVALID_TYPE);
 	}
 
-	err = usbh_async_transfer(p_ep, p_buf, buf_len, (USBH_ISOC_DESC *)0,
+	err = usbh_async_transfer(p_ep, p_buf, buf_len,
+						 (struct usbh_isoc_desc *)0,
 						 USBH_TOKEN_IN, (void *)fnct, p_fnct_arg);
 
 	return (err);
@@ -2295,7 +2304,8 @@ uint32_t usbh_intr_tx(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
 		return (USBH_ERR_EP_INVALID_TYPE);
 	}
 
-	xfer_len = usbh_sync_transfer(p_ep, p_buf, buf_len, (USBH_ISOC_DESC *)0,
+	xfer_len = usbh_sync_transfer(p_ep, p_buf, buf_len,
+							 (struct usbh_isoc_desc *)0,
 							 USBH_TOKEN_OUT, timeout_ms, p_err);
 
 	return (xfer_len);
@@ -2353,7 +2363,8 @@ USBH_ERR usbh_intr_tx_async(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
 		return (USBH_ERR_EP_INVALID_TYPE);
 	}
 
-	err = usbh_async_transfer(p_ep, p_buf, buf_len, (USBH_ISOC_DESC *)0,
+	err = usbh_async_transfer(p_ep, p_buf, buf_len,
+						 (struct usbh_isoc_desc *)0,
 						 USBH_TOKEN_OUT, (void *)fnct, p_fnct_arg);
 
 	return (err);
@@ -2413,7 +2424,8 @@ uint32_t usbh_intr_rx(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
 		return (USBH_ERR_EP_INVALID_TYPE);
 	}
 
-	xfer_len = usbh_sync_transfer(p_ep, p_buf, buf_len, (USBH_ISOC_DESC *)0,
+	xfer_len = usbh_sync_transfer(p_ep, p_buf, buf_len,
+							 (struct usbh_isoc_desc *)0,
 							 USBH_TOKEN_IN, timeout_ms, p_err);
 
 	return (xfer_len);
@@ -2477,7 +2489,8 @@ USBH_ERR usbh_intr_rx_async(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
 		return (USBH_ERR_EP_INVALID_TYPE);
 	}
 
-	err = usbh_async_transfer(p_ep, p_buf, buf_len, (USBH_ISOC_DESC *)0,
+	err = usbh_async_transfer(p_ep, p_buf, buf_len,
+						 (struct usbh_isoc_desc *)0,
 						 USBH_TOKEN_IN, (void *)fnct, p_fnct_arg);
 
 	return (err);
@@ -2535,7 +2548,7 @@ uint32_t usbh_isoc_tx(USBH_EP *p_ep, uint8_t *p_buf, uint32_t buf_len,
 	uint8_t ep_type;
 	uint8_t ep_dir;
 	uint32_t xfer_len;
-	USBH_ISOC_DESC isoc_desc;
+	struct usbh_isoc_desc isoc_desc;
 
 	if (p_ep == (USBH_EP *)0)
 	{
@@ -2613,7 +2626,7 @@ USBH_ERR usbh_isoc_tx_async(USBH_EP *p_ep, uint8_t *p_buf, uint32_t buf_len,
 	USBH_ERR err;
 	uint8_t ep_type;
 	uint8_t ep_dir;
-	USBH_ISOC_DESC *p_isoc_desc;
+	struct usbh_isoc_desc *p_isoc_desc;
 
 	if (p_ep == (USBH_EP *)0)
 	{
@@ -2706,7 +2719,7 @@ uint32_t usbh_isoc_rx(USBH_EP *p_ep, uint8_t *p_buf, uint32_t buf_len,
 	uint8_t ep_type;
 	uint8_t ep_dir;
 	uint32_t xfer_len;
-	USBH_ISOC_DESC isoc_desc;
+	struct usbh_isoc_desc isoc_desc;
 
 	if (p_ep == (USBH_EP *)0)
 	{
@@ -2784,7 +2797,7 @@ USBH_ERR usbh_isoc_rx_async(USBH_EP *p_ep, uint8_t *p_buf, uint32_t buf_len,
 	USBH_ERR err;
 	uint8_t ep_type;
 	uint8_t ep_dir;
-	USBH_ISOC_DESC *p_isoc_desc;
+	struct usbh_isoc_desc *p_isoc_desc;
 
 	if (p_ep == (USBH_EP *)0)
 	{
@@ -2959,7 +2972,7 @@ uint8_t usbh_ep_type_get(USBH_EP *p_ep)
 USBH_ERR usbh_ep_get(USBH_IF *p_if, uint8_t alt_ix, uint8_t ep_ix,
 					 USBH_EP *p_ep)
 {
-	USBH_DESC_HDR *p_desc;
+	struct usbh_desc_hdr *p_desc;
 	uint32_t if_off;
 	uint8_t ix;
 
@@ -2970,7 +2983,7 @@ USBH_ERR usbh_ep_get(USBH_IF *p_if, uint8_t alt_ix, uint8_t ep_ix,
 
 	ix = 0u;
 	if_off = 0u;
-	p_desc = (USBH_DESC_HDR *)p_if->IF_DataPtr;
+	p_desc = (struct usbh_desc_hdr *)p_if->IF_DataPtr;
 
 	while (if_off < p_if->IF_DataLen)
 	{
@@ -3417,7 +3430,7 @@ uint32_t usbh_str_get(USBH_DEV *p_dev, uint8_t desc_ix, uint16_t lang_id,
 	uint32_t ix;
 	uint32_t str_len;
 	uint8_t *p_str;
-	USBH_DESC_HDR *p_hdr;
+	struct usbh_desc_hdr *p_hdr;
 
 	if (desc_ix ==
 		0u)
@@ -3454,7 +3467,7 @@ uint32_t usbh_str_get(USBH_DEV *p_dev, uint8_t desc_ix, uint16_t lang_id,
 	}
 
 	p_str = p_buf;
-	p_hdr = (USBH_DESC_HDR *)p_buf;
+	p_hdr = (struct usbh_desc_hdr *)p_buf;
 	str_len = usbh_str_desc_get(
 		p_dev, /* Rd str desc with lang ID.                            */
 		desc_ix, lang_id, p_hdr, buf_len, p_err);
@@ -3603,8 +3616,8 @@ static USBH_ERR usbh_ep_open(USBH_DEV *p_dev, USBH_IF *p_if,
 			0)
 		{ /* See Note #1.                                         */
 
-			if ((p_dev->DevSpd == USB_SPEED_LOW) ||
-				(p_dev->DevSpd == USB_SPEED_FULL))
+			if ((p_dev->DevSpd == USBH_LOW_SPEED) ||
+				(p_dev->DevSpd == USBH_FULL_SPEED))
 			{
 				if (p_dev->HubHS_Ptr != (USBH_HUB_DEV *)0)
 				{
@@ -3715,7 +3728,7 @@ static USBH_ERR usbh_ep_open(USBH_DEV *p_dev, USBH_IF *p_if,
 */
 
 static uint32_t usbh_sync_transfer(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
-								USBH_ISOC_DESC *p_isoc_desc,
+								struct usbh_isoc_desc *p_isoc_desc,
 								uint8_t token,
 								uint32_t timeout_ms,
 								USBH_ERR *p_err)
@@ -3816,7 +3829,7 @@ static uint32_t usbh_sync_transfer(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
 */
 
 static USBH_ERR usbh_async_transfer(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
-							   USBH_ISOC_DESC *p_isoc_desc,
+							   struct usbh_isoc_desc *p_isoc_desc,
 							   uint8_t token,
 							   void *p_fnct, void *p_fnct_arg)
 {
@@ -3935,7 +3948,7 @@ static uint16_t usbh_sync_ctrl_transfer(USBH_EP *p_ep, uint8_t b_req,
 									USBH_ERR *p_err)
 {
 	// LOG_DBG("SyncCtrlXfer");
-	USBH_SETUP_REQ setup;
+	struct usbh_setup_req setup;
 	uint8_t setup_buf[8];
 	bool is_in;
 	uint32_t len;
@@ -3953,7 +3966,8 @@ static uint16_t usbh_sync_ctrl_transfer(USBH_EP *p_ep, uint8_t b_req,
 	is_in = (bm_req_type & USBH_REQ_DIR_MASK) != 0u ? DEF_TRUE : DEF_FALSE;
 
 	len = usbh_sync_transfer(p_ep, (void *)&setup_buf[0u], USBH_LEN_SETUP_PKT,
-						(USBH_ISOC_DESC *)0, USBH_TOKEN_SETUP, timeout_ms,
+						(struct usbh_isoc_desc *)0,
+						USBH_TOKEN_SETUP, timeout_ms,
 						p_err);
 	if (*p_err != USBH_ERR_NONE)
 	{
@@ -3973,7 +3987,7 @@ static uint16_t usbh_sync_ctrl_transfer(USBH_EP *p_ep, uint8_t b_req,
 
 		rtn_len =
 			usbh_sync_transfer(p_ep, (void *)p_data_08, w_len,
-						  (USBH_ISOC_DESC *)0,
+						  (struct usbh_isoc_desc *)0,
 						  (is_in ? USBH_TOKEN_IN : USBH_TOKEN_OUT),
 						  timeout_ms, p_err);
 		if (*p_err != USBH_ERR_NONE)
@@ -3988,7 +4002,7 @@ static uint16_t usbh_sync_ctrl_transfer(USBH_EP *p_ep, uint8_t b_req,
 
 	(void)usbh_sync_transfer(
 		p_ep, /* ------------------- STATUS STAGE ------------------- */
-		(void *)0, 0u, (USBH_ISOC_DESC *)0,
+		(void *)0, 0u, (struct usbh_isoc_desc *)0,
 		((w_len && is_in) ? USBH_TOKEN_OUT : USBH_TOKEN_IN), timeout_ms,
 		p_err);
 	if (*p_err != USBH_ERR_NONE)
@@ -4071,7 +4085,7 @@ static void usb_urb_notify(USBH_URB *p_urb)
 	void *p_buf;
 	void *p_arg;
 	USBH_EP *p_ep;
-	USBH_ISOC_DESC *p_isoc_desc;
+	struct usbh_isoc_desc *p_isoc_desc;
 	USBH_XFER_CMPL_FNCT p_xfer_fnct;
 	USBH_ISOC_CMPL_FNCT p_isoc_fnct;
 	USBH_ERR *p_frm_err;
@@ -4100,7 +4114,7 @@ static void usb_urb_notify(USBH_URB *p_urb)
 		err = p_urb->Err;
 		p_urb->State = USBH_URB_STATE_NONE;
 
-		if (p_isoc_desc == (USBH_ISOC_DESC *)0)
+		if (p_isoc_desc == (struct usbh_isoc_desc *)0)
 		{
 			p_xfer_fnct = (USBH_XFER_CMPL_FNCT)p_urb->FnctPtr;
 			CPU_CRITICAL_EXIT();
@@ -4231,7 +4245,7 @@ static USBH_ERR usbh_dflt_ep_open(USBH_DEV *p_dev)
 	p_ep->DevPtr = p_dev;
 
 	if (p_dev->DevSpd ==
-		USB_SPEED_LOW)
+		USBH_LOW_SPEED)
 	{ /* See Note (1).                                        */
 		ep_max_pkt_size = 8u;
 	}
@@ -4312,7 +4326,7 @@ static USBH_ERR usbh_dev_desc_rd(USBH_DEV *p_dev)
 {
 	USBH_ERR err;
 	uint8_t retry;
-	USBH_DEV_DESC dev_desc;
+	struct usbh_dev_desc dev_desc;
 
 	retry = 3u;
 	while (retry > 0u)
@@ -4586,13 +4600,13 @@ static USBH_ERR usbh_cfg_parse(USBH_DEV *p_dev, USBH_CFG *p_cfg)
 	uint8_t nbr_ifs;
 	uint32_t cfg_off;
 	USBH_IF *p_if;
-	USBH_DESC_HDR *p_desc;
-	USBH_CFG_DESC cfg_desc;
-	USBH_IF_DESC if_desc;
-	USBH_EP_DESC ep_desc;
+	struct usbh_desc_hdr *p_desc;
+	struct usbh_cfg_desc cfg_desc;
+	struct usbh_if_desc if_desc;
+	struct usbh_ep_desc ep_desc;
 
 	cfg_off = 0u;
-	p_desc = (USBH_DESC_HDR *)p_cfg->CfgData;
+	p_desc = (struct usbh_desc_hdr *)p_cfg->CfgData;
 
 	/* ---------------- VALIDATE CFG DESC ----------------- */
 	usbh_parse_cfg_desc(&cfg_desc, p_desc);
@@ -4826,7 +4840,7 @@ static uint32_t usbh_str_desc_get(USBH_DEV *p_dev, uint8_t desc_ix,
 	uint32_t len;
 	uint32_t req_len;
 	uint8_t i;
-	USBH_DESC_HDR *p_hdr;
+	struct usbh_desc_hdr *p_hdr;
 
 	if (desc_ix == USBH_STRING_DESC_LANGID)
 	{
@@ -4864,7 +4878,7 @@ static uint32_t usbh_str_desc_get(USBH_DEV *p_dev, uint8_t desc_ix,
 		return (0u);
 	}
 
-	p_hdr = (USBH_DESC_HDR *)p_buf;
+	p_hdr = (struct usbh_desc_hdr *)p_buf;
 
 	if ((len ==
 		 req_len) && /* Chk desc hdr.                                        */
@@ -4985,12 +4999,12 @@ static uint32_t usbh_str_desc_get(USBH_DEV *p_dev, uint8_t desc_ix,
 *********************************************************************************************************
 */
 
-static USBH_DESC_HDR *usbh_next_desc_get(void *p_buf, uint32_t *p_offset)
+static struct usbh_desc_hdr *usbh_next_desc_get(void *p_buf, uint32_t *p_offset)
 {
-	USBH_DESC_HDR *p_next_hdr;
-	USBH_DESC_HDR *p_hdr;
+	struct usbh_desc_hdr *p_next_hdr;
+	struct usbh_desc_hdr *p_hdr;
 
-	p_hdr = (USBH_DESC_HDR *)
+	p_hdr = (struct usbh_desc_hdr *)
 		p_buf; /* Current desc hdr.                                    */
 
 	if (*p_offset ==
@@ -5001,7 +5015,7 @@ static USBH_DESC_HDR *usbh_next_desc_get(void *p_buf, uint32_t *p_offset)
 	else
 	{ /* Next desc is at end of current desc.                 */
 		p_next_hdr =
-			(USBH_DESC_HDR *)((uint8_t *)p_buf + p_hdr->bLength);
+			(struct usbh_desc_hdr *)((uint8_t *)p_buf + p_hdr->bLength);
 	}
 
 	*p_offset +=
@@ -5026,12 +5040,13 @@ static USBH_DESC_HDR *usbh_next_desc_get(void *p_buf, uint32_t *p_offset)
 *********************************************************************************************************
 */
 
-static void usbh_fmt_setup_req(USBH_SETUP_REQ *p_setup_req, void *p_buf_dest)
+static void usbh_fmt_setup_req(struct usbh_setup_req *p_setup_req,
+			       void *p_buf_dest)
 {
 	// LOG_DBG("FmtSetupReq");
-	USBH_SETUP_REQ *p_buf_dest_setup_req;
+	struct usbh_setup_req *p_buf_dest_setup_req;
 
-	p_buf_dest_setup_req = (USBH_SETUP_REQ *)p_buf_dest;
+	p_buf_dest_setup_req = (struct usbh_setup_req *)p_buf_dest;
 
 	p_buf_dest_setup_req->bmRequestType = p_setup_req->bmRequestType;
 	p_buf_dest_setup_req->bRequest = p_setup_req->bRequest;
@@ -5059,11 +5074,12 @@ static void usbh_fmt_setup_req(USBH_SETUP_REQ *p_setup_req, void *p_buf_dest)
 *********************************************************************************************************
 */
 
-static void usbh_parse_dev_desc(USBH_DEV_DESC *p_dev_desc, void *p_buf_src)
+static void usbh_parse_dev_desc(struct usbh_dev_desc *p_dev_desc,
+				void *p_buf_src)
 {
-	USBH_DEV_DESC *p_buf_src_dev_desc;
+	struct usbh_dev_desc *p_buf_src_dev_desc;
 
-	p_buf_src_dev_desc = (USBH_DEV_DESC *)p_buf_src;
+	p_buf_src_dev_desc = (struct usbh_dev_desc *)p_buf_src;
 
 	p_dev_desc->bLength = p_buf_src_dev_desc->bLength;
 	p_dev_desc->bDescriptorType = p_buf_src_dev_desc->bDescriptorType;
@@ -5101,11 +5117,12 @@ static void usbh_parse_dev_desc(USBH_DEV_DESC *p_dev_desc, void *p_buf_src)
 *********************************************************************************************************
 */
 
-static void usbh_parse_cfg_desc(USBH_CFG_DESC *p_cfg_desc, void *p_buf_src)
+static void usbh_parse_cfg_desc(struct usbh_cfg_desc *p_cfg_desc,
+				void *p_buf_src)
 {
-	USBH_CFG_DESC *p_buf_src_cfg_desc;
+	struct usbh_cfg_desc *p_buf_src_cfg_desc;
 
-	p_buf_src_cfg_desc = (USBH_CFG_DESC *)p_buf_src;
+	p_buf_src_cfg_desc = (struct usbh_cfg_desc *)p_buf_src;
 
 	p_cfg_desc->bLength = p_buf_src_cfg_desc->bLength;
 	p_cfg_desc->bDescriptorType = p_buf_src_cfg_desc->bDescriptorType;
@@ -5135,11 +5152,12 @@ static void usbh_parse_cfg_desc(USBH_CFG_DESC *p_cfg_desc, void *p_buf_src)
 *********************************************************************************************************
 */
 
-static void usbh_parse_if_desc(USBH_IF_DESC *p_if_desc, void *p_buf_src)
+static void usbh_parse_if_desc(struct usbh_if_desc *p_if_desc,
+			       void *p_buf_src)
 {
-	USBH_IF_DESC *p_buf_src_if_desc;
+	struct usbh_if_desc *p_buf_src_if_desc;
 
-	p_buf_src_if_desc = (USBH_IF_DESC *)p_buf_src;
+	p_buf_src_if_desc = (struct usbh_if_desc *)p_buf_src;
 
 	p_if_desc->bLength = p_buf_src_if_desc->bLength;
 	p_if_desc->bDescriptorType = p_buf_src_if_desc->bDescriptorType;
@@ -5168,11 +5186,12 @@ static void usbh_parse_if_desc(USBH_IF_DESC *p_if_desc, void *p_buf_src)
 *********************************************************************************************************
 */
 
-static void usbh_parse_ep_desc(USBH_EP_DESC *p_ep_desc, void *p_buf_src)
+static void usbh_parse_ep_desc(struct usbh_ep_desc *p_ep_desc,
+			       void *p_buf_src)
 {
-	USBH_EP_DESC *p_buf_desc;
+	struct usbh_ep_desc *p_buf_desc;
 
-	p_buf_desc = (USBH_EP_DESC *)p_buf_src;
+	p_buf_desc = (struct usbh_ep_desc *)p_buf_src;
 	p_ep_desc->bLength = p_buf_desc->bLength;
 	p_ep_desc->bDescriptorType = p_buf_desc->bDescriptorType;
 	p_ep_desc->bEndpointAddress = p_buf_desc->bEndpointAddress;
