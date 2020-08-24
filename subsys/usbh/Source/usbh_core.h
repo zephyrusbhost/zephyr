@@ -1262,7 +1262,7 @@ typedef  void  (*USBH_XFER_CMPL_FNCT)(USBH_EP     *p_ep,
 *********************************************************************************************************
 */
 
-#define  USBH_CLR_FEATURE(p_dev, rcpt, feature, value, index, p_err)        USBH_CtrlTx((p_dev),                                                      \
+#define  USBH_CLR_FEATURE(p_dev, rcpt, feature, value, index, p_err)        usbh_ctrl_tx((p_dev),                                                      \
                                                                                         (USBH_REQ_CLR_FEATURE),                                       \
                                                                                         (rcpt),                                                       \
                                                                                         (value),                                                      \
@@ -1272,7 +1272,7 @@ typedef  void  (*USBH_XFER_CMPL_FNCT)(USBH_EP     *p_ep,
                                                                                         (USBH_CFG_STD_REQ_TIMEOUT),                                   \
                                                                                         (p_err))
 
-#define  USBH_SET_FEATURE(p_dev, rcpt, feature, value, index, p_err)        USBH_CtrlTx((p_dev),                                                      \
+#define  USBH_SET_FEATURE(p_dev, rcpt, feature, value, index, p_err)        usbh_ctrl_tx((p_dev),                                                      \
                                                                                         (USBH_REQ_SET_FEATURE),                                       \
                                                                                         (rcpt),                                                       \
                                                                                         (value),                                                      \
@@ -1282,7 +1282,7 @@ typedef  void  (*USBH_XFER_CMPL_FNCT)(USBH_EP     *p_ep,
                                                                                         (USBH_CFG_STD_REQ_TIMEOUT),                                   \
                                                                                         (p_err))
 
-#define  USBH_GET_CFG(p_dev, data, p_err)                                   USBH_CtrlRx((p_dev),                                                      \
+#define  USBH_GET_CFG(p_dev, data, p_err)                                   usbh_ctrl_rx((p_dev),                                                      \
                                                                                         (USBH_REQ_GET_CFG),                                           \
                                                                                         (USBH_REQ_DIR_DEV_TO_HOST | USBH_REQ_RECIPIENT_DEV),          \
                                                                                          0u,                                                          \
@@ -1292,7 +1292,7 @@ typedef  void  (*USBH_XFER_CMPL_FNCT)(USBH_EP     *p_ep,
                                                                                         (USBH_CFG_STD_REQ_TIMEOUT),                                   \
                                                                                         (p_err))
 
-#define  USBH_GET_DESC(p_dev, desc_type, desc_ix, data, length, p_err)      USBH_CtrlRx((p_dev),                                                      \
+#define  USBH_GET_DESC(p_dev, desc_type, desc_ix, data, length, p_err)      usbh_ctrl_rx((p_dev),                                                      \
                                                                                         (USBH_REQ_GET_DESC),                                          \
                                                                                         (USBH_REQ_DIR_DEV_TO_HOST | USBH_REQ_RECIPIENT_DEV),          \
                                                                                         (desc_type << 8) | (desc_ix),                                 \
@@ -1302,7 +1302,7 @@ typedef  void  (*USBH_XFER_CMPL_FNCT)(USBH_EP     *p_ep,
                                                                                         (USBH_CFG_STD_REQ_TIMEOUT),                                   \
                                                                                         (p_err))
 
-#define  USBH_GET_IF(ep, if_nbr, data, p_err)                               USBH_CtrlRx((p_dev),                                                      \
+#define  USBH_GET_IF(ep, if_nbr, data, p_err)                               usbh_ctrl_rx((p_dev),                                                      \
                                                                                         (USBH_REQ_GET_IF),                                            \
                                                                                         (USBH_REQ_DIR_DEV_TO_HOST | USBH_REQ_RECIPIENT_IF),           \
                                                                                          0u,                                                          \
@@ -1312,7 +1312,7 @@ typedef  void  (*USBH_XFER_CMPL_FNCT)(USBH_EP     *p_ep,
                                                                                         (USBH_CFG_STD_REQ_TIMEOUT),                                   \
                                                                                         (p_err))
 
-#define  USBH_GET_STATUS(p_dev, rcpt, index, data, p_err)                   USBH_CtrlRx((p_dev),                                                      \
+#define  USBH_GET_STATUS(p_dev, rcpt, index, data, p_err)                   usbh_ctrl_rx((p_dev),                                                      \
                                                                                         (USBH_REQ_GET_STATUS),                                        \
                                                                                         (USBH_REQ_DIR_DEV_TO_HOST) | (rcpt),                          \
                                                                                          0u,                                                          \
@@ -1322,7 +1322,7 @@ typedef  void  (*USBH_XFER_CMPL_FNCT)(USBH_EP     *p_ep,
                                                                                         (USBH_CFG_STD_REQ_TIMEOUT),                                   \
                                                                                         (p_err))
 
-#define  USBH_SET_ADDR(p_dev, new_usb_addr, p_err)                          USBH_CtrlTx((p_dev),                                                      \
+#define  USBH_SET_ADDR(p_dev, new_usb_addr, p_err)                          usbh_ctrl_tx((p_dev),                                                      \
                                                                                         (USBH_REQ_SET_ADDR),                                          \
                                                                                         (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_RECIPIENT_DEV),          \
                                                                                          new_usb_addr,                                                \
@@ -1332,7 +1332,7 @@ typedef  void  (*USBH_XFER_CMPL_FNCT)(USBH_EP     *p_ep,
                                                                                         (USBH_CFG_STD_REQ_TIMEOUT),                                   \
                                                                                         (p_err))
 
-#define  USBH_SET_CFG(p_dev, cfg_nbr, p_err)                                USBH_CtrlTx((p_dev),                                                      \
+#define  USBH_SET_CFG(p_dev, cfg_nbr, p_err)                                usbh_ctrl_tx((p_dev),                                                      \
                                                                                         (USBH_REQ_SET_CFG),                                           \
                                                                                         (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_RECIPIENT_DEV),          \
                                                                                         (cfg_nbr),                                                    \
@@ -1342,7 +1342,7 @@ typedef  void  (*USBH_XFER_CMPL_FNCT)(USBH_EP     *p_ep,
                                                                                         (USBH_CFG_STD_REQ_TIMEOUT),                                   \
                                                                                         (p_err))
 
-#define  USBH_SET_IF(p_dev, if_nbr, alt_nbr, p_err)                         USBH_CtrlTx((p_dev),                                                      \
+#define  USBH_SET_IF(p_dev, if_nbr, alt_nbr, p_err)                         usbh_ctrl_tx((p_dev),                                                      \
                                                                                         (USBH_REQ_SET_IF),                                            \
                                                                                         (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_RECIPIENT_IF),           \
                                                                                         (alt_nbr),                                                    \
@@ -1360,109 +1360,109 @@ typedef  void  (*USBH_XFER_CMPL_FNCT)(USBH_EP     *p_ep,
 */
 
                                                                 /* --------- USB HOST STACK GENERAL FUNCTIONS --------- */
-uint32_t      USBH_VersionGet       (void);
+uint32_t      usbh_version_get       (void);
 
-USBH_ERR        USBH_Init             (USBH_KERNEL_TASK_INFO  *async_task_info,
+USBH_ERR        usbh_init             (USBH_KERNEL_TASK_INFO  *async_task_info,
                                        USBH_KERNEL_TASK_INFO  *hub_task_info);
 
-USBH_ERR        USBH_Suspend          (void);
+USBH_ERR        usbh_suspend          (void);
 
-USBH_ERR        USBH_Resume           (void);
+USBH_ERR        usbh_resume           (void);
 
                                                                 /* ------------ HOST CONTROLLER FUNCTIONS ------------- */
-uint8_t      USBH_HC_Add           (USBH_HC_CFG            *p_hc_cfg,
+uint8_t      usbh_hc_add           (USBH_HC_CFG            *p_hc_cfg,
                                        USBH_HC_DRV_API        *p_drv_api,
                                        USBH_HC_RH_API         *p_hc_rh_api,
                                        USBH_HC_BSP_API        *p_hc_bsp_api,
                                        USBH_ERR               *p_err);
 
-USBH_ERR        USBH_HC_Start         (uint8_t              hc_nbr);
+USBH_ERR        usbh_hc_start         (uint8_t              hc_nbr);
 
-USBH_ERR        USBH_HC_Stop          (uint8_t              hc_nbr);
+USBH_ERR        usbh_hc_stop          (uint8_t              hc_nbr);
 
-USBH_ERR        USBH_HC_PortEn        (uint8_t              hc_nbr,
+USBH_ERR        usbh_hc_port_en        (uint8_t              hc_nbr,
                                        uint8_t              port_nbr);
 
-USBH_ERR        USBH_HC_PortDis       (uint8_t              hc_nbr,
+USBH_ERR        usbh_hc_port_dis       (uint8_t              hc_nbr,
                                        uint8_t              port_nbr);
 
-uint32_t      USBH_HC_FrameNbrGet   (uint8_t              hc_nbr,
+uint32_t      usbh_hc_frame_nbr_get   (uint8_t              hc_nbr,
                                        USBH_ERR               *p_err);
 
                                                                 /* ------------- DEVICE CONTROL FUNCTIONS ------------- */
-USBH_ERR        USBH_DevConn          (USBH_DEV               *p_dev);
+USBH_ERR        usbh_dev_conn          (USBH_DEV               *p_dev);
 
-void            USBH_DevDisconn       (USBH_DEV               *p_dev);
+void            usbh_dev_disconn       (USBH_DEV               *p_dev);
 
-uint8_t      USBH_DevCfgNbrGet     (USBH_DEV               *p_dev);
+uint8_t      usbh_dev_cfg_nbr_get     (USBH_DEV               *p_dev);
 
-void            USBH_DevDescGet       (USBH_DEV               *p_dev,
+void            usbh_dev_desc_get       (USBH_DEV               *p_dev,
                                        USBH_DEV_DESC          *p_dev_desc);
 
                                                                 /* ---------- DEVICE CONFIGURATION FUNCTIONS ---------- */
-USBH_ERR        USBH_CfgSet           (USBH_DEV               *p_dev,
+USBH_ERR        usbh_cfg_set           (USBH_DEV               *p_dev,
                                        uint8_t              cfg_nbr);
 
-USBH_CFG       *USBH_CfgGet           (USBH_DEV               *p_dev,
+USBH_CFG       *usbh_cfg_get           (USBH_DEV               *p_dev,
                                        uint8_t              cfg_ix);
 
-uint8_t      USBH_CfgIF_NbrGet     (USBH_CFG               *p_cfg);
+uint8_t      usbh_cfg_if_nbr_get     (USBH_CFG               *p_cfg);
 
-USBH_ERR        USBH_CfgDescGet       (USBH_CFG               *p_cfg,
+USBH_ERR        usbh_cfg_desc_get       (USBH_CFG               *p_cfg,
                                        USBH_CFG_DESC          *p_cfg_desc);
 
-USBH_DESC_HDR  *USBH_CfgExtraDescGet  (USBH_CFG               *p_cfg,
+USBH_DESC_HDR  *usbh_cfg_extra_desc_get  (USBH_CFG               *p_cfg,
                                        USBH_ERR               *p_err);
 
                                                                 /* -------- DEVICE INTERFACE CONTROL FUNCTIONS -------- */
-USBH_ERR        USBH_IF_Set           (USBH_IF                *p_if,
+USBH_ERR        usbh_if_set           (USBH_IF                *p_if,
                                        uint8_t              alt_nbr);
 
-USBH_IF        *USBH_IF_Get           (USBH_CFG               *p_cfg,
+USBH_IF        *usbu_if_get           (USBH_CFG               *p_cfg,
                                        uint8_t              if_ix);
 
-uint8_t      USBH_IF_AltNbrGet     (USBH_IF                *p_if);
+uint8_t      usbh_if_alt_nbr_get     (USBH_IF                *p_if);
 
-uint8_t      USBH_IF_NbrGet        (USBH_IF                *p_if);
+uint8_t      usbh_if_nbr_get        (USBH_IF                *p_if);
 
-uint8_t      USBH_IF_EP_NbrGet     (USBH_IF                *p_if,
+uint8_t      usbh_if_ep_nbr_get     (USBH_IF                *p_if,
                                        uint8_t              alt_ix);
 
-USBH_ERR        USBH_IF_DescGet       (USBH_IF                *p_if,
+USBH_ERR        usbh_if_desc_get       (USBH_IF                *p_if,
                                        uint8_t              alt_ix,
                                        USBH_IF_DESC           *p_if_desc);
 
-uint8_t     *USBH_IF_ExtraDescGet  (USBH_IF                *p_if,
+uint8_t     *usbh_if_extra_desc_get  (USBH_IF                *p_if,
                                        uint8_t              alt_ix,
                                        uint16_t             *p_data_len);
 
                                                                 /* ---------- DEVICE ENDPOINT OPEN FUNCTIONS ---------- */
-USBH_ERR        USBH_BulkInOpen       (USBH_DEV               *p_dev,
+USBH_ERR        usbh_bulk_in_open       (USBH_DEV               *p_dev,
                                        USBH_IF                *p_if,
                                        USBH_EP                *p_ep);
 
-USBH_ERR        USBH_BulkOutOpen      (USBH_DEV               *p_dev,
+USBH_ERR        usbh_bulk_out_open      (USBH_DEV               *p_dev,
                                        USBH_IF                *p_if,
                                        USBH_EP                *p_ep);
 
-USBH_ERR        USBH_IntrInOpen       (USBH_DEV               *p_dev,
+USBH_ERR        usbh_intr_in_open       (USBH_DEV               *p_dev,
                                        USBH_IF                *p_if,
                                        USBH_EP                *p_ep);
 
-USBH_ERR        USBH_IntrOutOpen      (USBH_DEV               *p_dev,
+USBH_ERR        usbh_intr_out_open      (USBH_DEV               *p_dev,
                                        USBH_IF                *p_if,
                                        USBH_EP                *p_ep);
 
-USBH_ERR        USBH_IsocInOpen       (USBH_DEV               *p_dev,
+USBH_ERR        usbh_isoc_in_open       (USBH_DEV               *p_dev,
                                        USBH_IF                *p_if,
                                        USBH_EP                *p_ep);
 
-USBH_ERR        USBH_IsocOutOpen      (USBH_DEV               *p_dev,
+USBH_ERR        usbh_isoc_out_open      (USBH_DEV               *p_dev,
                                        USBH_IF                *p_if,
                                        USBH_EP                *p_ep);
 
                                                                 /* -------- DEVICE ENDPOINT TRANSFER FUNCTIONS -------- */
-uint16_t      USBH_CtrlTx           (USBH_DEV               *p_dev,
+uint16_t      usbh_ctrl_tx           (USBH_DEV               *p_dev,
                                        uint8_t              b_req,
                                        uint8_t              bm_req_type,
                                        uint16_t              w_val,
@@ -1472,7 +1472,7 @@ uint16_t      USBH_CtrlTx           (USBH_DEV               *p_dev,
                                        uint32_t              timeout_ms,
                                        USBH_ERR               *p_err);
 
-uint16_t      USBH_CtrlRx           (USBH_DEV               *p_dev,
+uint16_t      usbh_ctrl_rx           (USBH_DEV               *p_dev,
                                        uint8_t              b_req,
                                        uint8_t              bm_req_type,
                                        uint16_t              w_val,
@@ -1482,55 +1482,55 @@ uint16_t      USBH_CtrlRx           (USBH_DEV               *p_dev,
                                        uint32_t              timeout_ms,
                                        USBH_ERR               *p_err);
 
-uint32_t      USBH_BulkTx           (USBH_EP                *p_ep,
+uint32_t      usbh_bulk_tx           (USBH_EP                *p_ep,
                                        void                   *p_buf,
                                        uint32_t              buf_len,
                                        uint32_t              timeout_ms,
                                        USBH_ERR               *p_err);
 
-USBH_ERR        USBH_BulkTxAsync      (USBH_EP                *p_ep,
+USBH_ERR        usbh_bulk_tx_async      (USBH_EP                *p_ep,
                                        void                   *p_buf,
                                        uint32_t              buf_len,
                                        USBH_XFER_CMPL_FNCT     fnct,
                                        void                   *p_fnct_arg);
 
-uint32_t      USBH_BulkRx           (USBH_EP                *p_ep,
+uint32_t      usbh_bulk_rx           (USBH_EP                *p_ep,
                                        void                   *p_buf,
                                        uint32_t              buf_len,
                                        uint32_t              timeout_ms,
                                        USBH_ERR               *p_err);
 
-USBH_ERR        USBH_BulkRxAsync      (USBH_EP                *p_ep,
+USBH_ERR        usbh_bulk_rx_async      (USBH_EP                *p_ep,
                                        void                   *p_buf,
                                        uint32_t              buf_len,
                                        USBH_XFER_CMPL_FNCT     fnct,
                                        void                   *p_fnct_arg);
 
-uint32_t      USBH_IntrTx           (USBH_EP                *p_ep,
+uint32_t      usbh_intr_tx           (USBH_EP                *p_ep,
                                        void                   *p_buf,
                                        uint32_t              buf_len,
                                        uint32_t              timeout_ms,
                                        USBH_ERR               *p_err);
 
-USBH_ERR        USBH_IntrTxAsync      (USBH_EP                *p_ep,
+USBH_ERR        usbh_intr_tx_async      (USBH_EP                *p_ep,
                                        void                   *p_buf,
                                        uint32_t              buf_len,
                                        USBH_XFER_CMPL_FNCT     fnct,
                                        void                   *p_fnct_arg);
 
-uint32_t      USBH_IntrRx           (USBH_EP                *p_ep,
+uint32_t      usbh_intr_rx           (USBH_EP                *p_ep,
                                        void                   *p_buf,
                                        uint32_t              buf_len,
                                        uint32_t              timeout_ms,
                                        USBH_ERR               *p_err);
 
-USBH_ERR        USBH_IntrRxAsync      (USBH_EP                *p_ep,
+USBH_ERR        usbh_intr_rx_async      (USBH_EP                *p_ep,
                                        void                   *p_buf,
                                        uint32_t              buf_len,
                                        USBH_XFER_CMPL_FNCT     fnct,
                                        void                   *p_fnct_arg);
 
-uint32_t      USBH_IsocTx           (USBH_EP                *p_ep,
+uint32_t      usbh_isoc_tx           (USBH_EP                *p_ep,
                                        uint8_t             *p_buf,
                                        uint32_t              buf_len,
                                        uint32_t              start_frm,
@@ -1540,7 +1540,7 @@ uint32_t      USBH_IsocTx           (USBH_EP                *p_ep,
                                        uint32_t              timeout_ms,
                                        USBH_ERR               *p_err);
 
-USBH_ERR        USBH_IsocTxAsync      (USBH_EP                *p_ep,
+USBH_ERR        usbh_isoc_tx_async      (USBH_EP                *p_ep,
                                        uint8_t             *p_buf,
                                        uint32_t              buf_len,
                                        uint32_t              start_frm,
@@ -1550,7 +1550,7 @@ USBH_ERR        USBH_IsocTxAsync      (USBH_EP                *p_ep,
                                        USBH_ISOC_CMPL_FNCT     fnct,
                                        void                   *p_fnct_arg);
 
-uint32_t      USBH_IsocRx           (USBH_EP                *p_ep,
+uint32_t      usbh_isoc_rx           (USBH_EP                *p_ep,
                                        uint8_t             *p_buf,
                                        uint32_t              buf_len,
                                        uint32_t              start_frm,
@@ -1560,7 +1560,7 @@ uint32_t      USBH_IsocRx           (USBH_EP                *p_ep,
                                        uint32_t              timeout_ms,
                                        USBH_ERR               *p_err);
 
-USBH_ERR        USBH_IsocRxAsync      (USBH_EP                *p_ep,
+USBH_ERR        usbh_isoc_rx_async      (USBH_EP                *p_ep,
                                        uint8_t             *p_buf,
                                        uint32_t              buf_len,
                                        uint32_t              start_frm,
@@ -1571,35 +1571,35 @@ USBH_ERR        USBH_IsocRxAsync      (USBH_EP                *p_ep,
                                        void                   *p_fnct_arg);
 
                                                                 /* ------------ DEVICE ENDPOINT FUNCTIONS ------------- */
-uint8_t      USBH_EP_LogNbrGet     (USBH_EP                *p_ep);
+uint8_t      usbh_ep_log_nbr_get     (USBH_EP                *p_ep);
 
-uint8_t      USBH_EP_DirGet        (USBH_EP                *p_ep);
+uint8_t      usbh_ep_dir_get        (USBH_EP                *p_ep);
 
-uint16_t      USBH_EP_MaxPktSizeGet (USBH_EP                *p_ep);
+uint16_t      usbh_ep_max_pkt_size_get (USBH_EP                *p_ep);
 
-uint8_t      USBH_EP_TypeGet       (USBH_EP                *p_ep);
+uint8_t      usbh_ep_type_get       (USBH_EP                *p_ep);
 
-USBH_ERR        USBH_EP_Get           (USBH_IF                *p_if,
+USBH_ERR        usbh_ep_get           (USBH_IF                *p_if,
                                        uint8_t              alt_ix,
                                        uint8_t              ep_ix,
                                        USBH_EP                *p_ep);
 
-USBH_ERR        USBH_EP_StallSet      (USBH_EP                *p_ep);
+USBH_ERR        usbh_ep_stall_set      (USBH_EP                *p_ep);
 
-USBH_ERR        USBH_EP_StallClr      (USBH_EP                *p_ep);
+USBH_ERR        usbh_ep_stall_clr      (USBH_EP                *p_ep);
 
-USBH_ERR        USBH_EP_Reset         (USBH_DEV               *p_dev,
+USBH_ERR        usbh_ep_reset         (USBH_DEV               *p_dev,
                                        USBH_EP                *p_ep);
 
-USBH_ERR        USBH_EP_Close         (USBH_EP                *p_ep);
+USBH_ERR        usbh_ep_close         (USBH_EP                *p_ep);
 
                                                                 /* ----------- USB REQUEST BLOCK FUNCTIONS ------------ */
-void            USBH_URB_Done         (USBH_URB               *p_urb);
+void            usbh_urb_done         (USBH_URB               *p_urb);
 
-USBH_ERR        USBH_URB_Complete     (USBH_URB               *p_urb);
+USBH_ERR        usbh_urb_complete     (USBH_URB               *p_urb);
 
                                                                 /* ------------- MISCELLENEOUS FUNCTIONS -------------- */
-uint32_t      USBH_StrGet           (USBH_DEV               *p_dev,
+uint32_t      usbh_str_get           (USBH_DEV               *p_dev,
                                        uint8_t              desc_ix,
                                        uint16_t              lang_id,
                                        uint8_t             *p_buf,
