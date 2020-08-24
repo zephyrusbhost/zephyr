@@ -560,8 +560,8 @@
 *********************************************************************************************************
 */
 
-typedef  uint8_t  USBH_EP_TYPE;
-typedef  uint8_t  USBH_EP_DIR;
+// typedef  uint8_t  USBH_EP_TYPE;
+// typedef  uint8_t  USBH_EP_DIR;
 typedef  uint8_t  USBH_HOST_STATE;
 typedef  uint8_t  USBH_DEV_STATE;
 typedef  uint8_t  USBH_CLASS_DEV_STATE;
@@ -1188,7 +1188,7 @@ struct usbh_hc {
 */
 
 struct  usbh_host {
-    USBH_HOST_STATE  State;                                     /* State of USB host stack.                             */
+    uint8_t  State;                                     /* State of USB host stack.                             */
 
     USBH_DEV         DevList[USBH_MAX_NBR_DEVS];                /* List of USB dev connected.                           */
     int8_t         DevCount;                                   /* Pool for mem mgmt of USB devs.                       */
