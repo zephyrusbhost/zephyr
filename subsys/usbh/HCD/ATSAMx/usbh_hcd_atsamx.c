@@ -1481,7 +1481,7 @@ static bool usbh_atsamx_rh_hub_desc_get(USBH_HC_DRV *p_hc_drv,
 	hub_desc.bPwrOn2PwrGood = 100u;
 	hub_desc.bHubContrCurrent = 0u;
 
-	USBH_HUB_FmtHubDesc(
+	usbh_hub_fmt_hub_desc(
 		&hub_desc,
 		p_drv_data->RH_Desc); /* Write the structure in USB format                    */
 
@@ -1851,7 +1851,7 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 		p_drv_data->RH_PortChng |=
 			USBH_HUB_STATUS_C_PORT_RESET; /* Transitioned from RESET state to ENABLED State       */
 
-		USBH_HUB_RH_Event(
+		usbh_rh_event(
 			p_hc_drv->RH_DevPtr); /* Notify the core layer.                               */
 	}
 	else if (int_stat & USBH_ATSAMX_INT_DDISC)
@@ -1876,7 +1876,7 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 			0u; /* Clear Root hub Port Status bits                      */
 		p_drv_data->RH_PortChng |=
 			USBH_HUB_STATUS_C_PORT_CONN; /* Current connect status has changed                   */
-		USBH_HUB_RH_Event(
+		usbh_rh_event(
 			p_hc_drv->RH_DevPtr); /* Notify the core layer.                               */
 	}
 	else if (int_stat & USBH_ATSAMX_INT_DCONN)
@@ -1896,7 +1896,7 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 		p_reg->INTENSET =
 			USBH_ATSAMX_INT_DDISC; /* Enable disconnection interrupt                       */
 
-		USBH_HUB_RH_Event(
+		usbh_rh_event(
 			p_hc_drv->RH_DevPtr); /* Notify the core layer.                               */
 	}
 	/* ----------------- WAKE UP TO POWER ----------------- */
