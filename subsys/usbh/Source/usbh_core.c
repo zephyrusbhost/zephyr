@@ -223,12 +223,14 @@ static USBH_ERR usbh_ep_open(USBH_DEV *p_dev, USBH_IF *p_if,
 							 USBH_EP *p_ep);
 
 static uint32_t usbh_sync_transfer(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
-								USBH_ISOC_DESC *p_isoc_desc, USBH_TOKEN token,
+								USBH_ISOC_DESC *p_isoc_desc,
+								uint8_t token,
 								uint32_t timeout_ms,
 								USBH_ERR *p_err);
 
 static USBH_ERR usbh_async_transfer(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
-							   USBH_ISOC_DESC *p_isoc_desc, USBH_TOKEN token,
+							   USBH_ISOC_DESC *p_isoc_desc,
+							   uint8_t token,
 							   void *p_fnct, void *p_fnct_arg);
 
 static uint16_t usbh_sync_ctrl_transfer(USBH_EP *p_ep, uint8_t b_req,
@@ -3713,7 +3715,8 @@ static USBH_ERR usbh_ep_open(USBH_DEV *p_dev, USBH_IF *p_if,
 */
 
 static uint32_t usbh_sync_transfer(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
-								USBH_ISOC_DESC *p_isoc_desc, USBH_TOKEN token,
+								USBH_ISOC_DESC *p_isoc_desc,
+								uint8_t token,
 								uint32_t timeout_ms,
 								USBH_ERR *p_err)
 {
@@ -3813,7 +3816,8 @@ static uint32_t usbh_sync_transfer(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
 */
 
 static USBH_ERR usbh_async_transfer(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
-							   USBH_ISOC_DESC *p_isoc_desc, USBH_TOKEN token,
+							   USBH_ISOC_DESC *p_isoc_desc,
+							   uint8_t token,
 							   void *p_fnct, void *p_fnct_arg)
 {
 	USBH_ERR err;
