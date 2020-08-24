@@ -559,7 +559,7 @@ USBH_HC_RH_API USBH_ATSAMX_HCD_RH_API = {
 * Note(s)     : None.
 *********************************************************************************************************
 */
-USBH_HTASK htask;
+struct k_thread htask;
 
 static void usbh_atsamx_hcd_init(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err)
 {
