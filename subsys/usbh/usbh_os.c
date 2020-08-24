@@ -324,7 +324,7 @@ USBH_ERR USBH_OS_MutexDestroy(USBH_HMUTEX mutex)
  *********************************************************************************************************
  */
 
-USBH_ERR USBH_OS_SemCreate(USBH_HSEM *p_sem, uint32_t cnt)
+USBH_ERR USBH_OS_SemCreate(struct k_sem *p_sem, uint32_t cnt)
 {
 	int err = k_sem_init(p_sem, cnt, USBH_OS_SEM_REQUIRED);
 
@@ -349,7 +349,7 @@ USBH_ERR USBH_OS_SemCreate(USBH_HSEM *p_sem, uint32_t cnt)
  *********************************************************************************************************
  */
 
-USBH_ERR USBH_OS_SemDestroy(USBH_HSEM sem)
+USBH_ERR USBH_OS_SemDestroy(struct k_sem sem)
 {
 	k_sem_reset(&sem);
 
@@ -375,7 +375,7 @@ USBH_ERR USBH_OS_SemDestroy(USBH_HSEM sem)
  *********************************************************************************************************
  */
 
-USBH_ERR USBH_OS_SemWait(USBH_HSEM *sem, uint32_t timeout)
+USBH_ERR USBH_OS_SemWait(struct k_sem *sem, uint32_t timeout)
 {
 	int err = 0;
 	int ret = USBH_ERR_NONE;
@@ -411,7 +411,7 @@ USBH_ERR USBH_OS_SemWait(USBH_HSEM *sem, uint32_t timeout)
  *********************************************************************************************************
  */
 
-USBH_ERR USBH_OS_SemWaitAbort(USBH_HSEM *sem)
+USBH_ERR USBH_OS_SemWaitAbort(struct k_sem *sem)
 {
 	k_sem_reset(sem);
 	return (USBH_ERR_NONE);
@@ -432,7 +432,7 @@ USBH_ERR USBH_OS_SemWaitAbort(USBH_HSEM *sem)
  *********************************************************************************************************
  */
 
-USBH_ERR USBH_OS_SemPost(USBH_HSEM *sem)
+USBH_ERR USBH_OS_SemPost(struct k_sem *sem)
 {
 	k_sem_give(sem);
 	return (USBH_ERR_NONE);

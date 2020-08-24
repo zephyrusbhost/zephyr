@@ -200,7 +200,7 @@ K_MEM_POOL_DEFINE(AsyncURB_PPool, sizeof(USBH_URB), sizeof(USBH_URB), (USBH_CFG_
 
 static volatile USBH_URB *USBH_URB_HeadPtr;
 static volatile USBH_URB *USBH_URB_TailPtr;
-static USBH_HSEM USBH_URB_Sem;
+static struct k_sem USBH_URB_Sem;
 
 /*
 *********************************************************************************************************
@@ -389,7 +389,8 @@ USBH_ERR USBH_Init(USBH_KERNEL_TASK_INFO *async_task_info,
 		return (err);
 	}
 
-	err = USBH_OS_SemCreate((USBH_HSEM *)&USBH_URB_Sem, /* Create a Semaphore for sync I/O req.                 */
+	err = USBH_OS_SemCreate((struct k_sem *)&USBH_URB_Sem,
+							/* Create a Semaphore for sync I/O req.                 */
 							0u);
 	if (err != USBH_ERR_NONE)
 	{

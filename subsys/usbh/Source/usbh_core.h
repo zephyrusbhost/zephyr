@@ -1030,7 +1030,7 @@ struct  usbh_urb {
               USBH_URB        *AsyncURB_NxtPtr;                 /* Ptr to next URB (if any).                            */
               USBH_URB        *NxtPtr;                          /* Used for URB chained list in async task.             */
 
-              USBH_HSEM        Sem;                             /* Sem to wait on I/O completion.                       */
+              struct k_sem        Sem;                             /* Sem to wait on I/O completion.                       */
 };
 
 
