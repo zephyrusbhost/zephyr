@@ -45,7 +45,7 @@ LOG_MODULE_REGISTER(hub);
 */
 K_MEM_POOL_DEFINE(USBH_HUB_Pool, sizeof(struct usbh_hub_dev),
 		  sizeof(struct usbh_hub_dev), USBH_CFG_MAX_HUBS,
-		  sizeof(CPU_ALIGN));
+		  sizeof(uint32_t));
 
 /*
 *********************************************************************************************************

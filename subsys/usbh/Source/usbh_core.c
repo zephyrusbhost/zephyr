@@ -48,7 +48,7 @@ K_THREAD_STACK_DEFINE(USBH_HUB_EventTask_Stack, 2048);
 K_MEM_POOL_DEFINE(AsyncURB_PPool, sizeof(struct usbh_urb),
 		  sizeof(struct usbh_urb),
 		  (USBH_CFG_MAX_NBR_DEVS * USBH_CFG_MAX_EXTRA_URB_PER_DEV),
-		  sizeof(CPU_ALIGN));
+		  sizeof(uint32_t));
 
 /*
 *********************************************************************************************************
