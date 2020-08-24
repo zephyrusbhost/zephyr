@@ -477,7 +477,7 @@ USBH_ERR USBH_OS_SemPost(struct k_sem *sem)
 USBH_ERR USBH_OS_TaskCreate(char *p_name, uint32_t prio,
 			    USBH_TASK_FNCT task_fnct, void *p_data,
 			    uint32_t *p_stk, uint32_t stk_size,
-			    USBH_HTASK *p_task)
+			    struct k_thread *p_task)
 {
 	return (USBH_ERR_NONE);
 }

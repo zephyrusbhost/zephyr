@@ -1199,8 +1199,8 @@ struct  usbh_host {
     USBH_HC          HC_Tbl[USBH_CFG_MAX_NBR_HC];               /* Array of HC structs.                                 */
     uint8_t       HC_NbrNext;
 
-    USBH_HTASK       HAsyncTask;                                /* Async task handle.                                   */
-    USBH_HTASK       HHubTask;                                  /* Hub event task handle.                               */
+    struct k_thread       HAsyncTask;                                /* Async task handle.                                   */
+    struct k_thread       HHubTask;                                  /* Hub event task handle.                               */
 };
 
 
