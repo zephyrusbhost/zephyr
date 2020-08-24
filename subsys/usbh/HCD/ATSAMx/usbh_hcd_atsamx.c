@@ -1119,7 +1119,7 @@ static void usbh_atsamx_hcd_urb_submit(USBH_HC_DRV *p_hc_drv, USBH_URB *p_urb,
 
 	p_reg = (USBH_ATSAMX_REG *)p_hc_drv->HC_CfgPtr->BaseAddr;
 	p_drv_data = (USBH_DRV_DATA *)p_hc_drv->DataPtr;
-	ep_type = USBH_EP_TypeGet(p_urb->EP_Ptr);
+	ep_type = usbh_ep_type_get(p_urb->EP_Ptr);
 
 	if (p_urb->State ==
 		USBH_URB_STATE_ABORTED)
@@ -1947,7 +1947,7 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 			p_reg->HPIPE[pipe_nbr].PINTFLAG =
 				USBH_ATSAMX_PINT_STALL; /* Clear Stall interrupt flag             */
 			p_urb->Err = USBH_ERR_EP_STALL;
-			USBH_URB_Done(
+			usbh_urb_done(
 				p_urb); /* Notify the Core layer about the URB completion       */
 		}
 
@@ -1959,7 +1959,7 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 			p_reg->HPIPE[pipe_nbr].PINTFLAG =
 				USBH_ATSAMX_PINT_PERR; /* Clear Pipe error interrupt flag        */
 			p_urb->Err = USBH_ERR_HC_IO;
-			USBH_URB_Done(
+			usbh_urb_done(
 				p_urb); /* Notify the Core layer about the URB completion       */
 		}
 
@@ -1976,7 +1976,7 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 					   p_urb->XferLen;
 			p_urb->Err = USBH_ERR_NONE;
 
-			USBH_URB_Done(
+			usbh_urb_done(
 				p_urb); /* Notify the Core layer about the URB completion       */
 		}
 
@@ -1996,7 +1996,7 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 			{ /* ---------------- IN PACKETS HANDLER ---------------- */
 				LOG_DBG("in packets handler");
 				max_pkt_size =
-					USBH_EP_MaxPktSizeGet(p_urb->EP_Ptr);
+					usbh_ep_max_pkt_size_get(p_urb->EP_Ptr);
 				p_drv_data->PipeTbl[pipe_nbr].AppBufLen +=
 					xfer_len;
 
@@ -2005,7 +2005,7 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 					(xfer_len < max_pkt_size))
 				{
 					p_urb->Err = USBH_ERR_NONE;
-					USBH_URB_Done(
+					usbh_urb_done(
 						p_urb); /* Notify the Core layer about the URB completion       */
 				}
 				else
@@ -2015,7 +2015,7 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 						(void *)p_urb);
 					if (p_urb->Err != USBH_ERR_NONE)
 					{
-						USBH_URB_Done(
+						usbh_urb_done(
 							p_urb); /* Notify the Core layer about the URB completion       */
 					}
 				}
@@ -2030,7 +2030,7 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 				if (xfer_len == p_urb->UserBufLen)
 				{
 					p_urb->Err = USBH_ERR_NONE;
-					USBH_URB_Done(
+					usbh_urb_done(
 						p_urb); /* Notify the Core layer about the URB completion       */
 				}
 				else
@@ -2040,7 +2040,7 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 						(void *)p_urb);
 					if (p_urb->Err != USBH_ERR_NONE)
 					{
-						USBH_URB_Done(
+						usbh_urb_done(
 							p_urb); /* Notify the Core layer about the URB completion       */
 					}
 				}
@@ -2118,7 +2118,7 @@ static void usbh_atsamx_process_urb(void *p_arg, void *p_arg2, void *p_arg3)
 					p_urb->Err = USBH_ERR_HC_IO;
 
 					LOG_ERR("DRV: Rx'd more data than was expected.\r\n");
-					USBH_URB_Done(
+					usbh_urb_done(
 						p_urb); /* Notify the Core layer about the URB completion       */
 				}
 				else
@@ -2194,8 +2194,8 @@ static void usbh_atsamx_pipe_cfg(USBH_URB *p_urb,
 	uint16_t max_pkt_size;
 	CPU_SR_ALLOC();
 
-	max_pkt_size = USBH_EP_MaxPktSizeGet(p_urb->EP_Ptr);
-	ep_nbr = USBH_EP_LogNbrGet(p_urb->EP_Ptr);
+	max_pkt_size = usbh_ep_max_pkt_size_get(p_urb->EP_Ptr);
+	ep_nbr = usbh_ep_log_nbr_get(p_urb->EP_Ptr);
 	p_pipe_info->NextXferLen = p_urb->UserBufLen - p_urb->XferLen;
 	p_pipe_info->NextXferLen =
 		DEF_MIN(p_pipe_info->NextXferLen, USBH_DATA_BUF_MAX_LEN);

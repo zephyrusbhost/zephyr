@@ -464,7 +464,7 @@ static void *USBH_HUB_IF_Probe(USBH_DEV *p_dev,
     USBH_IF_DESC if_desc;
 
     p_hub_dev = (USBH_HUB_DEV *)0;
-    *p_err = USBH_IF_DescGet(p_if, /* Get IF desc.                                         */
+    *p_err = usbh_if_desc_get(p_if, /* Get IF desc.                                         */
                              0u,
                              &if_desc);
     if (*p_err != USBH_ERR_NONE)
@@ -733,7 +733,7 @@ static void USBH_HUB_Uninit(USBH_HUB_DEV *p_hub_dev)
 
         if (p_dev != (USBH_DEV *)0)
         {
-            USBH_DevDisconn(p_dev);
+            usbh_dev_disconn(p_dev);
             p_hub_dev->DevPtr->HC_Ptr->HostPtr->DevCount++;
 
             p_hub_dev->DevPtrList[port_ix] = (USBH_DEV *)0;
@@ -770,7 +770,7 @@ static USBH_ERR USBH_HUB_EP_Open(USBH_HUB_DEV *p_hub_dev)
     p_dev = p_hub_dev->DevPtr;
     p_if = p_hub_dev->IF_Ptr;
 
-    err = USBH_IntrInOpen(p_dev, /* Find and open hub intr EP.                           */
+    err = usbh_intr_in_open(p_dev, /* Find and open hub intr EP.                           */
                           p_if,
                           &p_hub_dev->IntrEP);
 
@@ -793,7 +793,7 @@ static USBH_ERR USBH_HUB_EP_Open(USBH_HUB_DEV *p_hub_dev)
 
 static void USBH_HUB_EP_Close(USBH_HUB_DEV *p_hub_dev)
 {
-    USBH_EP_Close(&p_hub_dev->IntrEP); /* Close hub intr EP.                                   */
+    usbh_ep_close(&p_hub_dev->IntrEP); /* Close hub intr EP.                                   */
 }
 
 /*
@@ -848,7 +848,7 @@ static USBH_ERR USBH_HUB_EventReq(USBH_HUB_DEV *p_hub_dev)
     }
 
     len = (p_hub_dev->Desc.bNbrPorts / 8u) + 1u; /* See Note (1).                                        */
-    err = USBH_IntrRxAsync(&p_hub_dev->IntrEP,   /* Start receiving hub events.                          */
+    err = usbh_intr_rx_async(&p_hub_dev->IntrEP,   /* Start receiving hub events.                          */
                            (void *)p_hub_dev->HubIntrBuf,
                            len,
                            USBH_HUB_ISR,
@@ -1028,7 +1028,7 @@ static void USBH_HUB_EventProcess(void)
                 p_dev = p_hub_dev->DevPtrList[port_nbr - 1u];
                 if (p_dev != (USBH_DEV *)0)
                 {
-                    USBH_DevDisconn(p_dev);
+                    usbh_dev_disconn(p_dev);
                     p_hub_dev->DevPtr->HC_Ptr->HostPtr->DevCount++;
                     p_hub_dev->DevPtrList[port_nbr - 1u] = (USBH_DEV *)0;
                 }
@@ -1053,7 +1053,7 @@ static void USBH_HUB_EventProcess(void)
 
                 if (p_dev != (USBH_DEV *)0)
                 {
-                    USBH_DevDisconn(p_dev);
+                    usbh_dev_disconn(p_dev);
                     p_hub_dev->DevPtr->HC_Ptr->HostPtr->DevCount++;
 
                     p_hub_dev->DevPtrList[port_nbr - 1u] = (USBH_DEV *)0;
@@ -1143,11 +1143,11 @@ static void USBH_HUB_EventProcess(void)
                 }
 
                 USBH_OS_DlyMS(50u);
-                err = USBH_DevConn(p_dev); /* Conn dev.                                            */
+                err = usbh_dev_conn(p_dev); /* Conn dev.                                            */
                 if (err != USBH_ERR_NONE)
                 {
                     USBH_HUB_PortDis(p_hub_dev, port_nbr);
-                    USBH_DevDisconn(p_dev);
+                    usbh_dev_disconn(p_dev);
 
                     p_hub_dev->DevPtr->HC_Ptr->HostPtr->DevCount++;
 
@@ -1227,7 +1227,7 @@ static USBH_ERR USBH_HUB_DescGet(USBH_HUB_DEV *p_hub_dev)
 
     for (i = 0u; i < USBH_CFG_STD_REQ_RETRY; i++)
     { /* Attempt to get desc hdr 3 times.                     */
-        len = USBH_CtrlRx(p_hub_dev->DevPtr,
+        len = usbh_ctrl_rx(p_hub_dev->DevPtr,
                           USBH_REQ_GET_DESC, /* See Note (1).                                        */
                           (USBH_REQ_DIR_DEV_TO_HOST | USBH_REQ_TYPE_CLASS),
                           (USBH_HUB_DESC_TYPE_HUB << 8u),
@@ -1239,7 +1239,7 @@ static USBH_ERR USBH_HUB_DescGet(USBH_HUB_DEV *p_hub_dev)
         if ((err == USBH_ERR_EP_STALL) ||
             (len == 0u))
         {
-            USBH_EP_Reset(p_hub_dev->DevPtr,
+            usbh_ep_reset(p_hub_dev->DevPtr,
                           (USBH_EP *)0);
         }
         else
@@ -1262,7 +1262,7 @@ static USBH_ERR USBH_HUB_DescGet(USBH_HUB_DEV *p_hub_dev)
 
     for (i = 0u; i < USBH_CFG_STD_REQ_RETRY; i++)
     { /* Attempt to get full desc 3 times.                    */
-        len = USBH_CtrlRx(p_hub_dev->DevPtr,
+        len = usbh_ctrl_rx(p_hub_dev->DevPtr,
                           USBH_REQ_GET_DESC,
                           (USBH_REQ_DIR_DEV_TO_HOST | USBH_REQ_TYPE_CLASS),
                           (USBH_HUB_DESC_TYPE_HUB << 8),
@@ -1274,7 +1274,7 @@ static USBH_ERR USBH_HUB_DescGet(USBH_HUB_DEV *p_hub_dev)
         if ((err == USBH_ERR_EP_STALL) ||
             (len < hdr.bLength))
         {
-            USBH_EP_Reset(p_hub_dev->DevPtr,
+            usbh_ep_reset(p_hub_dev->DevPtr,
                           (USBH_EP *)0);
         }
         else
@@ -1379,7 +1379,7 @@ static USBH_ERR USBH_HUB_PortStatusGet(USBH_HUB_DEV *p_hub_dev,
 
     p_buf = (uint8_t *)&port_status;
 
-    (void)USBH_CtrlRx(p_hub_dev->DevPtr, /* See Note (1).                                        */
+    (void)usbh_ctrl_rx(p_hub_dev->DevPtr, /* See Note (1).                                        */
                       USBH_REQ_GET_STATUS,
                       (USBH_REQ_DIR_DEV_TO_HOST | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_OTHER),
                       0u,
@@ -1390,7 +1390,7 @@ static USBH_ERR USBH_HUB_PortStatusGet(USBH_HUB_DEV *p_hub_dev,
                       &err);
     if (err != USBH_ERR_NONE)
     {
-        USBH_EP_Reset(p_hub_dev->DevPtr, (USBH_EP *)0);
+        usbh_ep_reset(p_hub_dev->DevPtr, (USBH_EP *)0);
     }
     else
     {
@@ -1431,7 +1431,7 @@ static USBH_ERR USBH_HUB_PortResetSet(USBH_HUB_DEV *p_hub_dev,
 {
     USBH_ERR err;
 
-    (void)USBH_CtrlTx(p_hub_dev->DevPtr, /* See Note (1).                                        */
+    (void)usbh_ctrl_tx(p_hub_dev->DevPtr, /* See Note (1).                                        */
                       USBH_REQ_SET_FEATURE,
                       (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_OTHER),
                       USBH_HUB_FEATURE_SEL_PORT_RESET,
@@ -1442,7 +1442,7 @@ static USBH_ERR USBH_HUB_PortResetSet(USBH_HUB_DEV *p_hub_dev,
                       &err);
     if (err != USBH_ERR_NONE)
     {
-        USBH_EP_Reset(p_hub_dev->DevPtr, (USBH_EP *)0);
+        usbh_ep_reset(p_hub_dev->DevPtr, (USBH_EP *)0);
     }
 
     return (err);
@@ -1478,7 +1478,7 @@ static USBH_ERR USBH_HUB_PortRstChngClr(USBH_HUB_DEV *p_hub_dev,
 {
     USBH_ERR err;
 
-    (void)USBH_CtrlTx(p_hub_dev->DevPtr, /* See Note (1).                                        */
+    (void)usbh_ctrl_tx(p_hub_dev->DevPtr, /* See Note (1).                                        */
                       USBH_REQ_CLR_FEATURE,
                       (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_OTHER),
                       USBH_HUB_FEATURE_SEL_C_PORT_RESET,
@@ -1489,7 +1489,7 @@ static USBH_ERR USBH_HUB_PortRstChngClr(USBH_HUB_DEV *p_hub_dev,
                       &err);
     if (err != USBH_ERR_NONE)
     {
-        USBH_EP_Reset(p_hub_dev->DevPtr, (USBH_EP *)0);
+        usbh_ep_reset(p_hub_dev->DevPtr, (USBH_EP *)0);
     }
 
     return (err);
@@ -1525,7 +1525,7 @@ static USBH_ERR USBH_HUB_PortEnChngClr(USBH_HUB_DEV *p_hub_dev,
 {
     USBH_ERR err;
 
-    (void)USBH_CtrlTx(p_hub_dev->DevPtr, /* See Note (1).                                        */
+    (void)usbh_ctrl_tx(p_hub_dev->DevPtr, /* See Note (1).                                        */
                       USBH_REQ_CLR_FEATURE,
                       (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_OTHER),
                       USBH_HUB_FEATURE_SEL_C_PORT_EN,
@@ -1536,7 +1536,7 @@ static USBH_ERR USBH_HUB_PortEnChngClr(USBH_HUB_DEV *p_hub_dev,
                       &err);
     if (err != USBH_ERR_NONE)
     {
-        USBH_EP_Reset(p_hub_dev->DevPtr, (USBH_EP *)0);
+        usbh_ep_reset(p_hub_dev->DevPtr, (USBH_EP *)0);
     }
 
     return (err);
@@ -1572,7 +1572,7 @@ static USBH_ERR USBH_HUB_PortConnChngClr(USBH_HUB_DEV *p_hub_dev,
 {
     USBH_ERR err;
 
-    (void)USBH_CtrlTx(p_hub_dev->DevPtr, /* See Note #1.                                         */
+    (void)usbh_ctrl_tx(p_hub_dev->DevPtr, /* See Note #1.                                         */
                       USBH_REQ_CLR_FEATURE,
                       (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_OTHER),
                       USBH_HUB_FEATURE_SEL_C_PORT_CONN,
@@ -1583,7 +1583,7 @@ static USBH_ERR USBH_HUB_PortConnChngClr(USBH_HUB_DEV *p_hub_dev,
                       &err);
     if (err != USBH_ERR_NONE)
     {
-        USBH_EP_Reset(p_hub_dev->DevPtr, (USBH_EP *)0);
+        usbh_ep_reset(p_hub_dev->DevPtr, (USBH_EP *)0);
     }
 
     return (err);
@@ -1619,7 +1619,7 @@ static USBH_ERR USBH_HUB_PortPwrSet(USBH_HUB_DEV *p_hub_dev,
 {
     USBH_ERR err;
 
-    (void)USBH_CtrlTx(p_hub_dev->DevPtr, /* See Note #1.                                         */
+    (void)usbh_ctrl_tx(p_hub_dev->DevPtr, /* See Note #1.                                         */
                       USBH_REQ_SET_FEATURE,
                       (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_OTHER),
                       USBH_HUB_FEATURE_SEL_PORT_PWR,
@@ -1630,7 +1630,7 @@ static USBH_ERR USBH_HUB_PortPwrSet(USBH_HUB_DEV *p_hub_dev,
                       &err);
     if (err != USBH_ERR_NONE)
     {
-        USBH_EP_Reset(p_hub_dev->DevPtr, (USBH_EP *)0);
+        usbh_ep_reset(p_hub_dev->DevPtr, (USBH_EP *)0);
     }
 
     return (err);
@@ -1666,7 +1666,7 @@ static USBH_ERR USBH_HUB_PortSuspendClr(USBH_HUB_DEV *p_hub_dev,
 {
     USBH_ERR err;
 
-    (void)USBH_CtrlTx(p_hub_dev->DevPtr, /* See Note #1.                                         */
+    (void)usbh_ctrl_tx(p_hub_dev->DevPtr, /* See Note #1.                                         */
                       USBH_REQ_CLR_FEATURE,
                       (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_OTHER),
                       USBH_HUB_FEATURE_SEL_C_PORT_SUSPEND,
@@ -1677,7 +1677,7 @@ static USBH_ERR USBH_HUB_PortSuspendClr(USBH_HUB_DEV *p_hub_dev,
                       &err);
     if (err != USBH_ERR_NONE)
     {
-        USBH_EP_Reset(p_hub_dev->DevPtr, (USBH_EP *)0);
+        usbh_ep_reset(p_hub_dev->DevPtr, (USBH_EP *)0);
     }
 
     return (err);
@@ -1713,7 +1713,7 @@ static USBH_ERR USBH_HUB_PortEnClr(USBH_HUB_DEV *p_hub_dev,
 {
     USBH_ERR err;
 
-    (void)USBH_CtrlTx(p_hub_dev->DevPtr, /* See Note #1.                                         */
+    (void)usbh_ctrl_tx(p_hub_dev->DevPtr, /* See Note #1.                                         */
                       USBH_REQ_CLR_FEATURE,
                       (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_OTHER),
                       USBH_HUB_FEATURE_SEL_PORT_EN,
@@ -1724,7 +1724,7 @@ static USBH_ERR USBH_HUB_PortEnClr(USBH_HUB_DEV *p_hub_dev,
                       &err);
     if (err != USBH_ERR_NONE)
     {
-        USBH_EP_Reset(p_hub_dev->DevPtr, (USBH_EP *)0);
+        usbh_ep_reset(p_hub_dev->DevPtr, (USBH_EP *)0);
     }
 
     return (err);
@@ -1760,7 +1760,7 @@ static USBH_ERR USBH_HUB_PortEnSet(USBH_HUB_DEV *p_hub_dev,
 {
     USBH_ERR err;
 
-    (void)USBH_CtrlTx(p_hub_dev->DevPtr, /* See Note #1.                                         */
+    (void)usbh_ctrl_tx(p_hub_dev->DevPtr, /* See Note #1.                                         */
                       USBH_REQ_SET_FEATURE,
                       (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_OTHER),
                       USBH_HUB_FEATURE_SEL_PORT_EN,
@@ -1771,7 +1771,7 @@ static USBH_ERR USBH_HUB_PortEnSet(USBH_HUB_DEV *p_hub_dev,
                       &err);
     if (err != USBH_ERR_NONE)
     {
-        USBH_EP_Reset(p_hub_dev->DevPtr, (USBH_EP *)0);
+        usbh_ep_reset(p_hub_dev->DevPtr, (USBH_EP *)0);
     }
 
     return (err);
@@ -1807,7 +1807,7 @@ USBH_ERR USBH_HUB_PortSuspendSet(USBH_HUB_DEV *p_hub_dev,
 {
     USBH_ERR err;
 
-    (void)USBH_CtrlTx(p_hub_dev->DevPtr, /* See Note #1.                                         */
+    (void)usbh_ctrl_tx(p_hub_dev->DevPtr, /* See Note #1.                                         */
                       USBH_REQ_SET_FEATURE,
                       (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_OTHER),
                       USBH_HUB_FEATURE_SEL_PORT_SUSPEND,
@@ -1818,7 +1818,7 @@ USBH_ERR USBH_HUB_PortSuspendSet(USBH_HUB_DEV *p_hub_dev,
                       &err);
     if (err != USBH_ERR_NONE)
     {
-        USBH_EP_Reset(p_hub_dev->DevPtr, (USBH_EP *)0);
+        usbh_ep_reset(p_hub_dev->DevPtr, (USBH_EP *)0);
     }
 
     return (err);

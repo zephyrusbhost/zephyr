@@ -926,9 +926,9 @@ uint8_t USBH_MSC_MaxLUN_Get(USBH_MSC_DEV *p_msc_dev,
         (p_msc_dev->RefCnt > 0u))
     {
 
-        if_nbr = USBH_IF_NbrGet(p_msc_dev->IF_Ptr); /* Get IF nbr matching to MSC dev.                      */
+        if_nbr = usbh_if_nbr_get(p_msc_dev->IF_Ptr); /* Get IF nbr matching to MSC dev.                      */
 
-        USBH_CtrlRx(p_msc_dev->DevPtr,        /* Send GET_MAX_LUN request via a Ctrl xfer.            */
+        usbh_ctrl_rx(p_msc_dev->DevPtr,        /* Send GET_MAX_LUN request via a Ctrl xfer.            */
                     USBH_MSC_REQ_GET_MAX_LUN, /* See Note #1.                                         */
                     (USBH_REQ_DIR_DEV_TO_HOST | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_IF),
                     0u,
@@ -939,7 +939,7 @@ uint8_t USBH_MSC_MaxLUN_Get(USBH_MSC_DEV *p_msc_dev,
                     p_err);
         if (*p_err != USBH_ERR_NONE)
         {
-            (void)USBH_EP_Reset(p_msc_dev->DevPtr, /* Reset dflt EP if ctrl xfer failed.                   */
+            (void)usbh_ep_reset(p_msc_dev->DevPtr, /* Reset dflt EP if ctrl xfer failed.                   */
                                 (USBH_EP *)0);
 
             if (*p_err == USBH_ERR_EP_STALL)
@@ -1546,7 +1546,7 @@ static void *USBH_MSC_ProbeIF(USBH_DEV *p_dev,
     USBH_MSC_DEV *p_msc_dev;
 
     p_msc_dev = (USBH_MSC_DEV *)0;
-    *p_err = USBH_IF_DescGet(p_if, 0u, &p_if_desc);
+    *p_err = usbh_if_desc_get(p_if, 0u, &p_if_desc);
     if (*p_err != USBH_ERR_NONE)
     {
         return ((void *)0);
@@ -1737,7 +1737,7 @@ static USBH_ERR USBH_MSC_EP_Open(USBH_MSC_DEV *p_msc_dev)
 {
     USBH_ERR err;
 
-    err = USBH_BulkInOpen(p_msc_dev->DevPtr,
+    err = usbh_bulk_in_open(p_msc_dev->DevPtr,
                           p_msc_dev->IF_Ptr,
                           &p_msc_dev->BulkInEP);
     if (err != USBH_ERR_NONE)
@@ -1745,7 +1745,7 @@ static USBH_ERR USBH_MSC_EP_Open(USBH_MSC_DEV *p_msc_dev)
         return (err);
     }
 
-    err = USBH_BulkOutOpen(p_msc_dev->DevPtr,
+    err = usbh_bulk_out_open(p_msc_dev->DevPtr,
                            p_msc_dev->IF_Ptr,
                            &p_msc_dev->BulkOutEP);
     if (err != USBH_ERR_NONE)
@@ -1772,8 +1772,8 @@ static USBH_ERR USBH_MSC_EP_Open(USBH_MSC_DEV *p_msc_dev)
 
 static void USBH_MSC_EP_Close(USBH_MSC_DEV *p_msc_dev)
 {
-    USBH_EP_Close(&p_msc_dev->BulkInEP);
-    USBH_EP_Close(&p_msc_dev->BulkOutEP);
+    usbh_ep_close(&p_msc_dev->BulkInEP);
+    usbh_ep_close(&p_msc_dev->BulkOutEP);
 }
 
 /*
@@ -1967,7 +1967,7 @@ static USBH_ERR USBH_MSC_TxCBW(USBH_MSC_DEV *p_msc_dev,
 
     USBH_MSC_FmtCBW(p_msc_cbw, cmd_buf); /* Format CBW.                                          */
 
-    len = USBH_BulkTx(&p_msc_dev->BulkOutEP, /* Send CBW through bulk OUT EP.                        */
+    len = usbh_bulk_tx(&p_msc_dev->BulkOutEP, /* Send CBW through bulk OUT EP.                        */
                       (void *)&cmd_buf[0],
                       USBH_MSC_LEN_CBW,
                       USBH_MSC_TIMEOUT,
@@ -1977,7 +1977,7 @@ static USBH_ERR USBH_MSC_TxCBW(USBH_MSC_DEV *p_msc_dev,
         if (err != USBH_ERR_NONE)
         {
             LOG_ERR("%d", err);
-            USBH_EP_Reset(p_msc_dev->DevPtr,
+            usbh_ep_reset(p_msc_dev->DevPtr,
                           &p_msc_dev->BulkOutEP); /* Clear EP err on host side.                           */
         }
 
@@ -2030,19 +2030,19 @@ static USBH_ERR USBH_MSC_RxCSW(USBH_MSC_DEV *p_msc_dev,
     /* Receive CSW from dev through bulk IN EP.             */
     while (retry > 0u)
     {
-        len = USBH_BulkRx(&p_msc_dev->BulkInEP,
+        len = usbh_bulk_rx(&p_msc_dev->BulkInEP,
                           (void *)&status_buf[0],
                           USBH_MSC_LEN_CSW,
                           USBH_MSC_TIMEOUT,
                           &err);
         if (len != USBH_MSC_LEN_CSW)
         {
-            USBH_EP_Reset(p_msc_dev->DevPtr,
+            usbh_ep_reset(p_msc_dev->DevPtr,
                           &p_msc_dev->BulkInEP); /* Clear err on host side.                              */
 
             if (err == USBH_ERR_EP_STALL)
             {
-                (void)USBH_EP_StallClr(&p_msc_dev->BulkInEP);
+                (void)usbh_ep_stall_clr(&p_msc_dev->BulkInEP);
                 retry--;
             }
             else
@@ -2110,7 +2110,7 @@ static USBH_ERR USBH_MSC_TxData(USBH_MSC_DEV *p_msc_dev,
            (retry == DEF_TRUE))
     {
 
-        data_len_tx = USBH_BulkTx(&p_msc_dev->BulkOutEP,
+        data_len_tx = usbh_bulk_tx(&p_msc_dev->BulkOutEP,
                                   (void *)(p_data_08 + p_data_ix),
                                   data_len_rem,
                                   USBH_MSC_TIMEOUT,
@@ -2148,11 +2148,11 @@ static USBH_ERR USBH_MSC_TxData(USBH_MSC_DEV *p_msc_dev,
     {
         LOG_ERR("%d", err);
 
-        USBH_EP_Reset(p_msc_dev->DevPtr,
+        usbh_ep_reset(p_msc_dev->DevPtr,
                       &p_msc_dev->BulkOutEP);
         if (err == USBH_ERR_EP_STALL)
         {
-            (void)USBH_EP_StallClr(&p_msc_dev->BulkOutEP);
+            (void)usbh_ep_stall_clr(&p_msc_dev->BulkOutEP);
         }
         else
         {
@@ -2211,7 +2211,7 @@ static USBH_ERR USBH_MSC_RxData(USBH_MSC_DEV *p_msc_dev,
            (retry == DEF_TRUE))
     {
 
-        data_len_rx = USBH_BulkRx(&p_msc_dev->BulkInEP,
+        data_len_rx = usbh_bulk_rx(&p_msc_dev->BulkInEP,
                                   (void *)(p_data_08 + p_data_ix),
                                   data_len_rem,
                                   USBH_MSC_TIMEOUT,
@@ -2249,11 +2249,11 @@ static USBH_ERR USBH_MSC_RxData(USBH_MSC_DEV *p_msc_dev,
     {
         LOG_ERR("%d", err);
 
-        (void)USBH_EP_Reset(p_msc_dev->DevPtr,
+        (void)usbh_ep_reset(p_msc_dev->DevPtr,
                             &p_msc_dev->BulkInEP); /* Clr err on host side EP.                             */
         if (err == USBH_ERR_EP_STALL)
         {
-            (void)USBH_EP_StallClr(&p_msc_dev->BulkInEP);
+            (void)usbh_ep_stall_clr(&p_msc_dev->BulkInEP);
             err = USBH_ERR_NONE;
         }
         else
@@ -2306,13 +2306,13 @@ static USBH_ERR USBH_MSC_ResetRecovery(USBH_MSC_DEV *p_msc_dev)
         return (err);
     }
 
-    err = USBH_EP_StallClr(&p_msc_dev->BulkInEP);
+    err = usbh_ep_stall_clr(&p_msc_dev->BulkInEP);
     if (err != USBH_ERR_NONE)
     {
         return (err);
     }
 
-    err = USBH_EP_StallClr(&p_msc_dev->BulkOutEP);
+    err = usbh_ep_stall_clr(&p_msc_dev->BulkOutEP);
 
     return (err);
 }
@@ -2338,9 +2338,9 @@ static USBH_ERR USBH_MSC_BulkOnlyReset(USBH_MSC_DEV *p_msc_dev)
     uint8_t if_nbr;
 
     err = USBH_ERR_NONE;
-    if_nbr = USBH_IF_NbrGet(p_msc_dev->IF_Ptr);
+    if_nbr = usbh_if_nbr_get(p_msc_dev->IF_Ptr);
 
-    USBH_CtrlTx(p_msc_dev->DevPtr,
+    usbh_ctrl_tx(p_msc_dev->DevPtr,
                 USBH_MSC_REQ_MASS_STORAGE_RESET, /*  See Note(s) #1                                      */
                 (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_IF),
                 0u,
@@ -2352,7 +2352,7 @@ static USBH_ERR USBH_MSC_BulkOnlyReset(USBH_MSC_DEV *p_msc_dev)
     if (err != USBH_ERR_NONE)
     {
         LOG_ERR("%d", err);
-        USBH_EP_Reset(p_msc_dev->DevPtr,
+        usbh_ep_reset(p_msc_dev->DevPtr,
                       (USBH_EP *)0);
     }
 

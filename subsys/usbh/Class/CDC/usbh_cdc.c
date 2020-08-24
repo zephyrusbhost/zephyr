@@ -343,7 +343,7 @@ USBH_ERR USBH_CDC_CmdTx(USBH_CDC_DEV *p_cdc_dev,
         return (USBH_ERR_DEV_NOT_READY);
     }
 
-    USBH_CtrlTx(p_cdc_dev->DevPtr, /* Issue req to dev.                                    */
+    usbh_ctrl_tx(p_cdc_dev->DevPtr, /* Issue req to dev.                                    */
                 b_req,
                 bm_req_type,
                 w_val,
@@ -354,7 +354,7 @@ USBH_ERR USBH_CDC_CmdTx(USBH_CDC_DEV *p_cdc_dev,
                 &err);
     if (err != USBH_ERR_NONE)
     {
-        (void)USBH_EP_Reset(p_cdc_dev->DevPtr,
+        (void)usbh_ep_reset(p_cdc_dev->DevPtr,
                             (USBH_EP *)0);
     }
 
@@ -415,7 +415,7 @@ USBH_ERR USBH_CDC_RespRx(USBH_CDC_DEV *p_cdc_dev,
         return (USBH_ERR_DEV_NOT_READY);
     }
 
-    USBH_CtrlRx(p_cdc_dev->DevPtr,
+    usbh_ctrl_rx(p_cdc_dev->DevPtr,
                 b_req,
                 bm_req_type,
                 w_val,
@@ -426,7 +426,7 @@ USBH_ERR USBH_CDC_RespRx(USBH_CDC_DEV *p_cdc_dev,
                 &err);
     if (err != USBH_ERR_NONE)
     {
-        (void)USBH_EP_Reset(p_cdc_dev->DevPtr,
+        (void)usbh_ep_reset(p_cdc_dev->DevPtr,
                             (USBH_EP *)0);
     }
 
@@ -468,19 +468,19 @@ uint32_t USBH_CDC_DataTx(USBH_CDC_DEV *p_cdc_dev,
 {
     uint32_t xfer_len;
 
-    xfer_len = USBH_BulkTx(&p_cdc_dev->DIC_BulkOut,
+    xfer_len = usbh_bulk_tx(&p_cdc_dev->DIC_BulkOut,
                            (void *)p_buf,
                            buf_len,
                            0u,
                            p_err);
     if (*p_err != USBH_ERR_NONE)
     {
-        (void)USBH_EP_Reset(p_cdc_dev->DevPtr,
+        (void)usbh_ep_reset(p_cdc_dev->DevPtr,
                             &p_cdc_dev->DIC_BulkOut);
 
         if (*p_err == USBH_ERR_EP_STALL)
         {
-            USBH_EP_StallClr(&p_cdc_dev->DIC_BulkOut);
+            usbh_ep_stall_clr(&p_cdc_dev->DIC_BulkOut);
         }
 
         return (0u);
@@ -531,19 +531,19 @@ USBH_ERR USBH_CDC_DataTxAsync(USBH_CDC_DEV *p_cdc_dev,
     p_cdc_dev->DataTxNotifyPtr = tx_cmpl_notify;
     p_cdc_dev->DataTxNotifyArgPtr = p_arg;
 
-    err = USBH_BulkTxAsync(&p_cdc_dev->DIC_BulkOut,
+    err = usbh_bulk_tx_async(&p_cdc_dev->DIC_BulkOut,
                            (void *)p_buf,
                            buf_len,
                            USBH_CDC_DIC_DataTxCmpl,
                            (void *)p_cdc_dev);
     if (err != USBH_ERR_NONE)
     {
-        (void)USBH_EP_Reset(p_cdc_dev->DevPtr,
+        (void)usbh_ep_reset(p_cdc_dev->DevPtr,
                             &p_cdc_dev->DIC_BulkOut);
 
         if (err == USBH_ERR_EP_STALL)
         {
-            (void)USBH_EP_StallClr(&p_cdc_dev->DIC_BulkOut);
+            (void)usbh_ep_stall_clr(&p_cdc_dev->DIC_BulkOut);
         }
     }
 
@@ -585,19 +585,19 @@ uint32_t USBH_CDC_DataRx(USBH_CDC_DEV *p_cdc_dev,
 {
     uint32_t xfer_len;
 
-    xfer_len = USBH_BulkRx(&p_cdc_dev->DIC_BulkIn,
+    xfer_len = usbh_bulk_rx(&p_cdc_dev->DIC_BulkIn,
                            (void *)p_buf,
                            buf_len,
                            0u,
                            p_err);
     if (*p_err != USBH_ERR_NONE)
     {
-        (void)USBH_EP_Reset(p_cdc_dev->DevPtr,
+        (void)usbh_ep_reset(p_cdc_dev->DevPtr,
                             &p_cdc_dev->DIC_BulkIn);
 
         if (*p_err == USBH_ERR_EP_STALL)
         {
-            (void)USBH_EP_StallClr(&p_cdc_dev->DIC_BulkIn);
+            (void)usbh_ep_stall_clr(&p_cdc_dev->DIC_BulkIn);
         }
 
         return (0u);
@@ -648,19 +648,19 @@ USBH_ERR USBH_CDC_DataRxAsync(USBH_CDC_DEV *p_cdc_dev,
     p_cdc_dev->DataRxNotifyPtr = rx_cmpl_notify;
     p_cdc_dev->DataRxNotifyArgPtr = p_arg;
 
-    err = USBH_BulkRxAsync(&p_cdc_dev->DIC_BulkIn,
+    err = usbh_bulk_rx_async(&p_cdc_dev->DIC_BulkIn,
                            (void *)p_buf,
                            buf_len,
                            USBH_CDC_DIC_DataRxCmpl,
                            (void *)p_cdc_dev);
     if (err != USBH_ERR_NONE)
     {
-        (void)USBH_EP_Reset(p_cdc_dev->DevPtr,
+        (void)usbh_ep_reset(p_cdc_dev->DevPtr,
                             &p_cdc_dev->DIC_BulkIn);
 
         if (err == USBH_ERR_EP_STALL)
         {
-            (void)USBH_EP_StallClr(&p_cdc_dev->DIC_BulkIn);
+            (void)usbh_ep_stall_clr(&p_cdc_dev->DIC_BulkIn);
         }
     }
 
@@ -693,19 +693,19 @@ static USBH_ERR USBH_CDC_EventRxAsync(USBH_CDC_DEV *p_cdc_dev)
 {
     USBH_ERR err;
 
-    err = USBH_IntrRxAsync(&p_cdc_dev->CIC_IntrIn,
+    err = usbh_intr_rx_async(&p_cdc_dev->CIC_IntrIn,
                            (void *)p_cdc_dev->EventNotifyBuf,
                            USBH_CDC_LEN_EVENT_BUF,
                            USBH_CDC_CIC_EventRxCmpl,
                            (void *)p_cdc_dev);
     if (err != USBH_ERR_NONE)
     {
-        (void)USBH_EP_Reset(p_cdc_dev->DevPtr,
+        (void)usbh_ep_reset(p_cdc_dev->DevPtr,
                             &p_cdc_dev->CIC_IntrIn);
 
         if (err == USBH_ERR_EP_STALL)
         {
-            (void)USBH_EP_StallClr(&p_cdc_dev->CIC_IntrIn);
+            (void)usbh_ep_stall_clr(&p_cdc_dev->CIC_IntrIn);
         }
     }
 
@@ -756,7 +756,7 @@ USBH_ERR USBH_CDC_SubclassGet(USBH_CDC_DEV *p_cdc_dev,
     USBH_IF_DESC if_desc;
     USBH_ERR err;
 
-    err = USBH_IF_DescGet(p_cdc_dev->CIC_IF_Ptr,
+    err = usbh_if_desc_get(p_cdc_dev->CIC_IF_Ptr,
                           0u,
                           &if_desc);
     if (err != USBH_ERR_NONE)
@@ -795,7 +795,7 @@ USBH_ERR USBH_CDC_ProtocolGet(USBH_CDC_DEV *p_cdc_dev,
     USBH_IF_DESC if_desc;
     USBH_ERR err;
 
-    err = USBH_IF_DescGet(p_cdc_dev->CIC_IF_Ptr,
+    err = usbh_if_desc_get(p_cdc_dev->CIC_IF_Ptr,
                           0u,
                           &if_desc);
     if (err != USBH_ERR_NONE)
@@ -937,26 +937,26 @@ static void *USBH_CDC_ProbeDev(USBH_DEV *p_dev,
     p_cic_if = (USBH_IF *)0;
     p_dic_if = (USBH_IF *)0;
 
-    USBH_DevDescGet(p_dev, &dev_desc);
+    usbh_dev_desc_get(p_dev, &dev_desc);
     if (dev_desc.bDeviceClass != USBH_CLASS_CODE_CDC_CTRL)
     {
         *p_err = USBH_ERR_CLASS_PROBE_FAIL;
         return ((void *)0);
     }
 
-    p_cfg = USBH_CfgGet(p_dev, 0u);
+    p_cfg = usbh_cfg_get(p_dev, 0u);
     if (p_cfg == (USBH_CFG *)0)
     {
         *p_err = USBH_ERR_CLASS_PROBE_FAIL;
         return ((void *)0);
     }
 
-    nbr_ifs = USBH_CfgIF_NbrGet(p_cfg);
+    nbr_ifs = usbh_cfg_if_nbr_get(p_cfg);
     for (if_ix = 0u; if_ix < nbr_ifs; if_ix++)
     {
 
-        p_if = USBH_IF_Get(p_cfg, if_ix);
-        USBH_IF_DescGet(p_if, /* Get IF desc from IF.                                 */
+        p_if = usbu_if_get(p_cfg, if_ix);
+        usbh_if_desc_get(p_if, /* Get IF desc from IF.                                 */
                         0u,
                         &if_desc);
 
@@ -1009,7 +1009,7 @@ static void *USBH_CDC_ProbeDev(USBH_DEV *p_dev,
         return ((void *)0);
     }
 
-    *p_err = USBH_CfgSet(p_dev, 1u); /* Select 1st cfg.                                      */
+    *p_err = usbh_cfg_set(p_dev, 1u); /* Select 1st cfg.                                      */
     if (*p_err != USBH_ERR_NONE)
     {
         return ((void *)0);
@@ -1083,9 +1083,9 @@ static void USBH_CDC_Disconn(void *p_class_dev)
 
     p_cdc_dev->State = USBH_CLASS_DEV_STATE_DISCONN;
 
-    USBH_EP_Close(&p_cdc_dev->CIC_IntrIn); /* Close EPs.                                           */
-    USBH_EP_Close(&p_cdc_dev->DIC_BulkIn);
-    USBH_EP_Close(&p_cdc_dev->DIC_BulkOut);
+    usbh_ep_close(&p_cdc_dev->CIC_IntrIn); /* Close EPs.                                           */
+    usbh_ep_close(&p_cdc_dev->DIC_BulkIn);
+    usbh_ep_close(&p_cdc_dev->DIC_BulkOut);
 
     if (p_cdc_dev->RefCnt == 0)
     { /* Release CDC dev if app ref cnt is 0.                 */
@@ -1187,7 +1187,7 @@ static USBH_ERR USBH_CDC_EP_Open(USBH_CDC_DEV *p_cdc_dev)
 {
     USBH_ERR err;
 
-    err = USBH_IntrInOpen(p_cdc_dev->DevPtr,
+    err = usbh_intr_in_open(p_cdc_dev->DevPtr,
                           p_cdc_dev->CIC_IF_Ptr,
                           &p_cdc_dev->CIC_IntrIn);
     if (err != USBH_ERR_NONE)
@@ -1195,22 +1195,22 @@ static USBH_ERR USBH_CDC_EP_Open(USBH_CDC_DEV *p_cdc_dev)
         return (err);
     }
 
-    err = USBH_BulkInOpen(p_cdc_dev->DevPtr,
+    err = usbh_bulk_in_open(p_cdc_dev->DevPtr,
                           p_cdc_dev->DIC_IF_Ptr,
                           &p_cdc_dev->DIC_BulkIn);
     if (err != USBH_ERR_NONE)
     {
-        (void)USBH_EP_Close(&p_cdc_dev->CIC_IntrIn);
+        (void)usbh_ep_close(&p_cdc_dev->CIC_IntrIn);
         return (err);
     }
 
-    err = USBH_BulkOutOpen(p_cdc_dev->DevPtr,
+    err = usbh_bulk_out_open(p_cdc_dev->DevPtr,
                            p_cdc_dev->DIC_IF_Ptr,
                            &p_cdc_dev->DIC_BulkOut);
     if (err != USBH_ERR_NONE)
     {
-        (void)USBH_EP_Close(&p_cdc_dev->CIC_IntrIn);
-        (void)USBH_EP_Close(&p_cdc_dev->DIC_BulkIn);
+        (void)usbh_ep_close(&p_cdc_dev->CIC_IntrIn);
+        (void)usbh_ep_close(&p_cdc_dev->DIC_BulkIn);
     }
 
     return (err);
@@ -1303,12 +1303,12 @@ static void USBH_CDC_DIC_DataTxCmpl(USBH_EP *p_ep,
 
     if (err != USBH_ERR_NONE)
     { /* Chk status of transaction.                           */
-        (void)USBH_EP_Reset(p_cdc_dev->DevPtr,
+        (void)usbh_ep_reset(p_cdc_dev->DevPtr,
                             p_ep);
 
         if (err == USBH_ERR_EP_STALL)
         {
-            (void)USBH_EP_StallClr(p_ep);
+            (void)usbh_ep_stall_clr(p_ep);
         }
     }
 
@@ -1357,12 +1357,12 @@ static void USBH_CDC_DIC_DataRxCmpl(USBH_EP *p_ep,
 
     if (err != USBH_ERR_NONE)
     { /* Check status of transaction.                         */
-        (void)USBH_EP_Reset(p_cdc_dev->DevPtr,
+        (void)usbh_ep_reset(p_cdc_dev->DevPtr,
                             p_ep);
 
         if (err == USBH_ERR_EP_STALL)
         {
-            (void)USBH_EP_StallClr(p_ep);
+            (void)usbh_ep_stall_clr(p_ep);
         }
     }
 
@@ -1411,11 +1411,11 @@ static void USBH_CDC_CIC_EventRxCmpl(USBH_EP *p_ep,
 
     if (err != USBH_ERR_NONE)
     { /* Chk status of transaction.                           */
-        (void)USBH_EP_Reset(p_cdc_dev->DevPtr, p_ep);
+        (void)usbh_ep_reset(p_cdc_dev->DevPtr, p_ep);
 
         if (err == USBH_ERR_EP_STALL)
         {
-            (void)USBH_EP_StallClr(p_ep);
+            (void)usbh_ep_stall_clr(p_ep);
         }
     }
 

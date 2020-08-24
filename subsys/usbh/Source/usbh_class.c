@@ -251,12 +251,12 @@ void USBH_ClassSuspend(USBH_DEV *p_dev)
         }
     }
 
-    p_cfg = USBH_CfgGet(p_dev, 0u); /* Get first cfg.                                       */
-    nbr_ifs = USBH_CfgIF_NbrGet(p_cfg);
+    p_cfg = usbh_cfg_get(p_dev, 0u); /* Get first cfg.                                       */
+    nbr_ifs = usbh_cfg_if_nbr_get(p_cfg);
 
     for (if_ix = 0u; if_ix < nbr_ifs; if_ix++)
     {
-        p_if = USBH_IF_Get(p_cfg, if_ix);
+        p_if = usbu_if_get(p_cfg, if_ix);
         if (p_if == (USBH_IF *)0)
         {
             return;
@@ -312,12 +312,12 @@ void USBH_ClassResume(USBH_DEV *p_dev)
         }
     }
 
-    p_cfg = USBH_CfgGet(p_dev, 0u); /* Get 1st cfg.                                         */
-    nbr_ifs = USBH_CfgIF_NbrGet(p_cfg);
+    p_cfg = usbh_cfg_get(p_dev, 0u); /* Get 1st cfg.                                         */
+    nbr_ifs = usbh_cfg_if_nbr_get(p_cfg);
 
     for (if_ix = 0u; if_ix < nbr_ifs; if_ix++)
     {
-        p_if = USBH_IF_Get(p_cfg, if_ix);
+        p_if = usbu_if_get(p_cfg, if_ix);
         if (p_if == (USBH_IF *)0)
         {
             return;
@@ -401,7 +401,7 @@ USBH_ERR USBH_ClassDrvConn(USBH_DEV *p_dev)
     }
 
     LOG_DBG("CfgSet");
-    err = USBH_CfgSet(p_dev, 1u); /* Select first cfg.                                    */
+    err = usbh_cfg_set(p_dev, 1u); /* Select first cfg.                                    */
     if (err != USBH_ERR_NONE)
     {
         return (err);
@@ -409,14 +409,14 @@ USBH_ERR USBH_ClassDrvConn(USBH_DEV *p_dev)
 
     drv_found = DEF_FALSE;
     LOG_DBG("CfgGet");
-    p_cfg = USBH_CfgGet(p_dev, (p_dev->SelCfg - 1)); /* Get active cfg struct.                               */
+    p_cfg = usbh_cfg_get(p_dev, (p_dev->SelCfg - 1)); /* Get active cfg struct.                               */
     LOG_DBG("CfgIF_NbrGet");
-    nbr_if = USBH_CfgIF_NbrGet(p_cfg);
+    nbr_if = usbh_cfg_if_nbr_get(p_cfg);
 
     for (if_ix = 0u; if_ix < nbr_if; if_ix++)
     { /* For all IFs present in cfg.                          */
         LOG_DBG("IF_Get");
-        p_if = USBH_IF_Get(p_cfg, if_ix);
+        p_if = usbu_if_get(p_cfg, if_ix);
         if (p_if == (USBH_IF *)0)
         {
             return (USBH_ERR_NULL_PTR);
@@ -446,7 +446,7 @@ USBH_ERR USBH_ClassDrvConn(USBH_DEV *p_dev)
     { /* For all IFs present in this cfg, notify app.         */
         LOG_DBG("IF_Get");
 
-        p_if = USBH_IF_Get(p_cfg, if_ix);
+        p_if = usbu_if_get(p_cfg, if_ix);
         if (p_if == (USBH_IF *)0)
         {
             return (USBH_ERR_NULL_PTR);
@@ -511,11 +511,11 @@ void USBH_ClassDrvDisconn(USBH_DEV *p_dev)
         return;
     }
 
-    p_cfg = USBH_CfgGet(p_dev, 0u); /* Get first cfg.                                       */
-    nbr_ifs = USBH_CfgIF_NbrGet(p_cfg);
+    p_cfg = usbh_cfg_get(p_dev, 0u); /* Get first cfg.                                       */
+    nbr_ifs = usbh_cfg_if_nbr_get(p_cfg);
     for (if_ix = 0u; if_ix < nbr_ifs; if_ix++)
     { /* For all IFs present in first cfg.                    */
-        p_if = USBH_IF_Get(p_cfg, if_ix);
+        p_if = usbu_if_get(p_cfg, if_ix);
         if (p_if == (USBH_IF *)0)
         {
             return;
