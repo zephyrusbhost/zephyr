@@ -116,7 +116,7 @@ static void USBH_ClassNotify(USBH_DEV *p_dev,
 *********************************************************************************************************
 */
 
-USBH_ERR USBH_ClassDrvReg(USBH_CLASS_DRV *p_class_drv,
+USBH_ERR usbh_class_drv_reg(USBH_CLASS_DRV *p_class_drv,
                           USBH_CLASS_NOTIFY_FNCT class_notify_fnct,
                           void *p_class_notify_ctx)
 {
@@ -181,7 +181,7 @@ USBH_ERR USBH_ClassDrvReg(USBH_CLASS_DRV *p_class_drv,
 *********************************************************************************************************
 */
 
-USBH_ERR USBH_ClassDrvUnreg(USBH_CLASS_DRV *p_class_drv)
+USBH_ERR usbh_class_drv_unreg(USBH_CLASS_DRV *p_class_drv)
 {
     uint32_t ix;
     CPU_SR_ALLOC();
@@ -230,7 +230,7 @@ USBH_ERR USBH_ClassDrvUnreg(USBH_CLASS_DRV *p_class_drv)
 *********************************************************************************************************
 */
 
-void USBH_ClassSuspend(USBH_DEV *p_dev)
+void usbh_class_suspend(USBH_DEV *p_dev)
 {
     uint8_t if_ix;
     uint8_t nbr_ifs;
@@ -291,7 +291,7 @@ void USBH_ClassSuspend(USBH_DEV *p_dev)
 *********************************************************************************************************
 */
 
-void USBH_ClassResume(USBH_DEV *p_dev)
+void usbh_class_resume(USBH_DEV *p_dev)
 {
     uint8_t if_ix;
     uint8_t nbr_ifs;
@@ -367,7 +367,7 @@ void USBH_ClassResume(USBH_DEV *p_dev)
 *********************************************************************************************************
 */
 
-USBH_ERR USBH_ClassDrvConn(USBH_DEV *p_dev)
+USBH_ERR usbh_class_drv_conn(USBH_DEV *p_dev)
 {
     uint8_t if_ix;
     uint8_t nbr_if;
@@ -480,7 +480,7 @@ USBH_ERR USBH_ClassDrvConn(USBH_DEV *p_dev)
 *********************************************************************************************************
 */
 
-void USBH_ClassDrvDisconn(USBH_DEV *p_dev)
+void usbh_class_drv_disconn(USBH_DEV *p_dev)
 {
     LOG_DBG("disconnect class driver");
     uint8_t if_ix;
