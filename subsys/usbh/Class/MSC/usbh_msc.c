@@ -604,7 +604,7 @@ static USBH_ERR USBH_MSC_EP_Open(USBH_MSC_DEV *p_msc_dev);
 
 static void USBH_MSC_EP_Close(USBH_MSC_DEV *p_msc_dev);
 
-static uint32_t USBH_MSC_XferCmd(USBH_MSC_DEV *p_msc_dev,
+static uint32_t usbh_msc_xfer_cmd(USBH_MSC_DEV *p_msc_dev,
                                    uint8_t lun,
                                    USBH_MSC_DATA_DIR dir,
                                    void *p_cb,
@@ -631,10 +631,10 @@ static USBH_ERR USBH_MSC_ResetRecovery(USBH_MSC_DEV *p_msc_dev);
 
 static USBH_ERR USBH_MSC_BulkOnlyReset(USBH_MSC_DEV *p_msc_dev);
 
-static void USBH_MSC_FmtCBW(USBH_MSC_CBW *p_cbw,
+static void usbh_msc_fmt_cbw(USBH_MSC_CBW *p_cbw,
                             void *p_buf_dest);
 
-static void USBH_MSC_ParseCSW(USBH_MSC_CSW *p_csw,
+static void usbh_msc_parse_csw(USBH_MSC_CSW *p_csw,
                               void *p_buf_src);
 
 static USBH_ERR USBH_SCSI_CMD_TestUnitReady(USBH_MSC_DEV *p_msc_dev,
@@ -644,24 +644,24 @@ static USBH_ERR USBH_SCSI_CMD_StdInquiry(USBH_MSC_DEV *p_msc_dev,
                                          USBH_MSC_INQUIRY_INFO *p_msc_inquiry_info,
                                          uint8_t lun);
 
-static uint32_t USBH_SCSI_CMD_ReqSense(USBH_MSC_DEV *p_msc_dev,
+static uint32_t usbh_scsi_cmd_req_sense(USBH_MSC_DEV *p_msc_dev,
                                          uint8_t lun,
                                          uint8_t *p_arg,
                                          uint32_t data_len,
                                          USBH_ERR *p_err);
 
-static USBH_ERR USBH_SCSI_GetSenseInfo(USBH_MSC_DEV *p_msc_dev,
+static USBH_ERR usbh_scsi_get_sense_info(USBH_MSC_DEV *p_msc_dev,
                                        uint8_t lun,
                                        uint8_t *p_sense_key,
                                        uint8_t *p_asc,
                                        uint8_t *p_ascq);
 
-static USBH_ERR USBH_SCSI_CMD_CapacityRd(USBH_MSC_DEV *p_msc_dev,
+static USBH_ERR usbh_scsi_cmd_capacity_read(USBH_MSC_DEV *p_msc_dev,
                                          uint8_t lun,
                                          uint32_t *p_nbr_blks,
                                          uint32_t *p_blk_size);
 
-static uint32_t USBH_SCSI_Rd(USBH_MSC_DEV *p_msc_dev,
+static uint32_t usbh_scsi_read(USBH_MSC_DEV *p_msc_dev,
                                uint8_t lun,
                                uint32_t blk_addr,
                                uint16_t nbr_blks,
@@ -669,7 +669,7 @@ static uint32_t USBH_SCSI_Rd(USBH_MSC_DEV *p_msc_dev,
                                void *p_arg,
                                USBH_ERR *p_err);
 
-static uint32_t USBH_SCSI_Wr(USBH_MSC_DEV *p_msc_dev,
+static uint32_t usbh_scsi_write(USBH_MSC_DEV *p_msc_dev,
                                uint8_t lun,
                                uint32_t blk_addr,
                                uint16_t nbr_blks,
@@ -808,7 +808,7 @@ USBH_ERR usbh_msc_init(USBH_MSC_DEV *p_msc_dev,
                     LOG_ERR("%d", err);
                 }
 
-                err = USBH_SCSI_GetSenseInfo(p_msc_dev, /* ...determine reason of failure.                      */
+                err = usbh_scsi_get_sense_info(p_msc_dev, /* ...determine reason of failure.                      */
                                              lun,
                                              &sense_key,
                                              &asc,
@@ -1102,7 +1102,7 @@ USBH_ERR usbh_msc_capacity_rd(USBH_MSC_DEV *p_msc_dev,
         (p_msc_dev->RefCnt > 0u))
     {
 
-        err = USBH_SCSI_CMD_CapacityRd(p_msc_dev, /* Issue READ_CAPACITY SCSI cmd using bulk xfers.       */
+        err = usbh_scsi_cmd_capacity_read(p_msc_dev, /* Issue READ_CAPACITY SCSI cmd using bulk xfers.       */
                                        lun,
                                        p_nbr_blks,
                                        p_blk_size);
@@ -1358,7 +1358,7 @@ uint32_t usbh_msc_read(USBH_MSC_DEV *p_msc_dev,
     if ((p_msc_dev->State == USBH_CLASS_DEV_STATE_CONN) &&
         (p_msc_dev->RefCnt > 0u))
     {
-        xfer_len = USBH_SCSI_Rd(p_msc_dev,
+        xfer_len = usbh_scsi_read(p_msc_dev,
                                 lun,
                                 blk_addr,
                                 nbr_blks,
@@ -1447,7 +1447,7 @@ uint32_t usbh_msc_write(USBH_MSC_DEV *p_msc_dev,
     if ((p_msc_dev->State == USBH_CLASS_DEV_STATE_CONN) &&
         (p_msc_dev->RefCnt > 0))
     {
-        xfer_len = USBH_SCSI_Wr(p_msc_dev,
+        xfer_len = usbh_scsi_write(p_msc_dev,
                                 lun,
                                 blk_addr,
                                 nbr_blks,
@@ -1833,7 +1833,7 @@ static void USBH_MSC_EP_Close(USBH_MSC_DEV *p_msc_dev)
 *********************************************************************************************************
 */
 
-static uint32_t USBH_MSC_XferCmd(USBH_MSC_DEV *p_msc_dev,
+static uint32_t usbh_msc_xfer_cmd(USBH_MSC_DEV *p_msc_dev,
                                    uint8_t lun,
                                    USBH_MSC_DATA_DIR dir,
                                    void *p_cb,
@@ -1965,7 +1965,7 @@ static USBH_ERR USBH_MSC_TxCBW(USBH_MSC_DEV *p_msc_dev,
     Mem_Clr((void *)cmd_buf,
             USBH_MSC_LEN_CBW);
 
-    USBH_MSC_FmtCBW(p_msc_cbw, cmd_buf); /* Format CBW.                                          */
+    usbh_msc_fmt_cbw(p_msc_cbw, cmd_buf); /* Format CBW.                                          */
 
     len = usbh_bulk_tx(&p_msc_dev->BulkOutEP, /* Send CBW through bulk OUT EP.                        */
                       (void *)&cmd_buf[0],
@@ -2053,7 +2053,7 @@ static USBH_ERR USBH_MSC_RxCSW(USBH_MSC_DEV *p_msc_dev,
         else
         {
             err = USBH_ERR_NONE;
-            USBH_MSC_ParseCSW(p_msc_csw, status_buf);
+            usbh_msc_parse_csw(p_msc_csw, status_buf);
             break;
         }
     }
@@ -2404,7 +2404,7 @@ static USBH_ERR USBH_SCSI_CMD_StdInquiry(USBH_MSC_DEV *p_msc_dev,
     cmd[5] = 0u;                    /* Ctrl.                                                */
 
     /* ------------------ SEND SCSI CMD ------------------- */
-    USBH_MSC_XferCmd(p_msc_dev,
+    usbh_msc_xfer_cmd(p_msc_dev,
                      lun,
                      USBH_MSC_DATA_DIR_IN,
                      (void *)&cmd[0],
@@ -2471,7 +2471,7 @@ static USBH_ERR USBH_SCSI_CMD_TestUnitReady(USBH_MSC_DEV *p_msc_dev,
     cmd[4] = 0u;                            /* Reserved.                                            */
     cmd[5] = 0u;                            /* Control.                                             */
 
-    USBH_MSC_XferCmd(p_msc_dev, /* ---------------- SEND SCSI COMMAND ----------------- */
+    usbh_msc_xfer_cmd(p_msc_dev, /* ---------------- SEND SCSI COMMAND ----------------- */
                      lun,
                      USBH_MSC_DATA_DIR_NONE,
                      (void *)&cmd[0],
@@ -2516,7 +2516,7 @@ static USBH_ERR USBH_SCSI_CMD_TestUnitReady(USBH_MSC_DEV *p_msc_dev,
 *********************************************************************************************************
 */
 
-static uint32_t USBH_SCSI_CMD_ReqSense(USBH_MSC_DEV *p_msc_dev,
+static uint32_t usbh_scsi_cmd_req_sense(USBH_MSC_DEV *p_msc_dev,
                                          uint8_t lun,
                                          uint8_t *p_arg,
                                          uint32_t data_len,
@@ -2535,7 +2535,7 @@ static uint32_t USBH_SCSI_CMD_ReqSense(USBH_MSC_DEV *p_msc_dev,
     cmd[5] = 0u;                          /* Ctrl.                                                */
 
     /* ------------------ SEND SCSI CMD ------------------- */
-    xfer_len = USBH_MSC_XferCmd(p_msc_dev,
+    xfer_len = usbh_msc_xfer_cmd(p_msc_dev,
                                 lun,
                                 USBH_MSC_DATA_DIR_IN,
                                 (void *)cmd,
@@ -2587,7 +2587,7 @@ static uint32_t USBH_SCSI_CMD_ReqSense(USBH_MSC_DEV *p_msc_dev,
 *********************************************************************************************************
 */
 
-static USBH_ERR USBH_SCSI_GetSenseInfo(USBH_MSC_DEV *p_msc_dev,
+static USBH_ERR usbh_scsi_get_sense_info(USBH_MSC_DEV *p_msc_dev,
                                        uint8_t lun,
                                        uint8_t *p_sense_key,
                                        uint8_t *p_asc,
@@ -2598,7 +2598,7 @@ static USBH_ERR USBH_SCSI_GetSenseInfo(USBH_MSC_DEV *p_msc_dev,
     uint8_t sense_data[18];
     uint8_t resp_code;
 
-    xfer_len = USBH_SCSI_CMD_ReqSense(p_msc_dev, /* Issue SCSI request sense cmd.                        */
+    xfer_len = usbh_scsi_cmd_req_sense(p_msc_dev, /* Issue SCSI request sense cmd.                        */
                                       lun,
                                       sense_data,
                                       18u,
@@ -2666,7 +2666,7 @@ static USBH_ERR USBH_SCSI_GetSenseInfo(USBH_MSC_DEV *p_msc_dev,
 *********************************************************************************************************
 */
 
-static USBH_ERR USBH_SCSI_CMD_CapacityRd(USBH_MSC_DEV *p_msc_dev,
+static USBH_ERR usbh_scsi_cmd_capacity_read(USBH_MSC_DEV *p_msc_dev,
                                          uint8_t lun,
                                          uint32_t *p_nbr_blks,
                                          uint32_t *p_blk_size)
@@ -2687,7 +2687,7 @@ static USBH_ERR USBH_SCSI_CMD_CapacityRd(USBH_MSC_DEV *p_msc_dev,
     cmd[8] = 0u;                          /* ----------------------- PMI. ----------------------- */
     cmd[9] = 0u;                          /* Control.                                             */
 
-    USBH_MSC_XferCmd(p_msc_dev, /* ------------------ SEND SCSI CMD ------------------- */
+    usbh_msc_xfer_cmd(p_msc_dev, /* ------------------ SEND SCSI CMD ------------------- */
                      lun,
                      USBH_MSC_DATA_DIR_IN,
                      (void *)cmd,
@@ -2742,7 +2742,7 @@ static USBH_ERR USBH_SCSI_CMD_CapacityRd(USBH_MSC_DEV *p_msc_dev,
 *********************************************************************************************************
 */
 
-static uint32_t USBH_SCSI_Rd(USBH_MSC_DEV *p_msc_dev,
+static uint32_t usbh_scsi_read(USBH_MSC_DEV *p_msc_dev,
                                uint8_t lun,
                                uint32_t blk_addr,
                                uint16_t nbr_blks,
@@ -2764,7 +2764,7 @@ static uint32_t USBH_SCSI_Rd(USBH_MSC_DEV *p_msc_dev,
     MEM_VAL_COPY_SET_INT16U_BIG(&cmd[7], &nbr_blks); /* Transfer length (number of logical blocks).          */
     cmd[9] = 0u;                                     /* Control.                                             */
 
-    xfer_len = USBH_MSC_XferCmd(p_msc_dev, /* ---------------- SEND SCSI COMMAND ----------------- */
+    xfer_len = usbh_msc_xfer_cmd(p_msc_dev, /* ---------------- SEND SCSI COMMAND ----------------- */
                                 lun,
                                 USBH_MSC_DATA_DIR_IN,
                                 (void *)&cmd[0],
@@ -2817,7 +2817,7 @@ static uint32_t USBH_SCSI_Rd(USBH_MSC_DEV *p_msc_dev,
 *********************************************************************************************************
 */
 
-static uint32_t USBH_SCSI_Wr(USBH_MSC_DEV *p_msc_dev,
+static uint32_t usbh_scsi_write(USBH_MSC_DEV *p_msc_dev,
                                uint8_t lun,
                                uint32_t blk_addr,
                                uint16_t nbr_blks,
@@ -2840,7 +2840,7 @@ static uint32_t USBH_SCSI_Wr(USBH_MSC_DEV *p_msc_dev,
     MEM_VAL_COPY_SET_INT16U_BIG(&cmd[7], &nbr_blks); /* Transfer length (number of logical blocks).          */
     cmd[9] = 0u;                                     /* Control.                                             */
 
-    xfer_len = USBH_MSC_XferCmd(p_msc_dev, /* ------------------ SEND SCSI CMD ------------------- */
+    xfer_len = usbh_msc_xfer_cmd(p_msc_dev, /* ------------------ SEND SCSI CMD ------------------- */
                                 lun,
                                 USBH_MSC_DATA_DIR_OUT,
                                 (void *)&cmd[0],
@@ -2872,7 +2872,7 @@ static uint32_t USBH_SCSI_Wr(USBH_MSC_DEV *p_msc_dev,
 *********************************************************************************************************
 */
 
-static void USBH_MSC_FmtCBW(USBH_MSC_CBW *p_cbw,
+static void usbh_msc_fmt_cbw(USBH_MSC_CBW *p_cbw,
                             void *p_buf_dest)
 {
     uint8_t i;
@@ -2909,7 +2909,7 @@ static void USBH_MSC_FmtCBW(USBH_MSC_CBW *p_cbw,
 *********************************************************************************************************
 */
 
-static void USBH_MSC_ParseCSW(USBH_MSC_CSW *p_csw,
+static void usbh_msc_parse_csw(USBH_MSC_CSW *p_csw,
                               void *p_buf_src)
 {
     USBH_MSC_CSW *p_buf_src_cbw;
