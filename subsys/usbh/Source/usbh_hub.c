@@ -152,7 +152,7 @@ static USBH_HUB_DEV USBH_HUB_Arr[USBH_CFG_MAX_HUBS];
 static int8_t HubCount = USBH_CFG_MAX_HUBS;
 static volatile USBH_HUB_DEV *USBH_HUB_HeadPtr;
 static volatile USBH_HUB_DEV *USBH_HUB_TailPtr;
-static USBH_HSEM USBH_HUB_EventSem;
+static struct k_sem USBH_HUB_EventSem;
 
 /*
 *********************************************************************************************************
