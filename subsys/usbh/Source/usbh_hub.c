@@ -197,7 +197,7 @@ static USBH_ERR USBH_HUB_PortsInit(USBH_HUB_DEV *p_hub_dev);
 
 static USBH_ERR USBH_HUB_PortStatusGet(USBH_HUB_DEV *p_hub_dev,
                                        uint16_t port_nbr,
-                                       USBH_HUB_PORT_STATUS *p_port_status);
+                                       struct usbh_hub_port_status *p_port_status);
 
 static USBH_ERR USBH_HUB_PortResetSet(USBH_HUB_DEV *p_hub_dev,
                                       uint16_t port_nbr);
@@ -461,7 +461,7 @@ static void *USBH_HUB_IF_Probe(USBH_DEV *p_dev,
 {
     LOG_INF("hub if");
     USBH_HUB_DEV *p_hub_dev;
-    USBH_IF_DESC if_desc;
+    struct usbh_if_desc if_desc;
 
     p_hub_dev = (USBH_HUB_DEV *)0;
     *p_err = usbh_if_desc_get(p_if, /* Get IF desc.                                         */
@@ -569,7 +569,7 @@ static void USBH_HUB_Resume(void *p_class_dev)
     uint16_t port_ix;
     USBH_DEV *p_dev;
     USBH_HUB_DEV *p_hub_dev;
-    USBH_HUB_PORT_STATUS port_status;
+    struct usbh_hub_port_status port_status;
 
     p_hub_dev = (USBH_HUB_DEV *)p_class_dev;
     nbr_ports = DEF_MIN(p_hub_dev->Desc.bNbrPorts,
@@ -957,9 +957,9 @@ static void USBH_HUB_EventProcess(void)
 {
     uint16_t nbr_ports;
     uint16_t port_nbr;
-    enum usb_device_speed dev_spd;
+    enum usbh_device_speed dev_spd;
     USBH_HUB_DEV *p_hub_dev;
-    USBH_HUB_PORT_STATUS port_status;
+    struct usbh_hub_port_status port_status;
     USBH_DEV *p_dev;
     USBH_ERR err;
     CPU_SR_ALLOC();
@@ -1083,19 +1083,19 @@ static void USBH_HUB_EventProcess(void)
                 /* Determine dev spd.                                   */
                 if (DEF_BIT_IS_SET(port_status.wPortStatus, USBH_HUB_STATUS_PORT_LOW_SPD) == DEF_TRUE)
                 {
-                    dev_spd = USB_SPEED_LOW;
+                    dev_spd = USBH_LOW_SPEED;
                 }
                 else if (DEF_BIT_IS_SET(port_status.wPortStatus, USBH_HUB_STATUS_PORT_HIGH_SPD) == DEF_TRUE)
                 {
-                    dev_spd = USB_SPEED_HIGH;
+                    dev_spd = USBH_HIGH_SPEED;
                 }
                 else
                 {
-                    dev_spd = USB_SPEED_FULL;
+                    dev_spd = USBH_FULL_SPEED;
                 }
 
                 LOG_DBG("Port %d : Port Reset complete, device speed is %s\r\n", port_nbr,
-                        (dev_spd == USB_SPEED_LOW) ? "LOW Speed(1.5 Mb/Sec)" : (dev_spd == USB_SPEED_FULL) ? "FULL Speed(12 Mb/Sec)" : "HIGH Speed(480 Mb/Sec)");
+                        (dev_spd == USBH_LOW_SPEED) ? "LOW Speed(1.5 Mb/Sec)" : (dev_spd == USBH_FULL_SPEED) ? "FULL Speed(12 Mb/Sec)" : "HIGH Speed(480 Mb/Sec)");
 
                 p_dev = p_hub_dev->DevPtrList[port_nbr - 1u];
 
@@ -1126,13 +1126,13 @@ static void USBH_HUB_EventProcess(void)
                 p_dev->PortNbr = port_nbr;
                 p_dev->HC_Ptr = p_hub_dev->DevPtr->HC_Ptr;
 
-                if (dev_spd == USB_SPEED_HIGH)
+                if (dev_spd == USBH_HIGH_SPEED)
                 {
                     p_dev->HubHS_Ptr = p_hub_dev;
                 }
                 else
                 {
-                    if (p_hub_dev->IntrEP.DevSpd == USB_SPEED_HIGH)
+                    if (p_hub_dev->IntrEP.DevSpd == USBH_HIGH_SPEED)
                     {
                         p_dev->HubHS_Ptr = p_hub_dev;
                     }
@@ -1223,7 +1223,7 @@ static USBH_ERR USBH_HUB_DescGet(USBH_HUB_DEV *p_hub_dev)
     USBH_ERR err;
     uint32_t len;
     uint32_t i;
-    USBH_DESC_HDR hdr;
+    struct usbh_desc_hdr hdr;
 
     for (i = 0u; i < USBH_CFG_STD_REQ_RETRY; i++)
     { /* Attempt to get desc hdr 3 times.                     */
@@ -1371,10 +1371,10 @@ static USBH_ERR USBH_HUB_PortsInit(USBH_HUB_DEV *p_hub_dev)
 
 static USBH_ERR USBH_HUB_PortStatusGet(USBH_HUB_DEV *p_hub_dev,
                                        uint16_t port_nbr,
-                                       USBH_HUB_PORT_STATUS *p_port_status)
+                                       struct usbh_hub_port_status *p_port_status)
 {
     uint8_t *p_buf;
-    USBH_HUB_PORT_STATUS port_status;
+    struct usbh_hub_port_status port_status;
     USBH_ERR err;
 
     p_buf = (uint8_t *)&port_status;
@@ -1985,7 +1985,7 @@ uint32_t usbh_rh_ctrl_req(USBH_HC *p_hc,
         {
             valid = p_hc_rh_api->PortStatusGet(p_hc_drv,
                                                w_ix,
-                                               (USBH_HUB_PORT_STATUS *)p_buf);
+                                               (struct usbh_hub_port_status *)p_buf);
         }
         else
         {
@@ -2101,7 +2101,7 @@ uint32_t usbh_rh_ctrl_req(USBH_HC *p_hc,
         case USBH_HUB_DESC_TYPE_HUB: /* Return hub desc.                                     */
             len = buf_len;
             valid = p_hc_rh_api->HubDescGet(p_hc_drv,
-                                            (USBH_HUB_DESC *)p_buf,
+                                            (struct usbh_hub_desc *)p_buf,
                                             len);
             break;
 
@@ -2272,13 +2272,13 @@ void usbh_hub_class_notify(void *p_class_dev,
 *********************************************************************************************************
 */
 
-void usbh_hub_parse_hub_desc(USBH_HUB_DESC *p_hub_desc,
-                           void *p_buf_src)
+void usbh_hub_parse_hub_desc(struct usbh_hub_desc *p_hub_desc,
+                             void *p_buf_src)
 {
-    USBH_HUB_DESC *p_buf_src_desc;
+    struct usbh_hub_desc *p_buf_src_desc;
     uint8_t i;
 
-    p_buf_src_desc = (USBH_HUB_DESC *)p_buf_src;
+    p_buf_src_desc = (struct usbh_hub_desc *)p_buf_src;
 
     p_hub_desc->bDescLength = p_buf_src_desc->bDescLength;
     p_hub_desc->bDescriptorType = p_buf_src_desc->bDescriptorType;
@@ -2310,14 +2310,14 @@ void usbh_hub_parse_hub_desc(USBH_HUB_DESC *p_hub_desc,
 *********************************************************************************************************
 */
 
-void usbh_hub_fmt_hub_desc(USBH_HUB_DESC *p_hub_desc,
-                         void *p_buf_dest)
+void usbh_hub_fmt_hub_desc(struct usbh_hub_desc *p_hub_desc,
+                           void *p_buf_dest)
 {
     static uint8_t temp;
     temp++;
-    USBH_HUB_DESC *p_buf_dest_desc;
+    struct usbh_hub_desc *p_buf_dest_desc;
 
-    p_buf_dest_desc = (USBH_HUB_DESC *)p_buf_dest;
+    p_buf_dest_desc = (struct usbh_hub_desc *)p_buf_dest;
 
     p_buf_dest_desc->bDescLength = p_hub_desc->bDescLength;
     p_buf_dest_desc->bDescriptorType = p_hub_desc->bDescriptorType;
