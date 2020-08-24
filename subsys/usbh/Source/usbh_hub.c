@@ -272,7 +272,7 @@ USBH_CLASS_DRV USBH_HUB_Drv = {
 *********************************************************************************************************
 */
 
-void USBH_HUB_EventTask(void *p_arg, void *p_arg2, void *p_arg3)
+void usbh_hub_event_task(void *p_arg, void *p_arg2, void *p_arg3)
 {
     (void)p_arg;
 
@@ -308,7 +308,7 @@ void USBH_HUB_EventTask(void *p_arg, void *p_arg2, void *p_arg3)
 *********************************************************************************************************
 */
 
-USBH_ERR USBH_HUB_PortDis(USBH_HUB_DEV *p_hub_dev,
+USBH_ERR usbh_hub_port_dis(USBH_HUB_DEV *p_hub_dev,
                           uint16_t port_nbr)
 {
     USBH_ERR err;
@@ -348,7 +348,7 @@ USBH_ERR USBH_HUB_PortDis(USBH_HUB_DEV *p_hub_dev,
 *********************************************************************************************************
 */
 
-USBH_ERR USBH_HUB_PortEn(USBH_HUB_DEV *p_hub_dev,
+USBH_ERR usbh_hub_port_en(USBH_HUB_DEV *p_hub_dev,
                          uint16_t port_nbr)
 {
     USBH_ERR err;
@@ -1110,7 +1110,7 @@ static void USBH_HUB_EventProcess(void)
                 }
                 if (p_hub_dev->DevPtr->HC_Ptr->HostPtr->DevCount < 0)
                 {
-                    USBH_HUB_PortDis(p_hub_dev, port_nbr);
+                    usbh_hub_port_dis(p_hub_dev, port_nbr);
                     USBH_HUB_RefRel(p_hub_dev);
                     USBH_HUB_EventReq(p_hub_dev); /* Retry URB.                                           */
 
@@ -1146,7 +1146,7 @@ static void USBH_HUB_EventProcess(void)
                 err = usbh_dev_conn(p_dev); /* Conn dev.                                            */
                 if (err != USBH_ERR_NONE)
                 {
-                    USBH_HUB_PortDis(p_hub_dev, port_nbr);
+                    usbh_hub_port_dis(p_hub_dev, port_nbr);
                     usbh_dev_disconn(p_dev);
 
                     p_hub_dev->DevPtr->HC_Ptr->HostPtr->DevCount++;
@@ -1283,7 +1283,7 @@ static USBH_ERR USBH_HUB_DescGet(USBH_HUB_DEV *p_hub_dev)
         }
     }
 
-    USBH_HUB_ParseHubDesc(&p_hub_dev->Desc,
+    usbh_hub_parse_hub_desc(&p_hub_dev->Desc,
                           USBH_HUB_DescBuf);
 
     if (p_hub_dev->Desc.bNbrPorts > USBH_CFG_MAX_HUB_PORTS)
@@ -1802,7 +1802,7 @@ static USBH_ERR USBH_HUB_PortEnSet(USBH_HUB_DEV *p_hub_dev,
 *********************************************************************************************************
 */
 
-USBH_ERR USBH_HUB_PortSuspendSet(USBH_HUB_DEV *p_hub_dev,
+USBH_ERR usbh_hub_port_suspend_set(USBH_HUB_DEV *p_hub_dev,
                                  uint16_t port_nbr)
 {
     USBH_ERR err;
@@ -1957,7 +1957,7 @@ static USBH_ERR USBH_HUB_RefRel(USBH_HUB_DEV *p_hub_dev)
 *********************************************************************************************************
 */
 
-uint32_t USBH_HUB_RH_CtrlReq(USBH_HC *p_hc,
+uint32_t usbh_rh_ctrl_req(USBH_HC *p_hc,
                                uint8_t b_req,
                                uint8_t bm_req_type,
                                uint16_t w_val,
@@ -2171,7 +2171,7 @@ uint32_t USBH_HUB_RH_CtrlReq(USBH_HC *p_hc,
 *********************************************************************************************************
 */
 
-void USBH_HUB_RH_Event(USBH_DEV *p_dev)
+void usbh_rh_event(USBH_DEV *p_dev)
 {
     USBH_HUB_DEV *p_hub_dev;
     USBH_HC_DRV *p_hc_drv;
@@ -2224,7 +2224,7 @@ void USBH_HUB_RH_Event(USBH_DEV *p_dev)
 **************************************************************************************************************
 */
 
-void USBH_HUB_ClassNotify(void *p_class_dev,
+void usbh_hub_class_notify(void *p_class_dev,
                           uint8_t state,
                           void *p_ctx)
 {
@@ -2272,7 +2272,7 @@ void USBH_HUB_ClassNotify(void *p_class_dev,
 *********************************************************************************************************
 */
 
-void USBH_HUB_ParseHubDesc(USBH_HUB_DESC *p_hub_desc,
+void usbh_hub_parse_hub_desc(USBH_HUB_DESC *p_hub_desc,
                            void *p_buf_src)
 {
     USBH_HUB_DESC *p_buf_src_desc;
@@ -2310,7 +2310,7 @@ void USBH_HUB_ParseHubDesc(USBH_HUB_DESC *p_hub_desc,
 *********************************************************************************************************
 */
 
-void USBH_HUB_FmtHubDesc(USBH_HUB_DESC *p_hub_desc,
+void usbh_hub_fmt_hub_desc(USBH_HUB_DESC *p_hub_desc,
                          void *p_buf_dest)
 {
     static uint8_t temp;
