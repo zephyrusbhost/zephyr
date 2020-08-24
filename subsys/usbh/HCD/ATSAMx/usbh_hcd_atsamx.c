@@ -376,7 +376,8 @@ typedef struct usbh_drv_data
 K_MSGQ_DEFINE(ATSAMX_URB_Proc_Q, sizeof(struct usbh_urb),
 	      ATSAMX_URB_PROC_Q_MAX, 4);
 K_THREAD_STACK_DEFINE(ATSAMX_URB_ProcTaskStk, ATSAMX_URB_PROC_TASK_STK_SIZE);
-K_MEM_POOL_DEFINE(ATSAMX_DrvMemPool, USBH_DATA_BUF_MAX_LEN, USBH_DATA_BUF_MAX_LEN, (USBH_MAX_NBR_EP_BULK_OPEN + USBH_MAX_NBR_EP_INTR_OPEN + 1), sizeof(CPU_ALIGN));
+K_MEM_POOL_DEFINE(ATSAMX_DrvMemPool, USBH_DATA_BUF_MAX_LEN, USBH_DATA_BUF_MAX_LEN, (USBH_MAX_NBR_EP_BULK_OPEN + USBH_MAX_NBR_EP_INTR_OPEN + 1),
+		  sizeof(uint32_t));
 
 /*
 *********************************************************************************************************
@@ -581,7 +582,7 @@ static void usbh_atsamx_hcd_init(struct usbh_hc_drv *p_hc_drv,
 	USBH_DRV_DATA *p_drv_data;
 
 	p_drv_data = (USBH_DRV_DATA *)Mem_HeapAlloc(sizeof(USBH_DRV_DATA),
-												sizeof(CPU_ALIGN),
+												sizeof(uint32_t),
 												&octets_reqd, &err_lib);
 	if (p_drv_data == NULL)
 	{
