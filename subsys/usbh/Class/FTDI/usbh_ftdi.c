@@ -734,7 +734,7 @@ void  USBH_FTDI_ModemStatusGet (USBH_FTDI_HANDLE          ftdi_handle,
         return;
     }
 
-    (void)USBH_CtrlRx(         p_ftdi_fnct->DevPtr,             /* Send GET_MODEM_STATUS req.                           */
+    (void)usbh_ctrl_rx(         p_ftdi_fnct->DevPtr,             /* Send GET_MODEM_STATUS req.                           */
                                USBH_FTDI_REQ_GET_MODEM_STATUS,
                               (USBH_REQ_DIR_DEV_TO_HOST | USBH_REQ_TYPE_VENDOR | USBH_REQ_RECIPIENT_DEV),
                                0u,
@@ -827,17 +827,17 @@ uint32_t  USBH_FTDI_Tx (USBH_FTDI_HANDLE   ftdi_handle,
         return (0u);
     }
 
-    xfer_len = USBH_BulkTx(&p_ftdi_fnct->BulkOutEP,             /* Send data through specified EP to FTDI dev.          */
+    xfer_len = usbh_bulk_tx(&p_ftdi_fnct->BulkOutEP,             /* Send data through specified EP to FTDI dev.          */
                             p_buf,
                             buf_len,
                             timeout,
                             p_err);
     if (*p_err != USBH_ERR_NONE) {                              /* Reset EP if err occurred.                            */
-        (void)USBH_EP_Reset(p_ftdi_fnct->DevPtr,
+        (void)usbh_ep_reset(p_ftdi_fnct->DevPtr,
                            &p_ftdi_fnct->BulkOutEP);
 
         if (*p_err == USBH_ERR_EP_STALL) {
-            (void)USBH_EP_StallClr(&p_ftdi_fnct->BulkOutEP);
+            (void)usbh_ep_stall_clr(&p_ftdi_fnct->BulkOutEP);
         }
 
         return (0u);
@@ -931,17 +931,17 @@ void  USBH_FTDI_TxAsync (USBH_FTDI_HANDLE          ftdi_handle,
     p_ftdi_fnct->DataTxNotifyPtr    = tx_cmpl_notify;
     p_ftdi_fnct->DataTxNotifyArgPtr = p_arg;
 
-   *p_err = USBH_BulkTxAsync(       &p_ftdi_fnct->BulkOutEP,    /* Send data through specified EP to FTDI dev.          */
+   *p_err = usbh_bulk_tx_async(       &p_ftdi_fnct->BulkOutEP,    /* Send data through specified EP to FTDI dev.          */
                                      p_buf,
                                      buf_len,
                                      USBH_FTDI_DataTxCmpl,
                              (void *)p_ftdi_fnct);
     if (*p_err != USBH_ERR_NONE) {                              /* Reset EP if an err occurred.                         */
-        (void)USBH_EP_Reset(p_ftdi_fnct->DevPtr,
+        (void)usbh_ep_reset(p_ftdi_fnct->DevPtr,
                            &p_ftdi_fnct->BulkOutEP);
 
         if (*p_err == USBH_ERR_EP_STALL) {
-            (void)USBH_EP_StallClr(&p_ftdi_fnct->BulkOutEP);
+            (void)usbh_ep_stall_clr(&p_ftdi_fnct->BulkOutEP);
         }
     }
 }
@@ -1117,17 +1117,17 @@ uint32_t  USBH_FTDI_Rx (USBH_FTDI_HANDLE          ftdi_handle,
             p_buf_cur08 -= USBH_FTDI_SERIAL_STATUS_LEN;
         }
                                                                 /* Rx pkt through specified EP.                         */
-        xfer_len_cur = USBH_BulkRx(       &p_ftdi_fnct->BulkInEP,
+        xfer_len_cur = usbh_bulk_rx(       &p_ftdi_fnct->BulkInEP,
                                    (void *)p_buf_cur08,
                                            buf_len_cur,
                                            timeout,
                                            p_err);
         if (*p_err != USBH_ERR_NONE) {                          /* Reset EP if err occurred.                            */
-            (void)USBH_EP_Reset(p_ftdi_fnct->DevPtr,
+            (void)usbh_ep_reset(p_ftdi_fnct->DevPtr,
                                &p_ftdi_fnct->BulkInEP);
 
             if (*p_err == USBH_ERR_EP_STALL) {
-                (void)USBH_EP_StallClr(&p_ftdi_fnct->BulkInEP);
+                (void)usbh_ep_stall_clr(&p_ftdi_fnct->BulkInEP);
             }
 
             (void)USBH_OS_MutexUnlock(p_ftdi_fnct->RxHMutex);
@@ -1275,17 +1275,17 @@ void  USBH_FTDI_RxAsync (USBH_FTDI_HANDLE          ftdi_handle,
         buf_len = p_ftdi_fnct->MaxPktSize;
     }
 
-   *p_err = USBH_BulkRxAsync(       &p_ftdi_fnct->BulkInEP,     /* Rx first pkt through specified EP.                   */
+   *p_err = usbh_bulk_rx_async(       &p_ftdi_fnct->BulkInEP,     /* Rx first pkt through specified EP.                   */
                                      p_buf,
                                      buf_len,
                                      USBH_FTDI_DataRxCmpl,
                              (void *)p_ftdi_fnct);
     if (*p_err != USBH_ERR_NONE) {
-        (void)USBH_EP_Reset(p_ftdi_fnct->DevPtr,
+        (void)usbh_ep_reset(p_ftdi_fnct->DevPtr,
                            &p_ftdi_fnct->BulkInEP);
 
         if (*p_err == USBH_ERR_EP_STALL) {
-            (void)USBH_EP_StallClr(&p_ftdi_fnct->BulkInEP);
+            (void)usbh_ep_stall_clr(&p_ftdi_fnct->BulkInEP);
         }
     }
 }
@@ -1414,12 +1414,12 @@ static  void  *USBH_FTDI_ProbeIF (USBH_DEV  *p_dev,
     LIB_ERR          err_lib;
 
 
-   *p_err = USBH_IF_DescGet(p_if, 0u, &if_desc);                /* Get IF desc from IF.                                 */
+   *p_err = usbh_if_desc_get(p_if, 0u, &if_desc);                /* Get IF desc from IF.                                 */
     if (*p_err != USBH_ERR_NONE) {
         return ((void *)0);
     }
 
-    USBH_DevDescGet(p_dev, &dev_desc);                          /* Get dev desc.                                        */
+    usbh_dev_desc_get(p_dev, &dev_desc);                          /* Get dev desc.                                        */
 
                                                                 /* bInterfaceClass must be Vendor Specific.             */
     if (if_desc.bInterfaceClass != USBH_CLASS_CODE_VENDOR_SPECIFIC) {
@@ -1466,7 +1466,7 @@ static  void  *USBH_FTDI_ProbeIF (USBH_DEV  *p_dev,
         }
         USBH_FTDI_DevPtrPrev = p_dev;
 
-       *p_err = USBH_BulkInOpen(p_ftdi_fnct->DevPtr,            /* Open Bulk IN EP.                                     */
+       *p_err = usbh_bulk_in_open(p_ftdi_fnct->DevPtr,            /* Open Bulk IN EP.                                     */
                                 p_ftdi_fnct->IF_Ptr,
                                &p_ftdi_fnct->BulkInEP);
         if (*p_err != USBH_ERR_NONE) {
@@ -1475,9 +1475,9 @@ static  void  *USBH_FTDI_ProbeIF (USBH_DEV  *p_dev,
             return ((void *)0);
         }
 
-        p_ftdi_fnct->MaxPktSize = (uint32_t)USBH_EP_MaxPktSizeGet(&p_ftdi_fnct->BulkInEP);
+        p_ftdi_fnct->MaxPktSize = (uint32_t)usbh_ep_max_pkt_size_get(&p_ftdi_fnct->BulkInEP);
 
-       *p_err = USBH_BulkOutOpen(p_ftdi_fnct->DevPtr,           /* Open Bulk OUT EP.                                    */
+       *p_err = usbh_bulk_out_open(p_ftdi_fnct->DevPtr,           /* Open Bulk OUT EP.                                    */
                                  p_ftdi_fnct->IF_Ptr,
                                 &p_ftdi_fnct->BulkOutEP);
         if (*p_err != USBH_ERR_NONE) {
@@ -1563,8 +1563,8 @@ static  void  USBH_FTDI_Disconn (void  *p_class_dev)
 
     p_ftdi_fnct = (USBH_FTDI_FNCT *)p_class_dev;
 
-    (void)USBH_EP_Close(&p_ftdi_fnct->BulkInEP);                /* Close bulk EPs.                                      */
-    (void)USBH_EP_Close(&p_ftdi_fnct->BulkOutEP);
+    (void)usbh_ep_close(&p_ftdi_fnct->BulkInEP);                /* Close bulk EPs.                                      */
+    (void)usbh_ep_close(&p_ftdi_fnct->BulkOutEP);
 
     p_ftdi_fnct->State = USBH_CLASS_DEV_STATE_DISCONN;
 
@@ -1690,7 +1690,7 @@ static  void  USBH_FTDI_StdReq (USBH_FTDI_HANDLE   ftdi_handle,
 
     index = (uint16_t)(((uint16_t)h_index << 8u) | p_ftdi_fnct->Port);
 
-    (void)USBH_CtrlTx(        p_ftdi_fnct->DevPtr,              /* Send ctrl req.                                       */
+    (void)usbh_ctrl_tx(        p_ftdi_fnct->DevPtr,              /* Send ctrl req.                                       */
                               request,
                              (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_VENDOR | USBH_REQ_RECIPIENT_DEV),
                               value,
@@ -1739,11 +1739,11 @@ static  void  USBH_FTDI_DataTxCmpl (USBH_EP     *p_ep,
     p_ftdi_fnct = (USBH_FTDI_FNCT *)p_arg;
 
     if (err != USBH_ERR_NONE) {                                 /* Chk status of transaction.                           */
-        (void)USBH_EP_Reset(p_ftdi_fnct->DevPtr,
+        (void)usbh_ep_reset(p_ftdi_fnct->DevPtr,
                             p_ep);
 
         if (err == USBH_ERR_EP_STALL) {
-            (void)USBH_EP_StallClr(p_ep);
+            (void)usbh_ep_stall_clr(p_ep);
         }
     }
 
@@ -1842,11 +1842,11 @@ static  void  USBH_FTDI_DataRxCmpl (USBH_EP     *p_ep,
             }
         }
     } else {                                                    /* Chk status of transaction.                           */
-        (void)USBH_EP_Reset(p_ftdi_fnct->DevPtr,
+        (void)usbh_ep_reset(p_ftdi_fnct->DevPtr,
                             p_ep);
 
         if (err == USBH_ERR_EP_STALL) {
-            (void)USBH_EP_StallClr(p_ep);
+            (void)usbh_ep_stall_clr(p_ep);
         }
     }
 
@@ -1869,17 +1869,17 @@ static  void  USBH_FTDI_DataRxCmpl (USBH_EP     *p_ep,
                                                                 /* Save last two bytes of data.                         */
             MEM_VAL_COPY_16(&p_ftdi_fnct->LastBytes, (p_buf_cur - USBH_FTDI_SERIAL_STATUS_LEN));
                                                                 /* Req following pkt.                                   */
-            err = USBH_BulkRxAsync(       &p_ftdi_fnct->BulkInEP,
+            err = usbh_bulk_rx_async(       &p_ftdi_fnct->BulkInEP,
                                           (p_buf_cur - USBH_FTDI_SERIAL_STATUS_LEN),
                                            buf_len,
                                            USBH_FTDI_DataRxCmpl,
                                    (void *)p_ftdi_fnct);
             if (err != USBH_ERR_NONE) {                         /* Reset EP if an err occurred.                         */
-                (void)USBH_EP_Reset(p_ftdi_fnct->DevPtr,
+                (void)usbh_ep_reset(p_ftdi_fnct->DevPtr,
                                    &p_ftdi_fnct->BulkOutEP);
 
                 if (err == USBH_ERR_EP_STALL) {
-                    (void)USBH_EP_StallClr(&p_ftdi_fnct->BulkOutEP);
+                    (void)usbh_ep_stall_clr(&p_ftdi_fnct->BulkOutEP);
                 }
             } else {
                 return;

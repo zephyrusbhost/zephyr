@@ -958,7 +958,7 @@ USBH_ERR  USBH_HID_ProtocolSet (USBH_HID_DEV  *p_hid_dev,
         return (USBH_ERR_DEV_NOT_READY);
     }
 
-    (void)USBH_CtrlTx(        p_hid_dev->DevPtr,                /* Send Set protocol request.                           */
+    (void)usbh_ctrl_tx(        p_hid_dev->DevPtr,                /* Send Set protocol request.                           */
                               USBH_HID_REQ_SET_PROTOCOL,
                              (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_IF),
                               protocol,
@@ -1028,7 +1028,7 @@ USBH_ERR  USBH_HID_ProtocolGet (USBH_HID_DEV  *p_hid_dev,
         return (USBH_ERR_DEV_NOT_READY);
     }
 
-    (void)USBH_CtrlRx(        p_hid_dev->DevPtr,                /* Send Get protocol request.                           */
+    (void)usbh_ctrl_rx(        p_hid_dev->DevPtr,                /* Send Get protocol request.                           */
                               USBH_HID_REQ_GET_PROTOCOL,
                              (USBH_REQ_DIR_DEV_TO_HOST | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_IF),
                               0u,
@@ -1099,7 +1099,7 @@ USBH_ERR  USBH_HID_IdleSet (USBH_HID_DEV  *p_hid_dev,
 
     dur = dur / USBH_HID_DUR_RESOLUTION;                        /* Convert into resolution units.                       */
                                                                 /* Send class-specific request.                         */
-    (void)USBH_CtrlTx(        p_hid_dev->DevPtr,
+    (void)usbh_ctrl_tx(        p_hid_dev->DevPtr,
                               USBH_HID_REQ_SET_IDLE,
                              (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_IF),
                              (((dur << 8u) & 0xFF00u) | report_id),
@@ -1109,7 +1109,7 @@ USBH_ERR  USBH_HID_IdleSet (USBH_HID_DEV  *p_hid_dev,
                               USBH_CFG_STD_REQ_TIMEOUT,
                              &err);
     if (err == USBH_ERR_EP_STALL) {
-        (void)USBH_EP_Reset(           p_hid_dev->DevPtr,
+        (void)usbh_ep_reset(           p_hid_dev->DevPtr,
                             (USBH_EP *)0);
     }
 
@@ -1177,7 +1177,7 @@ uint32_t  USBH_HID_IdleGet (USBH_HID_DEV  *p_hid_dev,
         return (0u);
     }
 
-    (void)USBH_CtrlRx(         p_hid_dev->DevPtr,               /* Send the class-specific request.                     */
+    (void)usbh_ctrl_rx(         p_hid_dev->DevPtr,               /* Send the class-specific request.                     */
                                USBH_HID_REQ_GET_IDLE,
                               (USBH_REQ_DIR_DEV_TO_HOST | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_IF),
                                report_id,
@@ -1297,7 +1297,7 @@ static  void  *USBH_HID_ProbeIF (USBH_DEV  *p_dev,
     LIB_ERR        err_lib;
 
 
-   *p_err = USBH_IF_DescGet(p_if, 0u, &p_if_desc);              /* Get IF desc from IF.                                 */
+   *p_err = usbh_if_desc_get(p_if, 0u, &p_if_desc);              /* Get IF desc from IF.                                 */
     if (*p_err != USBH_ERR_NONE) {
         return ((void *)0);
     }
@@ -1322,7 +1322,7 @@ static  void  *USBH_HID_ProbeIF (USBH_DEV  *p_dev,
         p_hid_dev->SubClass = p_if_desc.bInterfaceSubClass;
         p_hid_dev->Protocol = p_if_desc.bInterfaceProtocol;
 
-       *p_err = USBH_IntrInOpen(p_hid_dev->DevPtr,              /* Open intr IN EP.                                     */
+       *p_err = usbh_intr_in_open(p_hid_dev->DevPtr,              /* Open intr IN EP.                                     */
                                 p_hid_dev->IfPtr,
                                &p_hid_dev->IntrInEP);
         if (*p_err != USBH_ERR_NONE) {
@@ -1332,7 +1332,7 @@ static  void  *USBH_HID_ProbeIF (USBH_DEV  *p_dev,
             return ((void *)0);
         }
 
-       *p_err = USBH_IntrOutOpen(p_hid_dev->DevPtr,             /* Try to open optional intr OUT EP.                    */
+       *p_err = usbh_intr_out_open(p_hid_dev->DevPtr,             /* Try to open optional intr OUT EP.                    */
                                  p_hid_dev->IfPtr,
                                 &p_hid_dev->IntrOutEP);
         if (*p_err != USBH_ERR_NONE) {
@@ -1377,10 +1377,10 @@ static  void  USBH_HID_Disconn (void  *p_class_dev)
     p_hid_dev->State = USBH_CLASS_DEV_STATE_DISCONN;
 
                                                                 /* -------------------- CLOSE EPS --------------------- */
-    USBH_EP_Close(&p_hid_dev->IntrInEP);
+    usbh_ep_close(&p_hid_dev->IntrInEP);
 
     if (p_hid_dev->IsOutEP_Present == DEF_TRUE) {
-        USBH_EP_Close(&p_hid_dev->IntrOutEP);
+        usbh_ep_close(&p_hid_dev->IntrOutEP);
     }
 
     if (p_hid_dev->AppRefCnt == 0u) {                           /* Release HID dev if app reference count is zero.      */
@@ -1615,7 +1615,7 @@ static  uint32_t  USBH_HID_TxData (USBH_HID_DEV  *p_hid_dev,
                               p_buf,
                               buf_len);
 
-            xfer_len = USBH_IntrTx(&p_hid_dev->IntrOutEP,
+            xfer_len = usbh_intr_tx(&p_hid_dev->IntrOutEP,
                                     p_hid_dev->TxBuf,
                                     buf_len + 1u,
                                     timeout_ms,
@@ -1625,7 +1625,7 @@ static  uint32_t  USBH_HID_TxData (USBH_HID_DEV  *p_hid_dev,
                 xfer_len--;
             }
         } else {
-            xfer_len = USBH_IntrTx(&p_hid_dev->IntrOutEP,
+            xfer_len = usbh_intr_tx(&p_hid_dev->IntrOutEP,
                                     p_buf,
                                     buf_len,
                                     timeout_ms,
@@ -1633,7 +1633,7 @@ static  uint32_t  USBH_HID_TxData (USBH_HID_DEV  *p_hid_dev,
         }
     } else {
                                                                 /* Send report via ctrl EP if intr OUT not available.   */
-        xfer_len = USBH_CtrlTx(p_hid_dev->DevPtr,
+        xfer_len = usbh_ctrl_tx(p_hid_dev->DevPtr,
                                USBH_HID_REQ_SET_REPORT,
                               (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_IF),
                               (((USBH_HID_REPORT_TYPE_OUT << 8u) & 0xFF00u) | report_id),
@@ -1709,7 +1709,7 @@ static  uint32_t  USBH_HID_RxData (USBH_HID_DEV  *p_hid_dev,
 
     if ((report_id           !=       0u) ||                    /* If report ID 0 specified or intr IN EP busy, use ... */
         (p_hid_dev->RxInProg == DEF_TRUE)) {                    /* ... ctrl EP.                                         */
-        xfer_len = USBH_CtrlRx(p_hid_dev->DevPtr,
+        xfer_len = usbh_ctrl_rx(p_hid_dev->DevPtr,
                                USBH_HID_REQ_GET_REPORT,
                               (USBH_REQ_DIR_DEV_TO_HOST | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_IF),
                               (((USBH_HID_REPORT_TYPE_IN << 8u) & 0xFF00u) | report_id),
@@ -1719,7 +1719,7 @@ static  uint32_t  USBH_HID_RxData (USBH_HID_DEV  *p_hid_dev,
                                timeout_ms,
                                p_err);
     } else {                                                    /* Rcv report on intr IN EP.                            */
-        xfer_len = USBH_IntrRx(&p_hid_dev->IntrInEP,
+        xfer_len = usbh_intr_rx(&p_hid_dev->IntrInEP,
                                 p_buf,
                                 buf_len,
                                 timeout_ms,
@@ -1757,7 +1757,7 @@ static  USBH_ERR  USBH_HID_MemReadHIDDesc (USBH_HID_DEV  *p_hid_dev)
 
 
                                                                 /* Get HID desc from extra desc.                        */
-    p_mem  = (uint8_t *)USBH_IF_ExtraDescGet(p_hid_dev->IfPtr,
+    p_mem  = (uint8_t *)usbh_if_extra_desc_get(p_hid_dev->IfPtr,
                                                 0u,
                                                &tot_len);
     if (p_mem == (uint8_t *)0) {
@@ -1909,7 +1909,7 @@ static  void  USBH_HID_IntrRxCB (USBH_EP     *p_ep,
         case USBH_ERR_EP_INVALID_STATE:
         case USBH_ERR_HC_IO:
         case USBH_ERR_EP_STALL:
-             USBH_EP_Reset(p_ep->DevPtr, p_ep);
+             usbh_ep_reset(p_ep->DevPtr, p_ep);
              p_hid_dev->ErrCnt++;
              break;
 
@@ -2106,7 +2106,7 @@ static  USBH_ERR  USBH_HID_ProcessReportDesc (USBH_HID_DEV  *p_hid_dev)
         return (USBH_ERR_DESC_ALLOC);
     }
 
-    len = USBH_CtrlRx(         p_hid_dev->DevPtr,               /* Read report desc.                                    */
+    len = usbh_ctrl_rx(         p_hid_dev->DevPtr,               /* Read report desc.                                    */
                                USBH_REQ_GET_DESC,
                               (USBH_REQ_DIR_DEV_TO_HOST | USBH_REQ_TYPE_STD | USBH_REQ_RECIPIENT_IF),
                               ((USBH_HID_DESC_TYPE_REPORT << 8u) & 0xFF00u),
@@ -2165,7 +2165,7 @@ static  USBH_ERR  USBH_HID_RxReportAsync (USBH_HID_DEV  *p_hid_dev)
         len++;
     }
                                                                 /* Start receiving in data.                             */
-    err = USBH_IntrRxAsync(       &p_hid_dev->IntrInEP,
+    err = usbh_intr_rx_async(       &p_hid_dev->IntrInEP,
                            (void *)p_hid_dev->RxBuf,
                                    len,
                                    USBH_HID_IntrRxCB,
