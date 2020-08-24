@@ -977,8 +977,8 @@ struct  usbh_hc_drv {
 */
 
 struct  usbh_hc_cfg {
-    CPU_ADDR     BaseAddr;                                      /* HC reg's base addr.                                  */
-    CPU_ADDR     DedicatedMemAddr;                              /* Start addr of HC's dedicated mem.                    */
+    uint32_t     BaseAddr;                                      /* HC reg's base addr.                                  */
+    uint32_t     DedicatedMemAddr;                              /* Start addr of HC's dedicated mem.                    */
     uint32_t   DedicatedMemSize;                              /* Size of HC's dedicated mem.                          */
     bool  DataBufFromSysMemEn;                           /* Indicate if HC can access sys mem.                   */
     uint32_t   DataBufMaxLen;                                 /* Max len of data buf.                                 */
