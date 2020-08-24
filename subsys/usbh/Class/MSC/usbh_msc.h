@@ -80,10 +80,10 @@ typedef uint8_t USBH_MSC_DATA_DIR;
 /* -------------------- MSC DEVICE -------------------- */
 typedef struct usbh_msc_dev
 {
-    USBH_EP BulkInEP;  /* Bulk IN  endpoint.                                   */
-    USBH_EP BulkOutEP; /* Bulk OUT endpoint.                                   */
-    USBH_DEV *DevPtr;  /* Pointer to USB device.                               */
-    USBH_IF *IF_Ptr;   /* Pointer to interface.                                */
+    struct usbh_ep BulkInEP;  /* Bulk IN  endpoint.                                   */
+    struct usbh_ep BulkOutEP; /* Bulk OUT endpoint.                                   */
+    struct usbh_dev *DevPtr;  /* Pointer to USB device.                               */
+    struct usbh_if *IF_Ptr;   /* Pointer to interface.                                */
     uint8_t State;  /* State of MSC device.                                 */
     uint8_t RefCnt; /* Cnt of app ref on this dev.                          */
     struct k_mutex HMutex;
@@ -104,7 +104,7 @@ typedef struct msc_inquiry_info
 *********************************************************************************************************
 */
 
-USBH_MSC_EXT USBH_CLASS_DRV USBH_MSC_ClassDrv;
+USBH_MSC_EXT const struct usbh_class_drv USBH_MSC_ClassDrv;
 
 /*
 *********************************************************************************************************
