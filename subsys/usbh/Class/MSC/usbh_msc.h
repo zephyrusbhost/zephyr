@@ -118,30 +118,30 @@ USBH_MSC_EXT USBH_CLASS_DRV USBH_MSC_ClassDrv;
 *********************************************************************************************************
 */
 
-USBH_ERR USBH_MSC_Init(USBH_MSC_DEV *p_msc_dev,
+USBH_ERR usbh_msc_init(USBH_MSC_DEV *p_msc_dev,
                        uint8_t lun);
 
-uint8_t USBH_MSC_MaxLUN_Get(USBH_MSC_DEV *p_msc_dev,
+uint8_t usbh_msc_max_lun_get(USBH_MSC_DEV *p_msc_dev,
                                USBH_ERR *p_err);
 
-bool USBH_MSC_UnitRdyTest(USBH_MSC_DEV *p_msc_dev,
+bool usbh_msc_unit_rdy_test(USBH_MSC_DEV *p_msc_dev,
                                  uint8_t lun,
                                  USBH_ERR *p_err);
 
-USBH_ERR USBH_MSC_CapacityRd(USBH_MSC_DEV *p_msc_dev,
+USBH_ERR usbh_msc_capacity_rd(USBH_MSC_DEV *p_msc_dev,
                              uint8_t lun,
                              uint32_t *p_nbr_blks,
                              uint32_t *p_blk_size);
 
-USBH_ERR USBH_MSC_StdInquiry(USBH_MSC_DEV *p_msc_dev,
+USBH_ERR usbh_msc_std_inquiry(USBH_MSC_DEV *p_msc_dev,
                              USBH_MSC_INQUIRY_INFO *p_msc_inquiry_info,
                              uint8_t lun);
 
-USBH_ERR USBH_MSC_RefAdd(USBH_MSC_DEV *p_msc_dev);
+USBH_ERR usbh_msc_ref_add(USBH_MSC_DEV *p_msc_dev);
 
-USBH_ERR USBH_MSC_RefRel(USBH_MSC_DEV *p_msc_dev);
+USBH_ERR usbh_msc_ref_rel(USBH_MSC_DEV *p_msc_dev);
 
-uint32_t USBH_MSC_Rd(USBH_MSC_DEV *p_msc_dev,
+uint32_t usbh_msc_read(USBH_MSC_DEV *p_msc_dev,
                        uint8_t lun,
                        uint32_t blk_addr,
                        uint16_t nbr_blks,
@@ -149,7 +149,7 @@ uint32_t USBH_MSC_Rd(USBH_MSC_DEV *p_msc_dev,
                        void *p_arg,
                        USBH_ERR *p_err);
 
-uint32_t USBH_MSC_Wr(USBH_MSC_DEV *p_msc_dev,
+uint32_t usbh_msc_write(USBH_MSC_DEV *p_msc_dev,
                        uint8_t lun,
                        uint32_t blk_addr,
                        uint16_t nbr_blks,
