@@ -560,14 +560,6 @@
 *********************************************************************************************************
 */
 
-// typedef  uint8_t  USBH_EP_TYPE;
-// typedef  uint8_t  USBH_EP_DIR;
-typedef  uint8_t  USBH_HOST_STATE;
-typedef  uint8_t  USBH_DEV_STATE;
-typedef  uint8_t  USBH_CLASS_DEV_STATE;
-typedef  uint8_t  USBH_EP_STATE;
-typedef  uint8_t  USBH_TOKEN;
-
 
 /*
 *********************************************************************************************************
@@ -1024,7 +1016,7 @@ struct  usbh_urb {
 
               void            *ArgPtr;                          /* HCD private data.                                    */
 
-              USBH_TOKEN       Token;                           /* Token (SETUP, IN, or OUT).                           */
+              uint8_t       Token;                           /* Token (SETUP, IN, or OUT).                           */
 
               bool      URB_DoneSignal;
               USBH_URB        *AsyncURB_NxtPtr;                 /* Ptr to next URB (if any).                            */
