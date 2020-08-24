@@ -1542,7 +1542,7 @@ static void *USBH_MSC_ProbeIF(USBH_DEV *p_dev,
                               USBH_IF *p_if,
                               USBH_ERR *p_err)
 {
-    USBH_IF_DESC p_if_desc;
+    struct usbh_if_desc p_if_desc;
     USBH_MSC_DEV *p_msc_dev;
 
     p_msc_dev = (USBH_MSC_DEV *)0;

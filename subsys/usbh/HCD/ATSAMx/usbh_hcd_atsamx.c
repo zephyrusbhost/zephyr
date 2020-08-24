@@ -390,7 +390,7 @@ static void usbh_atsamx_hcd_start(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err);
 
 static void usbh_atsamx_hcd_stop(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err);
 
-static enum usb_device_speed usbh_atsamx_hcd_spd_get(USBH_HC_DRV *p_hc_drv,
+static enum usbh_device_speed usbh_atsamx_hcd_spd_get(USBH_HC_DRV *p_hc_drv,
 										   USBH_ERR *p_err);
 
 static void usbh_atsamx_hcd_suspend(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err);
@@ -424,7 +424,7 @@ static void usbh_atsamx_hcd_urb_abort(USBH_HC_DRV *p_hc_drv, USBH_URB *p_urb,
 /* -------------- ROOT HUB API FUNCTIONS -------------- */
 static bool
 usbh_atsamx_rh_port_status_get(USBH_HC_DRV *p_hc_drv, uint8_t port_nbr,
-							  USBH_HUB_PORT_STATUS *p_port_status);
+							  struct usbh_hub_port_status *p_port_status);
 
 static bool usbh_atsamx_rh_hub_desc_get(USBH_HC_DRV *p_hc_drv,
 											  void *p_buf,
@@ -792,14 +792,14 @@ static void usbh_atsamx_hcd_stop(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err)
 *********************************************************************************************************
 */
 
-static enum usb_device_speed usbh_atsamx_hcd_spd_get(USBH_HC_DRV *p_hc_drv,
+static enum usbh_device_speed usbh_atsamx_hcd_spd_get(USBH_HC_DRV *p_hc_drv,
 										   USBH_ERR *p_err)
 {
 	(void)p_hc_drv;
 
 	*p_err = USBH_ERR_NONE;
 
-	return (USB_SPEED_FULL);
+	return (USBH_FULL_SPEED);
 }
 
 /*
@@ -1377,7 +1377,7 @@ static void usbh_atsamx_hcd_urb_abort(USBH_HC_DRV *p_hc_drv, USBH_URB *p_urb,
 
 static bool
 usbh_atsamx_rh_port_status_get(USBH_HC_DRV *p_hc_drv, uint8_t port_nbr,
-							  USBH_HUB_PORT_STATUS *p_port_status)
+							  struct usbh_hub_port_status *p_port_status)
 {
 	USBH_ATSAMX_REG *p_reg;
 	USBH_DRV_DATA *p_drv_data;
@@ -1470,7 +1470,7 @@ static bool usbh_atsamx_rh_hub_desc_get(USBH_HC_DRV *p_hc_drv,
 											  uint8_t buf_len)
 {
 	USBH_DRV_DATA *p_drv_data;
-	USBH_HUB_DESC hub_desc;
+	struct usbh_hub_desc hub_desc;
 
 	p_drv_data = (USBH_DRV_DATA *)p_hc_drv->DataPtr;
 
@@ -1485,7 +1485,7 @@ static bool usbh_atsamx_rh_hub_desc_get(USBH_HC_DRV *p_hc_drv,
 		&hub_desc,
 		p_drv_data->RH_Desc); /* Write the structure in USB format                    */
 
-	buf_len = DEF_MIN(buf_len, sizeof(USBH_HUB_DESC));
+	buf_len = DEF_MIN(buf_len, sizeof(struct usbh_hub_desc));
 	Mem_Copy(
 		p_buf, p_drv_data->RH_Desc,
 		buf_len); /* Copy the formatted structure into the buffer         */
