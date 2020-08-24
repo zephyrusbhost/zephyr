@@ -81,7 +81,7 @@
 *********************************************************************************************************
 */
 
-USBH_HC_CFG_MODULE_EXT  USBH_HC_CFG  USBH_HC_TemplateCfg;
+USBH_HC_CFG_MODULE_EXT const struct usbh_hc_cfg  USBH_HC_TemplateCfg;
 
 
 /*

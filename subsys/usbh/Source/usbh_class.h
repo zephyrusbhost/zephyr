@@ -98,11 +98,13 @@ struct usbh_class_drv
 
     void (*GlobalInit)(USBH_ERR *p_err); /* Global initialization function.                      */
 
-    void *(*ProbeDev)(USBH_DEV *p_dev, /* Probe device descriptor.                             */
+    void *(*ProbeDev)(struct usbh_dev *p_dev,
+                      /* Probe device descriptor.                             */
                       USBH_ERR *p_err);
 
-    void *(*ProbeIF)(USBH_DEV *p_dev, /* Probe interface descriptor.                          */
-                     USBH_IF *p_if,
+    void *(*ProbeIF)(struct usbh_dev *p_dev,
+                     /* Probe interface descriptor.                          */
+                     struct usbh_if *p_if,
                      USBH_ERR *p_err);
 
     void (*Suspend)(void *p_class_dev); /* Called when bus suspends.                            */
@@ -130,7 +132,7 @@ typedef void (*USBH_CLASS_NOTIFY_FNCT)(void *p_class_dev,
 
 struct usbh_class_drv_reg
 {
-    USBH_CLASS_DRV *ClassDrvPtr;          /* Class driver structure                               */
+    const struct usbh_class_drv *ClassDrvPtr;          /* Class driver structure                               */
     USBH_CLASS_NOTIFY_FNCT NotifyFnctPtr; /* Called when device connection status changes         */
     void *NotifyArgPtr;                   /* Context of the notification funtion                  */
     uint8_t InUse;
@@ -148,7 +150,7 @@ struct usbh_class_drv_reg
 *********************************************************************************************************
 */
 
-USBH_CLASS_EXT USBH_CLASS_DRV_REG USBH_ClassDrvList[USBH_CFG_MAX_NBR_CLASS_DRVS];
+USBH_CLASS_EXT  struct usbh_class_drv_reg USBH_ClassDrvList[USBH_CFG_MAX_NBR_CLASS_DRVS];
 
 /*
 *********************************************************************************************************
@@ -162,19 +164,19 @@ USBH_CLASS_EXT USBH_CLASS_DRV_REG USBH_ClassDrvList[USBH_CFG_MAX_NBR_CLASS_DRVS]
 *********************************************************************************************************
 */
 
-USBH_ERR usbh_class_drv_reg(USBH_CLASS_DRV *p_class_drv,
-                          USBH_CLASS_NOTIFY_FNCT class_notify_fnct,
-                          void *p_class_notify_ctx);
+USBH_ERR usbh_class_drv_reg(const struct usbh_class_drv *p_class_drv,
+			    USBH_CLASS_NOTIFY_FNCT class_notify_fnct,
+			    void *p_class_notify_ctx);
 
-USBH_ERR usbh_class_drv_unreg(USBH_CLASS_DRV *p_class_drv);
+USBH_ERR usbh_class_drv_unreg(const struct usbh_class_drv *p_class_drv);
 
-void usbh_class_suspend(USBH_DEV *p_dev);
+void usbh_class_suspend(struct usbh_dev *p_dev);
 
-void usbh_class_resume(USBH_DEV *p_dev);
+void usbh_class_resume(struct usbh_dev *p_dev);
 
-USBH_ERR usbh_class_drv_conn(USBH_DEV *p_dev);
+USBH_ERR usbh_class_drv_conn(struct usbh_dev *p_dev);
 
-void usbh_class_drv_disconn(USBH_DEV *p_dev);
+void usbh_class_drv_disconn(struct usbh_dev *p_dev);
 
 /*
 *********************************************************************************************************

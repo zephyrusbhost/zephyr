@@ -70,7 +70,7 @@ extern  "C" {                                                   /* See Note #1. 
 *********************************************************************************************************
 */
 
-extern  USBH_HC_BSP_API  USBH_DrvBSP_Template;
+extern  const struct usbh_hc_bsp_api  USBH_DrvBSP_Template;
 
 
 /*

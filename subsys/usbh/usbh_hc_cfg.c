@@ -70,7 +70,7 @@
 *********************************************************************************************************
 */
 
-USBH_HC_CFG  USBH_HC_TemplateCfg = {
+const struct usbh_hc_cfg  USBH_HC_TemplateCfg = {
     (CPU_ADDR)0x41005000,                                      /* Base addr of host controller hw registers.           */
     (CPU_ADDR)0x00000000u,                                      /* Base addr of host controller dedicated mem.          */
               0u,                                               /* Size      of host controller dedicated mem.          */
