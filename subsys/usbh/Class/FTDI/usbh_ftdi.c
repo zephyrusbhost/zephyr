@@ -323,7 +323,7 @@ void  USBH_FTDI_Init (USBH_FTDI_CALLBACKS  *p_ftdi_callbacks,
     USBH_FTDI_DevPtrPrev = (void *)0;
     USBH_FTDI_PortCnt    =  0u;
 
-   *p_err = USBH_ClassDrvReg(       &USBH_FTDI_ClassDrv,
+   *p_err = usbh_class_drv_reg(       &USBH_FTDI_ClassDrv,
                                      USBH_FTDI_ClassDevNotify,
                              (void *)p_ftdi_callbacks);
 }
