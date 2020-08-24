@@ -383,7 +383,7 @@ USBH_ERR usbh_init(USBH_KERNEL_TASK_INFO *async_task_info,
 
 	err = USBH_ClassDrvReg(
 		&USBH_HUB_Drv, /* Reg HUB class drv.                                   */
-		USBH_HUB_ClassNotify, (void *)0);
+		usbh_hub_class_notify, (void *)0);
 	if (err != USBH_ERR_NONE)
 	{
 		return (err);
@@ -406,7 +406,7 @@ USBH_ERR usbh_init(USBH_KERNEL_TASK_INFO *async_task_info,
 	/* Create a task for processing hub events.             */
 	k_thread_create(&USBH_Host.HHubTask, USBH_HUB_EventTask_Stack,
 					K_THREAD_STACK_SIZEOF(USBH_HUB_EventTask_Stack),
-					USBH_HUB_EventTask, NULL, NULL, NULL,
+					usbh_hub_event_task, NULL, NULL, NULL,
 					0, 0, K_NO_WAIT);
 
 	for (ix = 0u; ix < USBH_MAX_NBR_DEVS;
@@ -769,7 +769,7 @@ USBH_ERR usbh_hc_port_en(uint8_t hc_nbr, uint8_t port_nbr)
 	}
 
 	p_hc = &USBH_Host.HC_Tbl[hc_nbr];
-	err = USBH_HUB_PortEn(p_hc->RH_ClassDevPtr, port_nbr);
+	err = usbh_hub_port_en(p_hc->RH_ClassDevPtr, port_nbr);
 
 	return (err);
 }
@@ -813,7 +813,7 @@ USBH_ERR usbh_hc_port_dis(uint8_t hc_nbr, uint8_t port_nbr)
 	}
 
 	p_hc = &USBH_Host.HC_Tbl[hc_nbr];
-	err = USBH_HUB_PortDis(p_hc->RH_ClassDevPtr, port_nbr);
+	err = usbh_hub_port_dis(p_hc->RH_ClassDevPtr, port_nbr);
 	return (err);
 }
 
@@ -1903,7 +1903,7 @@ uint16_t usbh_ctrl_tx(USBH_DEV *p_dev, uint8_t b_req,
 		 DEF_TRUE) && /* Check if RH features are supported.                  */
 		(p_dev->HC_Ptr->IsVirRootHub == DEF_TRUE))
 	{
-		xfer_len = USBH_HUB_RH_CtrlReq(
+		xfer_len = usbh_rh_ctrl_req(
 			p_dev->HC_Ptr, /* Send req to virtual HUB.                             */
 			b_req, bm_req_type, w_val, w_ix, p_data, w_len, p_err);
 	}
@@ -1981,7 +1981,7 @@ uint16_t usbh_ctrl_rx(USBH_DEV *p_dev, uint8_t b_req,
 		(p_dev->HC_Ptr->IsVirRootHub == DEF_TRUE))
 	{
 		LOG_DBG("request from roothub");
-		xfer_len = USBH_HUB_RH_CtrlReq(
+		xfer_len = usbh_rh_ctrl_req(
 			p_dev->HC_Ptr, /* Send req to virtual HUB.                             */
 			b_req, bm_req_type, w_val, w_ix, p_data, w_len, p_err);
 	}
