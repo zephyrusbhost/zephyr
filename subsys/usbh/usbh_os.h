@@ -69,8 +69,7 @@
  */
 
 typedef struct k_mutex USBH_HMUTEX;             /* Handle on mutex.                                     */
-// typedef struct k_thread USBH_HTASK;             /* Handle on tasks.                                     */
-typedef struct k_msgq USBH_HQUEUE;              /* Handle on queues.                                    */
+// typedef struct k_msgq USBH_HQUEUE;              /* Handle on queues.                                    */
 typedef uint32_t USBH_HTMR;                   /* Handle on timers.                                    */
 
 typedef k_thread_entry_t USBH_TASK_FNCT;        /* Task function.                                       */
@@ -131,14 +130,14 @@ USBH_ERR USBH_OS_TaskCreate(char *p_name,
 			    struct k_thread *p_task);
 
 /* --------------- MSG QUEUE FUNCTIONS ---------------- */
-USBH_HQUEUE USBH_OS_MsgQueueCreate(void **p_start,
+struct k_msgq USBH_OS_MsgQueueCreate(void **p_start,
 				   uint16_t size,
 				   USBH_ERR *p_err);
 
-USBH_ERR USBH_OS_MsgQueuePut(USBH_HQUEUE *msg_q,
+USBH_ERR USBH_OS_MsgQueuePut(struct k_msgq *msg_q,
 			     void *p_msg);
 
-void USBH_OS_MsgQueueGet(USBH_HQUEUE *msg_q,
+void USBH_OS_MsgQueueGet(struct k_msgq *msg_q,
 			 uint32_t timeout,
 			 USBH_ERR *p_err,
 			 void *p_data);
