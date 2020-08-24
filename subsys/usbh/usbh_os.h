@@ -68,10 +68,6 @@
  *********************************************************************************************************
  */
 
-// typedef struct k_mutex struct k_mutex;             /* Handle on mutex.                                     */
-// typedef struct k_msgq USBH_HQUEUE;              /* Handle on queues.                                    */
-typedef uint32_t USBH_HTMR;                   /* Handle on timers.                                    */
-
 typedef k_thread_entry_t USBH_TASK_FNCT;        /* Task function.                                       */
 
 /*
@@ -143,15 +139,15 @@ void USBH_OS_MsgQueueGet(struct k_msgq *msg_q,
 			 void *p_data);
 
 /* ----------- INTERNAL USE TIMER FUNCTIONS ----------- */
-USBH_HTMR USBH_OS_TmrCreate(char *p_name,
+struct k_timer USBH_OS_TmrCreate(char *p_name,
 			    uint32_t interval_ms,
 			    void (*p_callback)(void *p_tmr, void *p_arg),
 			    void *p_callback_arg,
 			    USBH_ERR *p_err);
 
-USBH_ERR USBH_OS_TmrStart(USBH_HTMR tmr);
+USBH_ERR USBH_OS_TmrStart(struct k_timer tmr);
 
-USBH_ERR USBH_OS_TmrDel(USBH_HTMR tmr);
+USBH_ERR USBH_OS_TmrDel(struct k_timer tmr);
 
 /* ------------------- MISCELLANEOUS ------------------ */
 void *USBH_OS_VirToBus(void *x);
