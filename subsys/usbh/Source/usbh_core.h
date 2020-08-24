@@ -1049,7 +1049,7 @@ struct  usbh_ep {
     uint32_t     HC_RefFrame;                                 /* Initial HC ref frame nbr.                            */
     void          *ArgPtr;                                      /* HCD private data.                                    */
     USBH_URB       URB;                                         /* URB used for data xfer on this endpoint.             */
-    USBH_HMUTEX    Mutex;                                       /* Mutex for I/O access serialization on this EP.       */
+    struct k_mutex    Mutex;                                       /* Mutex for I/O access serialization on this EP.       */
     bool    IsOpen;                                      /* EP state.                                            */
     uint32_t     XferNbrInProgress;                           /* Nbr of URB(s) in progress. Used for async omm.       */
     uint8_t     DataPID;                                     /* EP Data Toggle PID tracker.                          */
@@ -1096,7 +1096,7 @@ struct  usbh_dev {
     uint8_t           DevAddr;                               /* USB dev addr assigned by host.                       */
     USBH_DEV_SPD         DevSpd;                                /* Dev spd (low, full or high).                         */
     USBH_EP              DfltEP;                                /* Dflt ctrl EP.                                        */
-    USBH_HMUTEX          DfltEP_Mutex;                          /* Dev dflt EP mutex.                                   */
+    struct k_mutex          DfltEP_Mutex;                          /* Dev dflt EP mutex.                                   */
     uint16_t           LangID;                                /* Language ID used by the str desc.                    */
     void                *ClassDevPtr;                           /* Ptr to class dev created by class drv.               */
     USBH_CLASS_DRV_REG  *ClassDrvRegPtr;                        /* Ptr to class drv managing this dev.                  */
@@ -1176,7 +1176,7 @@ struct usbh_hc {
     USBH_HC_DRV    HC_Drv;                                      /* Host Controller driver (HCD) info.                   */
     USBH_HOST     *HostPtr;                                     /* Host structure.                                      */
     USBH_HUB_DEV  *RH_ClassDevPtr;                              /* Root Hub class device pointer.                       */
-    USBH_HMUTEX    HCD_Mutex;                                   /* Mutex to sync access to HCD.                         */
+    struct k_mutex    HCD_Mutex;                                   /* Mutex to sync access to HCD.                         */
     bool    IsVirRootHub;                                /* Indicate if RH is virtual.                           */
 };
 
