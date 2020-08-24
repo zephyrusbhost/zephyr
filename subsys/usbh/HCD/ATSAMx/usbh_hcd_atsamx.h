@@ -71,8 +71,8 @@
 *********************************************************************************************************
 */
 
-USBH_HCD_ATSAMX_EXT USBH_HC_DRV_API USBH_ATSAMX_HCD_DrvAPI; /* See note 2.                                          */
-USBH_HCD_ATSAMX_EXT USBH_HC_RH_API USBH_ATSAMX_HCD_RH_API;
+USBH_HCD_ATSAMX_EXT const struct usbh_hc_drv_api USBH_ATSAMX_HCD_DrvAPI; /* See note 2.                                          */
+USBH_HCD_ATSAMX_EXT const struct usbh_hc_rh_api USBH_ATSAMX_HCD_RH_API;
 
 /*
 *********************************************************************************************************

@@ -588,8 +588,8 @@ static int8_t USBH_MSC_DevCount;
 
 static void USBH_MSC_GlobalInit(USBH_ERR *p_err);
 
-static void *USBH_MSC_ProbeIF(USBH_DEV *p_dev,
-                              USBH_IF *p_if,
+static void *USBH_MSC_ProbeIF(struct usbh_dev *p_dev,
+                              struct usbh_if *p_if,
                               USBH_ERR *p_err);
 
 static void USBH_MSC_Disconn(void *p_class_dev);
@@ -689,7 +689,7 @@ static uint32_t USBH_SCSI_Wr(USBH_MSC_DEV *p_msc_dev,
 *********************************************************************************************************
 */
 
-USBH_CLASS_DRV USBH_MSC_ClassDrv = {
+const struct usbh_class_drv USBH_MSC_ClassDrv = {
     (uint8_t *)"MASS STORAGE",
     USBH_MSC_GlobalInit,
     0,
@@ -940,7 +940,7 @@ uint8_t usbh_msc_max_lun_get(USBH_MSC_DEV *p_msc_dev,
         if (*p_err != USBH_ERR_NONE)
         {
             (void)usbh_ep_reset(p_msc_dev->DevPtr, /* Reset dflt EP if ctrl xfer failed.                   */
-                                (USBH_EP *)0);
+                                (struct usbh_ep *)0);
 
             if (*p_err == USBH_ERR_EP_STALL)
             { /* Device may stall if no multiple LUNs support.        */
@@ -1538,8 +1538,8 @@ static void USBH_MSC_GlobalInit(USBH_ERR *p_err)
 *********************************************************************************************************
 */
 
-static void *USBH_MSC_ProbeIF(USBH_DEV *p_dev,
-                              USBH_IF *p_if,
+static void *USBH_MSC_ProbeIF(struct usbh_dev *p_dev,
+                              struct usbh_if *p_if,
                               USBH_ERR *p_err)
 {
     struct usbh_if_desc p_if_desc;
@@ -1701,8 +1701,8 @@ static void USBH_MSC_Resume(void *p_class_dev)
 
 static void USBH_MSC_DevClr(USBH_MSC_DEV *p_msc_dev)
 {
-    p_msc_dev->DevPtr = (USBH_DEV *)0;
-    p_msc_dev->IF_Ptr = (USBH_IF *)0;
+    p_msc_dev->DevPtr = (struct usbh_dev *)0;
+    p_msc_dev->IF_Ptr = (struct usbh_if *)0;
     p_msc_dev->State = USBH_CLASS_DEV_STATE_NONE;
     p_msc_dev->RefCnt = 0u;
 }
@@ -2353,7 +2353,7 @@ static USBH_ERR USBH_MSC_BulkOnlyReset(USBH_MSC_DEV *p_msc_dev)
     {
         LOG_ERR("%d", err);
         usbh_ep_reset(p_msc_dev->DevPtr,
-                      (USBH_EP *)0);
+                      (struct usbh_ep *)0);
     }
 
     return (err);

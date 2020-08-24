@@ -73,7 +73,7 @@ LOG_MODULE_REGISTER(bsp);
 **************************************************************************************************************
 */
 
-static USBH_HC_DRV *USBH_HC_Template_DrvPtr;
+static struct usbh_hc_drv *USBH_HC_Template_DrvPtr;
 
 static CPU_FNCT_PTR BSP_USBH_Template_ISR_Ptr;
 
@@ -83,7 +83,7 @@ static CPU_FNCT_PTR BSP_USBH_Template_ISR_Ptr;
 **************************************************************************************************************
 */
 
-static void BSP_USBH_samr21_Init(USBH_HC_DRV *p_drv, USBH_ERR *p_err);
+static void BSP_USBH_samr21_Init(struct usbh_hc_drv *p_drv, USBH_ERR *p_err);
 
 static void BSP_USBH_samr21_ISR_Register(CPU_FNCT_PTR isr_fnct,
 										   USBH_ERR *p_err);
@@ -98,7 +98,7 @@ static void BSP_USBH_samr21_ISR_Unregister(USBH_ERR *p_err);
 *********************************************************************************************************
 */
 
-USBH_HC_BSP_API USBH_DrvBSP_Template = {BSP_USBH_samr21_Init,
+const struct usbh_hc_bsp_api USBH_DrvBSP_Template = {BSP_USBH_samr21_Init,
 										BSP_USBH_samr21_ISR_Register,
 										BSP_USBH_samr21_ISR_Unregister};
 
@@ -133,7 +133,7 @@ USBH_HC_BSP_API USBH_DrvBSP_Template = {BSP_USBH_samr21_Init,
 * Note(s)     : none.
 *********************************************************************************************************
 */
-static void BSP_USBH_samr21_Init(USBH_HC_DRV *p_drv, USBH_ERR *p_err)
+static void BSP_USBH_samr21_Init(struct usbh_hc_drv *p_drv, USBH_ERR *p_err)
 {
 	LOG_INF("bsp init");
 	USBH_HC_Template_DrvPtr = p_drv;
