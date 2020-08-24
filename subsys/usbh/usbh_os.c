@@ -540,7 +540,7 @@ USBH_ERR USBH_OS_TaskCreate(char *p_name, uint32_t prio,
  *********************************************************************************************************
  */
 
-USBH_ERR USBH_OS_MsgQueuePut(USBH_HQUEUE *msg_q, void *p_msg)
+USBH_ERR USBH_OS_MsgQueuePut(struct k_msgq *msg_q, void *p_msg)
 {
 	int err = k_msgq_put(msg_q, p_msg, K_NO_WAIT);
 
@@ -578,7 +578,7 @@ USBH_ERR USBH_OS_MsgQueuePut(USBH_HQUEUE *msg_q, void *p_msg)
  *********************************************************************************************************
  */
 
-void USBH_OS_MsgQueueGet(USBH_HQUEUE *msg_q, uint32_t timeout,
+void USBH_OS_MsgQueueGet(struct k_msgq *msg_q, uint32_t timeout,
 			 USBH_ERR *p_err, void *p_data)
 {
 	int err = 0;
