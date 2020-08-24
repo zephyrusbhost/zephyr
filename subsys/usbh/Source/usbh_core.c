@@ -217,20 +217,21 @@ static uint32_t USBH_Version;
 *********************************************************************************************************
 */
 
-static USBH_ERR USBH_EP_Open(USBH_DEV *p_dev, USBH_IF *p_if,
-							 USBH_EP_TYPE ep_type, USBH_EP_DIR ep_dir,
+static USBH_ERR usbh_ep_open(USBH_DEV *p_dev, USBH_IF *p_if,
+							 uint8_t ep_type,
+							 uint8_t ep_dir,
 							 USBH_EP *p_ep);
 
-static uint32_t USBH_SyncXfer(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
+static uint32_t usbh_sync_transfer(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
 								USBH_ISOC_DESC *p_isoc_desc, USBH_TOKEN token,
 								uint32_t timeout_ms,
 								USBH_ERR *p_err);
 
-static USBH_ERR USBH_AsyncXfer(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
+static USBH_ERR usbh_async_transfer(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
 							   USBH_ISOC_DESC *p_isoc_desc, USBH_TOKEN token,
 							   void *p_fnct, void *p_fnct_arg);
 
-static uint16_t USBH_SyncCtrlXfer(USBH_EP *p_ep, uint8_t b_req,
+static uint16_t usbh_sync_ctrl_transfer(USBH_EP *p_ep, uint8_t b_req,
 									uint8_t bm_req_type,
 									uint16_t w_val,
 									uint16_t w_ix,
@@ -239,25 +240,25 @@ static uint16_t USBH_SyncCtrlXfer(USBH_EP *p_ep, uint8_t b_req,
 									uint32_t timeout_ms,
 									USBH_ERR *p_err);
 
-static void USBH_URB_Abort(USBH_URB *p_urb);
+static void usbh_urb_abort(USBH_URB *p_urb);
 
-static void USBH_URB_Notify(USBH_URB *p_urb);
+static void usb_urb_notify(USBH_URB *p_urb);
 
-static USBH_ERR USBH_URB_Submit(USBH_URB *p_urb);
+static USBH_ERR usbh_urb_submit(USBH_URB *p_urb);
 
-static void USBH_URB_Clr(USBH_URB *p_urb);
+static void usbh_urb_clr(USBH_URB *p_urb);
 
-static USBH_ERR USBH_DfltEP_Open(USBH_DEV *p_dev);
+static USBH_ERR usbh_dflt_ep_open(USBH_DEV *p_dev);
 
-static USBH_ERR USBH_DevDescRd(USBH_DEV *p_dev);
+static USBH_ERR usbh_dev_desc_rd(USBH_DEV *p_dev);
 
-static USBH_ERR USBH_CfgRd(USBH_DEV *p_dev, uint8_t cfg_ix);
+static USBH_ERR usbh_cfg_rd(USBH_DEV *p_dev, uint8_t cfg_ix);
 
-static USBH_ERR USBH_CfgParse(USBH_DEV *p_dev, USBH_CFG *p_cfg);
+static USBH_ERR usbh_cfg_parse(USBH_DEV *p_dev, USBH_CFG *p_cfg);
 
-static USBH_ERR USBH_DevAddrSet(USBH_DEV *p_dev);
+static USBH_ERR usbh_dev_addr_set(USBH_DEV *p_dev);
 
-static uint32_t USBH_StrDescGet(USBH_DEV *p_dev, uint8_t desc_ix,
+static uint32_t usbh_str_desc_get(USBH_DEV *p_dev, uint8_t desc_ix,
 								  uint16_t lang_id,
 								  void *p_buf,
 								  uint32_t buf_len,
@@ -266,19 +267,19 @@ static uint32_t USBH_StrDescGet(USBH_DEV *p_dev, uint8_t desc_ix,
 // static void USBH_StrDescPrint(USBH_DEV *p_dev, CPU_INT08U *p_str_prefix,
 // 							  CPU_INT08U desc_idx);
 
-static USBH_DESC_HDR *USBH_NextDescGet(void *p_buf, uint32_t *p_offset);
+static USBH_DESC_HDR *usbh_next_desc_get(void *p_buf, uint32_t *p_offset);
 
-static void USBH_FmtSetupReq(USBH_SETUP_REQ *p_setup_req, void *p_buf_dest);
+static void usbh_fmt_setup_req(USBH_SETUP_REQ *p_setup_req, void *p_buf_dest);
 
-static void USBH_ParseDevDesc(USBH_DEV_DESC *p_dev_desc, void *p_buf_src);
+static void usbh_parse_dev_desc(USBH_DEV_DESC *p_dev_desc, void *p_buf_src);
 
-static void USBH_ParseCfgDesc(USBH_CFG_DESC *p_cfg_desc, void *p_buf_src);
+static void usbh_parse_cfg_desc(USBH_CFG_DESC *p_cfg_desc, void *p_buf_src);
 
-static void USBH_ParseIF_Desc(USBH_IF_DESC *p_if_desc, void *p_buf_src);
+static void usbh_parse_if_desc(USBH_IF_DESC *p_if_desc, void *p_buf_src);
 
-static void USBH_ParseEP_Desc(USBH_EP_DESC *p_ep_desc, void *p_buf_src);
+static void usbh_parse_ep_desc(USBH_EP_DESC *p_ep_desc, void *p_buf_src);
 
-static void USBH_AsyncTask(void *p_arg, void *p_arg2, void *p_arg3);
+static void usbh_async_task(void *p_arg, void *p_arg2, void *p_arg3);
 
 /*
 *********************************************************************************************************
@@ -400,7 +401,7 @@ USBH_ERR usbh_init(USBH_KERNEL_TASK_INFO *async_task_info,
 	/* Create a task for processing async req.              */
 	k_thread_create(&USBH_Host.HAsyncTask, USBH_AsyncTask_Stack,
 					K_THREAD_STACK_SIZEOF(USBH_AsyncTask_Stack),
-					USBH_AsyncTask, NULL, NULL, NULL,
+					usbh_async_task, NULL, NULL, NULL,
 					0, 0, K_NO_WAIT);
 
 	/* Create a task for processing hub events.             */
@@ -941,14 +942,14 @@ USBH_ERR usbh_dev_conn(USBH_DEV *p_dev)
 	Mem_Clr(p_dev->DevDesc, USBH_LEN_DESC_DEV);
 
 	LOG_DBG("DftlEP_Open");
-	err = USBH_DfltEP_Open(p_dev);
+	err = usbh_dflt_ep_open(p_dev);
 	if (err != USBH_ERR_NONE)
 	{
 		return (err);
 	}
 
 	LOG_DBG("DevDescRd");
-	err = USBH_DevDescRd(
+	err = usbh_dev_desc_rd(
 		p_dev); /* ------------------- RD DEV DESC -------------------- */
 	if (err != USBH_ERR_NONE)
 	{
@@ -956,7 +957,7 @@ USBH_ERR usbh_dev_conn(USBH_DEV *p_dev)
 	}
 
 	LOG_DBG("DevAddrSet");
-	err = USBH_DevAddrSet(
+	err = usbh_dev_addr_set(
 		p_dev); /* -------------- ASSIGN NEW ADDR TO DEV -------------- */
 	if (err != USBH_ERR_NONE)
 	{
@@ -1000,7 +1001,7 @@ USBH_ERR usbh_dev_conn(USBH_DEV *p_dev)
 	for (cfg_ix = 0u; cfg_ix < nbr_cfgs;
 		 cfg_ix++)
 	{ /* -------------------- RD ALL CFG -------------------- */
-		err = USBH_CfgRd(p_dev, cfg_ix);
+		err = usbh_cfg_rd(p_dev, cfg_ix);
 		if (err != USBH_ERR_NONE)
 		{
 			LOG_ERR("err cfg read");
@@ -1078,7 +1079,7 @@ uint8_t usbh_dev_cfg_nbr_get(USBH_DEV *p_dev)
 
 void usbh_dev_desc_get(USBH_DEV *p_dev, USBH_DEV_DESC *p_dev_desc)
 {
-	USBH_ParseDevDesc(p_dev_desc, (void *)p_dev->DevDesc);
+	usbh_parse_dev_desc(p_dev_desc, (void *)p_dev->DevDesc);
 }
 
 /*
@@ -1242,7 +1243,7 @@ USBH_ERR usbh_cfg_desc_get(USBH_CFG *p_cfg, USBH_CFG_DESC *p_cfg_desc)
 	if ((p_desc->bLength == USBH_LEN_DESC_CFG) &&
 		(p_desc->bDescriptorType == USBH_DESC_TYPE_CFG))
 	{
-		USBH_ParseCfgDesc(p_cfg_desc, (void *)p_desc);
+		usbh_parse_cfg_desc(p_cfg_desc, (void *)p_desc);
 
 		return (USBH_ERR_NONE);
 	}
@@ -1294,7 +1295,7 @@ USBH_DESC_HDR *usbh_cfg_extra_desc_get(USBH_CFG *p_cfg, USBH_ERR *p_err)
 		(p_cfg->CfgDataLen > (p_desc->bLength + 2u)))
 	{
 		cfg_off = p_desc->bLength;
-		p_extra_desc = USBH_NextDescGet(
+		p_extra_desc = usbh_next_desc_get(
 			p_desc,
 			&cfg_off); /* Get desc that follows config desc.                   */
 
@@ -1436,7 +1437,7 @@ uint8_t usbh_if_alt_nbr_get(USBH_IF *p_if)
 	while (if_off <
 		   p_if->IF_DataLen)
 	{ /* Cnt nbr of alternate settings.                       */
-		p_desc = USBH_NextDescGet((void *)p_desc, &if_off);
+		p_desc = usbh_next_desc_get((void *)p_desc, &if_off);
 
 		if (p_desc->bDescriptorType == USBH_DESC_TYPE_IF)
 		{
@@ -1495,7 +1496,7 @@ uint8_t usbh_if_ep_nbr_get(USBH_IF *p_if, uint8_t alt_ix)
 
 	while (if_off < p_if->IF_DataLen)
 	{
-		p_desc = USBH_NextDescGet((void *)p_desc, &if_off);
+		p_desc = usbh_next_desc_get((void *)p_desc, &if_off);
 		/* IF desc.                                             */
 		if (p_desc->bDescriptorType == USBH_DESC_TYPE_IF)
 		{
@@ -1542,13 +1543,13 @@ USBH_ERR usbh_if_desc_get(USBH_IF *p_if, uint8_t alt_ix,
 
 	while (if_off < p_if->IF_DataLen)
 	{
-		p_desc = USBH_NextDescGet((void *)p_desc, &if_off);
+		p_desc = usbh_next_desc_get((void *)p_desc, &if_off);
 
 		if ((p_desc->bLength == USBH_LEN_DESC_IF) &&
 			(p_desc->bDescriptorType == USBH_DESC_TYPE_IF) &&
 			(alt_ix == ((uint8_t *)p_desc)[3]))
 		{
-			USBH_ParseIF_Desc(p_if_desc, (void *)p_desc);
+			usbh_parse_if_desc(p_if_desc, (void *)p_desc);
 			return (USBH_ERR_NONE);
 		}
 	}
@@ -1592,7 +1593,7 @@ uint8_t *usbh_if_extra_desc_get(USBH_IF *p_if, uint8_t alt_ix,
 
 	while (if_off < p_if->IF_DataLen)
 	{
-		p_desc = USBH_NextDescGet(
+		p_desc = usbh_next_desc_get(
 			(void *)p_desc,
 			&if_off); /* Get next desc from IF.                               */
 
@@ -1603,7 +1604,7 @@ uint8_t *usbh_if_extra_desc_get(USBH_IF *p_if, uint8_t alt_ix,
 			if (if_off <
 				p_if->IF_DataLen)
 			{ /* Get desc that follows selected alternate setting.    */
-				p_desc = USBH_NextDescGet((void *)p_desc,
+				p_desc = usbh_next_desc_get((void *)p_desc,
 										  &if_off);
 				p_data = (uint8_t *)p_desc;
 				*p_data_len = 0u;
@@ -1614,7 +1615,7 @@ uint8_t *usbh_if_extra_desc_get(USBH_IF *p_if, uint8_t alt_ix,
 						USBH_DESC_TYPE_EP))
 				{
 					*p_data_len += p_desc->bLength;
-					p_desc = USBH_NextDescGet(
+					p_desc = usbh_next_desc_get(
 						(void *)p_desc, /* Get next desc from IF.                               */
 						&if_off);
 					if (if_off >= p_if->IF_DataLen)
@@ -1666,7 +1667,7 @@ USBH_ERR usbh_bulk_in_open(USBH_DEV *p_dev, USBH_IF *p_if, USBH_EP *p_ep)
 {
 	USBH_ERR err;
 
-	err = USBH_EP_Open(p_dev, p_if, USBH_EP_TYPE_BULK, USBH_EP_DIR_IN,
+	err = usbh_ep_open(p_dev, p_if, USBH_EP_TYPE_BULK, USBH_EP_DIR_IN,
 					   p_ep);
 
 	return (err);
@@ -1700,7 +1701,7 @@ USBH_ERR usbh_bulk_out_open(USBH_DEV *p_dev, USBH_IF *p_if, USBH_EP *p_ep)
 {
 	USBH_ERR err;
 
-	err = USBH_EP_Open(p_dev, p_if, USBH_EP_TYPE_BULK, USBH_EP_DIR_OUT,
+	err = usbh_ep_open(p_dev, p_if, USBH_EP_TYPE_BULK, USBH_EP_DIR_OUT,
 					   p_ep);
 
 	return (err);
@@ -1734,7 +1735,7 @@ USBH_ERR usbh_intr_in_open(USBH_DEV *p_dev, USBH_IF *p_if, USBH_EP *p_ep)
 {
 	USBH_ERR err;
 
-	err = USBH_EP_Open(p_dev, p_if, USBH_EP_TYPE_INTR, USBH_EP_DIR_IN,
+	err = usbh_ep_open(p_dev, p_if, USBH_EP_TYPE_INTR, USBH_EP_DIR_IN,
 					   p_ep);
 
 	return (err);
@@ -1768,7 +1769,7 @@ USBH_ERR usbh_intr_out_open(USBH_DEV *p_dev, USBH_IF *p_if, USBH_EP *p_ep)
 {
 	USBH_ERR err;
 
-	err = USBH_EP_Open(p_dev, p_if, USBH_EP_TYPE_INTR, USBH_EP_DIR_OUT,
+	err = usbh_ep_open(p_dev, p_if, USBH_EP_TYPE_INTR, USBH_EP_DIR_OUT,
 					   p_ep);
 
 	return (err);
@@ -1802,7 +1803,7 @@ USBH_ERR usbh_isoc_in_open(USBH_DEV *p_dev, USBH_IF *p_if, USBH_EP *p_ep)
 {
 	USBH_ERR err;
 
-	err = USBH_EP_Open(p_dev, p_if, USBH_EP_TYPE_ISOC, USBH_EP_DIR_IN,
+	err = usbh_ep_open(p_dev, p_if, USBH_EP_TYPE_ISOC, USBH_EP_DIR_IN,
 					   p_ep);
 
 	return (err);
@@ -1836,7 +1837,7 @@ USBH_ERR usbh_isoc_out_open(USBH_DEV *p_dev, USBH_IF *p_if, USBH_EP *p_ep)
 {
 	USBH_ERR err;
 
-	err = USBH_EP_Open(p_dev, p_if, USBH_EP_TYPE_ISOC, USBH_EP_DIR_OUT,
+	err = usbh_ep_open(p_dev, p_if, USBH_EP_TYPE_ISOC, USBH_EP_DIR_OUT,
 					   p_ep);
 
 	return (err);
@@ -1909,7 +1910,7 @@ uint16_t usbh_ctrl_tx(USBH_DEV *p_dev, uint8_t b_req,
 	}
 	else
 	{
-		xfer_len = USBH_SyncCtrlXfer(&p_dev->DfltEP, b_req, bm_req_type,
+		xfer_len = usbh_sync_ctrl_transfer(&p_dev->DfltEP, b_req, bm_req_type,
 									 w_val, w_ix, p_data, w_len,
 									 timeout_ms, p_err);
 	}
@@ -1988,7 +1989,7 @@ uint16_t usbh_ctrl_rx(USBH_DEV *p_dev, uint8_t b_req,
 	else
 	{
 		LOG_DBG("request from non roothub");
-		xfer_len = USBH_SyncCtrlXfer(&p_dev->DfltEP, b_req, bm_req_type,
+		xfer_len = usbh_sync_ctrl_transfer(&p_dev->DfltEP, b_req, bm_req_type,
 									 w_val, w_ix, p_data, w_len,
 									 timeout_ms, p_err);
 	}
@@ -2054,7 +2055,7 @@ uint32_t usbh_bulk_tx(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
 		return (0u);
 	}
 
-	xfer_len = USBH_SyncXfer(p_ep, p_buf, buf_len, (USBH_ISOC_DESC *)0,
+	xfer_len = usbh_sync_transfer(p_ep, p_buf, buf_len, (USBH_ISOC_DESC *)0,
 							 USBH_TOKEN_OUT, timeout_ms, p_err);
 
 	return (xfer_len);
@@ -2112,7 +2113,7 @@ USBH_ERR usbh_bulk_tx_async(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
 		return (USBH_ERR_EP_INVALID_TYPE);
 	}
 
-	err = USBH_AsyncXfer(p_ep, p_buf, buf_len, (USBH_ISOC_DESC *)0,
+	err = usbh_async_transfer(p_ep, p_buf, buf_len, (USBH_ISOC_DESC *)0,
 						 USBH_TOKEN_OUT, (void *)fnct, p_fnct_arg);
 
 	return (err);
@@ -2174,7 +2175,7 @@ uint32_t usbh_bulk_rx(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
 		return (0u);
 	}
 
-	xfer_len = USBH_SyncXfer(p_ep, p_buf, buf_len, (USBH_ISOC_DESC *)0,
+	xfer_len = usbh_sync_transfer(p_ep, p_buf, buf_len, (USBH_ISOC_DESC *)0,
 							 USBH_TOKEN_IN, timeout_ms, p_err);
 
 	return (xfer_len);
@@ -2232,7 +2233,7 @@ USBH_ERR usbh_bulk_rx_async(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
 		return (USBH_ERR_EP_INVALID_TYPE);
 	}
 
-	err = USBH_AsyncXfer(p_ep, p_buf, buf_len, (USBH_ISOC_DESC *)0,
+	err = usbh_async_transfer(p_ep, p_buf, buf_len, (USBH_ISOC_DESC *)0,
 						 USBH_TOKEN_IN, (void *)fnct, p_fnct_arg);
 
 	return (err);
@@ -2292,7 +2293,7 @@ uint32_t usbh_intr_tx(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
 		return (USBH_ERR_EP_INVALID_TYPE);
 	}
 
-	xfer_len = USBH_SyncXfer(p_ep, p_buf, buf_len, (USBH_ISOC_DESC *)0,
+	xfer_len = usbh_sync_transfer(p_ep, p_buf, buf_len, (USBH_ISOC_DESC *)0,
 							 USBH_TOKEN_OUT, timeout_ms, p_err);
 
 	return (xfer_len);
@@ -2350,7 +2351,7 @@ USBH_ERR usbh_intr_tx_async(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
 		return (USBH_ERR_EP_INVALID_TYPE);
 	}
 
-	err = USBH_AsyncXfer(p_ep, p_buf, buf_len, (USBH_ISOC_DESC *)0,
+	err = usbh_async_transfer(p_ep, p_buf, buf_len, (USBH_ISOC_DESC *)0,
 						 USBH_TOKEN_OUT, (void *)fnct, p_fnct_arg);
 
 	return (err);
@@ -2410,7 +2411,7 @@ uint32_t usbh_intr_rx(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
 		return (USBH_ERR_EP_INVALID_TYPE);
 	}
 
-	xfer_len = USBH_SyncXfer(p_ep, p_buf, buf_len, (USBH_ISOC_DESC *)0,
+	xfer_len = usbh_sync_transfer(p_ep, p_buf, buf_len, (USBH_ISOC_DESC *)0,
 							 USBH_TOKEN_IN, timeout_ms, p_err);
 
 	return (xfer_len);
@@ -2474,7 +2475,7 @@ USBH_ERR usbh_intr_rx_async(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
 		return (USBH_ERR_EP_INVALID_TYPE);
 	}
 
-	err = USBH_AsyncXfer(p_ep, p_buf, buf_len, (USBH_ISOC_DESC *)0,
+	err = usbh_async_transfer(p_ep, p_buf, buf_len, (USBH_ISOC_DESC *)0,
 						 USBH_TOKEN_IN, (void *)fnct, p_fnct_arg);
 
 	return (err);
@@ -2554,7 +2555,7 @@ uint32_t usbh_isoc_tx(USBH_EP *p_ep, uint8_t *p_buf, uint32_t buf_len,
 	isoc_desc.FrmLen = p_frm_len;
 	isoc_desc.FrmErr = p_frm_err;
 
-	xfer_len = USBH_SyncXfer(p_ep, p_buf, buf_len, &isoc_desc,
+	xfer_len = usbh_sync_transfer(p_ep, p_buf, buf_len, &isoc_desc,
 							 USBH_TOKEN_OUT, timeout_ms, p_err);
 
 	return (xfer_len);
@@ -2641,7 +2642,7 @@ USBH_ERR usbh_isoc_tx_async(USBH_EP *p_ep, uint8_t *p_buf, uint32_t buf_len,
 	p_isoc_desc->FrmLen = p_frm_len;
 	p_isoc_desc->FrmErr = p_frm_err;
 
-	err = USBH_AsyncXfer(p_ep, p_buf, buf_len, p_isoc_desc, USBH_TOKEN_IN,
+	err = usbh_async_transfer(p_ep, p_buf, buf_len, p_isoc_desc, USBH_TOKEN_IN,
 						 (void *)fnct, p_fnct_arg);
 	if (err != USBH_ERR_NONE)
 	{
@@ -2725,7 +2726,7 @@ uint32_t usbh_isoc_rx(USBH_EP *p_ep, uint8_t *p_buf, uint32_t buf_len,
 	isoc_desc.FrmLen = p_frm_len;
 	isoc_desc.FrmErr = p_frm_err;
 
-	xfer_len = USBH_SyncXfer(p_ep, p_buf, buf_len, &isoc_desc,
+	xfer_len = usbh_sync_transfer(p_ep, p_buf, buf_len, &isoc_desc,
 							 USBH_TOKEN_IN, timeout_ms, p_err);
 
 	return (xfer_len);
@@ -2812,7 +2813,7 @@ USBH_ERR usbh_isoc_rx_async(USBH_EP *p_ep, uint8_t *p_buf, uint32_t buf_len,
 	p_isoc_desc->FrmLen = p_frm_len;
 	p_isoc_desc->FrmErr = p_frm_err;
 
-	err = USBH_AsyncXfer(p_ep, p_buf, buf_len, p_isoc_desc, USBH_TOKEN_IN,
+	err = usbh_async_transfer(p_ep, p_buf, buf_len, p_isoc_desc, USBH_TOKEN_IN,
 						 (void *)fnct, p_fnct_arg);
 	if (err != USBH_ERR_NONE)
 	{
@@ -2971,7 +2972,7 @@ USBH_ERR usbh_ep_get(USBH_IF *p_if, uint8_t alt_ix, uint8_t ep_ix,
 
 	while (if_off < p_if->IF_DataLen)
 	{
-		p_desc = USBH_NextDescGet((void *)p_desc, &if_off);
+		p_desc = usbh_next_desc_get((void *)p_desc, &if_off);
 
 		if (p_desc->bDescriptorType ==
 			USBH_DESC_TYPE_IF)
@@ -2987,7 +2988,7 @@ USBH_ERR usbh_ep_get(USBH_IF *p_if, uint8_t alt_ix, uint8_t ep_ix,
 
 	while (if_off < p_if->IF_DataLen)
 	{
-		p_desc = USBH_NextDescGet((void *)p_desc, &if_off);
+		p_desc = usbh_next_desc_get((void *)p_desc, &if_off);
 
 		if (p_desc->bDescriptorType ==
 			USBH_DESC_TYPE_EP)
@@ -2995,7 +2996,7 @@ USBH_ERR usbh_ep_get(USBH_IF *p_if, uint8_t alt_ix, uint8_t ep_ix,
 			if (ix ==
 				ep_ix)
 			{ /* Compare EP ix.                                       */
-				USBH_ParseEP_Desc(&p_ep->Desc, (void *)p_desc);
+				usbh_parse_ep_desc(&p_ep->Desc, (void *)p_desc);
 				return (USBH_ERR_NONE);
 			}
 			ix++;
@@ -3188,7 +3189,7 @@ USBH_ERR usbh_ep_close(USBH_EP *p_ep)
 	if (!((p_dev->IsRootHub == DEF_TRUE) &&
 		  (p_dev->HC_Ptr->IsVirRootHub == DEF_TRUE)))
 	{
-		USBH_URB_Abort(
+		usbh_urb_abort(
 			&p_ep->URB); /* Abort any pending URB.                               */
 	}
 
@@ -3360,7 +3361,7 @@ USBH_ERR usbh_urb_complete(USBH_URB *p_urb)
 	if ((urb_temp.State == USBH_URB_STATE_QUEUED) ||
 		(urb_temp.State == USBH_URB_STATE_ABORTED))
 	{
-		USBH_URB_Notify(&urb_temp);
+		usb_urb_notify(&urb_temp);
 	}
 
 	return (USBH_ERR_NONE);
@@ -3428,7 +3429,7 @@ uint32_t usbh_str_get(USBH_DEV *p_dev, uint8_t desc_ix, uint16_t lang_id,
 	if (lang_id ==
 		0u)
 	{ /* If lang ID is zero, get dflt used by the dev.        */
-		str_len = USBH_StrDescGet(p_dev, 0u, 0u, p_buf, buf_len, p_err);
+		str_len = usbh_str_desc_get(p_dev, 0u, 0u, p_buf, buf_len, p_err);
 		if (str_len <
 			4u)
 		{ /* See Note #1.                                         */
@@ -3452,7 +3453,7 @@ uint32_t usbh_str_get(USBH_DEV *p_dev, uint8_t desc_ix, uint16_t lang_id,
 
 	p_str = p_buf;
 	p_hdr = (USBH_DESC_HDR *)p_buf;
-	str_len = USBH_StrDescGet(
+	str_len = usbh_str_desc_get(
 		p_dev, /* Rd str desc with lang ID.                            */
 		desc_ix, lang_id, p_hdr, buf_len, p_err);
 
@@ -3535,8 +3536,9 @@ uint32_t usbh_str_get(USBH_DEV *p_dev, uint8_t desc_ix, uint16_t lang_id,
 *********************************************************************************************************
 */
 
-static USBH_ERR USBH_EP_Open(USBH_DEV *p_dev, USBH_IF *p_if,
-							 USBH_EP_TYPE ep_type, USBH_EP_DIR ep_dir,
+static USBH_ERR usbh_ep_open(USBH_DEV *p_dev, USBH_IF *p_if,
+							 uint8_t ep_type,
+							 uint8_t ep_dir,
 							 USBH_EP *p_ep)
 {
 	uint8_t ep_desc_dir;
@@ -3551,7 +3553,7 @@ static USBH_ERR USBH_EP_Open(USBH_DEV *p_dev, USBH_IF *p_if,
 		return (USBH_ERR_NONE);
 	}
 
-	USBH_URB_Clr(&p_ep->URB);
+	usbh_urb_clr(&p_ep->URB);
 
 	ep_found = DEF_FALSE;
 	ep_desc_type = 0u;
@@ -3710,7 +3712,7 @@ static USBH_ERR USBH_EP_Open(USBH_DEV *p_dev, USBH_IF *p_if,
 *********************************************************************************************************
 */
 
-static uint32_t USBH_SyncXfer(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
+static uint32_t usbh_sync_transfer(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
 								USBH_ISOC_DESC *p_isoc_desc, USBH_TOKEN token,
 								uint32_t timeout_ms,
 								USBH_ERR *p_err)
@@ -3748,7 +3750,7 @@ static uint32_t USBH_SyncXfer(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
 	p_urb->ArgPtr = (void *)0;
 	p_urb->Token = token;
 
-	*p_err = USBH_URB_Submit(p_urb);
+	*p_err = usbh_urb_submit(p_urb);
 
 	if (*p_err ==
 		USBH_ERR_NONE)
@@ -3765,7 +3767,7 @@ static uint32_t USBH_SyncXfer(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
 	}
 	else
 	{
-		USBH_URB_Abort(p_urb);
+		usbh_urb_abort(p_urb);
 	}
 
 	len = p_urb->XferLen;
@@ -3810,7 +3812,7 @@ static uint32_t USBH_SyncXfer(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
 *********************************************************************************************************
 */
 
-static USBH_ERR USBH_AsyncXfer(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
+static USBH_ERR usbh_async_transfer(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
 							   USBH_ISOC_DESC *p_isoc_desc, USBH_TOKEN token,
 							   void *p_fnct, void *p_fnct_arg)
 {
@@ -3842,7 +3844,7 @@ static USBH_ERR USBH_AsyncXfer(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
 			return (USBH_ERR_ALLOC);
 		}
 
-		USBH_URB_Clr(p_urb);
+		usbh_urb_clr(p_urb);
 
 		p_async_urb =
 			&p_ep->URB; /* Get head of extra async URB Q.                       */
@@ -3874,7 +3876,7 @@ static USBH_ERR USBH_AsyncXfer(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
 	p_urb->ArgPtr = (void *)0;
 	p_urb->Token = token;
 
-	err = USBH_URB_Submit(
+	err = usbh_urb_submit(
 		p_urb); /* See Note (1).                                        */
 
 	return (err);
@@ -3919,7 +3921,7 @@ static USBH_ERR USBH_AsyncXfer(USBH_EP *p_ep, void *p_buf, uint32_t buf_len,
 *********************************************************************************************************
 */
 
-static uint16_t USBH_SyncCtrlXfer(USBH_EP *p_ep, uint8_t b_req,
+static uint16_t usbh_sync_ctrl_transfer(USBH_EP *p_ep, uint8_t b_req,
 									uint8_t bm_req_type,
 									uint16_t w_val,
 									uint16_t w_ix,
@@ -3943,10 +3945,10 @@ static uint16_t USBH_SyncCtrlXfer(USBH_EP *p_ep, uint8_t b_req,
 	setup.wIndex = w_ix;
 	setup.wLength = w_len;
 
-	USBH_FmtSetupReq(&setup, setup_buf);
+	usbh_fmt_setup_req(&setup, setup_buf);
 	is_in = (bm_req_type & USBH_REQ_DIR_MASK) != 0u ? DEF_TRUE : DEF_FALSE;
 
-	len = USBH_SyncXfer(p_ep, (void *)&setup_buf[0u], USBH_LEN_SETUP_PKT,
+	len = usbh_sync_transfer(p_ep, (void *)&setup_buf[0u], USBH_LEN_SETUP_PKT,
 						(USBH_ISOC_DESC *)0, USBH_TOKEN_SETUP, timeout_ms,
 						p_err);
 	if (*p_err != USBH_ERR_NONE)
@@ -3966,7 +3968,7 @@ static uint16_t USBH_SyncCtrlXfer(USBH_EP *p_ep, uint8_t b_req,
 		p_data_08 = (uint8_t *)p_arg;
 
 		rtn_len =
-			USBH_SyncXfer(p_ep, (void *)p_data_08, w_len,
+			usbh_sync_transfer(p_ep, (void *)p_data_08, w_len,
 						  (USBH_ISOC_DESC *)0,
 						  (is_in ? USBH_TOKEN_IN : USBH_TOKEN_OUT),
 						  timeout_ms, p_err);
@@ -3980,7 +3982,7 @@ static uint16_t USBH_SyncCtrlXfer(USBH_EP *p_ep, uint8_t b_req,
 		rtn_len = 0u;
 	}
 
-	(void)USBH_SyncXfer(
+	(void)usbh_sync_transfer(
 		p_ep, /* ------------------- STATUS STAGE ------------------- */
 		(void *)0, 0u, (USBH_ISOC_DESC *)0,
 		((w_len && is_in) ? USBH_TOKEN_OUT : USBH_TOKEN_IN), timeout_ms,
@@ -4007,7 +4009,7 @@ static uint16_t USBH_SyncCtrlXfer(USBH_EP *p_ep, uint8_t b_req,
 *********************************************************************************************************
 */
 
-static void USBH_URB_Abort(USBH_URB *p_urb)
+static void usbh_urb_abort(USBH_URB *p_urb)
 {
 	bool cmpl;
 	CPU_SR_ALLOC();
@@ -4055,7 +4057,7 @@ static void USBH_URB_Abort(USBH_URB *p_urb)
 *********************************************************************************************************
 */
 
-static void USBH_URB_Notify(USBH_URB *p_urb)
+static void usb_urb_notify(USBH_URB *p_urb)
 {
 	uint16_t nbr_frm;
 	uint16_t *p_frm_len;
@@ -4138,7 +4140,7 @@ static void USBH_URB_Notify(USBH_URB *p_urb)
 *********************************************************************************************************
 */
 
-static USBH_ERR USBH_URB_Submit(USBH_URB *p_urb)
+static USBH_ERR usbh_urb_submit(USBH_URB *p_urb)
 {
 	USBH_ERR err;
 	bool ep_is_halt;
@@ -4176,7 +4178,7 @@ static USBH_ERR USBH_URB_Submit(USBH_URB *p_urb)
 *********************************************************************************************************
 */
 
-static void USBH_URB_Clr(USBH_URB *p_urb)
+static void usbh_urb_clr(USBH_URB *p_urb)
 {
 	p_urb->Err = USBH_ERR_NONE;
 	p_urb->State = USBH_URB_STATE_NONE;
@@ -4207,7 +4209,7 @@ static void USBH_URB_Clr(USBH_URB *p_urb)
 *********************************************************************************************************
 */
 
-static USBH_ERR USBH_DfltEP_Open(USBH_DEV *p_dev)
+static USBH_ERR usbh_dflt_ep_open(USBH_DEV *p_dev)
 {
 	uint16_t ep_max_pkt_size;
 	USBH_EP *p_ep;
@@ -4302,7 +4304,7 @@ static USBH_ERR USBH_DfltEP_Open(USBH_DEV *p_dev)
 *********************************************************************************************************
 */
 
-static USBH_ERR USBH_DevDescRd(USBH_DEV *p_dev)
+static USBH_ERR usbh_dev_desc_rd(USBH_DEV *p_dev)
 {
 	USBH_ERR err;
 	uint8_t retry;
@@ -4448,7 +4450,7 @@ static USBH_ERR USBH_DevDescRd(USBH_DEV *p_dev)
 *********************************************************************************************************
 */
 
-static USBH_ERR USBH_CfgRd(USBH_DEV *p_dev, uint8_t cfg_ix)
+static USBH_ERR usbh_cfg_rd(USBH_DEV *p_dev, uint8_t cfg_ix)
 {
 	uint16_t w_tot_len;
 	uint16_t b_read;
@@ -4551,7 +4553,7 @@ static USBH_ERR USBH_CfgRd(USBH_DEV *p_dev, uint8_t cfg_ix)
 	}
 
 	p_cfg->CfgDataLen = w_tot_len;
-	err = USBH_CfgParse(p_dev, p_cfg);
+	err = usbh_cfg_parse(p_dev, p_cfg);
 	LOG_ERR("%d", err);
 	return (err);
 }
@@ -4574,7 +4576,7 @@ static USBH_ERR USBH_CfgRd(USBH_DEV *p_dev, uint8_t cfg_ix)
 *********************************************************************************************************
 */
 
-static USBH_ERR USBH_CfgParse(USBH_DEV *p_dev, USBH_CFG *p_cfg)
+static USBH_ERR usbh_cfg_parse(USBH_DEV *p_dev, USBH_CFG *p_cfg)
 {
 	int8_t if_ix;
 	uint8_t nbr_ifs;
@@ -4589,7 +4591,7 @@ static USBH_ERR USBH_CfgParse(USBH_DEV *p_dev, USBH_CFG *p_cfg)
 	p_desc = (USBH_DESC_HDR *)p_cfg->CfgData;
 
 	/* ---------------- VALIDATE CFG DESC ----------------- */
-	USBH_ParseCfgDesc(&cfg_desc, p_desc);
+	usbh_parse_cfg_desc(&cfg_desc, p_desc);
 	if ((cfg_desc.bMaxPower > 250u) || (cfg_desc.bNbrInterfaces == 0u))
 	{
 		return (USBH_ERR_DESC_INVALID);
@@ -4609,12 +4611,12 @@ static USBH_ERR USBH_CfgParse(USBH_DEV *p_dev, USBH_CFG *p_cfg)
 
 	while (cfg_off < p_cfg->CfgDataLen)
 	{
-		p_desc = USBH_NextDescGet((void *)p_desc, &cfg_off);
+		p_desc = usbh_next_desc_get((void *)p_desc, &cfg_off);
 
 		/* ---------- VALIDATE INTERFACE DESCRIPTOR ----------- */
 		if (p_desc->bDescriptorType == USBH_DESC_TYPE_IF)
 		{
-			USBH_ParseIF_Desc(&if_desc, p_desc);
+			usbh_parse_if_desc(&if_desc, p_desc);
 			if ((if_desc.bInterfaceClass !=
 				 USBH_CLASS_CODE_AUDIO) &&
 				(if_desc.bInterfaceClass !=
@@ -4670,7 +4672,7 @@ static USBH_ERR USBH_CfgParse(USBH_DEV *p_dev, USBH_CFG *p_cfg)
 
 		if (p_desc->bDescriptorType == USBH_DESC_TYPE_EP)
 		{
-			USBH_ParseEP_Desc(&ep_desc, p_desc);
+			usbh_parse_ep_desc(&ep_desc, p_desc);
 
 			if ((ep_desc.bEndpointAddress == 0x00u) ||
 				(ep_desc.bEndpointAddress == 0x80u) ||
@@ -4722,7 +4724,7 @@ static USBH_ERR USBH_CfgParse(USBH_DEV *p_dev, USBH_CFG *p_cfg)
 *********************************************************************************************************
 */
 
-static USBH_ERR USBH_DevAddrSet(USBH_DEV *p_dev)
+static USBH_ERR usbh_dev_addr_set(USBH_DEV *p_dev)
 {
 	LOG_DBG("set device address");
 	USBH_ERR err;
@@ -4811,7 +4813,7 @@ static USBH_ERR USBH_DevAddrSet(USBH_DEV *p_dev)
 *********************************************************************************************************
 */
 
-static uint32_t USBH_StrDescGet(USBH_DEV *p_dev, uint8_t desc_ix,
+static uint32_t usbh_str_desc_get(USBH_DEV *p_dev, uint8_t desc_ix,
 								  uint16_t lang_id,
 								  void *p_buf,
 								  uint32_t buf_len,
@@ -4979,7 +4981,7 @@ static uint32_t USBH_StrDescGet(USBH_DEV *p_dev, uint8_t desc_ix,
 *********************************************************************************************************
 */
 
-static USBH_DESC_HDR *USBH_NextDescGet(void *p_buf, uint32_t *p_offset)
+static USBH_DESC_HDR *usbh_next_desc_get(void *p_buf, uint32_t *p_offset)
 {
 	USBH_DESC_HDR *p_next_hdr;
 	USBH_DESC_HDR *p_hdr;
@@ -5020,7 +5022,7 @@ static USBH_DESC_HDR *USBH_NextDescGet(void *p_buf, uint32_t *p_offset)
 *********************************************************************************************************
 */
 
-static void USBH_FmtSetupReq(USBH_SETUP_REQ *p_setup_req, void *p_buf_dest)
+static void usbh_fmt_setup_req(USBH_SETUP_REQ *p_setup_req, void *p_buf_dest)
 {
 	// LOG_DBG("FmtSetupReq");
 	USBH_SETUP_REQ *p_buf_dest_setup_req;
@@ -5053,7 +5055,7 @@ static void USBH_FmtSetupReq(USBH_SETUP_REQ *p_setup_req, void *p_buf_dest)
 *********************************************************************************************************
 */
 
-static void USBH_ParseDevDesc(USBH_DEV_DESC *p_dev_desc, void *p_buf_src)
+static void usbh_parse_dev_desc(USBH_DEV_DESC *p_dev_desc, void *p_buf_src)
 {
 	USBH_DEV_DESC *p_buf_src_dev_desc;
 
@@ -5095,7 +5097,7 @@ static void USBH_ParseDevDesc(USBH_DEV_DESC *p_dev_desc, void *p_buf_src)
 *********************************************************************************************************
 */
 
-static void USBH_ParseCfgDesc(USBH_CFG_DESC *p_cfg_desc, void *p_buf_src)
+static void usbh_parse_cfg_desc(USBH_CFG_DESC *p_cfg_desc, void *p_buf_src)
 {
 	USBH_CFG_DESC *p_buf_src_cfg_desc;
 
@@ -5129,7 +5131,7 @@ static void USBH_ParseCfgDesc(USBH_CFG_DESC *p_cfg_desc, void *p_buf_src)
 *********************************************************************************************************
 */
 
-static void USBH_ParseIF_Desc(USBH_IF_DESC *p_if_desc, void *p_buf_src)
+static void usbh_parse_if_desc(USBH_IF_DESC *p_if_desc, void *p_buf_src)
 {
 	USBH_IF_DESC *p_buf_src_if_desc;
 
@@ -5162,7 +5164,7 @@ static void USBH_ParseIF_Desc(USBH_IF_DESC *p_if_desc, void *p_buf_src)
 *********************************************************************************************************
 */
 
-static void USBH_ParseEP_Desc(USBH_EP_DESC *p_ep_desc, void *p_buf_src)
+static void usbh_parse_ep_desc(USBH_EP_DESC *p_ep_desc, void *p_buf_src)
 {
 	USBH_EP_DESC *p_buf_desc;
 
@@ -5196,7 +5198,7 @@ static void USBH_ParseEP_Desc(USBH_EP_DESC *p_ep_desc, void *p_buf_src)
 *********************************************************************************************************
 */
 
-static void USBH_AsyncTask(void *p_arg, void *p_arg2, void *p_arg3)
+static void usbh_async_task(void *p_arg, void *p_arg2, void *p_arg3)
 {
 	USBH_URB *p_urb;
 	CPU_SR_ALLOC();
