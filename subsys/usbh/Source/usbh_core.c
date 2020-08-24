@@ -381,7 +381,7 @@ USBH_ERR usbh_init(USBH_KERNEL_TASK_INFO *async_task_info,
 		USBH_ClassDrvList[ix].InUse = 0u;
 	}
 
-	err = USBH_ClassDrvReg(
+	err = usbh_class_drv_reg(
 		&USBH_HUB_Drv, /* Reg HUB class drv.                                   */
 		usbh_hub_class_notify, (void *)0);
 	if (err != USBH_ERR_NONE)
@@ -459,7 +459,7 @@ USBH_ERR usbh_suspend(void)
 	{
 		hc = &USBH_Host.HC_Tbl[ix];
 
-		USBH_ClassSuspend(
+		usbh_class_suspend(
 			hc->HC_Drv.RH_DevPtr); /* Suspend RH, and all downstream dev.                  */
 		USBH_HCD_Suspend(
 			hc,
@@ -500,7 +500,7 @@ USBH_ERR usbh_resume(void)
 		USBH_HCD_Resume(
 			hc,
 			&err); /* Resume HC.                                           */
-		USBH_ClassResume(
+		usbh_class_resume(
 			hc->HC_Drv.RH_DevPtr); /* Resume RH, and all downstream dev.                   */
 	}
 
@@ -1009,7 +1009,7 @@ USBH_ERR usbh_dev_conn(USBH_DEV *p_dev)
 	}
 
 	LOG_DBG("Call ClassDrvConn");
-	err = USBH_ClassDrvConn(
+	err = usbh_class_drv_conn(
 		p_dev); /* ------------- PROBE/LOAD CLASS DRV(S) -------------- */
 
 	return (err);
@@ -1032,7 +1032,7 @@ USBH_ERR usbh_dev_conn(USBH_DEV *p_dev)
 void usbh_dev_disconn(USBH_DEV *p_dev)
 {
 	LOG_DBG("DevDisconn");
-	USBH_ClassDrvDisconn(
+	usbh_class_drv_disconn(
 		p_dev); /* Unload class drv(s).                                 */
 
 	usbh_ep_close(

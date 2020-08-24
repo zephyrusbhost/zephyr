@@ -543,7 +543,7 @@ static void USBH_HUB_Suspend(void *p_class_dev)
 
         if (p_dev != (USBH_DEV *)0)
         {
-            USBH_ClassSuspend(p_dev);
+            usbh_class_suspend(p_dev);
         }
     }
 }
@@ -588,7 +588,7 @@ static void USBH_HUB_Resume(void *p_class_dev)
 
         if (p_dev != (USBH_DEV *)0)
         {
-            USBH_ClassResume(p_dev);
+            usbh_class_resume(p_dev);
         }
         else
         { /* Get port status info.                                */
