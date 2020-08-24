@@ -384,82 +384,82 @@ K_MEM_POOL_DEFINE(ATSAMX_DrvMemPool, USBH_DATA_BUF_MAX_LEN, USBH_DATA_BUF_MAX_LE
 */
 
 /* --------------- DRIVER API FUNCTIONS --------------- */
-static void USBH_ATSAMX_HCD_Init(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err);
+static void usbh_atsamx_hcd_init(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err);
 
-static void USBH_ATSAMX_HCD_Start(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err);
+static void usbh_atsamx_hcd_start(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err);
 
-static void USBH_ATSAMX_HCD_Stop(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err);
+static void usbh_atsamx_hcd_stop(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err);
 
-static USBH_DEV_SPD USBH_ATSAMX_HCD_SpdGet(USBH_HC_DRV *p_hc_drv,
+static USBH_DEV_SPD usbh_atsamx_hcd_spd_get(USBH_HC_DRV *p_hc_drv,
 										   USBH_ERR *p_err);
 
-static void USBH_ATSAMX_HCD_Suspend(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err);
+static void usbh_atsamx_hcd_suspend(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err);
 
-static void USBH_ATSAMX_HCD_Resume(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err);
+static void usbh_atsamx_hcd_resume(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err);
 
-static uint32_t USBH_ATSAMX_HCD_FrameNbrGet(USBH_HC_DRV *p_hc_drv,
+static uint32_t usbh_atsamx_hcd_frame_nbr_get(USBH_HC_DRV *p_hc_drv,
 											  USBH_ERR *p_err);
 
-static void USBH_ATSAMX_HCD_EP_Open(USBH_HC_DRV *p_hc_drv, USBH_EP *p_ep,
+static void usbh_atsamx_hcd_ep_open(USBH_HC_DRV *p_hc_drv, USBH_EP *p_ep,
 									USBH_ERR *p_err);
 
-static void USBH_ATSAMX_HCD_EP_Close(USBH_HC_DRV *p_hc_drv, USBH_EP *p_ep,
+static void usbh_atsamx_hcd_ep_close(USBH_HC_DRV *p_hc_drv, USBH_EP *p_ep,
 									 USBH_ERR *p_err);
 
-static void USBH_ATSAMX_HCD_EP_Abort(USBH_HC_DRV *p_hc_drv, USBH_EP *p_ep,
+static void usbh_atsamx_hcd_ep_abort(USBH_HC_DRV *p_hc_drv, USBH_EP *p_ep,
 									 USBH_ERR *p_err);
 
-static bool USBH_ATSAMX_HCD_IsHalt_EP(USBH_HC_DRV *p_hc_drv,
+static bool usbh_atsamx_hcd_ep_is_halt(USBH_HC_DRV *p_hc_drv,
 											 USBH_EP *p_ep, USBH_ERR *p_err);
 
-static void USBH_ATSAMX_HCD_URB_Submit(USBH_HC_DRV *p_hc_drv, USBH_URB *p_urb,
+static void usbh_atsamx_hcd_urb_submit(USBH_HC_DRV *p_hc_drv, USBH_URB *p_urb,
 									   USBH_ERR *p_err);
 
-static void USBH_ATSAMX_HCD_URB_Complete(USBH_HC_DRV *p_hc_drv, USBH_URB *p_urb,
+static void usbh_atsamx_hcd_urb_complete(USBH_HC_DRV *p_hc_drv, USBH_URB *p_urb,
 										 USBH_ERR *p_err);
 
-static void USBH_ATSAMX_HCD_URB_Abort(USBH_HC_DRV *p_hc_drv, USBH_URB *p_urb,
+static void usbh_atsamx_hcd_urb_abort(USBH_HC_DRV *p_hc_drv, USBH_URB *p_urb,
 									  USBH_ERR *p_err);
 
 /* -------------- ROOT HUB API FUNCTIONS -------------- */
 static bool
-USBH_ATSAMX_HCD_PortStatusGet(USBH_HC_DRV *p_hc_drv, uint8_t port_nbr,
+usbh_atsamx_rh_port_status_get(USBH_HC_DRV *p_hc_drv, uint8_t port_nbr,
 							  USBH_HUB_PORT_STATUS *p_port_status);
 
-static bool USBH_ATSAMX_HCD_HubDescGet(USBH_HC_DRV *p_hc_drv,
+static bool usbh_atsamx_rh_hub_desc_get(USBH_HC_DRV *p_hc_drv,
 											  void *p_buf,
 											  uint8_t buf_len);
 
-static bool USBH_ATSAMX_HCD_PortEnSet(USBH_HC_DRV *p_hc_drv,
+static bool usbh_atsamx_rh_port_en_set(USBH_HC_DRV *p_hc_drv,
 											 uint8_t port_nbr);
 
-static bool USBH_ATSAMX_HCD_PortEnClr(USBH_HC_DRV *p_hc_drv,
+static bool usbh_atsamx_rh_port_en_clr(USBH_HC_DRV *p_hc_drv,
 											 uint8_t port_nbr);
 
-static bool USBH_ATSAMX_HCD_PortEnChngClr(USBH_HC_DRV *p_hc_drv,
+static bool usbh_atsamx_rh_port_en_chng_clr(USBH_HC_DRV *p_hc_drv,
 												 uint8_t port_nbr);
 
-static bool USBH_ATSAMX_HCD_PortPwrSet(USBH_HC_DRV *p_hc_drv,
+static bool usbh_atsamx_rh_port_pwr_set(USBH_HC_DRV *p_hc_drv,
 											  uint8_t port_nbr);
 
-static bool USBH_ATSAMX_HCD_PortPwrClr(USBH_HC_DRV *p_hc_drv,
+static bool usbh_atsamx_rh_port_pwr_clr(USBH_HC_DRV *p_hc_drv,
 											  uint8_t port_nbr);
 
-static bool USBH_ATSAMX_HCD_PortResetSet(USBH_HC_DRV *p_hc_drv,
+static bool usbh_atsamx_hcd_port_reset_set(USBH_HC_DRV *p_hc_drv,
 												uint8_t port_nbr);
 
-static bool USBH_ATSAMX_HCD_PortResetChngClr(USBH_HC_DRV *p_hc_drv,
+static bool usbh_atsamx_hcd_port_reset_chng_clr(USBH_HC_DRV *p_hc_drv,
 													uint8_t port_nbr);
 
-static bool USBH_ATSAMX_HCD_PortSuspendClr(USBH_HC_DRV *p_hc_drv,
+static bool usbh_atsamx_hcd_port_suspend_clr(USBH_HC_DRV *p_hc_drv,
 												  uint8_t port_nbr);
 
-static bool USBH_ATSAMX_HCD_PortConnChngClr(USBH_HC_DRV *p_hc_drv,
+static bool usbh_atsamx_hcd_port_conn_chng_clr(USBH_HC_DRV *p_hc_drv,
 												   uint8_t port_nbr);
 
-static bool USBH_ATSAMX_HCD_RHSC_IntEn(USBH_HC_DRV *p_hc_drv);
+static bool usbh_atsamx_rh_int_en(USBH_HC_DRV *p_hc_drv);
 
-static bool USBH_ATSAMX_HCD_RHSC_IntDis(USBH_HC_DRV *p_hc_drv);
+static bool usbh_atsamx_rh_int_dis(USBH_HC_DRV *p_hc_drv);
 
 /*
 *********************************************************************************************************
@@ -467,16 +467,16 @@ static bool USBH_ATSAMX_HCD_RHSC_IntDis(USBH_HC_DRV *p_hc_drv);
 *********************************************************************************************************
 */
 
-static void USBH_ATSAMX_ISR_Handler(void *p_drv);
+static void usbh_atsamx_isr_callback(void *p_drv);
 
-static void USBH_ATSAMX_URB_ProcTask(void *p_arg, void *p_arg2, void *p_arg3);
+static void usbh_atsamx_process_urb(void *p_arg, void *p_arg2, void *p_arg3);
 
-static uint8_t USBH_ATSAMX_GetFreePipe(USBH_DRV_DATA *p_drv_data);
+static uint8_t usbh_atsamx_get_free_pipe(USBH_DRV_DATA *p_drv_data);
 
-static uint8_t USBH_ATSAMX_GetPipeNbr(USBH_DRV_DATA *p_drv_data,
+static uint8_t usbh_atsamx_get_pipe_nbr(USBH_DRV_DATA *p_drv_data,
 										 USBH_EP *p_ep);
 
-static void USBH_ATSAMX_PipeCfg(USBH_URB *p_urb,
+static void usbh_atsamx_pipe_cfg(USBH_URB *p_urb,
 								USBH_ATSAMX_PIPE_REG *p_reg_hpipe,
 								USBH_ATSAMX_PINFO *p_pipe_info,
 								USBH_ATSAMX_DESC_BANK *p_desc_bank);
@@ -488,37 +488,37 @@ static void USBH_ATSAMX_PipeCfg(USBH_URB *p_urb,
 */
 
 USBH_HC_DRV_API USBH_ATSAMX_HCD_DrvAPI = {
-	USBH_ATSAMX_HCD_Init,
-	USBH_ATSAMX_HCD_Start,
-	USBH_ATSAMX_HCD_Stop,
-	USBH_ATSAMX_HCD_SpdGet,
-	USBH_ATSAMX_HCD_Suspend,
-	USBH_ATSAMX_HCD_Resume,
-	USBH_ATSAMX_HCD_FrameNbrGet,
+	usbh_atsamx_hcd_init,
+	usbh_atsamx_hcd_start,
+	usbh_atsamx_hcd_stop,
+	usbh_atsamx_hcd_spd_get,
+	usbh_atsamx_hcd_suspend,
+	usbh_atsamx_hcd_resume,
+	usbh_atsamx_hcd_frame_nbr_get,
 
-	USBH_ATSAMX_HCD_EP_Open,
-	USBH_ATSAMX_HCD_EP_Close,
-	USBH_ATSAMX_HCD_EP_Abort,
-	USBH_ATSAMX_HCD_IsHalt_EP,
+	usbh_atsamx_hcd_ep_open,
+	usbh_atsamx_hcd_ep_close,
+	usbh_atsamx_hcd_ep_abort,
+	usbh_atsamx_hcd_ep_is_halt,
 
-	USBH_ATSAMX_HCD_URB_Submit,
-	USBH_ATSAMX_HCD_URB_Complete,
-	USBH_ATSAMX_HCD_URB_Abort,
+	usbh_atsamx_hcd_urb_submit,
+	usbh_atsamx_hcd_urb_complete,
+	usbh_atsamx_hcd_urb_abort,
 };
 
 USBH_HC_RH_API USBH_ATSAMX_HCD_RH_API = {
-	USBH_ATSAMX_HCD_PortStatusGet, USBH_ATSAMX_HCD_HubDescGet,
+	usbh_atsamx_rh_port_status_get,usbh_atsamx_rh_hub_desc_get,
+	
+	usbh_atsamx_rh_port_en_set, usbh_atsamx_rh_port_en_clr,
+	usbh_atsamx_rh_port_en_chng_clr,
 
-	USBH_ATSAMX_HCD_PortEnSet, USBH_ATSAMX_HCD_PortEnClr,
-	USBH_ATSAMX_HCD_PortEnChngClr,
+	usbh_atsamx_rh_port_pwr_set, usbh_atsamx_rh_port_pwr_clr,
 
-	USBH_ATSAMX_HCD_PortPwrSet, USBH_ATSAMX_HCD_PortPwrClr,
+	usbh_atsamx_hcd_port_reset_set, usbh_atsamx_hcd_port_reset_chng_clr,
 
-	USBH_ATSAMX_HCD_PortResetSet, USBH_ATSAMX_HCD_PortResetChngClr,
+	usbh_atsamx_hcd_port_suspend_clr, usbh_atsamx_hcd_port_conn_chng_clr,
 
-	USBH_ATSAMX_HCD_PortSuspendClr, USBH_ATSAMX_HCD_PortConnChngClr,
-
-	USBH_ATSAMX_HCD_RHSC_IntEn, USBH_ATSAMX_HCD_RHSC_IntDis};
+	usbh_atsamx_rh_int_en, usbh_atsamx_rh_int_dis};
 
 /*
 *********************************************************************************************************
@@ -561,7 +561,7 @@ USBH_HC_RH_API USBH_ATSAMX_HCD_RH_API = {
 */
 USBH_HTASK htask;
 
-static void USBH_ATSAMX_HCD_Init(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err)
+static void usbh_atsamx_hcd_init(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err)
 {
 	LOG_DBG("atsam hcd init");
 	USBH_DRV_DATA *p_drv_data;
@@ -587,7 +587,8 @@ static void USBH_ATSAMX_HCD_Init(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err)
 
 	k_thread_create(&htask, ATSAMX_URB_ProcTaskStk,
 					K_THREAD_STACK_SIZEOF(ATSAMX_URB_ProcTaskStk),
-					USBH_ATSAMX_URB_ProcTask, (void *)p_hc_drv,
+					usbh_atsamx_process_urb,
+					(void *)p_hc_drv,
 					NULL, NULL, 0, 0,
 					K_NO_WAIT);
 
@@ -613,7 +614,7 @@ static void USBH_ATSAMX_HCD_Init(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err)
 */
 #define DT_DRV_COMPAT atmel_sam0_usb
 static USBH_HC_DRV *p_hc_drv_local;
-static void USBH_ATSAMX_HCD_Start(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err)
+static void usbh_atsamx_hcd_start(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err)
 {
 	p_hc_drv_local = p_hc_drv;
 	USBH_ATSAMX_REG *p_reg;
@@ -701,7 +702,7 @@ static void USBH_ATSAMX_HCD_Start(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err)
 		 USBH_ATSAMX_CTRLB_VBUSOK);
 	if (p_bsp_api->ISR_Reg != (void *)0)
 	{
-		IRQ_CONNECT(7, 0, USBH_ATSAMX_ISR_Handler, 0, 0);
+		IRQ_CONNECT(7, 0, usbh_atsamx_isr_callback, 0, 0);
 		irq_enable(7);
 	}
 
@@ -733,7 +734,7 @@ static void USBH_ATSAMX_HCD_Start(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err)
 
 /*
 *********************************************************************************************************
-*                                       USBH_ATSAMX_HCD_Stop()
+*                                       usbh_atsamx_hcd_stop()
 *
 * Description : Stop Host Controller.
 *
@@ -749,7 +750,7 @@ static void USBH_ATSAMX_HCD_Start(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err)
 *********************************************************************************************************
 */
 
-static void USBH_ATSAMX_HCD_Stop(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err)
+static void usbh_atsamx_hcd_stop(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err)
 {
 	LOG_DBG("Stop");
 
@@ -776,7 +777,7 @@ static void USBH_ATSAMX_HCD_Stop(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err)
 
 /*
 *********************************************************************************************************
-*                                      USBH_ATSAMX_HCD_SpdGet()
+*                                      usbh_atsamx_hcd_spd_get()
 *
 * Description : Returns Host Controller speed.
 *
@@ -791,7 +792,7 @@ static void USBH_ATSAMX_HCD_Stop(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err)
 *********************************************************************************************************
 */
 
-static USBH_DEV_SPD USBH_ATSAMX_HCD_SpdGet(USBH_HC_DRV *p_hc_drv,
+static USBH_DEV_SPD usbh_atsamx_hcd_spd_get(USBH_HC_DRV *p_hc_drv,
 										   USBH_ERR *p_err)
 {
 	(void)p_hc_drv;
@@ -803,7 +804,7 @@ static USBH_DEV_SPD USBH_ATSAMX_HCD_SpdGet(USBH_HC_DRV *p_hc_drv,
 
 /*
 *********************************************************************************************************
-*                                      USBH_ATSAMX_HCD_Suspend()
+*                                      usbh_atsamx_hcd_suspend()
 *
 * Description : Suspend Host Controller.
 *
@@ -818,7 +819,7 @@ static USBH_DEV_SPD USBH_ATSAMX_HCD_SpdGet(USBH_HC_DRV *p_hc_drv,
 *********************************************************************************************************
 */
 
-static void USBH_ATSAMX_HCD_Suspend(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err)
+static void usbh_atsamx_hcd_suspend(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err)
 {
 	LOG_DBG("Suspend");
 	USBH_ATSAMX_REG *p_reg;
@@ -848,7 +849,7 @@ static void USBH_ATSAMX_HCD_Suspend(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err)
 
 /*
 *********************************************************************************************************
-*                                      USBH_ATSAMX_HCD_Resume()
+*                                      usbh_atsamx_hcd_resume()
 *
 * Description : Resume Host Controller.
 *
@@ -863,7 +864,7 @@ static void USBH_ATSAMX_HCD_Suspend(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err)
 *********************************************************************************************************
 */
 
-static void USBH_ATSAMX_HCD_Resume(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err)
+static void usbh_atsamx_hcd_resume(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err)
 {
 	LOG_DBG("Resume");
 	USBH_ATSAMX_REG *p_reg;
@@ -896,7 +897,7 @@ static void USBH_ATSAMX_HCD_Resume(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err)
 
 /*
 *********************************************************************************************************
-*                                    USBH_ATSAMX_HCD_FrameNbrGet()
+*                                    usbh_atsamx_hcd_frame_nbr_get()
 *
 * Description : Retrieve current frame number.
 *
@@ -911,7 +912,7 @@ static void USBH_ATSAMX_HCD_Resume(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err)
 *********************************************************************************************************
 */
 
-static uint32_t USBH_ATSAMX_HCD_FrameNbrGet(USBH_HC_DRV *p_hc_drv,
+static uint32_t usbh_atsamx_hcd_frame_nbr_get(USBH_HC_DRV *p_hc_drv,
 											  USBH_ERR *p_err)
 {
 	USBH_ATSAMX_REG *p_reg;
@@ -927,7 +928,7 @@ static uint32_t USBH_ATSAMX_HCD_FrameNbrGet(USBH_HC_DRV *p_hc_drv,
 
 /*
 *********************************************************************************************************
-*                                      USBH_ATSAMX_HCD_EP_Open()
+*                                      usbh_atsamx_hcd_ep_open()
 *
 * Description : Allocate/open endpoint of given type.
 *
@@ -945,7 +946,7 @@ static uint32_t USBH_ATSAMX_HCD_FrameNbrGet(USBH_HC_DRV *p_hc_drv,
 *********************************************************************************************************
 */
 
-static void USBH_ATSAMX_HCD_EP_Open(USBH_HC_DRV *p_hc_drv, USBH_EP *p_ep,
+static void usbh_atsamx_hcd_ep_open(USBH_HC_DRV *p_hc_drv, USBH_EP *p_ep,
 									USBH_ERR *p_err)
 {
 	LOG_DBG("EP_Open");
@@ -968,7 +969,7 @@ static void USBH_ATSAMX_HCD_EP_Open(USBH_HC_DRV *p_hc_drv, USBH_EP *p_ep,
 
 /*
 *********************************************************************************************************
-*                                     USBH_ATSAMX_HCD_EP_Close()
+*                                     usbh_atsamx_hcd_ep_close()
 *
 * Description : Close specified endpoint.
 *
@@ -986,7 +987,7 @@ static void USBH_ATSAMX_HCD_EP_Open(USBH_HC_DRV *p_hc_drv, USBH_EP *p_ep,
 *********************************************************************************************************
 */
 
-static void USBH_ATSAMX_HCD_EP_Close(USBH_HC_DRV *p_hc_drv, USBH_EP *p_ep,
+static void usbh_atsamx_hcd_ep_close(USBH_HC_DRV *p_hc_drv, USBH_EP *p_ep,
 									 USBH_ERR *p_err)
 {
 	LOG_DBG("EP_Close");
@@ -996,7 +997,7 @@ static void USBH_ATSAMX_HCD_EP_Close(USBH_HC_DRV *p_hc_drv, USBH_EP *p_ep,
 
 	p_reg = (USBH_ATSAMX_REG *)p_hc_drv->HC_CfgPtr->BaseAddr;
 	p_drv_data = (USBH_DRV_DATA *)p_hc_drv->DataPtr;
-	pipe_nbr = USBH_ATSAMX_GetPipeNbr(p_drv_data, p_ep);
+	pipe_nbr = usbh_atsamx_get_pipe_nbr(p_drv_data, p_ep);
 	p_ep->DataPID =
 		0u; /* Set PID to DATA0                                      */
 	*p_err = USBH_ERR_NONE;
@@ -1026,7 +1027,7 @@ static void USBH_ATSAMX_HCD_EP_Close(USBH_HC_DRV *p_hc_drv, USBH_EP *p_ep,
 
 /*
 *********************************************************************************************************
-*                                     USBH_ATSAMX_HCD_EP_Abort()
+*                                     usbh_atsamx_hcd_ep_abort()
 *
 * Description : Abort all pending URBs on endpoint.
 *
@@ -1043,7 +1044,7 @@ static void USBH_ATSAMX_HCD_EP_Close(USBH_HC_DRV *p_hc_drv, USBH_EP *p_ep,
 *********************************************************************************************************
 */
 
-static void USBH_ATSAMX_HCD_EP_Abort(USBH_HC_DRV *p_hc_drv, USBH_EP *p_ep,
+static void usbh_atsamx_hcd_ep_abort(USBH_HC_DRV *p_hc_drv, USBH_EP *p_ep,
 									 USBH_ERR *p_err)
 {
 	(void)p_hc_drv;
@@ -1054,7 +1055,7 @@ static void USBH_ATSAMX_HCD_EP_Abort(USBH_HC_DRV *p_hc_drv, USBH_EP *p_ep,
 
 /*
 *********************************************************************************************************
-*                                    USBH_ATSAMX_HCD_IsHalt_EP()
+*                                    usbh_atsamx_hcd_ep_is_halt()
 *
 * Description : Retrieve endpoint halt state.
 *
@@ -1073,7 +1074,7 @@ static void USBH_ATSAMX_HCD_EP_Abort(USBH_HC_DRV *p_hc_drv, USBH_EP *p_ep,
 *********************************************************************************************************
 */
 
-static bool USBH_ATSAMX_HCD_IsHalt_EP(USBH_HC_DRV *p_hc_drv,
+static bool usbh_atsamx_hcd_ep_is_halt(USBH_HC_DRV *p_hc_drv,
 											 USBH_EP *p_ep, USBH_ERR *p_err)
 {
 	(void)p_hc_drv;
@@ -1089,7 +1090,7 @@ static bool USBH_ATSAMX_HCD_IsHalt_EP(USBH_HC_DRV *p_hc_drv,
 
 /*
 *********************************************************************************************************
-*                                    USBH_ATSAMX_HCD_URB_Submit()
+*                                    usbh_atsamx_hcd_urb_submit()
 *
 * Description : Submit specified URB.
 *
@@ -1108,7 +1109,7 @@ static bool USBH_ATSAMX_HCD_IsHalt_EP(USBH_HC_DRV *p_hc_drv,
 *********************************************************************************************************
 */
 
-static void USBH_ATSAMX_HCD_URB_Submit(USBH_HC_DRV *p_hc_drv, USBH_URB *p_urb,
+static void usbh_atsamx_hcd_urb_submit(USBH_HC_DRV *p_hc_drv, USBH_URB *p_urb,
 									   USBH_ERR *p_err)
 {
 	USBH_ATSAMX_REG *p_reg;
@@ -1127,7 +1128,7 @@ static void USBH_ATSAMX_HCD_URB_Submit(USBH_HC_DRV *p_hc_drv, USBH_URB *p_urb,
 		return;
 	}
 
-	pipe_nbr = USBH_ATSAMX_GetFreePipe(p_drv_data);
+	pipe_nbr = usbh_atsamx_get_free_pipe(p_drv_data);
 	if (pipe_nbr == ATSAMX_INVALID_PIPE)
 	{
 		*p_err = USBH_ERR_EP_ALLOC;
@@ -1218,7 +1219,7 @@ static void USBH_ATSAMX_HCD_URB_Submit(USBH_HC_DRV *p_hc_drv, USBH_URB *p_urb,
 		return;
 	}
 
-	USBH_ATSAMX_PipeCfg(p_urb, &p_reg->HPIPE[pipe_nbr],
+	usbh_atsamx_pipe_cfg(p_urb, &p_reg->HPIPE[pipe_nbr],
 						&p_drv_data->PipeTbl[pipe_nbr],
 						&p_drv_data->DescTbl[pipe_nbr].DescBank[0]);
 	/* Start transfer                                       */
@@ -1228,7 +1229,7 @@ static void USBH_ATSAMX_HCD_URB_Submit(USBH_HC_DRV *p_hc_drv, USBH_URB *p_urb,
 
 /*
 *********************************************************************************************************
-*                                   USBH_ATSAMX_HCD_URB_Complete()
+*                                   usbh_atsamx_hcd_urb_complete()
 *
 * Description : Complete specified URB.
 *
@@ -1246,7 +1247,7 @@ static void USBH_ATSAMX_HCD_URB_Submit(USBH_HC_DRV *p_hc_drv, USBH_URB *p_urb,
 *********************************************************************************************************
 */
 
-static void USBH_ATSAMX_HCD_URB_Complete(USBH_HC_DRV *p_hc_drv, USBH_URB *p_urb,
+static void usbh_atsamx_hcd_urb_complete(USBH_HC_DRV *p_hc_drv, USBH_URB *p_urb,
 										 USBH_ERR *p_err)
 {
 	USBH_ATSAMX_REG *p_reg;
@@ -1258,7 +1259,7 @@ static void USBH_ATSAMX_HCD_URB_Complete(USBH_HC_DRV *p_hc_drv, USBH_URB *p_urb,
 	*p_err = USBH_ERR_NONE;
 	p_reg = (USBH_ATSAMX_REG *)p_hc_drv->HC_CfgPtr->BaseAddr;
 	p_drv_data = (USBH_DRV_DATA *)p_hc_drv->DataPtr;
-	pipe_nbr = USBH_ATSAMX_GetPipeNbr(p_drv_data, p_urb->EP_Ptr);
+	pipe_nbr = usbh_atsamx_get_pipe_nbr(p_drv_data, p_urb->EP_Ptr);
 
 	CPU_CRITICAL_ENTER();
 	xfer_len = USBH_ATSAMX_GET_BYTE_CNT(
@@ -1319,7 +1320,7 @@ static void USBH_ATSAMX_HCD_URB_Complete(USBH_HC_DRV *p_hc_drv, USBH_URB *p_urb,
 
 /*
 *********************************************************************************************************
-*                                     USBH_ATSAMX_HCD_URB_Abort()
+*                                     usbh_atsamx_hcd_urb_abort()
 *
 * Description : Abort specified URB.
 *
@@ -1336,7 +1337,7 @@ static void USBH_ATSAMX_HCD_URB_Complete(USBH_HC_DRV *p_hc_drv, USBH_URB *p_urb,
 *********************************************************************************************************
 */
 
-static void USBH_ATSAMX_HCD_URB_Abort(USBH_HC_DRV *p_hc_drv, USBH_URB *p_urb,
+static void usbh_atsamx_hcd_urb_abort(USBH_HC_DRV *p_hc_drv, USBH_URB *p_urb,
 									  USBH_ERR *p_err)
 {
 	(void)p_hc_drv;
@@ -1357,7 +1358,7 @@ static void USBH_ATSAMX_HCD_URB_Abort(USBH_HC_DRV *p_hc_drv, USBH_URB *p_urb,
 
 /*
 *********************************************************************************************************
-*                                   USBH_ATSAMX_HCD_PortStatusGet()
+*                                   usbh_atsamx_rh_port_status_get()
 *
 * Description : Retrieve port status changes and port status.
 *
@@ -1375,7 +1376,7 @@ static void USBH_ATSAMX_HCD_URB_Abort(USBH_HC_DRV *p_hc_drv, USBH_URB *p_urb,
 */
 
 static bool
-USBH_ATSAMX_HCD_PortStatusGet(USBH_HC_DRV *p_hc_drv, uint8_t port_nbr,
+usbh_atsamx_rh_port_status_get(USBH_HC_DRV *p_hc_drv, uint8_t port_nbr,
 							  USBH_HUB_PORT_STATUS *p_port_status)
 {
 	USBH_ATSAMX_REG *p_reg;
@@ -1422,7 +1423,7 @@ USBH_ATSAMX_HCD_PortStatusGet(USBH_HC_DRV *p_hc_drv, uint8_t port_nbr,
 
 /*
 *********************************************************************************************************
-*                                    USBH_ATSAMX_HCD_HubDescGet()
+*                                    usbh_atsamx_rh_hub_desc_get()
 *
 * Description : Retrieve root hub descriptor.
 *
@@ -1464,7 +1465,7 @@ USBH_ATSAMX_HCD_PortStatusGet(USBH_HC_DRV *p_hc_drv, uint8_t port_nbr,
 *********************************************************************************************************
 */
 
-static bool USBH_ATSAMX_HCD_HubDescGet(USBH_HC_DRV *p_hc_drv,
+static bool usbh_atsamx_rh_hub_desc_get(USBH_HC_DRV *p_hc_drv,
 											  void *p_buf,
 											  uint8_t buf_len)
 {
@@ -1494,7 +1495,7 @@ static bool USBH_ATSAMX_HCD_HubDescGet(USBH_HC_DRV *p_hc_drv,
 
 /*
 *********************************************************************************************************
-*                                     USBH_ATSAMX_HCD_PortEnSet()
+*                                     usbh_atsamx_rh_port_en_set()
 *
 * Description : Enable given port.
 *
@@ -1508,7 +1509,7 @@ static bool USBH_ATSAMX_HCD_HubDescGet(USBH_HC_DRV *p_hc_drv,
 *********************************************************************************************************
 */
 
-static bool USBH_ATSAMX_HCD_PortEnSet(USBH_HC_DRV *p_hc_drv,
+static bool usbh_atsamx_rh_port_en_set(USBH_HC_DRV *p_hc_drv,
 											 uint8_t port_nbr)
 {
 	(void)p_hc_drv;
@@ -1519,7 +1520,7 @@ static bool USBH_ATSAMX_HCD_PortEnSet(USBH_HC_DRV *p_hc_drv,
 
 /*
 *********************************************************************************************************
-*                                     USBH_ATSAMX_HCD_PortEnClr()
+*                                     usbh_atsamx_rh_port_en_clr()
 *
 * Description : Clear port enable status.
 *
@@ -1533,7 +1534,7 @@ static bool USBH_ATSAMX_HCD_PortEnSet(USBH_HC_DRV *p_hc_drv,
 *********************************************************************************************************
 */
 
-static bool USBH_ATSAMX_HCD_PortEnClr(USBH_HC_DRV *p_hc_drv,
+static bool usbh_atsamx_rh_port_en_clr(USBH_HC_DRV *p_hc_drv,
 											 uint8_t port_nbr)
 {
 	USBH_DRV_DATA *p_drv_data;
@@ -1550,7 +1551,7 @@ static bool USBH_ATSAMX_HCD_PortEnClr(USBH_HC_DRV *p_hc_drv,
 
 /*
 *********************************************************************************************************
-*                                   USBH_ATSAMX_HCD_PortEnChngClr()
+*                                   usbh_atsamx_rh_port_en_chng_clr()
 *
 * Description : Clear port enable status change.
 *
@@ -1564,7 +1565,7 @@ static bool USBH_ATSAMX_HCD_PortEnClr(USBH_HC_DRV *p_hc_drv,
 *********************************************************************************************************
 */
 
-static bool USBH_ATSAMX_HCD_PortEnChngClr(USBH_HC_DRV *p_hc_drv,
+static bool usbh_atsamx_rh_port_en_chng_clr(USBH_HC_DRV *p_hc_drv,
 												 uint8_t port_nbr)
 {
 	USBH_DRV_DATA *p_drv_data;
@@ -1581,7 +1582,7 @@ static bool USBH_ATSAMX_HCD_PortEnChngClr(USBH_HC_DRV *p_hc_drv,
 
 /*
 *********************************************************************************************************
-*                                    USBH_ATSAMX_HCD_PortPwrSet()
+*                                    usbh_atsamx_rh_port_pwr_set()
 *
 * Description : Set port power based on port power mode.
 *
@@ -1595,7 +1596,7 @@ static bool USBH_ATSAMX_HCD_PortEnChngClr(USBH_HC_DRV *p_hc_drv,
 *********************************************************************************************************
 */
 
-static bool USBH_ATSAMX_HCD_PortPwrSet(USBH_HC_DRV *p_hc_drv,
+static bool usbh_atsamx_rh_port_pwr_set(USBH_HC_DRV *p_hc_drv,
 											  uint8_t port_nbr)
 {
 	USBH_DRV_DATA *p_drv_data;
@@ -1612,7 +1613,7 @@ static bool USBH_ATSAMX_HCD_PortPwrSet(USBH_HC_DRV *p_hc_drv,
 
 /*
 *********************************************************************************************************
-*                                    USBH_ATSAMX_HCD_PortPwrClr()
+*                                    usbh_atsamx_rh_port_pwr_clr()
 *
 * Description : Clear port power.
 *
@@ -1626,7 +1627,7 @@ static bool USBH_ATSAMX_HCD_PortPwrSet(USBH_HC_DRV *p_hc_drv,
 *********************************************************************************************************
 */
 
-static bool USBH_ATSAMX_HCD_PortPwrClr(USBH_HC_DRV *p_hc_drv,
+static bool usbh_atsamx_rh_port_pwr_clr(USBH_HC_DRV *p_hc_drv,
 											  uint8_t port_nbr)
 {
 	(void)p_hc_drv;
@@ -1637,7 +1638,7 @@ static bool USBH_ATSAMX_HCD_PortPwrClr(USBH_HC_DRV *p_hc_drv,
 
 /*
 *********************************************************************************************************
-*                                   USBH_ATSAMX_HCD_PortResetSet()
+*                                   usbh_atsamx_hcd_port_reset_set()
 *
 * Description : Reset given port.
 *
@@ -1651,7 +1652,7 @@ static bool USBH_ATSAMX_HCD_PortPwrClr(USBH_HC_DRV *p_hc_drv,
 *********************************************************************************************************
 */
 
-static bool USBH_ATSAMX_HCD_PortResetSet(USBH_HC_DRV *p_hc_drv,
+static bool usbh_atsamx_hcd_port_reset_set(USBH_HC_DRV *p_hc_drv,
 												uint8_t port_nbr)
 {
 	USBH_ATSAMX_REG *p_reg;
@@ -1672,7 +1673,7 @@ static bool USBH_ATSAMX_HCD_PortResetSet(USBH_HC_DRV *p_hc_drv,
 
 /*
 *********************************************************************************************************
-*                                 USBH_ATSAMX_HCD_PortResetChngClr()
+*                                 usbh_atsamx_hcd_port_reset_chng_clr()
 *
 * Description : Clear port reset status change.
 *
@@ -1686,7 +1687,7 @@ static bool USBH_ATSAMX_HCD_PortResetSet(USBH_HC_DRV *p_hc_drv,
 *********************************************************************************************************
 */
 
-static bool USBH_ATSAMX_HCD_PortResetChngClr(USBH_HC_DRV *p_hc_drv,
+static bool usbh_atsamx_hcd_port_reset_chng_clr(USBH_HC_DRV *p_hc_drv,
 													uint8_t port_nbr)
 {
 	USBH_DRV_DATA *p_drv_data;
@@ -1703,7 +1704,7 @@ static bool USBH_ATSAMX_HCD_PortResetChngClr(USBH_HC_DRV *p_hc_drv,
 
 /*
 *********************************************************************************************************
-*                                  USBH_ATSAMX_HCD_PortSuspendClr()
+*                                  usbh_atsamx_hcd_port_suspend_clr()
 *
 * Description : Resume given port if port is suspended.
 *
@@ -1717,7 +1718,7 @@ static bool USBH_ATSAMX_HCD_PortResetChngClr(USBH_HC_DRV *p_hc_drv,
 *********************************************************************************************************
 */
 
-static bool USBH_ATSAMX_HCD_PortSuspendClr(USBH_HC_DRV *p_hc_drv,
+static bool usbh_atsamx_hcd_port_suspend_clr(USBH_HC_DRV *p_hc_drv,
 												  uint8_t port_nbr)
 {
 	(void)p_hc_drv;
@@ -1728,7 +1729,7 @@ static bool USBH_ATSAMX_HCD_PortSuspendClr(USBH_HC_DRV *p_hc_drv,
 
 /*
 *********************************************************************************************************
-*                                  USBH_ATSAMX_HCD_PortConnChngClr()
+*                                  usbh_atsamx_hcd_port_conn_chng_clr()
 *
 * Description : Clear port connect status change.
 *
@@ -1742,7 +1743,7 @@ static bool USBH_ATSAMX_HCD_PortSuspendClr(USBH_HC_DRV *p_hc_drv,
 *********************************************************************************************************
 */
 
-static bool USBH_ATSAMX_HCD_PortConnChngClr(USBH_HC_DRV *p_hc_drv,
+static bool usbh_atsamx_hcd_port_conn_chng_clr(USBH_HC_DRV *p_hc_drv,
 												   uint8_t port_nbr)
 {
 	USBH_DRV_DATA *p_drv_data;
@@ -1757,7 +1758,7 @@ static bool USBH_ATSAMX_HCD_PortConnChngClr(USBH_HC_DRV *p_hc_drv,
 
 /*
 *********************************************************************************************************
-*                                    USBH_ATSAMX_HCD_RHSC_IntEn()
+*                                    usbh_atsamx_rh_int_en()
 *
 * Description : Enable root hub interrupt.
 *
@@ -1769,7 +1770,7 @@ static bool USBH_ATSAMX_HCD_PortConnChngClr(USBH_HC_DRV *p_hc_drv,
 *********************************************************************************************************
 */
 
-static bool USBH_ATSAMX_HCD_RHSC_IntEn(USBH_HC_DRV *p_hc_drv)
+static bool usbh_atsamx_rh_int_en(USBH_HC_DRV *p_hc_drv)
 {
 	(void)p_hc_drv;
 
@@ -1778,7 +1779,7 @@ static bool USBH_ATSAMX_HCD_RHSC_IntEn(USBH_HC_DRV *p_hc_drv)
 
 /*
 *********************************************************************************************************
-*                                    USBH_ATSAMX_HCD_RHSC_IntDis()
+*                                    usbh_atsamx_rh_int_dis()
 *
 * Description : Disable root hub interrupt.
 *
@@ -1790,7 +1791,7 @@ static bool USBH_ATSAMX_HCD_RHSC_IntEn(USBH_HC_DRV *p_hc_drv)
 *********************************************************************************************************
 */
 
-static bool USBH_ATSAMX_HCD_RHSC_IntDis(USBH_HC_DRV *p_hc_drv)
+static bool usbh_atsamx_rh_int_dis(USBH_HC_DRV *p_hc_drv)
 {
 
 	(void)p_hc_drv;
@@ -1808,7 +1809,7 @@ static bool USBH_ATSAMX_HCD_RHSC_IntDis(USBH_HC_DRV *p_hc_drv)
 
 /*
 *********************************************************************************************************
-*                                      USBH_ATSAMX_ISR_Handler()
+*                                      usbh_atsamx_isr_callback()
 *
 * Description : ISR handler.
 *
@@ -1820,7 +1821,7 @@ static bool USBH_ATSAMX_HCD_RHSC_IntDis(USBH_HC_DRV *p_hc_drv)
 *********************************************************************************************************
 */
 
-static void USBH_ATSAMX_ISR_Handler(void *p_drv)
+static void usbh_atsamx_isr_callback(void *p_drv)
 {
 	USBH_ATSAMX_REG *p_reg;
 	USBH_DRV_DATA *p_drv_data;
@@ -2052,11 +2053,11 @@ static void USBH_ATSAMX_ISR_Handler(void *p_drv)
 
 /*
 *********************************************************************************************************
-*                                     USBH_ATSAMX_URB_ProcTask()
+*                                     usbh_atsamx_process_urb()
 *
 * Description : The task handles additional EP IN/OUT transactions when needed.
 *
-* Argument(s) : p_arg     Pointer to the argument passed to 'USBH_ATSAMX_URB_ProcTask()' by
+* Argument(s) : p_arg     Pointer to the argument passed to 'usbh_atsamx_process_urb()' by
 *                         'USBH_OS_TaskCreate()'.
 *
 * Return(s)   : None.
@@ -2065,7 +2066,7 @@ static void USBH_ATSAMX_ISR_Handler(void *p_drv)
 *********************************************************************************************************
 */
 
-static void USBH_ATSAMX_URB_ProcTask(void *p_arg, void *p_arg2, void *p_arg3)
+static void usbh_atsamx_process_urb(void *p_arg, void *p_arg2, void *p_arg3)
 {
 	USBH_HC_DRV *p_hc_drv;
 	USBH_DRV_DATA *p_drv_data;
@@ -2089,7 +2090,7 @@ static void USBH_ATSAMX_URB_ProcTask(void *p_arg, void *p_arg2, void *p_arg3)
 			LOG_ERR("Cannot get USB URB");
 		}
 
-		pipe_nbr = USBH_ATSAMX_GetPipeNbr(p_drv_data, p_urb->EP_Ptr);
+		pipe_nbr = usbh_atsamx_get_pipe_nbr(p_drv_data, p_urb->EP_Ptr);
 
 		if (pipe_nbr != ATSAMX_INVALID_PIPE)
 		{
@@ -2147,7 +2148,7 @@ static void USBH_ATSAMX_URB_ProcTask(void *p_arg, void *p_arg2, void *p_arg3)
 
 			if (p_urb->Err == USBH_ERR_NONE)
 			{
-				USBH_ATSAMX_PipeCfg(
+				usbh_atsamx_pipe_cfg(
 					p_urb, &p_reg->HPIPE[pipe_nbr],
 					&p_drv_data->PipeTbl[pipe_nbr],
 					&p_drv_data->DescTbl[pipe_nbr]
@@ -2165,7 +2166,7 @@ static void USBH_ATSAMX_URB_ProcTask(void *p_arg, void *p_arg2, void *p_arg3)
 
 /*
 *********************************************************************************************************
-*                                        USBH_ATSAMX_PipeCfg()
+*                                        usbh_atsamx_pipe_cfg()
 *
 * Description : Initialize pipe configurations based on the endpoint direction and characteristics.
 *
@@ -2183,7 +2184,7 @@ static void USBH_ATSAMX_URB_ProcTask(void *p_arg, void *p_arg2, void *p_arg3)
 *********************************************************************************************************
 */
 
-static void USBH_ATSAMX_PipeCfg(USBH_URB *p_urb,
+static void usbh_atsamx_pipe_cfg(USBH_URB *p_urb,
 								USBH_ATSAMX_PIPE_REG *p_reg_hpipe,
 								USBH_ATSAMX_PINFO *p_pipe_info,
 								USBH_ATSAMX_DESC_BANK *p_desc_bank)
@@ -2252,7 +2253,7 @@ static void USBH_ATSAMX_PipeCfg(USBH_URB *p_urb,
 
 /*
 *********************************************************************************************************
-*                                      USBH_ATSAMX_GetFreePipe()
+*                                      usbh_atsamx_get_free_pipe()
 *
 * Description : Allocate a free host pipe number for the newly opened pipe.
 *
@@ -2264,7 +2265,7 @@ static void USBH_ATSAMX_PipeCfg(USBH_URB *p_urb,
 *********************************************************************************************************
 */
 
-static uint8_t USBH_ATSAMX_GetFreePipe(USBH_DRV_DATA *p_drv_data)
+static uint8_t usbh_atsamx_get_free_pipe(USBH_DRV_DATA *p_drv_data)
 {
 	uint8_t pipe_nbr;
 
@@ -2281,7 +2282,7 @@ static uint8_t USBH_ATSAMX_GetFreePipe(USBH_DRV_DATA *p_drv_data)
 
 /*
 *********************************************************************************************************
-*                                      USBH_ATSAMX_GetPipeNbr()
+*                                      usbh_atsamx_get_pipe_nbr()
 *
 * Description : Get the host pipe number corresponding to a given device address, endpoint number
 *               and direction.
@@ -2296,7 +2297,7 @@ static uint8_t USBH_ATSAMX_GetFreePipe(USBH_DRV_DATA *p_drv_data)
 *********************************************************************************************************
 */
 
-static uint8_t USBH_ATSAMX_GetPipeNbr(USBH_DRV_DATA *p_drv_data,
+static uint8_t usbh_atsamx_get_pipe_nbr(USBH_DRV_DATA *p_drv_data,
 										 USBH_EP *p_ep)
 {
 	uint8_t pipe_nbr;
