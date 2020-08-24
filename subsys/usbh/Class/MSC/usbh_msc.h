@@ -86,7 +86,7 @@ typedef struct usbh_msc_dev
     USBH_IF *IF_Ptr;   /* Pointer to interface.                                */
     uint8_t State;  /* State of MSC device.                                 */
     uint8_t RefCnt; /* Cnt of app ref on this dev.                          */
-    USBH_HMUTEX HMutex;
+    struct k_mutex HMutex;
 } USBH_MSC_DEV;
 
 typedef struct msc_inquiry_info

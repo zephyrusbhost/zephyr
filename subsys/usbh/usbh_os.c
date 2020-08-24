@@ -217,7 +217,7 @@ void USBH_OS_DlyUS(uint32_t dly)
  *********************************************************************************************************
  */
 
-USBH_ERR USBH_OS_MutexCreate(USBH_HMUTEX *p_mutex)
+USBH_ERR USBH_OS_MutexCreate(struct k_mutex *p_mutex)
 {
 	k_mutex_init(p_mutex);
 
@@ -240,7 +240,7 @@ USBH_ERR USBH_OS_MutexCreate(USBH_HMUTEX *p_mutex)
  *********************************************************************************************************
  */
 
-USBH_ERR USBH_OS_MutexLock(USBH_HMUTEX mutex)
+USBH_ERR USBH_OS_MutexLock(struct k_mutex mutex)
 {
 	int err = k_mutex_lock(&mutex, K_NO_WAIT);
 
@@ -265,7 +265,7 @@ USBH_ERR USBH_OS_MutexLock(USBH_HMUTEX mutex)
  *********************************************************************************************************
  */
 
-USBH_ERR USBH_OS_MutexUnlock(USBH_HMUTEX mutex)
+USBH_ERR USBH_OS_MutexUnlock(struct k_mutex mutex)
 {
 	int err = k_mutex_unlock(&mutex);
 
@@ -291,7 +291,7 @@ USBH_ERR USBH_OS_MutexUnlock(USBH_HMUTEX mutex)
  *********************************************************************************************************
  */
 
-USBH_ERR USBH_OS_MutexDestroy(USBH_HMUTEX mutex)
+USBH_ERR USBH_OS_MutexDestroy(struct k_mutex mutex)
 {
 	(void)mutex;
 

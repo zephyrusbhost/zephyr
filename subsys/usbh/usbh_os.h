@@ -68,7 +68,7 @@
  *********************************************************************************************************
  */
 
-typedef struct k_mutex USBH_HMUTEX;             /* Handle on mutex.                                     */
+// typedef struct k_mutex struct k_mutex;             /* Handle on mutex.                                     */
 // typedef struct k_msgq USBH_HQUEUE;              /* Handle on queues.                                    */
 typedef uint32_t USBH_HTMR;                   /* Handle on timers.                                    */
 
@@ -99,13 +99,13 @@ void USBH_OS_DlyMS(uint32_t dly);
 void USBH_OS_DlyUS(uint32_t dly);
 
 /* ----------------- MUTEX FUNCTIONS ------------------ */
-USBH_ERR USBH_OS_MutexCreate(USBH_HMUTEX *p_mutex);
+USBH_ERR USBH_OS_MutexCreate(struct k_mutex *p_mutex);
 
-USBH_ERR USBH_OS_MutexLock(USBH_HMUTEX mutex);
+USBH_ERR USBH_OS_MutexLock(struct k_mutex mutex);
 
-USBH_ERR USBH_OS_MutexUnlock(USBH_HMUTEX mutex);
+USBH_ERR USBH_OS_MutexUnlock(struct k_mutex mutex);
 
-USBH_ERR USBH_OS_MutexDestroy(USBH_HMUTEX mutex);
+USBH_ERR USBH_OS_MutexDestroy(struct k_mutex mutex);
 
 /* --------------- SEMAPHORE FUNCTIONS ---------------- */
 USBH_ERR USBH_OS_SemCreate(struct k_sem *p_sem,
