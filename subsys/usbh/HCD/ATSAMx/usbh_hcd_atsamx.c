@@ -390,7 +390,7 @@ static void usbh_atsamx_hcd_start(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err);
 
 static void usbh_atsamx_hcd_stop(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err);
 
-static USBH_DEV_SPD usbh_atsamx_hcd_spd_get(USBH_HC_DRV *p_hc_drv,
+static enum usb_device_speed usbh_atsamx_hcd_spd_get(USBH_HC_DRV *p_hc_drv,
 										   USBH_ERR *p_err);
 
 static void usbh_atsamx_hcd_suspend(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err);
@@ -792,14 +792,14 @@ static void usbh_atsamx_hcd_stop(USBH_HC_DRV *p_hc_drv, USBH_ERR *p_err)
 *********************************************************************************************************
 */
 
-static USBH_DEV_SPD usbh_atsamx_hcd_spd_get(USBH_HC_DRV *p_hc_drv,
+static enum usb_device_speed usbh_atsamx_hcd_spd_get(USBH_HC_DRV *p_hc_drv,
 										   USBH_ERR *p_err)
 {
 	(void)p_hc_drv;
 
 	*p_err = USBH_ERR_NONE;
 
-	return (USBH_DEV_SPD_FULL);
+	return (USB_SPEED_FULL);
 }
 
 /*

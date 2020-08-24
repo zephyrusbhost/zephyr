@@ -3603,8 +3603,8 @@ static USBH_ERR usbh_ep_open(USBH_DEV *p_dev, USBH_IF *p_if,
 			0)
 		{ /* See Note #1.                                         */
 
-			if ((p_dev->DevSpd == USBH_DEV_SPD_LOW) ||
-				(p_dev->DevSpd == USBH_DEV_SPD_FULL))
+			if ((p_dev->DevSpd == USB_SPEED_LOW) ||
+				(p_dev->DevSpd == USB_SPEED_FULL))
 			{
 				if (p_dev->HubHS_Ptr != (USBH_HUB_DEV *)0)
 				{
@@ -4231,7 +4231,7 @@ static USBH_ERR usbh_dflt_ep_open(USBH_DEV *p_dev)
 	p_ep->DevPtr = p_dev;
 
 	if (p_dev->DevSpd ==
-		USBH_DEV_SPD_LOW)
+		USB_SPEED_LOW)
 	{ /* See Note (1).                                        */
 		ep_max_pkt_size = 8u;
 	}

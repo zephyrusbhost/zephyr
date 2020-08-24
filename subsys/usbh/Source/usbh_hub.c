@@ -957,7 +957,7 @@ static void USBH_HUB_EventProcess(void)
 {
     uint16_t nbr_ports;
     uint16_t port_nbr;
-    USBH_DEV_SPD dev_spd;
+    enum usb_device_speed dev_spd;
     USBH_HUB_DEV *p_hub_dev;
     USBH_HUB_PORT_STATUS port_status;
     USBH_DEV *p_dev;
@@ -1083,19 +1083,19 @@ static void USBH_HUB_EventProcess(void)
                 /* Determine dev spd.                                   */
                 if (DEF_BIT_IS_SET(port_status.wPortStatus, USBH_HUB_STATUS_PORT_LOW_SPD) == DEF_TRUE)
                 {
-                    dev_spd = USBH_DEV_SPD_LOW;
+                    dev_spd = USB_SPEED_LOW;
                 }
                 else if (DEF_BIT_IS_SET(port_status.wPortStatus, USBH_HUB_STATUS_PORT_HIGH_SPD) == DEF_TRUE)
                 {
-                    dev_spd = USBH_DEV_SPD_HIGH;
+                    dev_spd = USB_SPEED_HIGH;
                 }
                 else
                 {
-                    dev_spd = USBH_DEV_SPD_FULL;
+                    dev_spd = USB_SPEED_FULL;
                 }
 
                 LOG_DBG("Port %d : Port Reset complete, device speed is %s\r\n", port_nbr,
-                        (dev_spd == USBH_DEV_SPD_LOW) ? "LOW Speed(1.5 Mb/Sec)" : (dev_spd == USBH_DEV_SPD_FULL) ? "FULL Speed(12 Mb/Sec)" : "HIGH Speed(480 Mb/Sec)");
+                        (dev_spd == USB_SPEED_LOW) ? "LOW Speed(1.5 Mb/Sec)" : (dev_spd == USB_SPEED_FULL) ? "FULL Speed(12 Mb/Sec)" : "HIGH Speed(480 Mb/Sec)");
 
                 p_dev = p_hub_dev->DevPtrList[port_nbr - 1u];
 
@@ -1126,13 +1126,13 @@ static void USBH_HUB_EventProcess(void)
                 p_dev->PortNbr = port_nbr;
                 p_dev->HC_Ptr = p_hub_dev->DevPtr->HC_Ptr;
 
-                if (dev_spd == USBH_DEV_SPD_HIGH)
+                if (dev_spd == USB_SPEED_HIGH)
                 {
                     p_dev->HubHS_Ptr = p_hub_dev;
                 }
                 else
                 {
-                    if (p_hub_dev->IntrEP.DevSpd == USBH_DEV_SPD_HIGH)
+                    if (p_hub_dev->IntrEP.DevSpd == USB_SPEED_HIGH)
                     {
                         p_dev->HubHS_Ptr = p_hub_dev;
                     }
