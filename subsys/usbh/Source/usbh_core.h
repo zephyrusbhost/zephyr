@@ -1016,7 +1016,7 @@ struct  usbh_host {
     int8_t         DevCount;                                   /* Pool for mem mgmt of USB devs.                       */
     int8_t         IsocCount;
     struct usbh_isoc_desc   IsocDesc[USBH_CFG_MAX_ISOC_DESC];
-    MEM_POOL         AsyncURB_Pool;                             /* Pool of extra URB when using async comm.             */
+    struct k_mem_pool         AsyncURB_Pool;                             /* Pool of extra URB when using async comm.             */
 
     struct usbh_hc          HC_Tbl[USBH_CFG_MAX_NBR_HC];               /* Array of HC structs.                                 */
     uint8_t       HC_NbrNext;

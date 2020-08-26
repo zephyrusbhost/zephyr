@@ -409,8 +409,7 @@ static void USBH_HUB_GlobalInit(USBH_ERR *p_err)
     USBH_HUB_HeadPtr = (struct usbh_hub_dev *)0;
     USBH_HUB_TailPtr = (struct usbh_hub_dev *)0;
 
-    Mem_Clr((void *)USBH_HUB_DescBuf,
-            USBH_HUB_MAX_DESC_LEN);
+    memset(USBH_HUB_DescBuf, 0, USBH_HUB_MAX_DESC_LEN);
 }
 
 /*
@@ -536,8 +535,7 @@ static void USBH_HUB_Suspend(void *p_class_dev)
     struct usbh_hub_dev *p_hub_dev;
 
     p_hub_dev = (struct usbh_hub_dev *)p_class_dev;
-    nbr_ports = DEF_MIN(p_hub_dev->Desc.bNbrPorts,
-                        USBH_CFG_MAX_HUB_PORTS);
+    nbr_ports = MIN(p_hub_dev->Desc.bNbrPorts, USBH_CFG_MAX_HUB_PORTS);
 
     for (port_ix = 0u; port_ix < nbr_ports; port_ix++)
     {
@@ -574,8 +572,7 @@ static void USBH_HUB_Resume(void *p_class_dev)
     struct usbh_hub_port_status port_status;
 
     p_hub_dev = (struct usbh_hub_dev *)p_class_dev;
-    nbr_ports = DEF_MIN(p_hub_dev->Desc.bNbrPorts,
-                        USBH_CFG_MAX_HUB_PORTS);
+    nbr_ports = MIN(p_hub_dev->Desc.bNbrPorts, USBH_CFG_MAX_HUB_PORTS);
 
     for (port_ix = 0u; port_ix < nbr_ports; port_ix++)
     {
@@ -726,8 +723,7 @@ static void USBH_HUB_Uninit(struct usbh_hub_dev *p_hub_dev)
     struct usbh_dev *p_dev;
 
     USBH_HUB_EP_Close(p_hub_dev);
-    nbr_ports = DEF_MIN(p_hub_dev->Desc.bNbrPorts,
-                        USBH_CFG_MAX_HUB_PORTS);
+    nbr_ports = MIN(p_hub_dev->Desc.bNbrPorts, USBH_CFG_MAX_HUB_PORTS);
 
     for (port_ix = 0u; port_ix < nbr_ports; port_ix++)
     {
@@ -839,7 +835,7 @@ static USBH_ERR USBH_HUB_EventReq(struct usbh_hub_dev *p_hub_dev)
 
         p_rh_api = p_dev->HC_Ptr->HC_Drv.RH_API_Ptr;
         valid = p_rh_api->IntEn(&p_dev->HC_Ptr->HC_Drv);
-        if (valid != DEF_OK)
+        if (valid != 1)
         {
             return (USBH_ERR_HC_IO);
         }
@@ -997,8 +993,7 @@ static void USBH_HUB_EventProcess(void)
     }
 
     port_nbr = 1u;
-    nbr_ports = DEF_MIN(p_hub_dev->Desc.bNbrPorts,
-                        USBH_CFG_MAX_HUB_PORTS);
+    nbr_ports = MIN(p_hub_dev->Desc.bNbrPorts, USBH_CFG_MAX_HUB_PORTS);
 
     while (port_nbr <= nbr_ports)
     {
@@ -1326,8 +1321,7 @@ static USBH_ERR USBH_HUB_PortsInit(struct usbh_hub_dev *p_hub_dev)
     uint32_t i;
     uint16_t nbr_ports;
 
-    nbr_ports = DEF_MIN(p_hub_dev->Desc.bNbrPorts,
-                        USBH_CFG_MAX_HUB_PORTS);
+    nbr_ports = MIN(p_hub_dev->Desc.bNbrPorts, USBH_CFG_MAX_HUB_PORTS);
 
     for (i = 0u; i < nbr_ports; i++)
     {
@@ -1977,7 +1971,7 @@ uint32_t usbh_rh_ctrl_req(struct usbh_hc *p_hc,
     p_hc_rh_api = p_hc_drv->RH_API_Ptr;
     *p_err = USBH_ERR_NONE;
     len = 0u;
-    valid = DEF_OK;
+    valid = 1;
 
     switch (b_req)
     {
@@ -1992,7 +1986,7 @@ uint32_t usbh_rh_ctrl_req(struct usbh_hc *p_hc,
         else
         {
             len = buf_len;
-            Mem_Clr(p_buf, len); /* Return 0 for other reqs.                             */
+            memset(p_buf, 0, len); /* Return 0 for other reqs.                             */
         }
         break;
 
@@ -2081,7 +2075,7 @@ uint32_t usbh_rh_ctrl_req(struct usbh_hc *p_hc,
                 len = buf_len;
             }
 
-            Mem_Copy((void *)p_buf,
+            memcpy((void *)p_buf,
                      (void *)USBH_HUB_RH_DevDesc,
                      len);
             break;
@@ -2095,7 +2089,7 @@ uint32_t usbh_rh_ctrl_req(struct usbh_hc *p_hc,
             {
                 len = buf_len;
             }
-            Mem_Copy((void *)p_buf,
+            memcpy((void *)p_buf,
                      (void *)USBH_HUB_RH_FS_CfgDesc,
                      len);
             break;
@@ -2119,7 +2113,7 @@ uint32_t usbh_rh_ctrl_req(struct usbh_hc *p_hc,
                 {
                     len = buf_len;
                 }
-                Mem_Copy((void *)p_buf,
+                memcpy((void *)p_buf,
                          (void *)USBH_HUB_RH_LangID,
                          len);
             }
@@ -2150,7 +2144,7 @@ uint32_t usbh_rh_ctrl_req(struct usbh_hc *p_hc,
         break;
     }
 
-    if ((valid != DEF_OK) &&
+    if ((valid != 1) &&
         (*p_err == USBH_ERR_NONE))
     {
         *p_err = USBH_ERR_HC_IO;

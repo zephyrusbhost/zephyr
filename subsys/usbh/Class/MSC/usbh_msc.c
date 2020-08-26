@@ -1001,7 +1001,7 @@ bool usbh_msc_unit_rdy_test(USBH_MSC_DEV *p_msc_dev,
                                  uint8_t lun,
                                  USBH_ERR *p_err)
 {
-    bool unit_rdy = DEF_NO;
+    bool unit_rdy = 1;
 
     /* ------------------- VALIDATE PTR ------------------- */
     if (p_msc_dev == (USBH_MSC_DEV *)0)
@@ -1023,12 +1023,12 @@ bool usbh_msc_unit_rdy_test(USBH_MSC_DEV *p_msc_dev,
         *p_err = USBH_SCSI_CMD_TestUnitReady(p_msc_dev, 0u);
         if (*p_err == USBH_ERR_NONE)
         {
-            unit_rdy = DEF_YES;
+            unit_rdy = 1;
         }
         else if (*p_err == USBH_ERR_MSC_CMD_FAILED)
         {
             *p_err = USBH_ERR_NONE; /* CSW reporting cmd failed for this req NOT an err.    */
-            unit_rdy = DEF_NO;
+            unit_rdy = 1;
         }
         else
         {
@@ -1854,7 +1854,7 @@ static uint32_t usbh_msc_xfer_cmd(USBH_MSC_DEV *p_msc_dev,
     msc_cbw.bCBWLUN = lun;
     msc_cbw.bCBWCBLength = cb_len;
 
-    Mem_Copy((void *)msc_cbw.CBWCB,
+    memcpy((void *)msc_cbw.CBWCB,
              p_cb,
              cb_len);
 
@@ -1888,7 +1888,7 @@ static uint32_t usbh_msc_xfer_cmd(USBH_MSC_DEV *p_msc_dev,
         return (0u);
     }
 
-    Mem_Set((void *)&msc_csw,
+    memset((void *)&msc_csw,
             0u,
             USBH_MSC_LEN_CSW);
 
@@ -1962,8 +1962,7 @@ static USBH_ERR USBH_MSC_TxCBW(USBH_MSC_DEV *p_msc_dev,
     USBH_ERR err;
     uint32_t len;
 
-    Mem_Clr((void *)cmd_buf,
-            USBH_MSC_LEN_CBW);
+    memset(cmd_buf, 0, USBH_MSC_LEN_CBW);
 
     usbh_msc_fmt_cbw(p_msc_cbw, cmd_buf); /* Format CBW.                                          */
 
@@ -2417,11 +2416,11 @@ static USBH_ERR USBH_SCSI_CMD_StdInquiry(USBH_MSC_DEV *p_msc_dev,
         p_msc_inquiry_info->DevType = data[0] & 0x1Fu;
         p_msc_inquiry_info->IsRemovable = data[1] >> 7u;
 
-        Mem_Copy((void *)p_msc_inquiry_info->Vendor_ID,
+        memcpy((void *)p_msc_inquiry_info->Vendor_ID,
                  (void *)&data[8],
                  8u);
 
-        Mem_Copy((void *)p_msc_inquiry_info->Product_ID,
+        memcpy((void *)p_msc_inquiry_info->Product_ID,
                  (void *)&data[16],
                  16u);
 
