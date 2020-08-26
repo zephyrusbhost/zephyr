@@ -494,8 +494,8 @@ void usbh_class_drv_disconn(struct usbh_dev *p_dev)
     {
         p_class_drv = p_dev->ClassDrvRegPtr->ClassDrvPtr;
 
-        if ((p_class_drv != DEF_NULL) &&
-            (p_class_drv->Disconn != DEF_NULL))
+        if ((p_class_drv != 0) &&
+            (p_class_drv->Disconn != 0))
         {
             LOG_DBG("notify class");
             USBH_ClassNotify(p_dev,
@@ -526,8 +526,8 @@ void usbh_class_drv_disconn(struct usbh_dev *p_dev)
         {
             p_class_drv = p_if->ClassDrvRegPtr->ClassDrvPtr;
 
-            if ((p_class_drv != DEF_NULL) &&
-                (p_class_drv->Disconn != DEF_NULL))
+            if ((p_class_drv != 0) &&
+                (p_class_drv->Disconn != 0))
             {
                 LOG_DBG("notify class");
                 USBH_ClassNotify(p_dev,
