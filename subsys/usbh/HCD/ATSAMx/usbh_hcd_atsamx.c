@@ -581,16 +581,14 @@ static void usbh_atsamx_hcd_init(struct usbh_hc_drv *p_hc_drv,
 	LOG_DBG("atsam hcd init");
 	USBH_DRV_DATA *p_drv_data;
 
-	p_drv_data = (USBH_DRV_DATA *)Mem_HeapAlloc(sizeof(USBH_DRV_DATA),
-												sizeof(uint32_t),
-												&octets_reqd, &err_lib);
+	p_drv_data = k_malloc(sizeof(USBH_DRV_DATA));
 	if (p_drv_data == NULL)
 	{
 		*p_err = USBH_ERR_ALLOC;
 		return;
 	}
 
-	Mem_Clr(p_drv_data, sizeof(USBH_DRV_DATA));
+	memset(p_drv_data, 0, sizeof(USBH_DRV_DATA));
 	p_hc_drv->DataPtr = (void *)p_drv_data;
 
 	if ((p_hc_drv->HC_CfgPtr->DataBufMaxLen %
@@ -1025,8 +1023,7 @@ static void usbh_atsamx_hcd_ep_close(struct usbh_hc_drv *p_hc_drv,
 
 	if (p_ep->URB.DMA_BufPtr != (void *)0u)
 	{
-		Mem_PoolBlkFree(&ATSAMX_DrvMemPool, p_ep->URB.DMA_BufPtr,
-						&err_lib);
+		k_free(p_ep->URB.DMA_BufPtr);
 		p_ep->URB.DMA_BufPtr = (void *)0u;
 	}
 
@@ -1168,8 +1165,8 @@ static void usbh_atsamx_hcd_urb_submit(struct usbh_hc_drv *p_hc_drv,
 	if (p_urb->DMA_BufPtr == (void *)0u)
 	{
 		p_urb->DMA_BufPtr =
-			Mem_PoolBlkGet(&ATSAMX_DrvMemPool,
-						   USBH_DATA_BUF_MAX_LEN, &err_lib);
+			k_mem_pool_malloc(&ATSAMX_DrvMemPool,
+						   USBH_DATA_BUF_MAX_LEN);
 		if (p_urb->DMA_BufPtr == NULL)
 		{
 			*p_err = USBH_ERR_HC_ALLOC;
@@ -1293,7 +1290,7 @@ static void usbh_atsamx_hcd_urb_complete(struct usbh_hc_drv *p_hc_drv,
 	if (p_urb->Token ==
 		USBH_TOKEN_IN)
 	{ /* -------------- HANDLE IN TRANSACTIONS -------------- */
-		Mem_Copy((void *)((uint32_t)p_urb->UserBufPtr +
+		memcpy((void *)((uint32_t)p_urb->UserBufPtr +
 						  p_urb->XferLen),
 				 p_urb->DMA_BufPtr, xfer_len);
 
@@ -1333,7 +1330,7 @@ static void usbh_atsamx_hcd_urb_complete(struct usbh_hc_drv *p_hc_drv,
 		0u; /* Disable the pipe                                     */
 	CPU_CRITICAL_EXIT();
 
-	Mem_PoolBlkFree(&ATSAMX_DrvMemPool, p_urb->DMA_BufPtr, &err_lib);
+	k_free(p_urb->DMA_BufPtr);
 	p_urb->DMA_BufPtr = (void *)0u;
 
 	p_drv_data->PipeTbl[pipe_nbr].EP_Addr = ATSAMX_DFLT_EP_ADDR;
@@ -1416,7 +1413,7 @@ usbh_atsamx_rh_port_status_get(struct usbh_hc_drv *p_hc_drv, uint8_t port_nbr,
 	{
 		p_port_status->wPortStatus = 0u;
 		p_port_status->wPortChange = 0u;
-		return (DEF_FAIL);
+		return (0);
 	}
 	/* Bits not used by the stack. Maintain constant value. */
 	p_drv_data->RH_PortStat &= ~USBH_HUB_STATUS_PORT_TEST;
@@ -1444,7 +1441,7 @@ usbh_atsamx_rh_port_status_get(struct usbh_hc_drv *p_hc_drv, uint8_t port_nbr,
 	p_port_status->wPortStatus = p_drv_data->RH_PortStat;
 	p_port_status->wPortChange = p_drv_data->RH_PortChng;
 
-	return (DEF_OK);
+	return (1);
 }
 
 /*
@@ -1511,12 +1508,12 @@ static bool usbh_atsamx_rh_hub_desc_get(struct usbh_hc_drv *p_hc_drv,
 		&hub_desc,
 		p_drv_data->RH_Desc); /* Write the structure in USB format                    */
 
-	buf_len = DEF_MIN(buf_len, sizeof(struct usbh_hub_desc));
-	Mem_Copy(
+	buf_len = MIN(buf_len, sizeof(struct usbh_hub_desc));
+	memcpy(
 		p_buf, p_drv_data->RH_Desc,
 		buf_len); /* Copy the formatted structure into the buffer         */
 
-	return (DEF_OK);
+	return (1);
 }
 
 /*
@@ -1541,7 +1538,7 @@ static bool usbh_atsamx_rh_port_en_set(struct usbh_hc_drv *p_hc_drv,
 	(void)p_hc_drv;
 	(void)port_nbr;
 
-	return (DEF_OK);
+	return (1);
 }
 
 /*
@@ -1572,7 +1569,7 @@ static bool usbh_atsamx_rh_port_en_clr(struct usbh_hc_drv *p_hc_drv,
 	p_drv_data->RH_PortStat &=
 		~USBH_HUB_STATUS_PORT_EN; /* Bit is clr by ClearPortFeature(PORT_ENABLE)          */
 
-	return (DEF_OK);
+	return (1);
 }
 
 /*
@@ -1603,7 +1600,7 @@ static bool usbh_atsamx_rh_port_en_chng_clr(struct usbh_hc_drv *p_hc_drv,
 	p_drv_data->RH_PortChng &=
 		~USBH_HUB_STATUS_C_PORT_EN; /* Bit is clr by ClearPortFeature(C_PORT_ENABLE)        */
 
-	return (DEF_OK);
+	return (1);
 }
 
 /*
@@ -1634,7 +1631,7 @@ static bool usbh_atsamx_rh_port_pwr_set(struct usbh_hc_drv *p_hc_drv,
 	p_drv_data->RH_PortStat |=
 		USBH_HUB_STATUS_PORT_PWR; /* Bit is set by SetPortFeature(PORT_POWER) request     */
 
-	return (DEF_OK);
+	return (1);
 }
 
 /*
@@ -1659,7 +1656,7 @@ static bool usbh_atsamx_rh_port_pwr_clr(struct usbh_hc_drv *p_hc_drv,
 	(void)p_hc_drv;
 	(void)port_nbr;
 
-	return (DEF_OK);
+	return (1);
 }
 
 /*
@@ -1694,7 +1691,7 @@ static bool usbh_atsamx_hcd_port_reset_set(struct usbh_hc_drv *p_hc_drv,
 	p_reg->CTRLB |=
 		USBH_ATSAMX_CTRLB_BUSRESET; /* Send USB reset signal.                               */
 
-	return (DEF_OK);
+	return (1);
 }
 
 /*
@@ -1725,7 +1722,7 @@ static bool usbh_atsamx_hcd_port_reset_chng_clr(struct usbh_hc_drv *p_hc_drv,
 	p_drv_data->RH_PortChng &=
 		~USBH_HUB_STATUS_C_PORT_RESET; /* Bit is clr by ClearPortFeature(C_PORT_RESET) request */
 
-	return (DEF_OK);
+	return (1);
 }
 
 /*
@@ -1750,7 +1747,7 @@ static bool usbh_atsamx_hcd_port_suspend_clr(struct usbh_hc_drv *p_hc_drv,
 	(void)p_hc_drv;
 	(void)port_nbr;
 
-	return (DEF_OK);
+	return (1);
 }
 
 /*
@@ -1779,7 +1776,7 @@ static bool usbh_atsamx_hcd_port_conn_chng_clr(struct usbh_hc_drv *p_hc_drv,
 	p_drv_data = (USBH_DRV_DATA *)p_hc_drv->DataPtr;
 	DEF_BIT_CLR(p_drv_data->RH_PortChng, USBH_HUB_STATUS_C_PORT_CONN);
 
-	return (DEF_OK);
+	return (1);
 }
 
 /*
@@ -1800,7 +1797,7 @@ static bool usbh_atsamx_rh_int_en(struct usbh_hc_drv *p_hc_drv)
 {
 	(void)p_hc_drv;
 
-	return (DEF_OK);
+	return (1);
 }
 
 /*
@@ -1822,7 +1819,7 @@ static bool usbh_atsamx_rh_int_dis(struct usbh_hc_drv *p_hc_drv)
 
 	(void)p_hc_drv;
 
-	return (DEF_OK);
+	return (1);
 }
 
 /*
@@ -2129,7 +2126,7 @@ static void usbh_atsamx_process_urb(void *p_arg, void *p_arg2, void *p_arg3)
 			if (p_urb->Token ==
 				USBH_TOKEN_IN)
 			{ /* -------------- HANDLE IN TRANSACTIONS -------------- */
-				Mem_Copy(
+				memcpy(
 					(void *)((uint32_t)p_urb->UserBufPtr +
 							 p_urb->XferLen),
 					p_urb->DMA_BufPtr, xfer_len);
@@ -2224,15 +2221,15 @@ static void usbh_atsamx_pipe_cfg(struct usbh_urb *p_urb,
 	ep_nbr = usbh_ep_log_nbr_get(p_urb->EP_Ptr);
 	p_pipe_info->NextXferLen = p_urb->UserBufLen - p_urb->XferLen;
 	p_pipe_info->NextXferLen =
-		DEF_MIN(p_pipe_info->NextXferLen, USBH_DATA_BUF_MAX_LEN);
+		MIN(p_pipe_info->NextXferLen, USBH_DATA_BUF_MAX_LEN);
 
-	Mem_Clr(p_urb->DMA_BufPtr, p_pipe_info->NextXferLen);
+	memset(p_urb->DMA_BufPtr, 0, p_pipe_info->NextXferLen);
 	if (p_urb->Token !=
 		USBH_TOKEN_IN)
 	{ /* ---------------- SETUP/OUT PACKETS ----------------- */
 		p_pipe_info->AppBufLen = p_pipe_info->NextXferLen;
 
-		Mem_Copy(p_urb->DMA_BufPtr,
+		memcpy(p_urb->DMA_BufPtr,
 				 (void *)((uint32_t)p_urb->UserBufPtr +
 						  p_urb->XferLen),
 				 p_pipe_info->NextXferLen);
