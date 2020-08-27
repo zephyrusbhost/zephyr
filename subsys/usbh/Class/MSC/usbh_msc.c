@@ -2424,7 +2424,7 @@ static USBH_ERR USBH_SCSI_CMD_StdInquiry(USBH_MSC_DEV *p_msc_dev,
                  (void *)&data[16],
                  16u);
 
-        p_msc_inquiry_info->ProductRevisionLevel = MEM_VAL_GET_INT32U(&data[32]);
+        p_msc_inquiry_info->ProductRevisionLevel = sys_get_le32(&data[32]);
     }
 
     return (err);
@@ -2696,9 +2696,9 @@ static USBH_ERR usbh_scsi_cmd_capacity_read(USBH_MSC_DEV *p_msc_dev,
                      &err);
     if (err == USBH_ERR_NONE)
     { /* -------------- HANDLE DEVICE RESPONSE -------------- */
-        MEM_VAL_COPY_GET_INT32U_BIG(p_nbr_blks, &data[0]);
+        sys_memcpy_swap(p_nbr_blks, &data[0], sizeof(uint32_t));
         *p_nbr_blks += 1u;
-        MEM_VAL_COPY_GET_INT32U_BIG(p_blk_size, &data[4]);
+        sys_memcpy_swap(p_blk_size, &data[4], sizeof(uint32_t));
     }
 
     return (err);
@@ -2758,9 +2758,9 @@ static uint32_t usbh_scsi_read(USBH_MSC_DEV *p_msc_dev,
     /* -------------- PREPARE SCSI CMD BLOCK -------------- */
     cmd[0] = USBH_SCSI_CMD_READ_10;                  /* Operation code (0x28).                               */
     cmd[1] = 0u;                                     /* Reserved.                                            */
-    MEM_VAL_COPY_SET_INT32U_BIG(&cmd[2], &blk_addr); /* Logcal Block Address (LBA).                          */
+    sys_memcpy_swap(&cmd[2], &blk_addr, sizeof(uint32_t)); /* Logcal Block Address (LBA).                          */
     cmd[6] = 0u;                                     /* Reserved.                                            */
-    MEM_VAL_COPY_SET_INT16U_BIG(&cmd[7], &nbr_blks); /* Transfer length (number of logical blocks).          */
+    sys_memcpy_swap(&cmd[7], &nbr_blks, sizeof(uint16_t)); /* Transfer length (number of logical blocks).          */
     cmd[9] = 0u;                                     /* Control.                                             */
 
     xfer_len = usbh_msc_xfer_cmd(p_msc_dev, /* ---------------- SEND SCSI COMMAND ----------------- */
@@ -2834,9 +2834,9 @@ static uint32_t usbh_scsi_write(USBH_MSC_DEV *p_msc_dev,
     /* -------------- PREPARE SCSI CMD BLOCK -------------- */
     cmd[0] = USBH_SCSI_CMD_WRITE_10;                 /* Operation code (0x2A).                               */
     cmd[1] = 0u;                                     /* Reserved.                                            */
-    MEM_VAL_COPY_SET_INT32U_BIG(&cmd[2], &blk_addr); /* Logical Block Address (LBA).                         */
+    sys_memcpy_swap(&cmd[2], &blk_addr, sizeof(uint32_t)); /* Logical Block Address (LBA).                         */
     cmd[6] = 0u;                                     /* Reserved.                                            */
-    MEM_VAL_COPY_SET_INT16U_BIG(&cmd[7], &nbr_blks); /* Transfer length (number of logical blocks).          */
+    sys_memcpy_swap(&cmd[7], &nbr_blks, sizeof(uint16_t)); /* Transfer length (number of logical blocks).          */
     cmd[9] = 0u;                                     /* Control.                                             */
 
     xfer_len = usbh_msc_xfer_cmd(p_msc_dev, /* ------------------ SEND SCSI CMD ------------------- */
@@ -2879,9 +2879,9 @@ static void usbh_msc_fmt_cbw(USBH_MSC_CBW *p_cbw,
 
     p_buf_dest_cbw = (USBH_MSC_CBW *)p_buf_dest;
 
-    p_buf_dest_cbw->dCBWSignature = MEM_VAL_GET_INT32U_LITTLE(&p_cbw->dCBWSignature);
-    p_buf_dest_cbw->dCBWTag = MEM_VAL_GET_INT32U_LITTLE(&p_cbw->dCBWTag);
-    p_buf_dest_cbw->dCBWDataTransferLength = MEM_VAL_GET_INT32U_LITTLE(&p_cbw->dCBWDataTransferLength);
+    p_buf_dest_cbw->dCBWSignature = sys_get_le32((uint8_t *)&p_cbw->dCBWSignature);
+    p_buf_dest_cbw->dCBWTag = sys_get_le32((uint8_t *)&p_cbw->dCBWTag);
+    p_buf_dest_cbw->dCBWDataTransferLength = sys_get_le32((uint8_t *)&p_cbw->dCBWDataTransferLength);
     p_buf_dest_cbw->bmCBWFlags = p_cbw->bmCBWFlags;
     p_buf_dest_cbw->bCBWLUN = p_cbw->bCBWLUN;
     p_buf_dest_cbw->bCBWCBLength = p_cbw->bCBWCBLength;
@@ -2915,8 +2915,8 @@ static void usbh_msc_parse_csw(USBH_MSC_CSW *p_csw,
 
     p_buf_src_cbw = (USBH_MSC_CSW *)p_buf_src;
 
-    p_csw->dCSWSignature = MEM_VAL_GET_INT32U_LITTLE(&p_buf_src_cbw->dCSWSignature);
-    p_csw->dCSWTag = MEM_VAL_GET_INT32U_LITTLE(&p_buf_src_cbw->dCSWTag);
-    p_csw->dCSWDataResidue = MEM_VAL_GET_INT32U_LITTLE(&p_buf_src_cbw->dCSWDataResidue);
+    p_csw->dCSWSignature = sys_get_le32((uint8_t *)&p_buf_src_cbw->dCSWSignature);
+    p_csw->dCSWTag = sys_get_le32((uint8_t *)&p_buf_src_cbw->dCSWTag);
+    p_csw->dCSWDataResidue = sys_get_le32((uint8_t *)&p_buf_src_cbw->dCSWDataResidue);
     p_csw->bCSWStatus = p_buf_src_cbw->bCSWStatus;
 }

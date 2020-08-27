@@ -3274,8 +3274,7 @@ uint32_t usbh_str_get(struct usbh_dev *p_dev, uint8_t desc_ix, uint16_t lang_id,
 			return (0u);
 		}
 
-		lang_id = MEM_VAL_GET_INT16U(
-			&p_buf[2u]); /* Rd language ID into CPU endianness.                  */
+		lang_id = sys_get_le16((uint8_t *)&p_buf[2u]); /* Rd language ID into CPU endianness.                  */
 
 		if (lang_id == 0u) {
 			*p_err = USBH_ERR_DESC_INVALID;
@@ -4096,8 +4095,7 @@ static USBH_ERR usbh_dev_desc_rd(struct usbh_dev *p_dev)
 	if (!((p_dev->IsRootHub == DEF_TRUE) &&
 	      (p_dev->HC_Ptr->IsVirRootHub == DEF_TRUE))) {
 		/* Retrieve EP 0 max pkt size.                          */
-		p_dev->DfltEP.Desc.wMaxPacketSize =
-			MEM_VAL_GET_INT08U(&p_dev->DevDesc[7u]);
+		p_dev->DfltEP.Desc.wMaxPacketSize = (uint8_t) p_dev->DevDesc[7u];
 		if (p_dev->DfltEP.Desc.wMaxPacketSize > 64u) {
 			return (USBH_ERR_DESC_INVALID);
 		}
@@ -4244,9 +4242,7 @@ static USBH_ERR usbh_cfg_rd(struct usbh_dev *p_dev, uint8_t cfg_ix)
 		return (USBH_ERR_DESC_INVALID);
 	}
 
-	w_tot_len = MEM_VAL_GET_INT16U_LITTLE(
-		&p_cfg->CfgData
-			 [2]); /* See Note (3).                                        */
+	w_tot_len = sys_get_le16((uint8_t *)&p_cfg->CfgData[2]); /* See Note (3).                                        */
 
 	if (w_tot_len >
 	    USBH_CFG_MAX_CFG_DATA_LEN) { /* Chk total len of config desc.                        */
@@ -4649,7 +4645,7 @@ static uint32_t usbh_str_desc_get(struct usbh_dev *p_dev, uint8_t desc_ix,
 // 		buf_len = str_len * 2u;
 // 		for (ix = 0u; (buf_len - ix) >= 2u; ix += 2u)
 // 		{
-// 			ch = MEM_VAL_GET_INT16U_LITTLE(&str[ix]);
+// 			ch = sys_get_le16(&str[ix]);
 // 			if (ch == 0u)
 // 			{
 // 				break;
@@ -4725,11 +4721,11 @@ static void usbh_fmt_setup_req(struct usbh_setup_req *p_setup_req,
 	p_buf_dest_setup_req->bmRequestType = p_setup_req->bmRequestType;
 	p_buf_dest_setup_req->bRequest = p_setup_req->bRequest;
 	p_buf_dest_setup_req->wValue =
-		MEM_VAL_GET_INT16U_LITTLE(&p_setup_req->wValue);
+		sys_get_le16((uint8_t *)&p_setup_req->wValue);
 	p_buf_dest_setup_req->wIndex =
-		MEM_VAL_GET_INT16U_LITTLE(&p_setup_req->wIndex);
+		sys_get_le16((uint8_t *)&p_setup_req->wIndex);
 	p_buf_dest_setup_req->wLength =
-		MEM_VAL_GET_INT16U_LITTLE(&p_setup_req->wLength);
+		sys_get_le16((uint8_t *)&p_setup_req->wLength);
 }
 
 /*
@@ -4758,17 +4754,17 @@ static void usbh_parse_dev_desc(struct usbh_dev_desc *p_dev_desc,
 	p_dev_desc->bLength = p_buf_src_dev_desc->bLength;
 	p_dev_desc->bDescriptorType = p_buf_src_dev_desc->bDescriptorType;
 	p_dev_desc->bcdUSB =
-		MEM_VAL_GET_INT16U_LITTLE(&p_buf_src_dev_desc->bcdUSB);
+		sys_get_le16((uint8_t *)&p_buf_src_dev_desc->bcdUSB);
 	p_dev_desc->bDeviceClass = p_buf_src_dev_desc->bDeviceClass;
 	p_dev_desc->bDeviceSubClass = p_buf_src_dev_desc->bDeviceSubClass;
 	p_dev_desc->bDeviceProtocol = p_buf_src_dev_desc->bDeviceProtocol;
 	p_dev_desc->bMaxPacketSize0 = p_buf_src_dev_desc->bMaxPacketSize0;
 	p_dev_desc->idVendor =
-		MEM_VAL_GET_INT16U_LITTLE(&p_buf_src_dev_desc->idVendor);
+		sys_get_le16((uint8_t *)&p_buf_src_dev_desc->idVendor);
 	p_dev_desc->idProduct =
-		MEM_VAL_GET_INT16U_LITTLE(&p_buf_src_dev_desc->idProduct);
+		sys_get_le16((uint8_t *)&p_buf_src_dev_desc->idProduct);
 	p_dev_desc->bcdDevice =
-		MEM_VAL_GET_INT16U_LITTLE(&p_buf_src_dev_desc->bcdDevice);
+		sys_get_le16((uint8_t *)&p_buf_src_dev_desc->bcdDevice);
 	p_dev_desc->iManufacturer = p_buf_src_dev_desc->iManufacturer;
 	p_dev_desc->iProduct = p_buf_src_dev_desc->iProduct;
 	p_dev_desc->iSerialNumber = p_buf_src_dev_desc->iSerialNumber;
@@ -4801,7 +4797,7 @@ static void usbh_parse_cfg_desc(struct usbh_cfg_desc *p_cfg_desc,
 	p_cfg_desc->bLength = p_buf_src_cfg_desc->bLength;
 	p_cfg_desc->bDescriptorType = p_buf_src_cfg_desc->bDescriptorType;
 	p_cfg_desc->wTotalLength =
-		MEM_VAL_GET_INT16U_LITTLE(&p_buf_src_cfg_desc->wTotalLength);
+		sys_get_le16((uint8_t *)&p_buf_src_cfg_desc->wTotalLength);
 	p_cfg_desc->bNbrInterfaces = p_buf_src_cfg_desc->bNbrInterfaces;
 	p_cfg_desc->bConfigurationValue =
 		p_buf_src_cfg_desc->bConfigurationValue;
@@ -4869,7 +4865,7 @@ static void usbh_parse_ep_desc(struct usbh_ep_desc *p_ep_desc, void *p_buf_src)
 	p_ep_desc->bEndpointAddress = p_buf_desc->bEndpointAddress;
 	p_ep_desc->bmAttributes = p_buf_desc->bmAttributes;
 	p_ep_desc->wMaxPacketSize =
-		MEM_VAL_GET_INT16U_LITTLE(&p_buf_desc->wMaxPacketSize);
+		sys_get_le16((uint8_t *)&p_buf_desc->wMaxPacketSize);
 	p_ep_desc->bInterval = p_buf_desc->bInterval;
 	/* Following fields only relevant for isoc EPs.         */
 	if ((p_ep_desc->bmAttributes & 0x03) == USBH_EP_TYPE_ISOC) {
