@@ -1390,8 +1390,8 @@ static USBH_ERR USBH_HUB_PortStatusGet(struct usbh_hub_dev *p_hub_dev,
     }
     else
     {
-        p_port_status->wPortStatus = MEM_VAL_GET_INT16U_LITTLE(&port_status.wPortStatus);
-        p_port_status->wPortChange = MEM_VAL_GET_INT16U_LITTLE(&port_status.wPortChange);
+        p_port_status->wPortStatus = sys_get_le16((uint8_t *)&port_status.wPortStatus);
+        p_port_status->wPortChange = sys_get_le16((uint8_t *)&port_status.wPortChange);
     }
 
     return (err);
@@ -2279,14 +2279,14 @@ void usbh_hub_parse_hub_desc(struct usbh_hub_desc *p_hub_desc,
     p_hub_desc->bDescLength = p_buf_src_desc->bDescLength;
     p_hub_desc->bDescriptorType = p_buf_src_desc->bDescriptorType;
     p_hub_desc->bNbrPorts = p_buf_src_desc->bNbrPorts;
-    p_hub_desc->wHubCharacteristics = MEM_VAL_GET_INT16U_LITTLE(&p_buf_src_desc->wHubCharacteristics);
+    p_hub_desc->wHubCharacteristics = sys_get_le16((uint8_t *)&p_buf_src_desc->wHubCharacteristics);
     p_hub_desc->bPwrOn2PwrGood = p_buf_src_desc->bPwrOn2PwrGood;
     p_hub_desc->bHubContrCurrent = p_buf_src_desc->bHubContrCurrent;
     p_hub_desc->DeviceRemovable = p_buf_src_desc->DeviceRemovable;
 
     for (i = 0u; i < USBH_CFG_MAX_HUB_PORTS; i++)
     {
-        p_hub_desc->PortPwrCtrlMask[i] = MEM_VAL_GET_INT32U_LITTLE(&p_buf_src_desc->PortPwrCtrlMask[i]);
+        p_hub_desc->PortPwrCtrlMask[i] = sys_get_le32((uint8_t *)&p_buf_src_desc->PortPwrCtrlMask[i]);
     }
 }
 
@@ -2318,7 +2318,7 @@ void usbh_hub_fmt_hub_desc(struct usbh_hub_desc *p_hub_desc,
     p_buf_dest_desc->bDescLength = p_hub_desc->bDescLength;
     p_buf_dest_desc->bDescriptorType = p_hub_desc->bDescriptorType;
     p_buf_dest_desc->bNbrPorts = p_hub_desc->bNbrPorts;
-    p_buf_dest_desc->wHubCharacteristics = MEM_VAL_GET_INT16U_LITTLE(&p_hub_desc->wHubCharacteristics);
+    p_buf_dest_desc->wHubCharacteristics = sys_get_le16((uint8_t *)&p_hub_desc->wHubCharacteristics);
     p_buf_dest_desc->bHubContrCurrent = p_hub_desc->bHubContrCurrent;
     p_buf_dest_desc->DeviceRemovable = p_hub_desc->DeviceRemovable;
 
