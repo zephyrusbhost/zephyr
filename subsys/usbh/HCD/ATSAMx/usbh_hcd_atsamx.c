@@ -49,18 +49,18 @@ LOG_MODULE_REGISTER(hcd);
 */
 
 #define USBH_ATSAMX_CTRLA_HOST_MODE \
-	DEF_BIT_07 /* HOST Operation mode                                  */
+	BIT(7) /* HOST Operation mode                                  */
 #define USBH_ATSAMX_CTRLA_RUNSTBY \
-	DEF_BIT_02 /* Run in standby mode                                  */
+	BIT(2) /* Run in standby mode                                  */
 #define USBH_ATSAMX_CTRLA_ENABLE \
-	DEF_BIT_01 /* Enable                                               */
+	BIT(1) /* Enable                                               */
 #define USBH_ATSAMX_CTRLA_SWRST \
-	DEF_BIT_00 /* Software reset                                       */
+	BIT(0) /* Software reset                                       */
 
 #define USBH_ATSAMX_SYNCBUSY_ENABLE \
-	DEF_BIT_01 /* Synchronization enable status                        */
+	BIT(1) /* Synchronization enable status                        */
 #define USBH_ATSAMX_SYNCBUSY_SWRST \
-	DEF_BIT_00 /* Synchronization Software reset status                */
+	BIT(0) /* Synchronization Software reset status                */
 #define USBH_ATSAMX_SYNCBUSY_MSK \
 	(USBH_ATSAMX_SYNCBUSY_ENABLE | USBH_ATSAMX_SYNCBUSY_SWRST)
 
@@ -78,21 +78,21 @@ LOG_MODULE_REGISTER(hcd);
 #define USBH_ATSAMX_FSMSTATE_RESET 0x40u
 
 #define USBH_ATSAMX_CTRLB_L1RESUME \
-	DEF_BIT_11 /* Send USB L1 resume                                   */
+	BIT(11) /* Send USB L1 resume                                   */
 #define USBH_ATSAMX_CTRLB_VBUSOK \
-	DEF_BIT_10 /* VBUS is ok                                           */
+	BIT(10) /* VBUS is ok                                           */
 #define USBH_ATSAMX_CTRLB_BUSRESET \
-	DEF_BIT_09 /* Send USB reset                                       */
+	BIT(9) /* Send USB reset                                       */
 #define USBH_ATSAMX_CTRLB_SOFE \
-	DEF_BIT_08 /* Start-of-Frame enable                                */
+	BIT(8) /* Start-of-Frame enable                                */
 #define USBH_ATSAMX_CTRLB_SPDCONF_LSFS \
 	(0x0u << 2u) /* Speed configuration for host                         */
 #define USBH_ATSAMX_CTRLB_SPDCONF_MSK (0x3u << 2u)
 #define USBH_ATSAMX_CTRLB_RESUME \
-	DEF_BIT_01 /* Send USB resume                                      */
+	BIT(1) /* Send USB resume                                      */
 
 #define USBH_ATSAMX_HSOFC_FLENCE \
-	DEF_BIT_07 /* Frame length control enable                          */
+	BIT(7) /* Frame length control enable                          */
 
 #define USBH_ATSAMX_STATUS_SPEED_POS 2u
 #define USBH_ATSAMX_STATUS_SPEED_MSK 0xCu
@@ -105,21 +105,22 @@ LOG_MODULE_REGISTER(hcd);
 #define USBH_ATSAMX_FNUM_POS 3u
 
 #define USBH_ATSAMX_INT_DDISC \
-	DEF_BIT_09 /* Device disconnection interrupt                       */
+	BIT(9) /* Device disconnection interrupt                       */
+
 #define USBH_ATSAMX_INT_DCONN \
-	DEF_BIT_08 /* Device connection interrtup                          */
+	BIT(8) /* Device connection interrtup                          */
 #define USBH_ATSAMX_INT_RAMACER \
-	DEF_BIT_07 /* RAM acces interrupt                                  */
+	BIT(7) /* RAM acces interrupt                                  */
 #define USBH_ATSAMX_INT_UPRSM \
-	DEF_BIT_06 /* Upstream resume from the device interrupt            */
+	BIT(6) /* Upstream resume from the device interrupt            */
 #define USBH_ATSAMX_INT_DNRSM \
-	DEF_BIT_05 /* Downstream resume interrupt                          */
+	BIT(5) /* Downstream resume interrupt                          */
 #define USBH_ATSAMX_INT_WAKEUP \
-	DEF_BIT_04 /* Wake up interrupt                                    */
+	BIT(4) /* Wake up interrupt                                    */
 #define USBH_ATSAMX_INT_RST \
-	DEF_BIT_03 /* Bus reset interrupt                                  */
+	BIT(3) /* Bus reset interrupt                                  */
 #define USBH_ATSAMX_INT_HSOF \
-	DEF_BIT_02 /* Host Start-of-Frame interrupt                        */
+	BIT(2) /* Host Start-of-Frame interrupt                        */
 #define USBH_ATSAMX_INT_MSK                            \
 	(USBH_ATSAMX_INT_DDISC | USBH_ATSAMX_INT_DCONN |   \
 	 USBH_ATSAMX_INT_RAMACER | USBH_ATSAMX_INT_UPRSM | \
@@ -140,33 +141,33 @@ LOG_MODULE_REGISTER(hcd);
 #define USBH_ATSAMX_PCFG_PTYPE_EXTENDED \
 	(0x5u << 3u) /* Pipe is enabled and configured as EXTENDED           */
 #define USBH_ATSAMX_PCFG_BK \
-	DEF_BIT_02 /* Pipe bank                                            */
+	BIT(2) /* Pipe bank                                            */
 #define USBH_ATSAMX_PCFG_PTOKEN_SETUP 0x0u
 #define USBH_ATSAMX_PCFG_PTOKEN_IN 0x1u
 #define USBH_ATSAMX_PCFG_PTOKEN_OUT 0x2u
 #define USBH_ATSAMX_PCFG_PTOKEN_MSK 0x3u
 
 #define USBH_ATSAMX_PSTATUS_BK1RDY \
-	DEF_BIT_07 /* Bank 1 ready                                         */
+	BIT(7) /* Bank 1 ready                                         */
 #define USBH_ATSAMX_PSTATUS_BK0RDY \
-	DEF_BIT_06 /* Bank 0 ready                                         */
+	BIT(6) /* Bank 0 ready                                         */
 #define USBH_ATSAMX_PSTATUS_PFREEZE \
-	DEF_BIT_04 /* Pipe freeze                                          */
+	BIT(4) /* Pipe freeze                                          */
 #define USBH_ATSAMX_PSTATUS_CURBK \
-	DEF_BIT_02 /* Current bank                                         */
+	BIT(2) /* Current bank                                         */
 #define USBH_ATSAMX_PSTATUS_DTGL \
-	DEF_BIT_00 /* Data toggle                                          */
+	BIT(0) /* Data toggle                                          */
 
 #define USBH_ATSAMX_PINT_STALL \
-	DEF_BIT_05 /* Pipe stall received interrupt                        */
+	BIT(5) /* Pipe stall received interrupt                        */
 #define USBH_ATSAMX_PINT_TXSTP \
-	DEF_BIT_04 /* Pipe transmitted setup interrupt                     */
+	BIT(4) /* Pipe transmitted setup interrupt                     */
 #define USBH_ATSAMX_PINT_PERR \
-	DEF_BIT_03 /* Pipe error interrupt                                 */
+	BIT(3) /* Pipe error interrupt                                 */
 #define USBH_ATSAMX_PINT_TRFAIL \
-	DEF_BIT_02 /* Pipe transfer fail interrupt                         */
+	BIT(2) /* Pipe transfer fail interrupt                         */
 #define USBH_ATSAMX_PINT_TRCPT \
-	DEF_BIT_00 /* Pipe transfer complete x interrupt                   */
+	BIT(0) /* Pipe transfer complete x interrupt                   */
 #define USBH_ATSAMX_PINT_ALL                           \
 	(USBH_ATSAMX_PINT_STALL | USBH_ATSAMX_PINT_TXSTP | \
 	 USBH_ATSAMX_PINT_PERR | USBH_ATSAMX_PINT_TRFAIL | \
@@ -847,7 +848,7 @@ static void usbh_atsamx_hcd_suspend(struct usbh_hc_drv *p_hc_drv,
 
 	for (pipe_nbr = 0u; pipe_nbr < ATSAMX_MAX_NBR_PIPE; pipe_nbr++)
 	{
-		if (DEF_BIT_IS_SET(p_drv_data->PipeUsed, DEF_BIT(pipe_nbr)))
+		if (DEF_BIT_IS_SET(p_drv_data->PipeUsed, BIT(pipe_nbr)))
 		{
 			p_reg->HPIPE[pipe_nbr].PSTATUSSET =
 				USBH_ATSAMX_PSTATUS_PFREEZE; /* Stop transfer                          */
@@ -902,7 +903,7 @@ static void usbh_atsamx_hcd_resume(struct usbh_hc_drv *p_hc_drv,
 
 	for (pipe_nbr = 0u; pipe_nbr < ATSAMX_MAX_NBR_PIPE; pipe_nbr++)
 	{
-		if (DEF_BIT_IS_SET(p_drv_data->PipeUsed, DEF_BIT(pipe_nbr)))
+		if (DEF_BIT_IS_SET(p_drv_data->PipeUsed, BIT(pipe_nbr)))
 		{
 			p_reg->HPIPE[pipe_nbr].PSTATUSCLR =
 				USBH_ATSAMX_PSTATUS_PFREEZE; /* Start transfer                         */
@@ -1039,7 +1040,8 @@ static void usbh_atsamx_hcd_ep_close(struct usbh_hc_drv *p_hc_drv,
 		p_drv_data->PipeTbl[pipe_nbr].EP_Addr = ATSAMX_DFLT_EP_ADDR;
 		p_drv_data->PipeTbl[pipe_nbr].AppBufLen = 0u;
 		p_drv_data->PipeTbl[pipe_nbr].NextXferLen = 0u;
-		DEF_BIT_CLR(p_drv_data->PipeUsed, DEF_BIT(pipe_nbr));
+		WRITE_BIT(p_drv_data->PipeUsed, pipe_nbr, 0);
+
 	}
 }
 
@@ -1337,7 +1339,7 @@ static void usbh_atsamx_hcd_urb_complete(struct usbh_hc_drv *p_hc_drv,
 	p_drv_data->PipeTbl[pipe_nbr].AppBufLen = 0u;
 	p_drv_data->PipeTbl[pipe_nbr].NextXferLen = 0u;
 	p_drv_data->PipeTbl[pipe_nbr].URB_Ptr = (struct usbh_urb *)0u;
-	DEF_BIT_CLR(p_drv_data->PipeUsed, DEF_BIT(pipe_nbr));
+	WRITE_BIT(p_drv_data->PipeUsed, pipe_nbr, 0);
 }
 
 /*
@@ -1774,7 +1776,7 @@ static bool usbh_atsamx_hcd_port_conn_chng_clr(struct usbh_hc_drv *p_hc_drv,
 	(void)port_nbr;
 
 	p_drv_data = (USBH_DRV_DATA *)p_hc_drv->DataPtr;
-	DEF_BIT_CLR(p_drv_data->RH_PortChng, USBH_HUB_STATUS_C_PORT_CONN);
+	p_drv_data->RH_PortChng ^= USBH_HUB_STATUS_C_PORT_CONN;
 
 	return (1);
 }
@@ -2070,7 +2072,7 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 			}
 		}
 
-		DEF_BIT_CLR(pipe_stat, DEF_BIT(pipe_nbr));
+		WRITE_BIT(pipe_stat, pipe_nbr, 0);
 	}
 }
 
@@ -2294,9 +2296,9 @@ static uint8_t usbh_atsamx_get_free_pipe(USBH_DRV_DATA *p_drv_data)
 
 	for (pipe_nbr = 0u; pipe_nbr < ATSAMX_MAX_NBR_PIPE; pipe_nbr++)
 	{
-		if (DEF_BIT_IS_CLR(p_drv_data->PipeUsed, DEF_BIT(pipe_nbr)))
+		if (DEF_BIT_IS_CLR(p_drv_data->PipeUsed, BIT(pipe_nbr)))
 		{
-			DEF_BIT_SET(p_drv_data->PipeUsed, DEF_BIT(pipe_nbr));
+			WRITE_BIT(p_drv_data->PipeUsed, pipe_nbr, 1);
 			return (pipe_nbr);
 		}
 	}
