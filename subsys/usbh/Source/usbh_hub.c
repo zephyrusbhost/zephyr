@@ -579,7 +579,7 @@ static void USBH_HUB_Resume(void *p_class_dev)
         USBH_HUB_PortSuspendClr(p_hub_dev, port_ix + 1u); /* En resume signaling on port.                         */
     }
 
-    USBH_OS_DlyMS(20u + 12u); /* See Note (1).                                        */
+    k_sleep(K_MSEC(20u + 12u)); /* See Note (1).                                        */
 
     for (port_ix = 0u; port_ix < nbr_ports; port_ix++)
     {
@@ -1030,7 +1030,7 @@ static void USBH_HUB_EventProcess(void)
                     p_hub_dev->DevPtrList[port_nbr - 1u] = (struct usbh_dev *)0;
                 }
 
-                USBH_OS_DlyMS(100u);                   /* See Notes #1.                                        */
+                k_sleep(K_MSEC(100u));                   /* See Notes #1.                                        */
                 err = USBH_HUB_PortResetSet(p_hub_dev, /* Apply port reset.                                    */
                                             port_nbr);
                 if (err != USBH_ERR_NONE)
@@ -1038,13 +1038,13 @@ static void USBH_HUB_EventProcess(void)
                     break;
                 }
 
-                USBH_OS_DlyMS(USBH_HUB_DLY_DEV_RESET); /* See Notes #2.                                        */
+                k_sleep(K_MSEC(USBH_HUB_DLY_DEV_RESET)); /* See Notes #2.                                        */
                 continue;                              /* Handle port reset status change.                     */
             }
             else
             { /* --------------- DEV HAS BEEN REMOVED --------------- */
                 LOG_DBG("device has been removed");
-                USBH_OS_DlyMS(10u); /* Wait for any pending I/O xfer to rtn err.            */
+                k_sleep(K_MSEC(10u)); /* Wait for any pending I/O xfer to rtn err.            */
 
                 p_dev = p_hub_dev->DevPtrList[port_nbr - 1u];
 
@@ -1139,7 +1139,7 @@ static void USBH_HUB_EventProcess(void)
                     }
                 }
 
-                USBH_OS_DlyMS(50u);
+                k_sleep(K_MSEC(50u));
                 err = usbh_dev_conn(p_dev); /* Conn dev.                                            */
                 if (err != USBH_ERR_NONE)
                 {
@@ -1158,7 +1158,7 @@ static void USBH_HUB_EventProcess(void)
                             break;
                         }
 
-                        USBH_OS_DlyMS(USBH_HUB_DLY_DEV_RESET); /* See Notes #2.                                        */
+                        k_sleep(K_MSEC(USBH_HUB_DLY_DEV_RESET)); /* See Notes #2.                                        */
                         p_hub_dev->ConnCnt++;
                         ;
                         continue; /* Handle port reset status change.                     */
@@ -1333,7 +1333,7 @@ static USBH_ERR USBH_HUB_PortsInit(struct usbh_hub_dev *p_hub_dev)
             USBH_PRINT_ERR(err);
             return (err);
         }
-        USBH_OS_DlyMS(p_hub_dev->Desc.bPwrOn2PwrGood * 2u); /* See Note (1).                                       */
+        k_sleep(K_MSEC(p_hub_dev->Desc.bPwrOn2PwrGood * 2u)); /* See Note (1).                                       */
     }
     return (USBH_ERR_NONE);
 }
