@@ -354,10 +354,7 @@ USBH_ERR usbh_init(USBH_KERNEL_TASK_INFO *async_task_info,
 	USBH_URB_HeadPtr = (struct usbh_urb *)0;
 	USBH_URB_TailPtr = (struct usbh_urb *)0;
 
-	err = USBH_OS_LayerInit();
-	if (err != USBH_ERR_NONE) {
-		return (err);
-	}
+	
 
 	USBH_Host.HC_NbrNext = 0u;
 	USBH_Host.State = USBH_HOST_STATE_NONE;
@@ -401,12 +398,7 @@ USBH_ERR usbh_init(USBH_KERNEL_TASK_INFO *async_task_info,
 		USBH_Host.DevList[ix].DevAddr =
 			ix +
 			1; /* USB addr is ix + 1. Addr 0 is rsvd.                  */
-		err = USBH_OS_MutexCreate(&USBH_Host.DevList[ix].DfltEP_Mutex);
-
-		if (err != USBH_ERR_NONE) {
-			USBH_PRINT_ERR(err);
-			return (err);
-		}
+		k_mutex_init(&USBH_Host.DevList[ix].DfltEP_Mutex);
 	}
 	USBH_Host.IsocCount = (USBH_CFG_MAX_ISOC_DESC - 1);
 	USBH_Host.DevCount = (USBH_MAX_NBR_DEVS - 1);
@@ -584,11 +576,7 @@ uint8_t usbh_hc_add(const struct usbh_hc_cfg *p_hc_cfg,
 	p_hc_drv->RH_API_Ptr = p_hc_rh_api;
 	p_hc_drv->Nbr = hc_nbr;
 
-	*p_err = USBH_OS_MutexCreate(
-		&p_hc->HCD_Mutex); /* Create mutex to sync access to HCD.                  */
-	if (*p_err != USBH_ERR_NONE) {
-		return (USBH_HC_NBR_NONE);
-	}
+	k_mutex_init(&p_hc->HCD_Mutex);
 
 	USBH_HCD_Init(
 		p_hc,
@@ -1838,7 +1826,7 @@ uint16_t usbh_ctrl_tx(struct usbh_dev *p_dev, uint8_t b_req,
 						   p_err);
 	}
 
-	(void)USBH_OS_MutexUnlock(p_dev->DfltEP_Mutex);
+	k_mutex_unlock(&p_dev->DfltEP_Mutex);
 	return (xfer_len);
 }
 
@@ -1912,7 +1900,7 @@ uint16_t usbh_ctrl_rx(struct usbh_dev *p_dev, uint8_t b_req,
 						   p_err);
 	}
 
-	(void)USBH_OS_MutexUnlock(p_dev->DfltEP_Mutex);
+	k_mutex_unlock(&p_dev->DfltEP_Mutex);
 
 	return (xfer_len);
 }
@@ -3466,11 +3454,7 @@ static USBH_ERR usbh_ep_open(struct usbh_dev *p_dev, struct usbh_if *p_if,
 		return (err);
 	}
 
-	err = USBH_OS_MutexCreate(
-		&p_ep->Mutex); /* Mutex to sync I/O req on same EP.                    */
-	if (err != USBH_ERR_NONE) {
-		return (err);
-	}
+	k_mutex_init(&p_ep->Mutex);
 
 	p_ep->IsOpen = DEF_TRUE;
 	p_ep->URB.EP_Ptr = p_ep;
@@ -3573,7 +3557,7 @@ static uint32_t usbh_sync_transfer(struct usbh_ep *p_ep, void *p_buf,
 
 	len = p_urb->XferLen;
 	p_urb->State = USBH_URB_STATE_NONE;
-	(void)USBH_OS_MutexUnlock(p_ep->Mutex);
+	k_mutex_unlock(&p_ep->Mutex);
 
 	return (len);
 }
@@ -4028,10 +4012,7 @@ static USBH_ERR usbh_dflt_ep_open(struct usbh_dev *p_dev)
 		return (err);
 	}
 
-	err = USBH_OS_MutexCreate(&p_ep->Mutex);
-	if (err != USBH_ERR_NONE) {
-		return (err);
-	}
+	k_mutex_init(&p_ep->Mutex);
 
 	p_ep->URB.EP_Ptr = p_ep;
 	p_ep->IsOpen = DEF_TRUE;
@@ -4083,7 +4064,7 @@ static USBH_ERR usbh_dev_desc_rd(struct usbh_dev *p_dev)
 			&err);
 		if (err != USBH_ERR_NONE) {
 			usbh_ep_reset(p_dev, (struct usbh_ep *)0);
-			USBH_OS_DlyMS(100u);
+			k_sleep(K_MSEC(100u));
 		} else {
 			break;
 		}
@@ -4119,7 +4100,7 @@ static USBH_ERR usbh_dev_desc_rd(struct usbh_dev *p_dev)
 			      USBH_LEN_DESC_DEV, &err);
 		if (err != USBH_ERR_NONE) {
 			usbh_ep_reset(p_dev, (struct usbh_ep *)0);
-			USBH_OS_DlyMS(100u);
+			k_sleep(K_MSEC(100u));
 		} else {
 			break;
 		}
@@ -4222,7 +4203,7 @@ static USBH_ERR usbh_cfg_rd(struct usbh_dev *p_dev, uint8_t cfg_ix)
 		if (err != USBH_ERR_NONE) {
 			LOG_ERR("err get descriptor");
 			usbh_ep_reset(p_dev, (struct usbh_ep *)0);
-			USBH_OS_DlyMS(100u);
+			k_sleep(K_MSEC(100u));
 		} else {
 			break;
 		}
@@ -4260,7 +4241,7 @@ static USBH_ERR usbh_cfg_rd(struct usbh_dev *p_dev, uint8_t cfg_ix)
 		if (err != USBH_ERR_NONE) {
 			LOG_ERR("err get full descriptor");
 			usbh_ep_reset(p_dev, (struct usbh_ep *)0);
-			USBH_OS_DlyMS(100u);
+			k_sleep(K_MSEC(100u));
 		} else {
 			break;
 		}
@@ -4457,7 +4438,7 @@ static USBH_ERR usbh_dev_addr_set(struct usbh_dev *p_dev)
 			&err); /* See Note (1).                                        */
 		if (err != USBH_ERR_NONE) {
 			usbh_ep_reset(p_dev, (struct usbh_ep *)0);
-			USBH_OS_DlyMS(100u);
+			k_sleep(K_MSEC(100u));
 		} else {
 			break;
 		}
@@ -4483,8 +4464,7 @@ static USBH_ERR usbh_dev_addr_set(struct usbh_dev *p_dev)
 		return (err);
 	}
 
-	USBH_OS_DlyMS(
-		2u); /* See Note (2).                                        */
+	k_sleep(K_MSEC(2u)); /* See Note (2).                                        */
 
 	return (err);
 }

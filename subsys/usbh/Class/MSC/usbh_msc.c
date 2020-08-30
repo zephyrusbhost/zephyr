@@ -773,7 +773,7 @@ USBH_ERR usbh_msc_init(USBH_MSC_DEV *p_msc_dev,
         return (USBH_ERR_INVALID_ARG);
     }
 
-    err = USBH_OS_MutexLock(p_msc_dev->HMutex); /* Acquire MSC dev lock to avoid multiple access.       */
+    err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT); /* Acquire MSC dev lock to avoid multiple access.       */
     if (err != USBH_ERR_NONE)
     {
         return (err);
@@ -821,11 +821,11 @@ USBH_ERR usbh_msc_init(USBH_MSC_DEV *p_msc_dev,
                         switch (asc)
                         {
                         case USBH_SCSI_ASC_MEDIUM_NOT_PRESENT:
-                            USBH_OS_DlyMS(500u);
+                            k_sleep(K_MSEC(500u));
                             break;
                             /* MSC dev changed its internal state to ready.         */
                         case USBH_SCSI_ASC_NOT_RDY_TO_RDY_CHANGE:
-                            USBH_OS_DlyMS(500u);
+                            k_sleep(K_MSEC(500u));
                             break;
 
                         default: /* Other Additional Sense Code values not supported.    */
@@ -835,7 +835,7 @@ USBH_ERR usbh_msc_init(USBH_MSC_DEV *p_msc_dev,
                         break;
 
                     case USBH_SCSI_SENSE_KEY_NOT_RDY: /* MSC dev not ready.                                   */
-                        USBH_OS_DlyMS(500u);
+                        k_sleep(K_MSEC(500u));
                         break;
 
                     default: /* Other Sense Key values not supported.                */
@@ -864,7 +864,7 @@ USBH_ERR usbh_msc_init(USBH_MSC_DEV *p_msc_dev,
         err = USBH_ERR_DEV_NOT_READY; /* MSC dev enum not completed by host.                  */
     }
 
-    (void)USBH_OS_MutexUnlock(p_msc_dev->HMutex); /* Unlock access to MSC dev.                            */
+    k_mutex_unlock(&p_msc_dev->HMutex); /* Unlock access to MSC dev.                            */
 
     return (err);
 }
@@ -916,7 +916,7 @@ uint8_t usbh_msc_max_lun_get(USBH_MSC_DEV *p_msc_dev,
         return (0u);
     }
 
-    *p_err = USBH_OS_MutexLock(p_msc_dev->HMutex);
+    *p_err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
     if (*p_err != USBH_ERR_NONE)
     {
         return (0u);
@@ -954,7 +954,7 @@ uint8_t usbh_msc_max_lun_get(USBH_MSC_DEV *p_msc_dev,
         *p_err = USBH_ERR_DEV_NOT_READY;
     }
 
-    (void)USBH_OS_MutexUnlock(p_msc_dev->HMutex);
+    k_mutex_unlock(&p_msc_dev->HMutex);
 
     return (lun_nbr);
 }
@@ -1010,7 +1010,7 @@ bool usbh_msc_unit_rdy_test(USBH_MSC_DEV *p_msc_dev,
         return (unit_rdy);
     }
 
-    *p_err = USBH_OS_MutexLock(p_msc_dev->HMutex);
+    *p_err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
     if (*p_err != USBH_ERR_NONE)
     {
         return (unit_rdy);
@@ -1091,7 +1091,7 @@ USBH_ERR usbh_msc_capacity_rd(USBH_MSC_DEV *p_msc_dev,
         return (err);
     }
 
-    err = USBH_OS_MutexLock(p_msc_dev->HMutex);
+    err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
     if (err != USBH_ERR_NONE)
     {
         return (err);
@@ -1112,7 +1112,7 @@ USBH_ERR usbh_msc_capacity_rd(USBH_MSC_DEV *p_msc_dev,
         err = USBH_ERR_DEV_NOT_READY;
     }
 
-    (void)USBH_OS_MutexUnlock(p_msc_dev->HMutex); /* Unlock access to MSC dev.                            */
+    k_mutex_unlock(&p_msc_dev->HMutex); /* Unlock access to MSC dev.                            */
 
     return (err);
 }
@@ -1159,7 +1159,7 @@ USBH_ERR usbh_msc_std_inquiry(USBH_MSC_DEV *p_msc_dev,
         return (err);
     }
 
-    err = USBH_OS_MutexLock(p_msc_dev->HMutex);
+    err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
     if (err != USBH_ERR_NONE)
     {
         return (err);
@@ -1187,7 +1187,7 @@ USBH_ERR usbh_msc_std_inquiry(USBH_MSC_DEV *p_msc_dev,
         err = USBH_ERR_DEV_NOT_READY;
     }
 
-    (void)USBH_OS_MutexUnlock(p_msc_dev->HMutex);
+    k_mutex_unlock(&p_msc_dev->HMutex);
 
     return (err);
 }
@@ -1222,7 +1222,7 @@ USBH_ERR usbh_msc_ref_add(USBH_MSC_DEV *p_msc_dev)
         return (USBH_ERR_INVALID_ARG);
     }
 
-    err = USBH_OS_MutexLock(p_msc_dev->HMutex);
+    err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
     if (err != USBH_ERR_NONE)
     {
         return (err);
@@ -1230,7 +1230,7 @@ USBH_ERR usbh_msc_ref_add(USBH_MSC_DEV *p_msc_dev)
 
     p_msc_dev->RefCnt++;
 
-    (void)USBH_OS_MutexUnlock(p_msc_dev->HMutex);
+    k_mutex_unlock(&p_msc_dev->HMutex);
 
     return (err);
 }
@@ -1265,7 +1265,7 @@ USBH_ERR usbh_msc_ref_rel(USBH_MSC_DEV *p_msc_dev)
         return (USBH_ERR_INVALID_ARG);
     }
 
-    err = USBH_OS_MutexLock(p_msc_dev->HMutex);
+    err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
     if (err != USBH_ERR_NONE)
     {
         return (err);
@@ -1283,7 +1283,7 @@ USBH_ERR usbh_msc_ref_rel(USBH_MSC_DEV *p_msc_dev)
         }
     }
 
-    (void)USBH_OS_MutexUnlock(p_msc_dev->HMutex);
+    k_mutex_unlock(&p_msc_dev->HMutex);
 
     return (err);
 }
@@ -1349,7 +1349,7 @@ uint32_t usbh_msc_read(USBH_MSC_DEV *p_msc_dev,
         return (0u);
     }
 
-    *p_err = USBH_OS_MutexLock(p_msc_dev->HMutex);
+    *p_err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
     if (*p_err != USBH_ERR_NONE)
     {
         return (0u);
@@ -1372,7 +1372,7 @@ uint32_t usbh_msc_read(USBH_MSC_DEV *p_msc_dev,
         *p_err = USBH_ERR_DEV_NOT_READY;
     }
 
-    (void)USBH_OS_MutexUnlock(p_msc_dev->HMutex);
+    k_mutex_unlock(&p_msc_dev->HMutex);
 
     return (xfer_len);
 }
@@ -1438,7 +1438,7 @@ uint32_t usbh_msc_write(USBH_MSC_DEV *p_msc_dev,
         return (0u);
     }
 
-    *p_err = USBH_OS_MutexLock(p_msc_dev->HMutex);
+    *p_err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
     if (*p_err != USBH_ERR_NONE)
     {
         return (0u);
@@ -1461,7 +1461,7 @@ uint32_t usbh_msc_write(USBH_MSC_DEV *p_msc_dev,
         *p_err = USBH_ERR_DEV_NOT_READY;
     }
 
-    (void)USBH_OS_MutexUnlock(p_msc_dev->HMutex);
+    k_mutex_unlock(&p_msc_dev->HMutex);
 
     return (xfer_len);
 }
@@ -1500,7 +1500,7 @@ static void USBH_MSC_GlobalInit(USBH_ERR *p_err)
     for (ix = 0u; ix < USBH_MSC_CFG_MAX_DEV; ix++)
     {
         USBH_MSC_DevClr(&USBH_MSC_DevArr[ix]);
-        USBH_OS_MutexCreate(&USBH_MSC_DevArr[ix].HMutex);
+        k_mutex_init(&USBH_MSC_DevArr[ix].HMutex);
     }
     USBH_MSC_DevCount = (USBH_MSC_CFG_MAX_DEV - 1);
     *p_err = USBH_ERR_NONE;
@@ -1624,11 +1624,11 @@ static void USBH_MSC_Disconn(void *p_class_dev)
 
     if (p_msc_dev->RefCnt == 0u)
     { /* Release MSC dev.                                     */
-        (void)USBH_OS_MutexUnlock(p_msc_dev->HMutex);
+        k_mutex_unlock(&p_msc_dev->HMutex);
         USBH_MSC_DevCount++;
     }
 
-    (void)USBH_OS_MutexUnlock(p_msc_dev->HMutex);
+    k_mutex_unlock(&p_msc_dev->HMutex);
 }
 
 /*
@@ -1655,7 +1655,7 @@ static void USBH_MSC_Suspend(void *p_class_dev)
 
     p_msc_dev->State = USBH_CLASS_DEV_STATE_SUSPEND;
 
-    (void)USBH_OS_MutexUnlock(p_msc_dev->HMutex);
+    k_mutex_unlock(&p_msc_dev->HMutex);
 }
 
 /*
@@ -1682,7 +1682,7 @@ static void USBH_MSC_Resume(void *p_class_dev)
 
     p_msc_dev->State = USBH_CLASS_DEV_STATE_CONN;
 
-    (void)USBH_OS_MutexUnlock(p_msc_dev->HMutex);
+    k_mutex_unlock(&p_msc_dev->HMutex);
 }
 
 /*
