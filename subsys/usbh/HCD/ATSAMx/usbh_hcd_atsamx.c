@@ -855,8 +855,7 @@ static void usbh_atsamx_hcd_suspend(struct usbh_hc_drv *p_hc_drv,
 		}
 	}
 
-	USBH_OS_DlyMS(
-		1u); /* wait at least 1 complete frame                       */
+	k_sleep(K_MSEC(1u)); /* wait at least 1 complete frame                       */
 
 	p_reg->CTRLB &=
 		~USBH_ATSAMX_CTRLB_SOFE; /* Stop sending start of frames                         */
@@ -899,7 +898,7 @@ static void usbh_atsamx_hcd_resume(struct usbh_hc_drv *p_hc_drv,
 	p_reg->INTENSET =
 		USBH_ATSAMX_INT_WAKEUP; /* Force a wakeup interrupt                             */
 
-	USBH_OS_DlyMS(20u);
+	k_sleep(K_MSEC(20u));
 
 	for (pipe_nbr = 0u; pipe_nbr < ATSAMX_MAX_NBR_PIPE; pipe_nbr++)
 	{

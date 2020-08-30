@@ -62,14 +62,14 @@
  *********************************************************************************************************
  */
 
-USBH_ERR USBH_OS_LayerInit(void);
+//USBH_ERR USBH_OS_LayerInit(void);
 /* --------------- DELAY TASK FUNCTIONS --------------- */
-void USBH_OS_DlyMS(uint32_t dly);
+//void USBH_OS_DlyMS(uint32_t dly);
 
-void USBH_OS_DlyUS(uint32_t dly);
+//void USBH_OS_DlyUS(uint32_t dly);
 
 /* ----------------- MUTEX FUNCTIONS ------------------ */
-USBH_ERR USBH_OS_MutexCreate(struct k_mutex *p_mutex);
+//USBH_ERR USBH_OS_MutexCreate(struct k_mutex *p_mutex);
 
 USBH_ERR USBH_OS_MutexLock(struct k_mutex mutex);
 
