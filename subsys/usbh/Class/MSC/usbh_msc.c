@@ -1040,7 +1040,7 @@ bool usbh_msc_unit_rdy_test(USBH_MSC_DEV *p_msc_dev,
         *p_err = USBH_ERR_DEV_NOT_READY;
     }
 
-    USBH_OS_MutexUnlock(p_msc_dev->HMutex);
+    k_mutex_unlock(&p_msc_dev->HMutex);
 
     return (unit_rdy);
 }
@@ -1617,7 +1617,7 @@ static void USBH_MSC_Disconn(void *p_class_dev)
 
     p_msc_dev = (USBH_MSC_DEV *)p_class_dev;
 
-    (void)USBH_OS_MutexLock(p_msc_dev->HMutex);
+    k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
 
     p_msc_dev->State = USBH_CLASS_DEV_STATE_DISCONN;
     USBH_MSC_EP_Close(p_msc_dev); /* Close bulk in/out EPs.                               */
@@ -1651,7 +1651,7 @@ static void USBH_MSC_Suspend(void *p_class_dev)
 
     p_msc_dev = (USBH_MSC_DEV *)p_class_dev;
 
-    (void)USBH_OS_MutexLock(p_msc_dev->HMutex);
+    k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
 
     p_msc_dev->State = USBH_CLASS_DEV_STATE_SUSPEND;
 
@@ -1678,7 +1678,7 @@ static void USBH_MSC_Resume(void *p_class_dev)
 
     p_msc_dev = (USBH_MSC_DEV *)p_class_dev;
 
-    (void)USBH_OS_MutexLock(p_msc_dev->HMutex);
+    k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
 
     p_msc_dev->State = USBH_CLASS_DEV_STATE_CONN;
 
