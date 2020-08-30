@@ -58,109 +58,109 @@ K_MEM_POOL_DEFINE(AsyncURB_PPool, sizeof(struct usbh_urb),
 
 #define USBH_HCD_Init(p_hc, p_err)                                             \
 	do {                                                                   \
-		USBH_OS_MutexLock((p_hc)->HCD_Mutex);                          \
+		k_mutex_lock(&(p_hc)->HCD_Mutex, K_NO_WAIT);                          \
 		(p_hc)->HC_Drv.API_Ptr->Init(&(p_hc)->HC_Drv, (p_err));        \
-		USBH_OS_MutexUnlock((p_hc)->HCD_Mutex);                        \
+		k_mutex_unlock(&(p_hc)->HCD_Mutex);                        \
 	} while (0)
 
 #define USBH_HCD_Start(p_hc, p_err)                                            \
 	do {                                                                   \
-		USBH_OS_MutexLock((p_hc)->HCD_Mutex);                          \
+		k_mutex_lock(&(p_hc)->HCD_Mutex, K_NO_WAIT);                          \
 		(p_hc)->HC_Drv.API_Ptr->Start(&(p_hc)->HC_Drv, (p_err));       \
-		USBH_OS_MutexUnlock((p_hc)->HCD_Mutex);                        \
+		k_mutex_unlock(&(p_hc)->HCD_Mutex);                        \
 	} while (0)
 
 #define USBH_HCD_Stop(p_hc, p_err)                                             \
 	do {                                                                   \
-		USBH_OS_MutexLock((p_hc)->HCD_Mutex);                          \
+		k_mutex_lock(&(p_hc)->HCD_Mutex, K_NO_WAIT);                          \
 		(p_hc)->HC_Drv.API_Ptr->Stop(&(p_hc)->HC_Drv, (p_err));        \
-		USBH_OS_MutexUnlock((p_hc)->HCD_Mutex);                        \
+		k_mutex_unlock(&(p_hc)->HCD_Mutex);                        \
 	} while (0)
 
 #define USBH_HCD_SpdGet(p_hc, p_spd, p_err)                                    \
 	do {                                                                   \
-		USBH_OS_MutexLock((p_hc)->HCD_Mutex);                          \
+		k_mutex_lock(&(p_hc)->HCD_Mutex, K_NO_WAIT);                          \
 		*(p_spd) = (p_hc)->HC_Drv.API_Ptr->SpdGet(&(p_hc)->HC_Drv,     \
 							  (p_err));            \
-		USBH_OS_MutexUnlock((p_hc)->HCD_Mutex);                        \
+		k_mutex_unlock(&(p_hc)->HCD_Mutex);                        \
 	} while (0)
 
 #define USBH_HCD_Suspend(p_hc, p_err)                                          \
 	do {                                                                   \
-		USBH_OS_MutexLock((p_hc)->HCD_Mutex);                          \
+		k_mutex_lock(&(p_hc)->HCD_Mutex, K_NO_WAIT);                          \
 		(p_hc)->HC_Drv.API_Ptr->Suspend(&(p_hc)->HC_Drv, (p_err));     \
-		USBH_OS_MutexUnlock((p_hc)->HCD_Mutex);                        \
+		k_mutex_unlock(&(p_hc)->HCD_Mutex);                        \
 	} while (0)
 
 #define USBH_HCD_Resume(p_hc, p_err)                                           \
 	do {                                                                   \
-		USBH_OS_MutexLock((p_hc)->HCD_Mutex);                          \
+		k_mutex_lock(&(p_hc)->HCD_Mutex, K_NO_WAIT);                          \
 		(p_hc)->HC_Drv.API_Ptr->Resume(&(p_hc)->HC_Drv, (p_err));      \
-		USBH_OS_MutexUnlock((p_hc)->HCD_Mutex);                        \
+		k_mutex_unlock(&(p_hc)->HCD_Mutex);                        \
 	} while (0)
 
 #define USBH_HCD_FrmNbrGet(p_hc, p_frm_nbr, p_err)                             \
 	do {                                                                   \
-		USBH_OS_MutexLock((p_hc)->HCD_Mutex);                          \
+		k_mutex_lock(&(p_hc)->HCD_Mutex, K_NO_WAIT);                          \
 		*(p_frm_nbr) = (p_hc)->HC_Drv.API_Ptr->FrmNbrGet(              \
 			&(p_hc)->HC_Drv, (p_err));                             \
-		USBH_OS_MutexUnlock((p_hc)->HCD_Mutex);                        \
+		k_mutex_unlock(&(p_hc)->HCD_Mutex);                        \
 	} while (0)
 
 #define USBH_HCD_EP_Open(p_hc, p_ep, p_err)                                    \
 	do {                                                                   \
-		USBH_OS_MutexLock((p_hc)->HCD_Mutex);                          \
+		k_mutex_lock(&(p_hc)->HCD_Mutex, K_NO_WAIT);                          \
 		(p_hc)->HC_Drv.API_Ptr->EP_Open(&(p_hc)->HC_Drv, (p_ep),       \
 						(p_err));                      \
-		USBH_OS_MutexUnlock((p_hc)->HCD_Mutex);                        \
+		k_mutex_unlock(&(p_hc)->HCD_Mutex);                        \
 	} while (0)
 
 #define USBH_HCD_EP_Close(p_hc, p_ep, p_err)                                   \
 	do {                                                                   \
-		USBH_OS_MutexLock((p_hc)->HCD_Mutex);                          \
+		k_mutex_lock(&(p_hc)->HCD_Mutex, K_NO_WAIT);                          \
 		(p_hc)->HC_Drv.API_Ptr->EP_Close(&(p_hc)->HC_Drv, (p_ep),      \
 						 (p_err));                     \
-		USBH_OS_MutexUnlock((p_hc)->HCD_Mutex);                        \
+		k_mutex_unlock(&(p_hc)->HCD_Mutex);                        \
 	} while (0)
 
 #define USBH_HCD_EP_Abort(p_hc, p_ep, p_err)                                   \
 	do {                                                                   \
-		USBH_OS_MutexLock((p_hc)->HCD_Mutex);                          \
+		k_mutex_lock(&(p_hc)->HCD_Mutex, K_NO_WAIT);                          \
 		(p_hc)->HC_Drv.API_Ptr->EP_Abort(&(p_hc)->HC_Drv, (p_ep),      \
 						 (p_err));                     \
-		USBH_OS_MutexUnlock((p_hc)->HCD_Mutex);                        \
+		k_mutex_unlock(&(p_hc)->HCD_Mutex);                        \
 	} while (0)
 
 #define USBH_HCD_EP_IsHalt(p_hc, p_ep, b_ret, p_err)                           \
 	do {                                                                   \
-		USBH_OS_MutexLock((p_hc)->HCD_Mutex);                          \
+		k_mutex_lock(&(p_hc)->HCD_Mutex, K_NO_WAIT);                          \
 		*(b_ret) = (p_hc)->HC_Drv.API_Ptr->EP_IsHalt(&(p_hc)->HC_Drv,  \
 							     (p_ep), (p_err)); \
-		USBH_OS_MutexUnlock((p_hc)->HCD_Mutex);                        \
+		k_mutex_unlock(&(p_hc)->HCD_Mutex);                        \
 	} while (0)
 
 #define USBH_HCD_URB_Submit(p_hc, p_urb, p_err)                                \
 	do {                                                                   \
-		USBH_OS_MutexLock((p_hc)->HCD_Mutex);                          \
+		k_mutex_lock(&(p_hc)->HCD_Mutex, K_NO_WAIT);                          \
 		(p_hc)->HC_Drv.API_Ptr->URB_Submit(&(p_hc)->HC_Drv, (p_urb),   \
 						   (p_err));                   \
-		USBH_OS_MutexUnlock((p_hc)->HCD_Mutex);                        \
+		k_mutex_unlock(&(p_hc)->HCD_Mutex);                        \
 	} while (0)
 
 #define USBH_HCD_URB_Complete(p_hc, p_urb, p_err)                              \
 	do {                                                                   \
-		USBH_OS_MutexLock((p_hc)->HCD_Mutex);                          \
+		k_mutex_lock(&(p_hc)->HCD_Mutex, K_NO_WAIT);                          \
 		(p_hc)->HC_Drv.API_Ptr->URB_Complete(&(p_hc)->HC_Drv, (p_urb), \
 						     (p_err));                 \
-		USBH_OS_MutexUnlock((p_hc)->HCD_Mutex);                        \
+		k_mutex_unlock(&(p_hc)->HCD_Mutex);                        \
 	} while (0)
 
 #define USBH_HCD_URB_Abort(p_hc, p_urb, p_err)                                 \
 	do {                                                                   \
-		USBH_OS_MutexLock((p_hc)->HCD_Mutex);                          \
+		k_mutex_lock(&(p_hc)->HCD_Mutex, K_NO_WAIT);                          \
 		(p_hc)->HC_Drv.API_Ptr->URB_Abort(&(p_hc)->HC_Drv, (p_urb),    \
 						  (p_err));                    \
-		USBH_OS_MutexUnlock((p_hc)->HCD_Mutex);                        \
+		k_mutex_unlock(&(p_hc)->HCD_Mutex);                        \
 	} while (0)
 
 /*
@@ -1811,7 +1811,7 @@ uint16_t usbh_ctrl_tx(struct usbh_dev *p_dev, uint8_t b_req,
 	// LOG_DBG("CtrlTx");
 	uint16_t xfer_len;
 
-	(void)USBH_OS_MutexLock(p_dev->DfltEP_Mutex);
+	k_mutex_lock(&p_dev->DfltEP_Mutex, K_NO_WAIT);
 
 	if ((p_dev->IsRootHub ==
 	     DEF_TRUE) && /* Check if RH features are supported.                  */
@@ -1883,7 +1883,7 @@ uint16_t usbh_ctrl_rx(struct usbh_dev *p_dev, uint8_t b_req,
 	// LOG_DBG("CtrlRx");
 	uint16_t xfer_len;
 
-	(void)USBH_OS_MutexLock(p_dev->DfltEP_Mutex);
+	k_mutex_lock(&p_dev->DfltEP_Mutex, K_NO_WAIT);
 
 	if ((p_dev->IsRootHub ==
 	     DEF_TRUE) && /* Check if RH features are supported.                  */
@@ -3523,7 +3523,7 @@ static uint32_t usbh_sync_transfer(struct usbh_ep *p_ep, void *p_buf,
 		return (0u);
 	}
 
-	(void)USBH_OS_MutexLock(p_ep->Mutex);
+	k_mutex_lock(&p_ep->Mutex, K_NO_WAIT);
 
 	p_urb = &p_ep->URB;
 	p_urb->EP_Ptr = p_ep;

@@ -71,9 +71,9 @@
 /* ----------------- MUTEX FUNCTIONS ------------------ */
 //USBH_ERR USBH_OS_MutexCreate(struct k_mutex *p_mutex);
 
-USBH_ERR USBH_OS_MutexLock(struct k_mutex mutex);
+//USBH_ERR USBH_OS_MutexLock(struct k_mutex mutex);
 
-USBH_ERR USBH_OS_MutexUnlock(struct k_mutex mutex);
+//USBH_ERR USBH_OS_MutexUnlock(struct k_mutex mutex);
 
 USBH_ERR USBH_OS_MutexDestroy(struct k_mutex mutex);
 
