@@ -77,8 +77,8 @@ const struct usbh_hc_cfg  USBH_HC_TemplateCfg = {
                                           /* Base addr of host controller dedicated mem.          */
     0u,
                                                    /* Size      of host controller dedicated mem.          */
-    DEF_ENABLED,
-                                          /* Does HC can access sys mem?                          */
+    1,
+    /* Does HC can access sys mem?                          */
     USBH_DATA_BUF_MAX_LEN,
                                                 /* Data buf max len.                                    */
     USBH_MAX_NBR_EP_BULK_OPEN,
