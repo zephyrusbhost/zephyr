@@ -43,8 +43,7 @@
 #include  <usbh_cpu.h>
 #include  <usbh_cfg.h>
 #include  "usbh_err.h"
-#include  <usbh_os.h>
-
+#include <zephyr.h>
 
 /*
 *********************************************************************************************************
@@ -1220,8 +1219,11 @@ typedef  void  (*USBH_XFER_CMPL_FNCT)(struct usbh_ep     *p_ep,
 *                                               MACROS
 *********************************************************************************************************
 */
-
-
+#define USBH_OS_SEM_REQUIRED					      \
+	(3u + (((USBH_CFG_MAX_NBR_EPS * USBH_CFG_MAX_NBR_IFS) + 1u) * \
+	       USBH_CFG_MAX_NBR_DEVS))
+#define DEF_BIT_IS_SET(val, mask) (((val & mask) == mask) ? true : false)
+#define DEF_BIT_IS_CLR(val, bit) !DEF_BIT_IS_SET(val, bit) 
 /*
 *********************************************************************************************************
 *                                    USB STANDARD FUNCTION MACROS
