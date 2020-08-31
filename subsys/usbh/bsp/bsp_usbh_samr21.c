@@ -33,7 +33,6 @@
 */
 
 #include "bsp_usbh_template.h"
-#include <usbh_cpu.h>
 
 #include <soc.h>
 #include <drivers/pinmux.h>
@@ -75,7 +74,7 @@ LOG_MODULE_REGISTER(bsp);
 
 static struct usbh_hc_drv *USBH_HC_Template_DrvPtr;
 
-static CPU_FNCT_PTR BSP_USBH_Template_ISR_Ptr;
+//static CPU_FNCT_PTR BSP_USBH_Template_ISR_Ptr;
 
 /*
 **************************************************************************************************************
@@ -85,10 +84,8 @@ static CPU_FNCT_PTR BSP_USBH_Template_ISR_Ptr;
 
 static void BSP_USBH_samr21_Init(struct usbh_hc_drv *p_drv, USBH_ERR *p_err);
 
-static void BSP_USBH_samr21_ISR_Register(CPU_FNCT_PTR isr_fnct,
-										   USBH_ERR *p_err);
 
-static void BSP_USBH_samr21_ISR_Unregister(USBH_ERR *p_err);
+//static void BSP_USBH_samr21_ISR_Unregister(USBH_ERR *p_err);
 
 // static void BSP_USBH_samr21_IntHandler(void);
 
@@ -98,9 +95,7 @@ static void BSP_USBH_samr21_ISR_Unregister(USBH_ERR *p_err);
 *********************************************************************************************************
 */
 
-const struct usbh_hc_bsp_api USBH_DrvBSP_Template = {BSP_USBH_samr21_Init,
-										BSP_USBH_samr21_ISR_Register,
-										BSP_USBH_samr21_ISR_Unregister};
+const struct usbh_hc_bsp_api USBH_DrvBSP_Template = {BSP_USBH_samr21_Init};
 
 /*
 **************************************************************************************************************
@@ -180,13 +175,13 @@ static void BSP_USBH_samr21_Init(struct usbh_hc_drv *p_drv, USBH_ERR *p_err)
 * Note(s)     : none.
 *********************************************************************************************************
 */
-
+/*
 static void BSP_USBH_samr21_ISR_Register(CPU_FNCT_PTR isr_fnct,
 										   USBH_ERR *p_err)
 {
 	*p_err = USBH_ERR_NONE;
 }
-
+*/
 /*
 *********************************************************************************************************
 *                                 BSP_USBH_Template_ISR_Unregister()
@@ -202,14 +197,14 @@ static void BSP_USBH_samr21_ISR_Register(CPU_FNCT_PTR isr_fnct,
 * Note(s)     : none.
 *********************************************************************************************************
 */
-
+/*
 static void BSP_USBH_samr21_ISR_Unregister(USBH_ERR *p_err)
 {
 	BSP_USBH_Template_ISR_Ptr = (CPU_FNCT_PTR)0;
 
 	*p_err = USBH_ERR_NONE;
 }
-
+*/
 /*
 *********************************************************************************************************
 *                                   BSP_USBH_Template_IntHandler()

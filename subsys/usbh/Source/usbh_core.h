@@ -32,15 +32,6 @@
 
 #ifndef  USBH_CORE_MODULE_PRESENT
 #define  USBH_CORE_MODULE_PRESENT
-
-
-/*
-*********************************************************************************************************
-*                                            INCLUDE FILES
-*********************************************************************************************************
-*/
-
-#include  <usbh_cpu.h>
 #include  <usbh_cfg.h>
 #include  "usbh_err.h"
 #include <zephyr.h>
@@ -1176,10 +1167,6 @@ struct  usbh_hc_bsp_api {
                                         /* Init BSP.                                            */
                          USBH_ERR      *p_err);
 
-    void  (*ISR_Reg)    (CPU_FNCT_PTR   isr_fnct,               /* Register ISR.                                        */
-                         USBH_ERR      *p_err);
-
-    void  (*ISR_Unreg)  (USBH_ERR      *p_err);                 /* Unregister ISR.                                      */
 };
 
 /*

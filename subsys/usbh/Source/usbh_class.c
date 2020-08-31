@@ -122,7 +122,7 @@ USBH_ERR usbh_class_drv_reg(const struct usbh_class_drv *p_class_drv,
 {
     uint32_t ix;
     USBH_ERR err;
-    CPU_SR_ALLOC();
+    int key;
 
     if (p_class_drv == (const struct usbh_class_drv *)0)
     {
@@ -140,7 +140,7 @@ USBH_ERR usbh_class_drv_reg(const struct usbh_class_drv *p_class_drv,
         return (USBH_ERR_INVALID_ARG);
     }
 
-    CPU_CRITICAL_ENTER();
+    key = irq_lock();
     for (ix = 0u; ix < USBH_CFG_MAX_NBR_CLASS_DRVS; ix++)
     { /* Find first empty element in the class drv list.      */
 
@@ -153,7 +153,7 @@ USBH_ERR usbh_class_drv_reg(const struct usbh_class_drv *p_class_drv,
             break;
         }
     }
-    CPU_CRITICAL_EXIT();
+    irq_unlock(key);
 
     if (ix >= USBH_CFG_MAX_NBR_CLASS_DRVS)
     { /* List is full.                                        */
@@ -184,14 +184,14 @@ USBH_ERR usbh_class_drv_reg(const struct usbh_class_drv *p_class_drv,
 USBH_ERR usbh_class_drv_unreg(const struct usbh_class_drv *p_class_drv)
 {
     uint32_t ix;
-    CPU_SR_ALLOC();
+    int key;
 
     if (p_class_drv == (const struct usbh_class_drv *)0)
     {
         return (USBH_ERR_INVALID_ARG);
     }
 
-    CPU_CRITICAL_ENTER();
+    key = irq_lock();
     for (ix = 0u; ix < USBH_CFG_MAX_NBR_CLASS_DRVS; ix++)
     { /* Find the element in the class driver list.           */
 
@@ -206,7 +206,7 @@ USBH_ERR usbh_class_drv_unreg(const struct usbh_class_drv *p_class_drv)
             break;
         }
     }
-    CPU_CRITICAL_EXIT();
+    irq_unlock(key);
 
     if (ix >= USBH_CFG_MAX_NBR_CLASS_DRVS)
     {
@@ -407,7 +407,7 @@ USBH_ERR usbh_class_drv_conn(struct usbh_dev *p_dev)
         return (err);
     }
 
-    drv_found = DEF_FALSE;
+    drv_found = false;
     LOG_DBG("CfgGet");
     p_cfg = usbh_cfg_get(p_dev, (p_dev->SelCfg - 1)); /* Get active cfg struct.                               */
     LOG_DBG("CfgIF_NbrGet");
@@ -425,7 +425,7 @@ USBH_ERR usbh_class_drv_conn(struct usbh_dev *p_dev)
         err = USBH_ClassProbeIF(p_dev, p_if); /* Find class driver matching IF.                       */
         if (err == USBH_ERR_NONE)
         {
-            drv_found = DEF_TRUE;
+            drv_found = true;
         }
         else if (err != USBH_ERR_CLASS_DRV_NOT_FOUND)
         {
@@ -436,7 +436,7 @@ USBH_ERR usbh_class_drv_conn(struct usbh_dev *p_dev)
             /* Empty Else Statement                                 */
         }
     }
-    if (drv_found == DEF_FALSE)
+    if (drv_found == false)
     {
         LOG_ERR("No Class Driver Found.\r\n");
         return (err);
