@@ -2034,9 +2034,9 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 				}
 				else
 				{
-					p_urb->Err = USBH_OS_MsgQueuePut(
-						&ATSAMX_URB_Proc_Q,
-						(void *)p_urb);
+					p_urb->Err = k_msgq_put(&ATSAMX_URB_Proc_Q,
+								(void *)p_urb,
+								K_NO_WAIT);
 					if (p_urb->Err != USBH_ERR_NONE)
 					{
 						usbh_urb_done(
@@ -2059,9 +2059,9 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 				}
 				else
 				{
-					p_urb->Err = USBH_OS_MsgQueuePut(
-						&ATSAMX_URB_Proc_Q,
-						(void *)p_urb);
+					p_urb->Err = k_msgq_put(&ATSAMX_URB_Proc_Q,
+								(void *)p_urb,
+								K_NO_WAIT);
 					if (p_urb->Err != USBH_ERR_NONE)
 					{
 						usbh_urb_done(
@@ -2107,8 +2107,8 @@ static void usbh_atsamx_process_urb(void *p_arg, void *p_arg2, void *p_arg3)
 
 	while (DEF_TRUE)
 	{
-		USBH_OS_MsgQueueGet(&ATSAMX_URB_Proc_Q, 0u, &p_err,
-							(void *)p_urb);
+		p_err = k_msgq_get(&ATSAMX_URB_Proc_Q, (void *)p_urb,
+				   K_FOREVER);
 		if (p_err != USBH_ERR_NONE)
 		{
 			LOG_ERR("Cannot get USB URB");

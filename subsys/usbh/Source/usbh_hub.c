@@ -35,7 +35,7 @@
 #include "usbh_hub.h"
 #include "usbh_core.h"
 #include "usbh_class.h"
-#include <usbh_os.h>
+#include <sys/byteorder.h>
 #include <logging/log.h>
 LOG_MODULE_REGISTER(hub);
 /*
@@ -280,7 +280,7 @@ void usbh_hub_event_task(void *p_arg, void *p_arg2, void *p_arg3)
 
     while (DEF_TRUE)
     {
-        (void)USBH_OS_SemWait(&USBH_HUB_EventSem, 0u);
+        k_sem_take(&USBH_HUB_EventSem, K_FOREVER);
         USBH_HUB_EventProcess();
     }
 }
@@ -403,8 +403,7 @@ static void USBH_HUB_GlobalInit(USBH_ERR *p_err)
     }
     HubCount = (USBH_CFG_MAX_HUBS - 1);
 
-    *p_err = USBH_OS_SemCreate(&USBH_HUB_EventSem,
-                               0u);
+    *p_err = k_sem_init(&USBH_HUB_EventSem, 0u, USBH_OS_SEM_REQUIRED);
 
     USBH_HUB_HeadPtr = (struct usbh_hub_dev *)0;
     USBH_HUB_TailPtr = (struct usbh_hub_dev *)0;
@@ -928,7 +927,7 @@ static void USBH_HUB_ISR(struct usbh_ep *p_ep,
     }
     CPU_CRITICAL_EXIT();
 
-    (void)USBH_OS_SemPost(&USBH_HUB_EventSem);
+    k_sem_give(&USBH_HUB_EventSem);
 }
 
 /*
@@ -2199,7 +2198,7 @@ void usbh_rh_event(struct usbh_dev *p_dev)
         USBH_HUB_TailPtr = p_hub_dev;
     }
     CPU_CRITICAL_EXIT();
-    (void)USBH_OS_SemPost(&USBH_HUB_EventSem);
+    k_sem_give(&USBH_HUB_EventSem);
 }
 
 /*
