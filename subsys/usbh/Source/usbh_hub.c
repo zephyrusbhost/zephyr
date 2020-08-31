@@ -278,7 +278,7 @@ void usbh_hub_event_task(void *p_arg, void *p_arg2, void *p_arg3)
 {
     (void)p_arg;
 
-    while (DEF_TRUE)
+    while (true)
     {
         k_sem_take(&USBH_HUB_EventSem, K_FOREVER);
         USBH_HUB_EventProcess();
@@ -492,8 +492,8 @@ static void *USBH_HUB_IF_Probe(struct usbh_dev *p_dev,
         p_hub_dev->IF_Ptr = p_if;
         p_hub_dev->ErrCnt = 0u;
 
-        if ((p_dev->IsRootHub == DEF_TRUE) &&
-            (p_dev->HC_Ptr->IsVirRootHub == DEF_TRUE))
+        if ((p_dev->IsRootHub == true) &&
+            (p_dev->HC_Ptr->IsVirRootHub == true))
         {
             p_dev->HC_Ptr->RH_ClassDevPtr = p_hub_dev;
         }
@@ -828,8 +828,8 @@ static USBH_ERR USBH_HUB_EventReq(struct usbh_hub_dev *p_hub_dev)
 
     p_dev = p_hub_dev->DevPtr;
 
-    if ((p_dev->IsRootHub == DEF_TRUE) && /* Chk if RH fncts are supported before calling HCD.    */
-        (p_dev->HC_Ptr->IsVirRootHub == DEF_TRUE))
+    if ((p_dev->IsRootHub == true) && /* Chk if RH fncts are supported before calling HCD.    */
+        (p_dev->HC_Ptr->IsVirRootHub == true))
     {
 
         p_rh_api = p_dev->HC_Ptr->HC_Drv.RH_API_Ptr;
@@ -885,7 +885,7 @@ static void USBH_HUB_ISR(struct usbh_ep *p_ep,
                          USBH_ERR err)
 {
     struct usbh_hub_dev *p_hub_dev;
-    CPU_SR_ALLOC();
+    int key;
 
     (void)buf_len;
     (void)p_buf;
@@ -915,7 +915,7 @@ static void USBH_HUB_ISR(struct usbh_ep *p_ep,
 
     USBH_HUB_RefAdd(p_hub_dev);
 
-    CPU_CRITICAL_ENTER();
+    key = irq_lock();
     if (USBH_HUB_HeadPtr == (struct usbh_hub_dev *)0)
     {
         USBH_HUB_HeadPtr = USBH_HUB_TailPtr = p_hub_dev;
@@ -925,7 +925,7 @@ static void USBH_HUB_ISR(struct usbh_ep *p_ep,
         USBH_HUB_TailPtr->NxtPtr = p_hub_dev;
         USBH_HUB_TailPtr = p_hub_dev;
     }
-    CPU_CRITICAL_EXIT();
+    irq_unlock(key);
 
     k_sem_give(&USBH_HUB_EventSem);
 }
@@ -959,9 +959,9 @@ static void USBH_HUB_EventProcess(void)
     struct usbh_hub_port_status port_status;
     struct usbh_dev *p_dev;
     USBH_ERR err;
-    CPU_SR_ALLOC();
+    int key;
 
-    CPU_CRITICAL_ENTER();
+    key = irq_lock();
     p_hub_dev = (struct usbh_hub_dev *)USBH_HUB_HeadPtr;
 
     if (USBH_HUB_HeadPtr == USBH_HUB_TailPtr)
@@ -973,7 +973,7 @@ static void USBH_HUB_EventProcess(void)
     {
         USBH_HUB_HeadPtr = USBH_HUB_HeadPtr->NxtPtr;
     }
-    CPU_CRITICAL_EXIT();
+    irq_unlock(key);
 
     if (p_hub_dev == (struct usbh_hub_dev *)0)
     {
@@ -1005,7 +1005,7 @@ static void USBH_HUB_EventProcess(void)
             break;
         }
         /* ------------- CONNECTION STATUS CHANGE ------------- */
-        if (DEF_BIT_IS_SET(port_status.wPortChange, USBH_HUB_STATUS_C_PORT_CONN) == DEF_TRUE)
+        if (DEF_BIT_IS_SET(port_status.wPortChange, USBH_HUB_STATUS_C_PORT_CONN) == true)
         {
             LOG_DBG("connection status change");
             err = USBH_HUB_PortConnChngClr(p_hub_dev, /* Clr port conn chng.                                  */
@@ -1015,7 +1015,7 @@ static void USBH_HUB_EventProcess(void)
                 break;
             }
             /* -------------- DEV HAS BEEN CONNECTED -------------- */
-            if (DEF_BIT_IS_SET(port_status.wPortStatus, USBH_HUB_STATUS_PORT_CONN) == DEF_TRUE)
+            if (DEF_BIT_IS_SET(port_status.wPortStatus, USBH_HUB_STATUS_PORT_CONN) == true)
             {
 
                 LOG_DBG("Port %d : Device Connected.\r\n", port_nbr);
@@ -1057,7 +1057,7 @@ static void USBH_HUB_EventProcess(void)
             }
         }
         /* ------------- PORT RESET STATUS CHANGE ------------- */
-        if (DEF_BIT_IS_SET(port_status.wPortChange, USBH_HUB_STATUS_C_PORT_RESET) == DEF_TRUE)
+        if (DEF_BIT_IS_SET(port_status.wPortChange, USBH_HUB_STATUS_C_PORT_RESET) == true)
         {
             err = USBH_HUB_PortRstChngClr(p_hub_dev, port_nbr);
             if (err != USBH_ERR_NONE)
@@ -1065,7 +1065,7 @@ static void USBH_HUB_EventProcess(void)
                 break;
             }
             /* Dev has been connected.                              */
-            if (DEF_BIT_IS_SET(port_status.wPortStatus, USBH_HUB_STATUS_PORT_CONN) == DEF_TRUE)
+            if (DEF_BIT_IS_SET(port_status.wPortStatus, USBH_HUB_STATUS_PORT_CONN) == true)
             {
 
                 err = USBH_HUB_PortStatusGet(p_hub_dev, /* Get port status info.                                */
@@ -1077,11 +1077,11 @@ static void USBH_HUB_EventProcess(void)
                 }
 
                 /* Determine dev spd.                                   */
-                if (DEF_BIT_IS_SET(port_status.wPortStatus, USBH_HUB_STATUS_PORT_LOW_SPD) == DEF_TRUE)
+                if (DEF_BIT_IS_SET(port_status.wPortStatus, USBH_HUB_STATUS_PORT_LOW_SPD) == true)
                 {
                     dev_spd = USBH_LOW_SPEED;
                 }
-                else if (DEF_BIT_IS_SET(port_status.wPortStatus, USBH_HUB_STATUS_PORT_HIGH_SPD) == DEF_TRUE)
+                else if (DEF_BIT_IS_SET(port_status.wPortStatus, USBH_HUB_STATUS_PORT_HIGH_SPD) == true)
                 {
                     dev_spd = USBH_HIGH_SPEED;
                 }
@@ -1174,7 +1174,7 @@ static void USBH_HUB_EventProcess(void)
             }
         }
         /* ------------ PORT ENABLE STATUS CHANGE ------------- */
-        if (DEF_BIT_IS_SET(port_status.wPortChange, USBH_HUB_STATUS_C_PORT_EN) == DEF_TRUE)
+        if (DEF_BIT_IS_SET(port_status.wPortChange, USBH_HUB_STATUS_C_PORT_EN) == true)
         {
             err = USBH_HUB_PortEnChngClr(p_hub_dev, port_nbr);
             if (err != USBH_ERR_NONE)
@@ -1867,17 +1867,17 @@ static void USBH_HUB_Clr(struct usbh_hub_dev *p_hub_dev)
 
 static USBH_ERR USBH_HUB_RefAdd(struct usbh_hub_dev *p_hub_dev)
 {
-    CPU_SR_ALLOC();
+    int key;
 
     if (p_hub_dev == (struct usbh_hub_dev *)0)
     {
         return (USBH_ERR_INVALID_ARG);
     }
 
-    CPU_CRITICAL_ENTER();
+    key = irq_lock();
     p_hub_dev->RefCnt++; /* Increment access ref cnt to hub dev.                 */
 
-    CPU_CRITICAL_EXIT();
+    irq_unlock(key);
     return (USBH_ERR_NONE);
 }
 
@@ -1898,14 +1898,14 @@ static USBH_ERR USBH_HUB_RefAdd(struct usbh_hub_dev *p_hub_dev)
 
 static USBH_ERR USBH_HUB_RefRel(struct usbh_hub_dev *p_hub_dev)
 {
-    CPU_SR_ALLOC();
+    int key;
 
     if (p_hub_dev == (struct usbh_hub_dev *)0)
     {
         return (USBH_ERR_INVALID_ARG);
     }
 
-    CPU_CRITICAL_ENTER();
+    key = irq_lock();
     if (p_hub_dev->RefCnt > 0u)
     {
         p_hub_dev->RefCnt--; /* Decrement access ref cnt to hub dev.                 */
@@ -1915,7 +1915,7 @@ static USBH_ERR USBH_HUB_RefRel(struct usbh_hub_dev *p_hub_dev)
             HubCount++;
         }
     }
-    CPU_CRITICAL_EXIT();
+    irq_unlock(key);
 
     return (USBH_ERR_NONE);
 }
@@ -2171,7 +2171,7 @@ void usbh_rh_event(struct usbh_dev *p_dev)
     struct usbh_hub_dev *p_hub_dev;
     struct usbh_hc_drv *p_hc_drv;
     const struct usbh_hc_rh_api *p_rh_drv_api;
-    CPU_SR_ALLOC();
+    int key;
 
     p_hub_dev = p_dev->HC_Ptr->RH_ClassDevPtr;
     p_hc_drv = &p_dev->HC_Ptr->HC_Drv;
@@ -2186,7 +2186,7 @@ void usbh_rh_event(struct usbh_dev *p_dev)
     LOG_DBG("RefAdd");
     USBH_HUB_RefAdd(p_hub_dev);
 
-    CPU_CRITICAL_ENTER();
+    key = irq_lock();
     if (USBH_HUB_HeadPtr == (struct usbh_hub_dev *)0)
     {
         USBH_HUB_HeadPtr = p_hub_dev;
@@ -2197,7 +2197,7 @@ void usbh_rh_event(struct usbh_dev *p_dev)
         USBH_HUB_TailPtr->NxtPtr = p_hub_dev;
         USBH_HUB_TailPtr = p_hub_dev;
     }
-    CPU_CRITICAL_EXIT();
+    irq_unlock(key);
     k_sem_give(&USBH_HUB_EventSem);
 }
 
@@ -2231,7 +2231,7 @@ void usbh_hub_class_notify(void *p_class_dev,
     p_hub_dev = (struct usbh_hub_dev *)p_class_dev;
     p_dev = p_hub_dev->DevPtr;
 
-    if (p_dev->IsRootHub == DEF_TRUE)
+    if (p_dev->IsRootHub == true)
     { /* If RH, return immediately.                           */
         return;
     }

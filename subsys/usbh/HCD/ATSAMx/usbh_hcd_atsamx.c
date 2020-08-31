@@ -39,6 +39,7 @@
 #include <usbh_hc_cfg.h>
 #include <soc.h>
 #include <zephyr.h>
+#include <sys/math_extras.h>
 #include <logging/log.h>
 LOG_MODULE_REGISTER(hcd);
 
@@ -203,10 +204,10 @@ LOG_MODULE_REGISTER(hcd);
 #define USBH_ATSAMX_CTRLA_WRITE(p_reg, value)                         \
 	do                                                                \
 	{                                                                 \
-		CPU_CRITICAL_ENTER();                                         \
+		key = irq_lock();                                         \
 		(p_reg)->CTRLA = (value);                                     \
 		USBH_ATSAMX_WAIT_FOR_SYNC((p_reg), USBH_ATSAMX_SYNCBUSY_MSK); \
-		CPU_CRITICAL_EXIT();                                          \
+		irq_unlock(key);                                          \
 	} while (0u);
 
 /*
@@ -640,7 +641,7 @@ static void usbh_atsamx_hcd_start(struct usbh_hc_drv *p_hc_drv,
 	uint32_t pad_trim;
 	uint8_t reg_val;
 	uint8_t i;
-	CPU_SR_ALLOC();
+	int key;
 
 	p_reg = (USBH_ATSAMX_REG *)p_hc_drv->HC_CfgPtr->BaseAddr;
 	p_drv_data = (USBH_DRV_DATA *)p_hc_drv->DataPtr;
@@ -715,11 +716,11 @@ static void usbh_atsamx_hcd_start(struct usbh_hc_drv *p_hc_drv,
 	p_reg->CTRLB |=
 		(USBH_ATSAMX_CTRLB_SPDCONF_LSFS | /* Set USB LS/FS speed configuration                    */
 		 USBH_ATSAMX_CTRLB_VBUSOK);
-	if (p_bsp_api->ISR_Reg != (void *)0)
-	{
+	/*if (p_bsp_api->ISR_Reg != (void *)0)
+	{ */
 		IRQ_CONNECT(7, 0, usbh_atsamx_isr_callback, 0, 0);
 		irq_enable(7);
-	}
+	//}
 
 	USBH_ATSAMX_CTRLA_READ(p_reg, reg_val);
 	if ((reg_val & USBH_ATSAMX_CTRLA_ENABLE) == 0u)
@@ -780,11 +781,11 @@ static void usbh_atsamx_hcd_stop(struct usbh_hc_drv *p_hc_drv,
 		USBH_ATSAMX_INT_MSK; /* Disable all interrupts                               */
 	p_reg->INTFLAG =
 		USBH_ATSAMX_INT_MSK; /* Clear all interrupts                                 */
-
+	/*
 	if (p_bsp_api->ISR_Unreg != (void *)0)
-	{
+	{*/
 		irq_disable(7);
-	}
+	/*}*/
 
 	p_reg->CTRLB &= ~USBH_ATSAMX_CTRLB_VBUSOK;
 
@@ -1103,10 +1104,10 @@ static bool usbh_atsamx_hcd_ep_is_halt(struct usbh_hc_drv *p_hc_drv,
 	*p_err = USBH_ERR_NONE;
 	if (p_ep->URB.Err == USBH_ERR_HC_IO)
 	{
-		return (DEF_TRUE);
+		return (true);
 	}
 
-	return (DEF_FALSE);
+	return (false);
 }
 
 /*
@@ -1277,14 +1278,14 @@ static void usbh_atsamx_hcd_urb_complete(struct usbh_hc_drv *p_hc_drv,
 	USBH_DRV_DATA *p_drv_data;
 	uint8_t pipe_nbr;
 	uint16_t xfer_len;
-	CPU_SR_ALLOC();
+	int key;
 
 	*p_err = USBH_ERR_NONE;
 	p_reg = (USBH_ATSAMX_REG *)p_hc_drv->HC_CfgPtr->BaseAddr;
 	p_drv_data = (USBH_DRV_DATA *)p_hc_drv->DataPtr;
 	pipe_nbr = usbh_atsamx_get_pipe_nbr(p_drv_data, p_urb->EP_Ptr);
 
-	CPU_CRITICAL_ENTER();
+	key = irq_lock();
 	xfer_len = USBH_ATSAMX_GET_BYTE_CNT(
 		p_drv_data->DescTbl[pipe_nbr].DescBank[0].PCKSIZE);
 
@@ -1329,7 +1330,7 @@ static void usbh_atsamx_hcd_urb_complete(struct usbh_hc_drv *p_hc_drv,
 		USBH_ATSAMX_PINT_ALL; /* Clear   all pipe interrupts                          */
 	p_reg->HPIPE[pipe_nbr].PCFG =
 		0u; /* Disable the pipe                                     */
-	CPU_CRITICAL_EXIT();
+	irq_unlock(key);
 
 	k_free(p_urb->DMA_BufPtr);
 	p_urb->DMA_BufPtr = (void *)0u;
@@ -1956,7 +1957,7 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 	while (pipe_stat !=
 		   0u)
 	{ /* Check if there is a pipe to handle                   */
-		pipe_nbr = CPU_CntTrailZeros(pipe_stat);
+		pipe_nbr = u32_count_trailing_zeros(pipe_stat);
 		int_stat = p_reg->HPIPE[pipe_nbr].PINTFLAG;
 		int_stat &= p_reg->HPIPE[pipe_nbr].PINTENSET;
 		p_urb = p_drv_data->PipeTbl[pipe_nbr].URB_Ptr;
@@ -2099,13 +2100,13 @@ static void usbh_atsamx_process_urb(void *p_arg, void *p_arg2, void *p_arg3)
 	uint32_t xfer_len;
 	uint8_t pipe_nbr;
 	USBH_ERR p_err;
-	CPU_SR_ALLOC();
+	int key;
 
 	p_hc_drv = (struct usbh_hc_drv *)p_arg;
 	p_drv_data = (USBH_DRV_DATA *)p_hc_drv->DataPtr;
 	p_reg = (USBH_ATSAMX_REG *)p_hc_drv->HC_CfgPtr->BaseAddr;
 
-	while (DEF_TRUE)
+	while (true)
 	{
 		p_err = k_msgq_get(&ATSAMX_URB_Proc_Q, (void *)p_urb,
 				   K_FOREVER);
@@ -2118,7 +2119,7 @@ static void usbh_atsamx_process_urb(void *p_arg, void *p_arg2, void *p_arg3)
 
 		if (pipe_nbr != ATSAMX_INVALID_PIPE)
 		{
-			CPU_CRITICAL_ENTER();
+			key = irq_lock();
 			xfer_len = USBH_ATSAMX_GET_BYTE_CNT(
 				p_drv_data->DescTbl[pipe_nbr]
 					.DescBank[0]
@@ -2183,7 +2184,7 @@ static void usbh_atsamx_process_urb(void *p_arg, void *p_arg2, void *p_arg3)
 				p_reg->HPIPE[pipe_nbr].PSTATUSCLR =
 					USBH_ATSAMX_PSTATUS_PFREEZE; /* Start  transfer                    */
 			}
-			CPU_CRITICAL_EXIT();
+			irq_unlock(key);
 		}
 	}
 }
@@ -2216,7 +2217,7 @@ static void usbh_atsamx_pipe_cfg(struct usbh_urb *p_urb,
 	uint8_t ep_nbr;
 	uint8_t reg_val;
 	uint16_t max_pkt_size;
-	CPU_SR_ALLOC();
+	int key;
 
 	max_pkt_size = usbh_ep_max_pkt_size_get(p_urb->EP_Ptr);
 	ep_nbr = usbh_ep_log_nbr_get(p_urb->EP_Ptr);
@@ -2243,19 +2244,19 @@ static void usbh_atsamx_pipe_cfg(struct usbh_urb *p_urb,
 	}
 
 	p_desc_bank->ADDR = (uint32_t)p_urb->DMA_BufPtr;
-	p_desc_bank->PCKSIZE |= (CPU_CntTrailZeros(max_pkt_size >> 3u) << 28u);
+	p_desc_bank->PCKSIZE |= (u32_count_trailing_zeros(max_pkt_size >> 3u) << 28u);
 	p_desc_bank->CTRL_PIPE = (p_urb->EP_Ptr->DevAddr | (ep_nbr << 8u));
 
 	if (p_urb->Token !=
 		USBH_TOKEN_IN)
 	{ /* ---------------- SETUP/OUT PACKETS ----------------- */
 		LOG_DBG("setup out packets");
-		CPU_CRITICAL_ENTER();
+		key = irq_lock();
 		reg_val = p_reg_hpipe->PCFG;
 		reg_val &= ~USBH_ATSAMX_PCFG_PTOKEN_MSK;
 		reg_val |= (p_urb->Token ? USBH_ATSAMX_PCFG_PTOKEN_OUT : USBH_ATSAMX_PCFG_PTOKEN_SETUP);
 		p_reg_hpipe->PCFG = reg_val;
-		CPU_CRITICAL_EXIT();
+		irq_unlock(key);
 
 		p_reg_hpipe->PSTATUSSET =
 			USBH_ATSAMX_PSTATUS_BK0RDY; /* Set Bank0 ready : Pipe can send data to device       */
@@ -2263,12 +2264,12 @@ static void usbh_atsamx_pipe_cfg(struct usbh_urb *p_urb,
 	else
 	{ /* -------------------- IN PACKETS -------------------- */
 		LOG_DBG("setup in packets");
-		CPU_CRITICAL_ENTER();
+		key = irq_lock();
 		reg_val = p_reg_hpipe->PCFG;
 		reg_val &= ~USBH_ATSAMX_PCFG_PTOKEN_MSK;
 		reg_val |= USBH_ATSAMX_PCFG_PTOKEN_IN;
 		p_reg_hpipe->PCFG = reg_val;
-		CPU_CRITICAL_EXIT();
+		irq_unlock(key);
 
 		p_reg_hpipe->PSTATUSCLR =
 			USBH_ATSAMX_PSTATUS_BK0RDY; /* Clear Bank0 ready: Pipe can receive data from device */

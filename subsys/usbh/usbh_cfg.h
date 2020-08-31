@@ -348,9 +348,9 @@
  *********************************************************************************************************
  */
 
-#define  USBH_CFG_PRINT_LOG                      DEF_DISABLED
-#define  USBH_CFG_PRINT_ERR                      DEF_DISABLED
-#define  USBH_CFG_PRINT_FNAME                    DEF_DISABLED
+#define  USBH_CFG_PRINT_LOG                      0
+#define  USBH_CFG_PRINT_ERR                      0
+#define  USBH_CFG_PRINT_FNAME                    0
 
 #include <stdio.h>
 #define  USBH_PRINTF                             printf

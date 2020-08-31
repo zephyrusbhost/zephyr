@@ -785,7 +785,7 @@ USBH_ERR usbh_msc_init(USBH_MSC_DEV *p_msc_dev,
 
         LOG_INF("Mass Storage device (LUN %d) is initializing ...\r\n", lun);
         retry = 40u; /* Host attempts 20 times to know if MSC dev ready.     */
-        unit_ready = DEF_FALSE;
+        unit_ready = false;
 
         while (retry > 0u)
         {
@@ -793,7 +793,7 @@ USBH_ERR usbh_msc_init(USBH_MSC_DEV *p_msc_dev,
             err = USBH_SCSI_CMD_TestUnitReady(p_msc_dev, lun);
             if (err == USBH_ERR_NONE)
             { /* MSC dev ready for comm.                              */
-                unit_ready = DEF_TRUE;
+                unit_ready = true;
                 break;
             }
             else if (err == USBH_ERR_MSC_IO)
@@ -853,7 +853,7 @@ USBH_ERR usbh_msc_init(USBH_MSC_DEV *p_msc_dev,
             }
         }
 
-        if (unit_ready == DEF_FALSE)
+        if (unit_ready == false)
         {
             LOG_ERR("Device is not ready\r\n");
             err = USBH_ERR_DEV_NOT_READY;
@@ -2103,10 +2103,10 @@ static USBH_ERR USBH_MSC_TxData(USBH_MSC_DEV *p_msc_dev,
     p_data_08 = (uint8_t *)p_arg;
     data_len_rem = data_len;
     retry_cnt = 0u;
-    retry = DEF_TRUE;
+    retry = true;
 
     while ((data_len_rem > 0u) &&
-           (retry == DEF_TRUE))
+           (retry == true))
     {
 
         data_len_tx = usbh_bulk_tx(&p_msc_dev->BulkOutEP,
@@ -2121,7 +2121,7 @@ static USBH_ERR USBH_MSC_TxData(USBH_MSC_DEV *p_msc_dev,
             retry_cnt++;
             if (retry_cnt >= USBH_MSC_MAX_TRANSFER_RETRY)
             {
-                retry = DEF_FALSE;
+                retry = false;
             }
             break;
 
@@ -2138,7 +2138,7 @@ static USBH_ERR USBH_MSC_TxData(USBH_MSC_DEV *p_msc_dev,
             break;
 
         default:
-            retry = DEF_FALSE;
+            retry = false;
             break;
         }
     }
@@ -2204,10 +2204,10 @@ static USBH_ERR USBH_MSC_RxData(USBH_MSC_DEV *p_msc_dev,
     p_data_08 = (uint8_t *)p_arg;
     data_len_rem = data_len;
     retry_cnt = 0u;
-    retry = DEF_TRUE;
+    retry = true;
 
     while ((data_len_rem > 0u) &&
-           (retry == DEF_TRUE))
+           (retry == true))
     {
 
         data_len_rx = usbh_bulk_rx(&p_msc_dev->BulkInEP,
@@ -2222,7 +2222,7 @@ static USBH_ERR USBH_MSC_RxData(USBH_MSC_DEV *p_msc_dev,
             retry_cnt++;
             if (retry_cnt >= USBH_MSC_MAX_TRANSFER_RETRY)
             {
-                retry = DEF_FALSE;
+                retry = false;
             }
             break;
 
@@ -2239,7 +2239,7 @@ static USBH_ERR USBH_MSC_RxData(USBH_MSC_DEV *p_msc_dev,
             break;
 
         default:
-            retry = DEF_FALSE;
+            retry = false;
             break;
         }
     }
