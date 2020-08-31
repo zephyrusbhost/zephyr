@@ -34,7 +34,7 @@
 #define MICRIUM_SOURCE
 #include "usbh_msc.h"
 #include "usbh_core.h"
-
+#include <sys/byteorder.h>
 #include <logging/log.h>
 LOG_MODULE_REGISTER(msc);
 

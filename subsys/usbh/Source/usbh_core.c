@@ -35,7 +35,7 @@
 #include "usbh_core.h"
 #include "usbh_class.h"
 #include "usbh_hub.h"
-
+#include <sys/byteorder.h>
 #include <logging/log.h>
 LOG_MODULE_REGISTER(usbh_core, 4);
 /*
@@ -375,10 +375,8 @@ USBH_ERR usbh_init(USBH_KERNEL_TASK_INFO *async_task_info,
 		return (err);
 	}
 
-	err = USBH_OS_SemCreate(
-		(struct k_sem *)&USBH_URB_Sem,
-		/* Create a Semaphore for sync I/O req.                 */
-		0u);
+	err = k_sem_init((struct k_sem *)&USBH_URB_Sem, 0u,
+			 USBH_OS_SEM_REQUIRED);
 	if (err != USBH_ERR_NONE) {
 		return (err);
 	}
@@ -3103,10 +3101,9 @@ void usbh_urb_done(struct usbh_urb *p_urb)
 			}
 			CPU_CRITICAL_EXIT();
 
-			(void)USBH_OS_SemPost(&USBH_URB_Sem);
+			k_sem_give(&USBH_URB_Sem);
 		} else {
-			(void)USBH_OS_SemPost(
-				&p_urb->Sem); /* Post notification to waiting task.                   */
+			k_sem_give(&p_urb->Sem); /* Post notification to waiting task.                   */
 		}
 	}
 }
@@ -3447,9 +3444,7 @@ static USBH_ERR usbh_ep_open(struct usbh_dev *p_dev, struct usbh_if *p_if,
 		}
 	}
 
-	err = USBH_OS_SemCreate(
-		&p_ep->URB.Sem,
-		0u); /* Sem for I/O wait.                                    */
+	err = k_sem_init(&p_ep->URB.Sem, 0u, USBH_OS_SEM_REQUIRED); /* Sem for I/O wait.                                    */
 	if (err != USBH_ERR_NONE) {
 		return (err);
 	}
@@ -3543,9 +3538,7 @@ static uint32_t usbh_sync_transfer(struct usbh_ep *p_ep, void *p_buf,
 
 	if (*p_err ==
 	    USBH_ERR_NONE) { /* Transfer URB to HC.                                  */
-		*p_err = USBH_OS_SemWait(
-			&p_urb->Sem,
-			timeout_ms); /* Wait on URB completion notification.                 */
+		*p_err = k_sem_take(&p_urb->Sem, K_MSEC(timeout_ms)); /* Wait on URB completion notification.                 */
 	}
 
 	if (*p_err == USBH_ERR_NONE) {
@@ -3844,7 +3837,7 @@ static void usb_urb_notify(struct usbh_urb *p_urb)
 	if ((p_urb->State == USBH_URB_STATE_ABORTED) &&
 	    (p_urb->FnctPtr == (void *)0)) {
 		p_urb->State = USBH_URB_STATE_NONE;
-		(void)USBH_OS_SemWaitAbort(&p_urb->Sem);
+		k_sem_reset(&p_urb->Sem);
 	}
 
 	if (p_urb->FnctPtr !=
@@ -4005,9 +3998,7 @@ static USBH_ERR usbh_dflt_ep_open(struct usbh_dev *p_dev)
 		}
 	}
 
-	err = USBH_OS_SemCreate(
-		&p_ep->URB.Sem,
-		0u); /* Create OS resources needed for EP.                   */
+	err = k_sem_init(&p_ep->URB.Sem, 0u, USBH_OS_SEM_REQUIRED); /* Create OS resources needed for EP.                   */
 	if (err != USBH_ERR_NONE) {
 		return (err);
 	}
@@ -4876,9 +4867,7 @@ static void usbh_async_task(void *p_arg, void *p_arg2, void *p_arg3)
 	(void)p_arg;
 
 	while (DEF_TRUE) {
-		(void)USBH_OS_SemWait(
-			&USBH_URB_Sem,
-			0u); /* Wait for URBs processed by HC.                       */
+		k_sem_take(&USBH_URB_Sem, K_FOREVER); /* Wait for URBs processed by HC.                       */
 
 		CPU_CRITICAL_ENTER();
 		p_urb = (struct usbh_urb *)USBH_URB_HeadPtr;
