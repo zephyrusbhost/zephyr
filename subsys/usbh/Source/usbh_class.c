@@ -65,28 +65,28 @@ static void usbh_class_notify(struct usbh_dev *p_dev,
 *********************************************************************************************************
 */
 
-USBH_ERR usbh_reg_class_drv(const struct usbh_class_drv *p_class_drv,
+int usbh_reg_class_drv(const struct usbh_class_drv *p_class_drv,
                             USBH_CLASS_NOTIFY_FNCT class_notify_fnct,
                             void *p_class_notify_ctx)
 {
     uint32_t ix;
-    USBH_ERR err;
+    int err;
     int key;
 
-    if (p_class_drv == (const struct usbh_class_drv *)0)
+    if (p_class_drv == NULL)
     {
-        return (USBH_ERR_INVALID_ARG);
+        return (EINVAL);
     }
 
-    if (p_class_drv->NamePtr == (uint8_t *)0)
+    if (p_class_drv->NamePtr == NULL)
     {
-        return (USBH_ERR_INVALID_ARG);
+        return (EINVAL);
     }
 
     if ((p_class_drv->ProbeDev == 0) &&
         (p_class_drv->ProbeIF == 0))
     {
-        return (USBH_ERR_INVALID_ARG);
+        return (EINVAL);
     }
 
     key = irq_lock();
@@ -106,12 +106,12 @@ USBH_ERR usbh_reg_class_drv(const struct usbh_class_drv *p_class_drv,
 
     if (ix >= USBH_CFG_MAX_NBR_CLASS_DRVS)
     { /* List is full.                                        */
-        return (USBH_ERR_CLASS_DRV_ALLOC);
+        return (ERANGE);
     }
 
     p_class_drv->GlobalInit(&err);
 
-    return (err);
+    return err;
 }
 
 /*
@@ -135,7 +135,7 @@ USBH_ERR usbh_class_drv_unreg(const struct usbh_class_drv *p_class_drv)
     uint32_t ix;
     int key;
 
-    if (p_class_drv == (const struct usbh_class_drv *)0)
+    if (p_class_drv == NULL)
     {
         return (USBH_ERR_INVALID_ARG);
     }
