@@ -607,7 +607,7 @@ static void usbh_atsamx_hcd_init(struct usbh_hc_drv *p_hc_drv,
 					NULL, NULL, 0, 0,
 					K_NO_WAIT);
 
-	*p_err = USBH_ERR_NONE;
+	*p_err = 0;
 }
 
 /*
@@ -649,7 +649,7 @@ static void usbh_atsamx_hcd_start(struct usbh_hc_drv *p_hc_drv,
 	if (p_bsp_api->Init != (void *)0)
 	{
 		p_bsp_api->Init(p_hc_drv, p_err);
-		if (*p_err != USBH_ERR_NONE)
+		if (*p_err != 0)
 		{
 			return;
 		}
@@ -744,7 +744,7 @@ static void usbh_atsamx_hcd_start(struct usbh_hc_drv *p_hc_drv,
 	p_reg->INTENSET =
 		(USBH_ATSAMX_INT_DCONN | /* Enable interrupts to detect connection               */
 		 USBH_ATSAMX_INT_RST | USBH_ATSAMX_INT_WAKEUP);
-	*p_err = USBH_ERR_NONE;
+	*p_err = 0;
 }
 
 /*
@@ -788,7 +788,7 @@ static void usbh_atsamx_hcd_stop(struct usbh_hc_drv *p_hc_drv,
 
 	p_reg->CTRLB &= ~USBH_ATSAMX_CTRLB_VBUSOK;
 
-	*p_err = USBH_ERR_NONE;
+	*p_err = 0;
 }
 
 /*
@@ -813,7 +813,7 @@ static enum usbh_device_speed usbh_atsamx_hcd_spd_get(struct usbh_hc_drv *p_hc_d
 {
 	(void)p_hc_drv;
 
-	*p_err = USBH_ERR_NONE;
+	*p_err = 0;
 
 	return (USBH_FULL_SPEED);
 }
@@ -860,7 +860,7 @@ static void usbh_atsamx_hcd_suspend(struct usbh_hc_drv *p_hc_drv,
 	p_reg->CTRLB &=
 		~USBH_ATSAMX_CTRLB_SOFE; /* Stop sending start of frames                         */
 
-	*p_err = USBH_ERR_NONE;
+	*p_err = 0;
 }
 
 /*
@@ -909,7 +909,7 @@ static void usbh_atsamx_hcd_resume(struct usbh_hc_drv *p_hc_drv,
 		}
 	}
 
-	*p_err = USBH_ERR_NONE;
+	*p_err = 0;
 }
 
 /*
@@ -938,7 +938,7 @@ static uint32_t usbh_atsamx_hcd_frame_nbr_get(struct usbh_hc_drv *p_hc_drv,
 	p_reg = (USBH_ATSAMX_REG *)p_hc_drv->HC_CfgPtr->BaseAddr;
 	frm_nbr = (p_reg->FNUM & USBH_ATSAMX_FNUM_MSK) >> USBH_ATSAMX_FNUM_POS;
 
-	*p_err = USBH_ERR_NONE;
+	*p_err = 0;
 
 	return (frm_nbr);
 }
@@ -973,8 +973,8 @@ static void usbh_atsamx_hcd_ep_open(struct usbh_hc_drv *p_hc_drv,
 	p_reg = (USBH_ATSAMX_REG *)p_hc_drv->HC_CfgPtr->BaseAddr;
 	p_ep->DataPID =
 		0u; /* Set PID to DATA0                                     */
-	p_ep->URB.Err = USBH_ERR_NONE;
-	*p_err = USBH_ERR_NONE;
+	p_ep->URB.Err = 0;
+	*p_err = 0;
 
 	if (p_reg->STATUS ==
 		0u)
@@ -1019,7 +1019,7 @@ static void usbh_atsamx_hcd_ep_close(struct usbh_hc_drv *p_hc_drv,
 	pipe_nbr = usbh_atsamx_get_pipe_nbr(p_drv_data, p_ep);
 	p_ep->DataPID =
 		0u; /* Set PID to DATA0                                      */
-	*p_err = USBH_ERR_NONE;
+	*p_err = 0;
 
 	if (p_ep->URB.DMA_BufPtr != (void *)0u)
 	{
@@ -1070,7 +1070,7 @@ static void usbh_atsamx_hcd_ep_abort(struct usbh_hc_drv *p_hc_drv,
 	(void)p_hc_drv;
 	(void)p_ep;
 
-	*p_err = USBH_ERR_NONE;
+	*p_err = 0;
 }
 
 /*
@@ -1100,7 +1100,7 @@ static bool usbh_atsamx_hcd_ep_is_halt(struct usbh_hc_drv *p_hc_drv,
 {
 	(void)p_hc_drv;
 
-	*p_err = USBH_ERR_NONE;
+	*p_err = 0;
 	if (p_ep->URB.Err == USBH_ERR_HC_IO)
 	{
 		return (true);
@@ -1246,7 +1246,7 @@ static void usbh_atsamx_hcd_urb_submit(struct usbh_hc_drv *p_hc_drv,
 						&p_drv_data->DescTbl[pipe_nbr].DescBank[0]);
 	/* Start transfer                                       */
 	p_reg->HPIPE[pipe_nbr].PSTATUSCLR = USBH_ATSAMX_PSTATUS_PFREEZE;
-	*p_err = USBH_ERR_NONE;
+	*p_err = 0;
 }
 
 /*
@@ -1279,7 +1279,7 @@ static void usbh_atsamx_hcd_urb_complete(struct usbh_hc_drv *p_hc_drv,
 	uint16_t xfer_len;
 	int key;
 
-	*p_err = USBH_ERR_NONE;
+	*p_err = 0;
 	p_reg = (USBH_ATSAMX_REG *)p_hc_drv->HC_CfgPtr->BaseAddr;
 	p_drv_data = (USBH_DRV_DATA *)p_hc_drv->DataPtr;
 	pipe_nbr = usbh_atsamx_get_pipe_nbr(p_drv_data, p_urb->EP_Ptr);
@@ -1369,7 +1369,7 @@ static void usbh_atsamx_hcd_urb_abort(struct usbh_hc_drv *p_hc_drv,
 	p_urb->State = USBH_URB_STATE_ABORTED;
 	p_urb->Err = USBH_ERR_URB_ABORT;
 
-	*p_err = USBH_ERR_NONE;
+	*p_err = 0;
 }
 
 /*
@@ -1998,7 +1998,7 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 
 			xfer_len = p_drv_data->PipeTbl[pipe_nbr].AppBufLen +
 					   p_urb->XferLen;
-			p_urb->Err = USBH_ERR_NONE;
+			p_urb->Err = 0;
 
 			usbh_urb_done(
 				p_urb); /* Notify the Core layer about the URB completion       */
@@ -2028,7 +2028,7 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 					 p_urb->UserBufLen) ||
 					(xfer_len < max_pkt_size))
 				{
-					p_urb->Err = USBH_ERR_NONE;
+					p_urb->Err = 0;
 					usbh_urb_done(
 						p_urb); /* Notify the Core layer about the URB completion       */
 				}
@@ -2037,7 +2037,7 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 					p_urb->Err = k_msgq_put(&ATSAMX_URB_Proc_Q,
 								(void *)p_urb,
 								K_NO_WAIT);
-					if (p_urb->Err != USBH_ERR_NONE)
+					if (p_urb->Err != 0)
 					{
 						usbh_urb_done(
 							p_urb); /* Notify the Core layer about the URB completion       */
@@ -2053,7 +2053,7 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 
 				if (xfer_len == p_urb->UserBufLen)
 				{
-					p_urb->Err = USBH_ERR_NONE;
+					p_urb->Err = 0;
 					usbh_urb_done(
 						p_urb); /* Notify the Core layer about the URB completion       */
 				}
@@ -2062,7 +2062,7 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 					p_urb->Err = k_msgq_put(&ATSAMX_URB_Proc_Q,
 								(void *)p_urb,
 								K_NO_WAIT);
-					if (p_urb->Err != USBH_ERR_NONE)
+					if (p_urb->Err != 0)
 					{
 						usbh_urb_done(
 							p_urb); /* Notify the Core layer about the URB completion       */
@@ -2109,7 +2109,7 @@ static void usbh_atsamx_process_urb(void *p_arg, void *p_arg2, void *p_arg3)
 	{
 		p_err = k_msgq_get(&ATSAMX_URB_Proc_Q, (void *)p_urb,
 				   K_FOREVER);
-		if (p_err != USBH_ERR_NONE)
+		if (p_err != 0)
 		{
 			LOG_ERR("Cannot get USB URB");
 		}
@@ -2170,7 +2170,7 @@ static void usbh_atsamx_process_urb(void *p_arg, void *p_arg2, void *p_arg3)
 				}
 			}
 
-			if (p_urb->Err == USBH_ERR_NONE)
+			if (p_urb->Err == 0)
 			{
 				usbh_atsamx_pipe_cfg(
 					p_urb, &p_reg->HPIPE[pipe_nbr],
