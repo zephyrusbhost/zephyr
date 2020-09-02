@@ -368,9 +368,8 @@ USBH_ERR usbh_init(USBH_KERNEL_TASK_INFO *async_task_info,
 		usbh_class_drv_list[ix].InUse = 0u;
 	}
 
-	err = usbh_class_drv_reg(
-		&USBH_HUB_Drv, /* Reg HUB class drv.                                   */
-		usbh_hub_class_notify, (void *)0);
+	err = usbh_reg_class_drv(&USBH_HUB_Drv, usbh_hub_class_notify,
+				 (void *)0);
 	if (err != USBH_ERR_NONE) {
 		return (err);
 	}
