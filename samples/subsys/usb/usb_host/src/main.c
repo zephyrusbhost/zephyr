@@ -53,7 +53,7 @@ static void App_USBH_MSC_ClassNotify(void *p_class_dev, uint8_t is_conn,
 	if (is_conn == USBH_CLASS_DEV_STATE_CONN) {
 		LOG_INF("MSC connected");
 		usb_err = usbh_msc_ref_add(p_msc_dev);
-		if (usb_err != USBH_ERR_NONE) {
+		if (usb_err != 0) {
 			LOG_ERR("Cannot add new MSC reference w/err: %d\r\n",
 				usb_err);
 			return;
@@ -61,19 +61,19 @@ static void App_USBH_MSC_ClassNotify(void *p_class_dev, uint8_t is_conn,
 	} else{
 		LOG_INF("MSC disconn");
 		usb_err = usbh_msc_ref_rel(p_msc_dev);
-		if (usb_err != USBH_ERR_NONE) {
+		if (usb_err != 0) {
 			LOG_ERR("Cannot release MSC reference w/err: %d\r\n",
 				usb_err);
 			return;
 		}
 	}
 	int lun = usbh_msc_max_lun_get(p_msc_dev, &usb_err);
-	if (usb_err == USBH_ERR_NONE) {
+	if (usb_err == 0) {
 		uint32_t blocks = 0;
 		uint32_t blocksize = 0;
 		usbh_msc_capacity_rd(p_msc_dev, lun, &blocks, &blocksize);
 		LOG_INF("blocks %d blockSize %d", blocks, blocksize);
-		if (usbh_msc_init(p_msc_dev, lun) == USBH_ERR_NONE) {
+		if (usbh_msc_init(p_msc_dev, lun) == 0) {
 			LOG_INF("msc initialized");
 		}
 	}
@@ -88,13 +88,12 @@ void main(void)
 			    &USBH_ATSAMX_HCD_RH_API, &USBH_DrvBSP_Template,
 			    &err);
 
-	err = usbh_class_drv_reg(
-		&USBH_MSC_ClassDrv, /* Register MSC driver.                                 */
-		App_USBH_MSC_ClassNotify, (void *)0);
+	err = usbh_reg_class_drv(&USBH_MSC_ClassDrv, App_USBH_MSC_ClassNotify,
+				 (void *)0);
 
 	printk("HC_add return %d\n", hc_nbr);
 	err = usbh_hc_start(hc_nbr);
-	if (err != USBH_ERR_NONE) {
+	if (err != 0) {
 		printk("error start hc %d\n", err);
 	}
 

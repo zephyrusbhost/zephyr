@@ -162,7 +162,7 @@ static struct k_sem USBH_HUB_EventSem;
 *********************************************************************************************************
 */
 
-static void USBH_HUB_GlobalInit(USBH_ERR *p_err);
+static void USBH_HUB_GlobalInit(int *p_err);
 
 static void *USBH_HUB_IF_Probe(struct usbh_dev *p_dev,
                                struct usbh_if *p_if,
@@ -393,7 +393,7 @@ USBH_ERR usbh_hub_port_en(struct usbh_hub_dev *p_hub_dev,
 *********************************************************************************************************
 */
 
-static void USBH_HUB_GlobalInit(USBH_ERR *p_err)
+static void USBH_HUB_GlobalInit(int *p_err)
 {
     uint8_t hub_ix;
 

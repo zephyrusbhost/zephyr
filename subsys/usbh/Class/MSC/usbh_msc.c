@@ -586,7 +586,7 @@ static int8_t USBH_MSC_DevCount;
 *********************************************************************************************************
 */
 
-static void USBH_MSC_GlobalInit(USBH_ERR *p_err);
+static void USBH_MSC_GlobalInit(int *p_err);
 
 static void *USBH_MSC_ProbeIF(struct usbh_dev *p_dev,
                               struct usbh_if *p_if,
@@ -1491,7 +1491,7 @@ uint32_t usbh_msc_write(USBH_MSC_DEV *p_msc_dev,
 *********************************************************************************************************
 */
 
-static void USBH_MSC_GlobalInit(USBH_ERR *p_err)
+static void USBH_MSC_GlobalInit(int *p_err)
 {
 
     uint8_t ix;
