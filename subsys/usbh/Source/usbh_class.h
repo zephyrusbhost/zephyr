@@ -76,7 +76,7 @@ struct usbh_class_drv_reg
 extern struct usbh_class_drv_reg usbh_class_drv_list[];
 
 
-USBH_ERR usbh_class_drv_reg(const struct usbh_class_drv *p_class_drv,
+USBH_ERR usbh_reg_class_drv(const struct usbh_class_drv *p_class_drv,
 			    USBH_CLASS_NOTIFY_FNCT class_notify_fnct,
 			    void *p_class_notify_ctx);
 
