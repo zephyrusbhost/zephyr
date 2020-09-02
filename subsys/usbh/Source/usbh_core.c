@@ -524,12 +524,10 @@ uint8_t usbh_hc_add(const struct usbh_hc_cfg *p_hc_cfg,
 	struct usbh_hc_drv *p_hc_drv;
 	int key;
 
-	if ((p_hc_cfg ==
-	     (const struct usbh_hc_cfg
-		      *)0) || /* ------------------ VALIDATE ARGS ------------------- */
-	    (p_drv_api == (const struct usbh_hc_drv_api *)0) ||
-	    (p_hc_rh_api == (const struct usbh_hc_rh_api *)0) ||
-	    (p_hc_bsp_api == (const struct usbh_hc_bsp_api *)0)) {
+	if ((p_hc_cfg == NULL) || /* ------------------ VALIDATE ARGS ------------------- */
+	    (p_drv_api == NULL) ||
+	    (p_hc_rh_api == NULL) ||
+	    (p_hc_bsp_api == NULL)) {
 		*p_err = USBH_ERR_INVALID_ARG;
 		return (USBH_HC_NBR_NONE);
 	}
@@ -559,7 +557,7 @@ uint8_t usbh_hc_add(const struct usbh_hc_cfg *p_hc_cfg,
 
 	p_hc->HostPtr = &USBH_Host;
 
-	if (p_hc_rh_api == (const struct usbh_hc_rh_api *)0) {
+	if (p_hc_rh_api == NULL) {
 		p_hc->IsVirRootHub = false;
 	} else {
 		p_hc->IsVirRootHub = true;

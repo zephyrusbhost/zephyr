@@ -41,7 +41,7 @@ struct usbh_class_drv
 {
     uint8_t *NamePtr; /* Name of the class driver.                            */
 
-    void (*GlobalInit)(USBH_ERR *p_err); /* Global initialization function.                      */
+    void (*GlobalInit)(int *p_err); /* Global initialization function.                      */
 
     void *(*ProbeDev)(struct usbh_dev *p_dev,
                       /* Probe device descriptor.                             */
@@ -76,7 +76,7 @@ struct usbh_class_drv_reg
 extern struct usbh_class_drv_reg usbh_class_drv_list[];
 
 
-USBH_ERR usbh_reg_class_drv(const struct usbh_class_drv *p_class_drv,
+int usbh_reg_class_drv(const struct usbh_class_drv *p_class_drv,
 			    USBH_CLASS_NOTIFY_FNCT class_notify_fnct,
 			    void *p_class_notify_ctx);
 
