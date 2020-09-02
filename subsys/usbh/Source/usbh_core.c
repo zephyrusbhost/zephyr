@@ -361,11 +361,11 @@ USBH_ERR usbh_init(USBH_KERNEL_TASK_INFO *async_task_info,
 
 	for (ix = 0u; ix < USBH_CFG_MAX_NBR_CLASS_DRVS;
 	     ix++) { /* Clr class drv struct table.                          */
-		USBH_ClassDrvList[ix].ClassDrvPtr =
+		usbh_class_drv_list[ix].ClassDrvPtr =
 			(const struct usbh_class_drv *)0;
-		USBH_ClassDrvList[ix].NotifyFnctPtr = (USBH_CLASS_NOTIFY_FNCT)0;
-		USBH_ClassDrvList[ix].NotifyArgPtr = (void *)0;
-		USBH_ClassDrvList[ix].InUse = 0u;
+		usbh_class_drv_list[ix].NotifyFnctPtr = (USBH_CLASS_NOTIFY_FNCT)0;
+		usbh_class_drv_list[ix].NotifyArgPtr = (void *)0;
+		usbh_class_drv_list[ix].InUse = 0u;
 	}
 
 	err = usbh_class_drv_reg(

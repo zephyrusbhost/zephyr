@@ -14,67 +14,16 @@
 *********************************************************************************************************
 */
 
-/*
-*********************************************************************************************************
-*
-*                                      USB HOST CLASS OPERATIONS
-*
-* Filename : usbh_class.c
-* Version  : V3.42.00
-*********************************************************************************************************
-*/
-
-/*
-*********************************************************************************************************
-*                                            INCLUDE FILES
-*********************************************************************************************************
-*/
-
-#define USBH_CLASS_MODULE
-#define MICRIUM_SOURCE
 #include "usbh_class.h"
 
 #include <logging/log.h>
 LOG_MODULE_REGISTER(usbh_class);
-/*
-*********************************************************************************************************
-*                                            LOCAL DEFINES
-*********************************************************************************************************
-*/
 
-/*
-*********************************************************************************************************
-*                                           LOCAL CONSTANTS
-*********************************************************************************************************
-*/
+struct usbh_class_drv_reg usbh_class_drv_list[USBH_CFG_MAX_NBR_CLASS_DRVS];
 
-/*
-*********************************************************************************************************
-*                                          LOCAL DATA TYPES
-*********************************************************************************************************
-*/
+static USBH_ERR usbh_class_probe_dev(struct usbh_dev *p_dev);
 
-/*
-*********************************************************************************************************
-*                                            LOCAL TABLES
-*********************************************************************************************************
-*/
-
-/*
-*********************************************************************************************************
-*                                       LOCAL GLOBAL VARIABLES
-*********************************************************************************************************
-*/
-
-/*
-*********************************************************************************************************
-*                                      LOCAL FUNCTION PROTOTYPES
-*********************************************************************************************************
-*/
-
-static USBH_ERR USBH_ClassProbeDev(struct usbh_dev *p_dev);
-
-static USBH_ERR USBH_ClassProbeIF(struct usbh_dev *p_dev,
+static USBH_ERR usbh_class_probe_if(struct usbh_dev *p_dev,
                                   struct usbh_if *p_if);
 
 static void USBH_ClassNotify(struct usbh_dev *p_dev,
@@ -144,12 +93,12 @@ USBH_ERR usbh_class_drv_reg(const struct usbh_class_drv *p_class_drv,
     for (ix = 0u; ix < USBH_CFG_MAX_NBR_CLASS_DRVS; ix++)
     { /* Find first empty element in the class drv list.      */
 
-        if (USBH_ClassDrvList[ix].InUse == 0u)
+        if (usbh_class_drv_list[ix].InUse == 0u)
         { /* Insert class drv if it is empty location.            */
-            USBH_ClassDrvList[ix].ClassDrvPtr = p_class_drv;
-            USBH_ClassDrvList[ix].NotifyFnctPtr = class_notify_fnct;
-            USBH_ClassDrvList[ix].NotifyArgPtr = p_class_notify_ctx;
-            USBH_ClassDrvList[ix].InUse = 1u;
+            usbh_class_drv_list[ix].ClassDrvPtr = p_class_drv;
+            usbh_class_drv_list[ix].NotifyFnctPtr = class_notify_fnct;
+            usbh_class_drv_list[ix].NotifyArgPtr = p_class_notify_ctx;
+            usbh_class_drv_list[ix].InUse = 1u;
             break;
         }
     }
@@ -195,14 +144,14 @@ USBH_ERR usbh_class_drv_unreg(const struct usbh_class_drv *p_class_drv)
     for (ix = 0u; ix < USBH_CFG_MAX_NBR_CLASS_DRVS; ix++)
     { /* Find the element in the class driver list.           */
 
-        if ((USBH_ClassDrvList[ix].InUse != 0u) &&
-            (USBH_ClassDrvList[ix].ClassDrvPtr == p_class_drv))
+        if ((usbh_class_drv_list[ix].InUse != 0u) &&
+            (usbh_class_drv_list[ix].ClassDrvPtr == p_class_drv))
         {
 
-            USBH_ClassDrvList[ix].ClassDrvPtr = (const struct usbh_class_drv *)0;
-            USBH_ClassDrvList[ix].NotifyFnctPtr = (USBH_CLASS_NOTIFY_FNCT)0;
-            USBH_ClassDrvList[ix].NotifyArgPtr = (void *)0;
-            USBH_ClassDrvList[ix].InUse = 0u;
+            usbh_class_drv_list[ix].ClassDrvPtr = (const struct usbh_class_drv *)0;
+            usbh_class_drv_list[ix].NotifyFnctPtr = (USBH_CLASS_NOTIFY_FNCT)0;
+            usbh_class_drv_list[ix].NotifyArgPtr = (void *)0;
+            usbh_class_drv_list[ix].InUse = 0u;
             break;
         }
     }
@@ -377,7 +326,7 @@ USBH_ERR usbh_class_drv_conn(struct usbh_dev *p_dev)
     struct usbh_if *p_if;
 
     LOG_DBG("ProbeDev");
-    err = USBH_ClassProbeDev(p_dev);
+    err = usbh_class_probe_dev(p_dev);
     if (err == USBH_ERR_NONE)
     {
         p_if = (struct usbh_if *)0;
@@ -422,7 +371,7 @@ USBH_ERR usbh_class_drv_conn(struct usbh_dev *p_dev)
             return (USBH_ERR_NULL_PTR);
         }
         LOG_DBG("ProbeIF");
-        err = USBH_ClassProbeIF(p_dev, p_if); /* Find class driver matching IF.                       */
+        err = usbh_class_probe_if(p_dev, p_if); /* Find class driver matching IF.                       */
         if (err == USBH_ERR_NONE)
         {
             drv_found = true;
@@ -568,7 +517,7 @@ void usbh_class_drv_disconn(struct usbh_dev *p_dev)
 *********************************************************************************************************
 */
 
-static USBH_ERR USBH_ClassProbeDev(struct usbh_dev *p_dev)
+static USBH_ERR usbh_class_probe_dev(struct usbh_dev *p_dev)
 {
     uint32_t ix;
     const struct usbh_class_drv *p_class_drv;
@@ -580,13 +529,13 @@ static USBH_ERR USBH_ClassProbeDev(struct usbh_dev *p_dev)
     for (ix = 0u; ix < USBH_CFG_MAX_NBR_CLASS_DRVS; ix++)
     { /* For each class drv present in list.                  */
 
-        if (USBH_ClassDrvList[ix].InUse != 0)
+        if (usbh_class_drv_list[ix].InUse != 0)
         {
-            p_class_drv = USBH_ClassDrvList[ix].ClassDrvPtr;
+            p_class_drv = usbh_class_drv_list[ix].ClassDrvPtr;
 
             if (p_class_drv->ProbeDev != (void *)0)
             {
-                p_dev->ClassDrvRegPtr = &USBH_ClassDrvList[ix];
+                p_dev->ClassDrvRegPtr = &usbh_class_drv_list[ix];
                 p_class_dev = p_class_drv->ProbeDev(p_dev, &err);
 
                 if (err == USBH_ERR_NONE)
@@ -619,7 +568,7 @@ static USBH_ERR USBH_ClassProbeDev(struct usbh_dev *p_dev)
 *********************************************************************************************************
 */
 
-static USBH_ERR USBH_ClassProbeIF(struct usbh_dev *p_dev,
+static USBH_ERR usbh_class_probe_if(struct usbh_dev *p_dev,
                                   struct usbh_if *p_if)
 {
     LOG_DBG("ClassProbeIF");
@@ -630,15 +579,15 @@ static USBH_ERR USBH_ClassProbeIF(struct usbh_dev *p_dev,
 
     err = USBH_ERR_CLASS_DRV_NOT_FOUND;
     for (ix = 0u; ix < USBH_CFG_MAX_NBR_CLASS_DRVS; ix++)
-    { /* Search drv list for matching IF class.  
+    { /* Search drv list for matching IF class.
                  */
-        if (USBH_ClassDrvList[ix].InUse != 0u)
+        if (usbh_class_drv_list[ix].InUse != 0u)
         {
-            p_class_drv = USBH_ClassDrvList[ix].ClassDrvPtr;
+            p_class_drv = usbh_class_drv_list[ix].ClassDrvPtr;
 
             if (p_class_drv->ProbeIF != (void *)0)
             {
-                p_if->ClassDrvRegPtr = &USBH_ClassDrvList[ix];
+                p_if->ClassDrvRegPtr = &usbh_class_drv_list[ix];
                 p_class_dev = p_class_drv->ProbeIF(p_dev, p_if, &err);
 
                 if (err == USBH_ERR_NONE)
