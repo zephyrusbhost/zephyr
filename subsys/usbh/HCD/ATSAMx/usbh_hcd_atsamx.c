@@ -627,7 +627,6 @@ static void usbh_atsamx_hcd_init(struct usbh_hc_drv *p_hc_drv,
 * Note(s)     : None.
 *********************************************************************************************************
 */
-#define DT_DRV_COMPAT atmel_sam0_usb
 static struct usbh_hc_drv *p_hc_drv_local;
 static void usbh_atsamx_hcd_start(struct usbh_hc_drv *p_hc_drv,
 				  USBH_ERR *p_err)
