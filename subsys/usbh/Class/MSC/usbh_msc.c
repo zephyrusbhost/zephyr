@@ -774,7 +774,7 @@ USBH_ERR usbh_msc_init(USBH_MSC_DEV *p_msc_dev,
     }
 
     err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT); /* Acquire MSC dev lock to avoid multiple access.       */
-    if (err != USBH_ERR_NONE)
+    if (err != 0)
     {
         return (err);
     }
@@ -791,7 +791,7 @@ USBH_ERR usbh_msc_init(USBH_MSC_DEV *p_msc_dev,
         {
             /* --------------- TEST_UNIT_READY CMD ---------------- */
             err = USBH_SCSI_CMD_TestUnitReady(p_msc_dev, lun);
-            if (err == USBH_ERR_NONE)
+            if (err == 0)
             { /* MSC dev ready for comm.                              */
                 unit_ready = true;
                 break;
@@ -813,7 +813,7 @@ USBH_ERR usbh_msc_init(USBH_MSC_DEV *p_msc_dev,
                                              &sense_key,
                                              &asc,
                                              &ascq);
-                if (err == USBH_ERR_NONE)
+                if (err == 0)
                 {
                     switch (sense_key)
                     {                                        /* See Note #2.                                         */
@@ -917,7 +917,7 @@ uint8_t usbh_msc_max_lun_get(USBH_MSC_DEV *p_msc_dev,
     }
 
     *p_err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
-    if (*p_err != USBH_ERR_NONE)
+    if (*p_err != 0)
     {
         return (0u);
     }
@@ -937,7 +937,7 @@ uint8_t usbh_msc_max_lun_get(USBH_MSC_DEV *p_msc_dev,
                     1u,
                     USBH_MSC_TIMEOUT,
                     p_err);
-        if (*p_err != USBH_ERR_NONE)
+        if (*p_err != 0)
         {
             (void)usbh_ep_reset(p_msc_dev->DevPtr, /* Reset dflt EP if ctrl xfer failed.                   */
                                 (struct usbh_ep *)0);
@@ -945,7 +945,7 @@ uint8_t usbh_msc_max_lun_get(USBH_MSC_DEV *p_msc_dev,
             if (*p_err == USBH_ERR_EP_STALL)
             { /* Device may stall if no multiple LUNs support.        */
                 lun_nbr = 0u;
-                *p_err = USBH_ERR_NONE;
+                *p_err = 0;
             }
         }
     }
@@ -1011,7 +1011,7 @@ bool usbh_msc_unit_rdy_test(USBH_MSC_DEV *p_msc_dev,
     }
 
     *p_err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
-    if (*p_err != USBH_ERR_NONE)
+    if (*p_err != 0)
     {
         return (unit_rdy);
     }
@@ -1021,13 +1021,13 @@ bool usbh_msc_unit_rdy_test(USBH_MSC_DEV *p_msc_dev,
     {
 
         *p_err = USBH_SCSI_CMD_TestUnitReady(p_msc_dev, 0u);
-        if (*p_err == USBH_ERR_NONE)
+        if (*p_err == 0)
         {
             unit_rdy = 1;
         }
         else if (*p_err == USBH_ERR_MSC_CMD_FAILED)
         {
-            *p_err = USBH_ERR_NONE; /* CSW reporting cmd failed for this req NOT an err.    */
+            *p_err = 0; /* CSW reporting cmd failed for this req NOT an err.    */
             unit_rdy = 1;
         }
         else
@@ -1092,7 +1092,7 @@ USBH_ERR usbh_msc_capacity_rd(USBH_MSC_DEV *p_msc_dev,
     }
 
     err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
-    if (err != USBH_ERR_NONE)
+    if (err != 0)
     {
         return (err);
     }
@@ -1160,7 +1160,7 @@ USBH_ERR usbh_msc_std_inquiry(USBH_MSC_DEV *p_msc_dev,
     }
 
     err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
-    if (err != USBH_ERR_NONE)
+    if (err != 0)
     {
         return (err);
     }
@@ -1173,9 +1173,9 @@ USBH_ERR usbh_msc_std_inquiry(USBH_MSC_DEV *p_msc_dev,
         err = USBH_SCSI_CMD_StdInquiry(p_msc_dev, /* Issue INQUIRY SCSI command using Bulk xfers.         */
                                        p_msc_inquiry_info,
                                        lun);
-        if (err == USBH_ERR_NONE)
+        if (err == 0)
         {
-            err = USBH_ERR_NONE;
+            err = 0;
         }
         else
         {
@@ -1223,7 +1223,7 @@ USBH_ERR usbh_msc_ref_add(USBH_MSC_DEV *p_msc_dev)
     }
 
     err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
-    if (err != USBH_ERR_NONE)
+    if (err != 0)
     {
         return (err);
     }
@@ -1266,7 +1266,7 @@ USBH_ERR usbh_msc_ref_rel(USBH_MSC_DEV *p_msc_dev)
     }
 
     err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
-    if (err != USBH_ERR_NONE)
+    if (err != 0)
     {
         return (err);
     }
@@ -1350,7 +1350,7 @@ uint32_t usbh_msc_read(USBH_MSC_DEV *p_msc_dev,
     }
 
     *p_err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
-    if (*p_err != USBH_ERR_NONE)
+    if (*p_err != 0)
     {
         return (0u);
     }
@@ -1439,7 +1439,7 @@ uint32_t usbh_msc_write(USBH_MSC_DEV *p_msc_dev,
     }
 
     *p_err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
-    if (*p_err != USBH_ERR_NONE)
+    if (*p_err != 0)
     {
         return (0u);
     }
@@ -1503,7 +1503,7 @@ static void USBH_MSC_GlobalInit(USBH_ERR *p_err)
         k_mutex_init(&USBH_MSC_DevArr[ix].HMutex);
     }
     USBH_MSC_DevCount = (USBH_MSC_CFG_MAX_DEV - 1);
-    *p_err = USBH_ERR_NONE;
+    *p_err = 0;
 }
 
 /*
@@ -1547,7 +1547,7 @@ static void *USBH_MSC_ProbeIF(struct usbh_dev *p_dev,
 
     p_msc_dev = (USBH_MSC_DEV *)0;
     *p_err = usbh_if_desc_get(p_if, 0u, &p_if_desc);
-    if (*p_err != USBH_ERR_NONE)
+    if (*p_err != 0)
     {
         return ((void *)0);
     }
@@ -1576,7 +1576,7 @@ static void *USBH_MSC_ProbeIF(struct usbh_dev *p_dev,
         p_msc_dev->IF_Ptr = p_if;
 
         *p_err = USBH_MSC_EP_Open(p_msc_dev); /* Open Bulk in/out EPs.                                */
-        if (*p_err != USBH_ERR_NONE)
+        if (*p_err != 0)
         {
             // Mem_PoolBlkFree(&USBH_MSC_DevPool,
             //                 (void *)p_msc_dev,
@@ -1589,7 +1589,7 @@ static void *USBH_MSC_ProbeIF(struct usbh_dev *p_dev,
         *p_err = USBH_ERR_CLASS_DRV_NOT_FOUND;
     }
 
-    if (*p_err != USBH_ERR_NONE)
+    if (*p_err != 0)
     {
         p_msc_dev = (void *)0;
     }
@@ -1740,7 +1740,7 @@ static USBH_ERR USBH_MSC_EP_Open(USBH_MSC_DEV *p_msc_dev)
     err = usbh_bulk_in_open(p_msc_dev->DevPtr,
                           p_msc_dev->IF_Ptr,
                           &p_msc_dev->BulkInEP);
-    if (err != USBH_ERR_NONE)
+    if (err != 0)
     {
         return (err);
     }
@@ -1748,7 +1748,7 @@ static USBH_ERR USBH_MSC_EP_Open(USBH_MSC_DEV *p_msc_dev)
     err = usbh_bulk_out_open(p_msc_dev->DevPtr,
                            p_msc_dev->IF_Ptr,
                            &p_msc_dev->BulkOutEP);
-    if (err != USBH_ERR_NONE)
+    if (err != 0)
     {
         USBH_MSC_EP_Close(p_msc_dev);
     }
@@ -1859,7 +1859,7 @@ static uint32_t usbh_msc_xfer_cmd(USBH_MSC_DEV *p_msc_dev,
              cb_len);
 
     *p_err = USBH_MSC_TxCBW(p_msc_dev, &msc_cbw); /* Send CBW to dev.                                     */
-    if (*p_err != USBH_ERR_NONE)
+    if (*p_err != 0)
     {
         return (0u);
     }
@@ -1879,11 +1879,11 @@ static uint32_t usbh_msc_xfer_cmd(USBH_MSC_DEV *p_msc_dev,
         break;
 
     default:
-        *p_err = USBH_ERR_NONE;
+        *p_err = 0;
         break;
     }
 
-    if (*p_err != USBH_ERR_NONE)
+    if (*p_err != 0)
     {
         return (0u);
     }
@@ -1901,12 +1901,12 @@ static uint32_t usbh_msc_xfer_cmd(USBH_MSC_DEV *p_msc_dev,
         USBH_MSC_ResetRecovery(p_msc_dev); /* Invalid CSW, issue reset recovery.                   */
     }
 
-    if (*p_err == USBH_ERR_NONE)
+    if (*p_err == 0)
     {
         switch (msc_csw.bCSWStatus)
         {
         case USBH_MSC_BCSWSTATUS_CMD_PASSED:
-            *p_err = USBH_ERR_NONE;
+            *p_err = 0;
             break;
 
         case USBH_MSC_BCSWSTATUS_CMD_FAILED:
@@ -1973,7 +1973,7 @@ static USBH_ERR USBH_MSC_TxCBW(USBH_MSC_DEV *p_msc_dev,
                       &err);
     if (len != USBH_MSC_LEN_CBW)
     {
-        if (err != USBH_ERR_NONE)
+        if (err != 0)
         {
             LOG_ERR("%d", err);
             usbh_ep_reset(p_msc_dev->DevPtr,
@@ -1987,7 +1987,7 @@ static USBH_ERR USBH_MSC_TxCBW(USBH_MSC_DEV *p_msc_dev,
     }
     else
     {
-        err = USBH_ERR_NONE;
+        err = 0;
     }
 
     return (err);
@@ -2023,7 +2023,7 @@ static USBH_ERR USBH_MSC_RxCSW(USBH_MSC_DEV *p_msc_dev,
     USBH_ERR err;
     uint32_t len;
 
-    err = USBH_ERR_NONE;
+    err = 0;
     retry = 2u;
 
     /* Receive CSW from dev through bulk IN EP.             */
@@ -2051,7 +2051,7 @@ static USBH_ERR USBH_MSC_RxCSW(USBH_MSC_DEV *p_msc_dev,
         }
         else
         {
-            err = USBH_ERR_NONE;
+            err = 0;
             usbh_msc_parse_csw(p_msc_csw, status_buf);
             break;
         }
@@ -2098,7 +2098,7 @@ static USBH_ERR USBH_MSC_TxData(USBH_MSC_DEV *p_msc_dev,
     uint32_t data_len_rem;
     uint32_t data_len_tx;
 
-    err = USBH_ERR_NONE;
+    err = 0;
     p_data_ix = 0u;
     p_data_08 = (uint8_t *)p_arg;
     data_len_rem = data_len;
@@ -2125,7 +2125,7 @@ static USBH_ERR USBH_MSC_TxData(USBH_MSC_DEV *p_msc_dev,
             }
             break;
 
-        case USBH_ERR_NONE:
+        case 0:
             if (data_len_tx < data_len_rem)
             {
                 data_len_rem -= data_len_tx;
@@ -2143,7 +2143,7 @@ static USBH_ERR USBH_MSC_TxData(USBH_MSC_DEV *p_msc_dev,
         }
     }
 
-    if (err != USBH_ERR_NONE)
+    if (err != 0)
     {
         LOG_ERR("%d", err);
 
@@ -2199,7 +2199,7 @@ static USBH_ERR USBH_MSC_RxData(USBH_MSC_DEV *p_msc_dev,
     uint32_t data_len_rem;
     uint32_t data_len_rx;
 
-    err = USBH_ERR_NONE;
+    err = 0;
     p_data_ix = 0u;
     p_data_08 = (uint8_t *)p_arg;
     data_len_rem = data_len;
@@ -2226,7 +2226,7 @@ static USBH_ERR USBH_MSC_RxData(USBH_MSC_DEV *p_msc_dev,
             }
             break;
 
-        case USBH_ERR_NONE:
+        case 0:
             if (data_len_rx < data_len_rem)
             {
                 data_len_rem -= data_len_rx; /* Update remaining nbr of octets to read.              */
@@ -2244,7 +2244,7 @@ static USBH_ERR USBH_MSC_RxData(USBH_MSC_DEV *p_msc_dev,
         }
     }
 
-    if (err != USBH_ERR_NONE)
+    if (err != 0)
     {
         LOG_ERR("%d", err);
 
@@ -2253,7 +2253,7 @@ static USBH_ERR USBH_MSC_RxData(USBH_MSC_DEV *p_msc_dev,
         if (err == USBH_ERR_EP_STALL)
         {
             (void)usbh_ep_stall_clr(&p_msc_dev->BulkInEP);
-            err = USBH_ERR_NONE;
+            err = 0;
         }
         else
         {
@@ -2300,13 +2300,13 @@ static USBH_ERR USBH_MSC_ResetRecovery(USBH_MSC_DEV *p_msc_dev)
     USBH_ERR err;
 
     err = USBH_MSC_BulkOnlyReset(p_msc_dev);
-    if (err != USBH_ERR_NONE)
+    if (err != 0)
     {
         return (err);
     }
 
     err = usbh_ep_stall_clr(&p_msc_dev->BulkInEP);
-    if (err != USBH_ERR_NONE)
+    if (err != 0)
     {
         return (err);
     }
@@ -2336,7 +2336,7 @@ static USBH_ERR USBH_MSC_BulkOnlyReset(USBH_MSC_DEV *p_msc_dev)
     USBH_ERR err;
     uint8_t if_nbr;
 
-    err = USBH_ERR_NONE;
+    err = 0;
     if_nbr = usbh_if_nbr_get(p_msc_dev->IF_Ptr);
 
     usbh_ctrl_tx(p_msc_dev->DevPtr,
@@ -2348,7 +2348,7 @@ static USBH_ERR USBH_MSC_BulkOnlyReset(USBH_MSC_DEV *p_msc_dev)
                 0u,
                 USBH_MSC_TIMEOUT,
                 &err);
-    if (err != USBH_ERR_NONE)
+    if (err != 0)
     {
         LOG_ERR("%d", err);
         usbh_ep_reset(p_msc_dev->DevPtr,
@@ -2411,7 +2411,7 @@ static USBH_ERR USBH_SCSI_CMD_StdInquiry(USBH_MSC_DEV *p_msc_dev,
                      (void *)data,
                      0x24u,
                      &err);
-    if (err == USBH_ERR_NONE)
+    if (err == 0)
     {
         p_msc_inquiry_info->DevType = data[0] & 0x1Fu;
         p_msc_inquiry_info->IsRemovable = data[1] >> 7u;
@@ -2602,7 +2602,7 @@ static USBH_ERR usbh_scsi_get_sense_info(USBH_MSC_DEV *p_msc_dev,
                                       sense_data,
                                       18u,
                                       &err);
-    if (err == USBH_ERR_NONE)
+    if (err == 0)
     {
         resp_code = sense_data[0] & 0x7Fu;
 
@@ -2612,7 +2612,7 @@ static USBH_ERR usbh_scsi_get_sense_info(USBH_MSC_DEV *p_msc_dev,
             *p_sense_key = sense_data[2] & 0x0Fu;
             *p_asc = sense_data[12];
             *p_ascq = sense_data[13];
-            err = USBH_ERR_NONE;
+            err = 0;
         }
         else
         {
@@ -2694,7 +2694,7 @@ static USBH_ERR usbh_scsi_cmd_capacity_read(USBH_MSC_DEV *p_msc_dev,
                      (void *)data,
                      8u,
                      &err);
-    if (err == USBH_ERR_NONE)
+    if (err == 0)
     { /* -------------- HANDLE DEVICE RESPONSE -------------- */
         sys_memcpy_swap(p_nbr_blks, &data[0], sizeof(uint32_t));
         *p_nbr_blks += 1u;
@@ -2771,7 +2771,7 @@ static uint32_t usbh_scsi_read(USBH_MSC_DEV *p_msc_dev,
                                 p_arg,
                                 data_len,
                                 p_err);
-    if (*p_err != USBH_ERR_NONE)
+    if (*p_err != 0)
     {
         xfer_len = (uint32_t)0;
     }
@@ -2847,7 +2847,7 @@ static uint32_t usbh_scsi_write(USBH_MSC_DEV *p_msc_dev,
                                 (void *)p_arg,
                                 data_len,
                                 p_err);
-    if (*p_err != USBH_ERR_NONE)
+    if (*p_err != 0)
     {
         xfer_len = 0u;
     }

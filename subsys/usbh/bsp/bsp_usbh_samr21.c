@@ -155,7 +155,7 @@ static void BSP_USBH_samr21_Init(struct usbh_hc_drv *p_drv, USBH_ERR *p_err)
 	/* $$$$ Enable host control registers and bus clock [mandatory]. */
 	/* $$$$ Configure main USB host interrupt(s) in interrupt controller (e.g. registering BSP ISR) [mandatory]. */
 	/* $$$$ Configure I/O pins [if necessary]. */
-	*p_err = USBH_ERR_NONE;
+	*p_err = 0;
 }
 
 /*
