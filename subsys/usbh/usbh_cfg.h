@@ -317,7 +317,7 @@
                                                                 /*  Maximum number of MSC devices                       */
                                                                 /*  The maximum number of MSC devices that can be ...   */
                                                                 /*  ... connected at the same time.                     */
-#define  USBH_MSC_CFG_MAX_DEV                              1u
+#define  USBH_MSC_CFG_MAX_DEV                              2u
 
 
 /*
