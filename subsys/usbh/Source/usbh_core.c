@@ -351,8 +351,8 @@ USBH_ERR usbh_init(USBH_KERNEL_TASK_INFO *async_task_info,
 	USBH_Version = USBH_VERSION;
 	(void)USBH_Version;
 
-	USBH_URB_HeadPtr = (struct usbh_urb *)0;
-	USBH_URB_TailPtr = (struct usbh_urb *)0;
+	USBH_URB_HeadPtr = NULL;
+	USBH_URB_TailPtr = NULL;
 
 	
 
@@ -361,10 +361,9 @@ USBH_ERR usbh_init(USBH_KERNEL_TASK_INFO *async_task_info,
 
 	for (ix = 0u; ix < USBH_CFG_MAX_NBR_CLASS_DRVS;
 	     ix++) { /* Clr class drv struct table.                          */
-		usbh_class_drv_list[ix].ClassDrvPtr =
-			(const struct usbh_class_drv *)0;
+		usbh_class_drv_list[ix].ClassDrvPtr = NULL;
 		usbh_class_drv_list[ix].NotifyFnctPtr = (USBH_CLASS_NOTIFY_FNCT)0;
-		usbh_class_drv_list[ix].NotifyArgPtr = (void *)0;
+		usbh_class_drv_list[ix].NotifyArgPtr = NULL;
 		usbh_class_drv_list[ix].InUse = 0u;
 	}
 
@@ -564,7 +563,7 @@ uint8_t usbh_hc_add(const struct usbh_hc_cfg *p_hc_cfg,
 	}
 
 	p_hc_drv->HC_CfgPtr = p_hc_cfg;
-	p_hc_drv->DataPtr = (void *)0;
+	p_hc_drv->DataPtr = NULL;
 	p_hc_drv->RH_DevPtr = p_rh_dev;
 	p_hc_drv->API_Ptr = p_drv_api;
 	p_hc_drv->BSP_API_Ptr = p_hc_bsp_api;
@@ -884,7 +883,7 @@ USBH_ERR usbh_dev_conn(struct usbh_dev *p_dev)
 
 	p_dev->SelCfg = 0u;
 
-	p_dev->ClassDrvRegPtr = (struct usbh_class_drv_reg *)0;
+	p_dev->ClassDrvRegPtr = NULL;
 	memset(p_dev->DevDesc, 0, USBH_LEN_DESC_DEV);
 
 	LOG_DBG("DftlEP_Open");
@@ -3087,7 +3086,7 @@ void usbh_urb_done(struct usbh_urb *p_urb)
 		if (p_urb->FnctPtr !=
 		    (void *)0) { /* Check if req is async.                               */
 			key = irq_lock();
-			p_urb->NxtPtr = (struct usbh_urb *)0;
+			p_urb->NxtPtr = NULL;
 
 			if (USBH_URB_HeadPtr == (struct usbh_urb *)0) {
 				USBH_URB_HeadPtr = p_urb;
@@ -3523,12 +3522,12 @@ static uint32_t usbh_sync_transfer(struct usbh_ep *p_ep, void *p_buf,
 	p_urb->UserBufPtr = p_buf;
 	p_urb->UserBufLen = buf_len;
 	p_urb->DMA_BufLen = 0u;
-	p_urb->DMA_BufPtr = (void *)0;
+	p_urb->DMA_BufPtr = NULL;
 	p_urb->XferLen = 0u;
 	p_urb->FnctPtr = 0u;
 	p_urb->FnctArgPtr = 0u;
 	p_urb->State = USBH_URB_STATE_NONE;
-	p_urb->ArgPtr = (void *)0;
+	p_urb->ArgPtr = NULL;
 	p_urb->Token = token;
 
 	*p_err = usbh_urb_submit(p_urb);
@@ -3642,7 +3641,7 @@ static USBH_ERR usbh_async_transfer(struct usbh_ep *p_ep, void *p_buf,
 	p_urb->FnctPtr = (void *)p_fnct;
 	p_urb->FnctArgPtr = p_fnct_arg;
 	p_urb->State = USBH_URB_STATE_NONE;
-	p_urb->ArgPtr = (void *)0;
+	p_urb->ArgPtr = NULL;
 	p_urb->Token = token;
 
 	err = usbh_urb_submit(
@@ -3927,7 +3926,7 @@ static void usbh_urb_clr(struct usbh_urb *p_urb)
 {
 	p_urb->Err = 0;
 	p_urb->State = USBH_URB_STATE_NONE;
-	p_urb->AsyncURB_NxtPtr = (struct usbh_urb *)0;
+	p_urb->AsyncURB_NxtPtr = NULL;
 }
 
 /*
@@ -4303,7 +4302,7 @@ static USBH_ERR usbh_cfg_parse(struct usbh_dev *p_dev, struct usbh_cfg *p_cfg)
 	}
 
 	if_ix = 0u;
-	p_if = (struct usbh_if *)0;
+	p_if = NULL;
 
 	while (cfg_off < p_cfg->CfgDataLen) {
 		p_desc = usbh_next_desc_get((void *)p_desc, &cfg_off);
@@ -4870,8 +4869,8 @@ static void usbh_async_task(void *p_arg, void *p_arg2, void *p_arg3)
 		p_urb = (struct usbh_urb *)USBH_URB_HeadPtr;
 
 		if (USBH_URB_HeadPtr == USBH_URB_TailPtr) {
-			USBH_URB_HeadPtr = (struct usbh_urb *)0;
-			USBH_URB_TailPtr = (struct usbh_urb *)0;
+			USBH_URB_HeadPtr = NULL;
+			USBH_URB_TailPtr = NULL;
 		} else {
 			USBH_URB_HeadPtr = USBH_URB_HeadPtr->NxtPtr;
 		}
