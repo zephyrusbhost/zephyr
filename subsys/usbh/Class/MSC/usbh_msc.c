@@ -1545,7 +1545,7 @@ static void *USBH_MSC_ProbeIF(struct usbh_dev *p_dev,
     struct usbh_if_desc p_if_desc;
     USBH_MSC_DEV *p_msc_dev;
 
-    p_msc_dev = (USBH_MSC_DEV *)0;
+    p_msc_dev = NULL;
     *p_err = usbh_if_desc_get(p_if, 0u, &p_if_desc);
     if (*p_err != 0)
     {
@@ -1591,7 +1591,7 @@ static void *USBH_MSC_ProbeIF(struct usbh_dev *p_dev,
 
     if (*p_err != 0)
     {
-        p_msc_dev = (void *)0;
+        p_msc_dev = NULL;
     }
 
     return ((void *)p_msc_dev);
@@ -1701,8 +1701,8 @@ static void USBH_MSC_Resume(void *p_class_dev)
 
 static void USBH_MSC_DevClr(USBH_MSC_DEV *p_msc_dev)
 {
-    p_msc_dev->DevPtr = (struct usbh_dev *)0;
-    p_msc_dev->IF_Ptr = (struct usbh_if *)0;
+    p_msc_dev->DevPtr = NULL;
+    p_msc_dev->IF_Ptr = NULL;
     p_msc_dev->State = USBH_CLASS_DEV_STATE_NONE;
     p_msc_dev->RefCnt = 0u;
 }

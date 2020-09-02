@@ -405,8 +405,8 @@ static void USBH_HUB_GlobalInit(int *p_err)
 
     *p_err = k_sem_init(&USBH_HUB_EventSem, 0u, USBH_OS_SEM_REQUIRED);
 
-    USBH_HUB_HeadPtr = (struct usbh_hub_dev *)0;
-    USBH_HUB_TailPtr = (struct usbh_hub_dev *)0;
+    USBH_HUB_HeadPtr = NULL;
+    USBH_HUB_TailPtr = NULL;
 
     memset(USBH_HUB_DescBuf, 0, USBH_HUB_MAX_DESC_LEN);
 }
@@ -463,7 +463,7 @@ static void *USBH_HUB_IF_Probe(struct usbh_dev *p_dev,
     struct usbh_hub_dev *p_hub_dev;
     struct usbh_if_desc if_desc;
 
-    p_hub_dev = (struct usbh_hub_dev *)0;
+    p_hub_dev = NULL;
     *p_err = usbh_if_desc_get(p_if, /* Get IF desc.                                         */
                              0u,
                              &if_desc);
@@ -733,7 +733,7 @@ static void USBH_HUB_Uninit(struct usbh_hub_dev *p_hub_dev)
             usbh_dev_disconn(p_dev);
             p_hub_dev->DevPtr->HC_Ptr->HostPtr->DevCount++;
 
-            p_hub_dev->DevPtrList[port_ix] = (struct usbh_dev *)0;
+            p_hub_dev->DevPtrList[port_ix] = NULL;
         }
     }
 }
@@ -966,8 +966,8 @@ static void USBH_HUB_EventProcess(void)
 
     if (USBH_HUB_HeadPtr == USBH_HUB_TailPtr)
     {
-        USBH_HUB_HeadPtr = (struct usbh_hub_dev *)0;
-        USBH_HUB_TailPtr = (struct usbh_hub_dev *)0;
+        USBH_HUB_HeadPtr = NULL;
+        USBH_HUB_TailPtr = NULL;
     }
     else
     {
@@ -1026,7 +1026,7 @@ static void USBH_HUB_EventProcess(void)
                 {
                     usbh_dev_disconn(p_dev);
                     p_hub_dev->DevPtr->HC_Ptr->HostPtr->DevCount++;
-                    p_hub_dev->DevPtrList[port_nbr - 1u] = (struct usbh_dev *)0;
+                    p_hub_dev->DevPtrList[port_nbr - 1u] = NULL;
                 }
 
                 k_sleep(K_MSEC(100u));                   /* See Notes #1.                                        */
@@ -1052,7 +1052,7 @@ static void USBH_HUB_EventProcess(void)
                     usbh_dev_disconn(p_dev);
                     p_hub_dev->DevPtr->HC_Ptr->HostPtr->DevCount++;
 
-                    p_hub_dev->DevPtrList[port_nbr - 1u] = (struct usbh_dev *)0;
+                    p_hub_dev->DevPtrList[port_nbr - 1u] = NULL;
                 }
             }
         }
@@ -1164,7 +1164,7 @@ static void USBH_HUB_EventProcess(void)
                     }
                     else
                     {
-                        p_hub_dev->DevPtrList[port_nbr - 1u] = (struct usbh_dev *)0;
+                        p_hub_dev->DevPtrList[port_nbr - 1u] = NULL;
                     }
                 }
                 else
@@ -1837,12 +1837,12 @@ static void USBH_HUB_Clr(struct usbh_hub_dev *p_hub_dev)
 {
     uint8_t dev_ix;
 
-    p_hub_dev->DevPtr = (struct usbh_dev *)0;
-    p_hub_dev->IF_Ptr = (struct usbh_if *)0;
+    p_hub_dev->DevPtr = NULL;
+    p_hub_dev->IF_Ptr = NULL;
     /* Clr dev ptr lst.                                     */
     for (dev_ix = 0u; dev_ix < USBH_CFG_MAX_HUB_PORTS; dev_ix++)
     {
-        p_hub_dev->DevPtrList[dev_ix] = (struct usbh_dev *)0;
+        p_hub_dev->DevPtrList[dev_ix] = NULL;
     }
 
     p_hub_dev->RefCnt = 0u;
