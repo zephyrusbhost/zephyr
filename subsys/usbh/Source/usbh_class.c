@@ -26,7 +26,7 @@ static USBH_ERR usbh_class_probe_dev(struct usbh_dev *p_dev);
 static USBH_ERR usbh_class_probe_if(struct usbh_dev *p_dev,
                                   struct usbh_if *p_if);
 
-static void USBH_ClassNotify(struct usbh_dev *p_dev,
+static void usbh_class_notify(struct usbh_dev *p_dev,
                              struct usbh_if *p_if,
                              void *p_class_dev,
                              uint8_t is_conn);
@@ -65,7 +65,7 @@ static void USBH_ClassNotify(struct usbh_dev *p_dev,
 *********************************************************************************************************
 */
 
-USBH_ERR usbh_class_drv_reg(const struct usbh_class_drv *p_class_drv,
+USBH_ERR usbh_reg_class_drv(const struct usbh_class_drv *p_class_drv,
                             USBH_CLASS_NOTIFY_FNCT class_notify_fnct,
                             void *p_class_notify_ctx)
 {
@@ -332,7 +332,7 @@ USBH_ERR usbh_class_drv_conn(struct usbh_dev *p_dev)
         p_if = (struct usbh_if *)0;
 
         LOG_DBG("ClassNotify");
-        USBH_ClassNotify(p_dev, /* Find a class drv matching dev desc.                  */
+        usbh_class_notify(p_dev, /* Find a class drv matching dev desc.                  */
                          p_if,
                          p_dev->ClassDevPtr,
                          USBH_CLASS_DEV_STATE_CONN);
@@ -405,7 +405,7 @@ USBH_ERR usbh_class_drv_conn(struct usbh_dev *p_dev)
         {
             LOG_INF("ClassNotify");
 
-            USBH_ClassNotify(p_dev,
+            usbh_class_notify(p_dev,
                              p_if,
                              p_if->ClassDevPtr,
                              USBH_CLASS_DEV_STATE_CONN);
@@ -447,7 +447,7 @@ void usbh_class_drv_disconn(struct usbh_dev *p_dev)
             (p_class_drv->Disconn != 0))
         {
             LOG_DBG("notify class");
-            USBH_ClassNotify(p_dev,
+            usbh_class_notify(p_dev,
                              p_if,
                              p_dev->ClassDevPtr,
                              USBH_CLASS_DEV_STATE_DISCONN);
@@ -479,7 +479,7 @@ void usbh_class_drv_disconn(struct usbh_dev *p_dev)
                 (p_class_drv->Disconn != 0))
             {
                 LOG_DBG("notify class");
-                USBH_ClassNotify(p_dev,
+                usbh_class_notify(p_dev,
                                  p_if,
                                  p_if->ClassDevPtr,
                                  USBH_CLASS_DEV_STATE_DISCONN);
@@ -623,7 +623,7 @@ static USBH_ERR usbh_class_probe_if(struct usbh_dev *p_dev,
 *********************************************************************************************************
 */
 
-static void USBH_ClassNotify(struct usbh_dev *p_dev,
+static void usbh_class_notify(struct usbh_dev *p_dev,
                              struct usbh_if *p_if,
                              void *p_class_dev,
                              uint8_t is_conn)
