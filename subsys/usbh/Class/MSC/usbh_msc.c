@@ -768,7 +768,7 @@ USBH_ERR usbh_msc_init(USBH_MSC_DEV *p_msc_dev,
     USBH_ERR err;
 
     /* ------------------- VALIDATE ARG ------------------- */
-    if (p_msc_dev == (USBH_MSC_DEV *)0)
+    if (p_msc_dev == NULL)
     {
         return (USBH_ERR_INVALID_ARG);
     }
@@ -910,7 +910,7 @@ uint8_t usbh_msc_max_lun_get(USBH_MSC_DEV *p_msc_dev,
     uint8_t lun_nbr = 0u;
 
     /* ------------------ VALIDATE ARG -------------------- */
-    if (p_msc_dev == (USBH_MSC_DEV *)0)
+    if (p_msc_dev == NULL)
     {
         *p_err = USBH_ERR_INVALID_ARG;
         return (0u);
@@ -1004,7 +1004,7 @@ bool usbh_msc_unit_rdy_test(USBH_MSC_DEV *p_msc_dev,
     bool unit_rdy = 1;
 
     /* ------------------- VALIDATE PTR ------------------- */
-    if (p_msc_dev == (USBH_MSC_DEV *)0)
+    if (p_msc_dev == NULL)
     {
         *p_err = USBH_ERR_INVALID_ARG;
         return (unit_rdy);
@@ -1083,9 +1083,9 @@ USBH_ERR usbh_msc_capacity_rd(USBH_MSC_DEV *p_msc_dev,
     USBH_ERR err;
 
     /* ------------------- VALIDATE PTR ------------------- */
-    if ((p_msc_dev == (USBH_MSC_DEV *)0) ||
-        (p_nbr_blks == (uint32_t *)0) ||
-        (p_blk_size == (uint32_t *)0))
+    if ((p_msc_dev == NULL) ||
+        (p_nbr_blks == NULL) ||
+        (p_blk_size == NULL))
     {
         err = USBH_ERR_INVALID_ARG;
         return (err);
@@ -1152,8 +1152,8 @@ USBH_ERR usbh_msc_std_inquiry(USBH_MSC_DEV *p_msc_dev,
     USBH_ERR err;
 
     /* ------------------- VALIDATE PTR ------------------- */
-    if ((p_msc_dev == (USBH_MSC_DEV *)0) ||
-        (p_msc_inquiry_info == (USBH_MSC_INQUIRY_INFO *)0))
+    if ((p_msc_dev == NULL) ||
+        (p_msc_inquiry_info == NULL))
     {
         err = USBH_ERR_INVALID_ARG;
         return (err);
@@ -1217,7 +1217,7 @@ USBH_ERR usbh_msc_ref_add(USBH_MSC_DEV *p_msc_dev)
     USBH_ERR err;
 
     /* ------------------- VALIDATE ARG ------------------- */
-    if (p_msc_dev == (USBH_MSC_DEV *)0)
+    if (p_msc_dev == NULL)
     {
         return (USBH_ERR_INVALID_ARG);
     }
@@ -1260,7 +1260,7 @@ USBH_ERR usbh_msc_ref_rel(USBH_MSC_DEV *p_msc_dev)
     USBH_ERR err;
 
     /* ------------------- VALIDATE PTR ------------------- */
-    if (p_msc_dev == (USBH_MSC_DEV *)0)
+    if (p_msc_dev == NULL)
     {
         return (USBH_ERR_INVALID_ARG);
     }
@@ -1343,7 +1343,7 @@ uint32_t usbh_msc_read(USBH_MSC_DEV *p_msc_dev,
 {
     uint32_t xfer_len;
 
-    if (p_msc_dev == (USBH_MSC_DEV *)0)
+    if (p_msc_dev == NULL)
     {
         *p_err = USBH_ERR_INVALID_ARG;
         return (0u);
@@ -1432,7 +1432,7 @@ uint32_t usbh_msc_write(USBH_MSC_DEV *p_msc_dev,
 {
     uint32_t xfer_len;
 
-    if (p_msc_dev == (USBH_MSC_DEV *)0)
+    if (p_msc_dev == NULL)
     {
         *p_err = USBH_ERR_INVALID_ARG;
         return (0u);

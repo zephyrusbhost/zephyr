@@ -315,7 +315,7 @@ USBH_ERR usbh_hub_port_dis(struct usbh_hub_dev *p_hub_dev,
 {
 	USBH_ERR err;
 
-	if (p_hub_dev == (struct usbh_hub_dev *)0) {
+	if (p_hub_dev == NULL) {
 		return (USBH_ERR_INVALID_ARG);
 	}
 
@@ -354,7 +354,7 @@ USBH_ERR usbh_hub_port_en(struct usbh_hub_dev *p_hub_dev,
 {
 	USBH_ERR err;
 
-	if (p_hub_dev == (struct usbh_hub_dev *)0) {
+	if (p_hub_dev == NULL) {
 		return (USBH_ERR_INVALID_ARG);
 	}
 
@@ -527,7 +527,7 @@ static void USBH_HUB_Suspend(void *p_class_dev)
 	for (port_ix = 0u; port_ix < nbr_ports; port_ix++) {
 		p_dev = (struct usbh_dev *)p_hub_dev->DevPtrList[port_ix];
 
-		if (p_dev != (struct usbh_dev *)0) {
+		if (p_dev != NULL) {
 			usbh_class_suspend(p_dev);
 		}
 	}
@@ -568,7 +568,7 @@ static void USBH_HUB_Resume(void *p_class_dev)
 	for (port_ix = 0u; port_ix < nbr_ports; port_ix++) {
 		p_dev = p_hub_dev->DevPtrList[port_ix];
 
-		if (p_dev != (struct usbh_dev *)0) {
+		if (p_dev != NULL) {
 			usbh_class_resume(p_dev);
 		} else   {/* Get port status info.                                */
 			(void)USBH_HUB_PortStatusGet(p_hub_dev,
@@ -704,7 +704,7 @@ static void USBH_HUB_Uninit(struct usbh_hub_dev *p_hub_dev)
 	for (port_ix = 0u; port_ix < nbr_ports; port_ix++) {
 		p_dev = (struct usbh_dev *)p_hub_dev->DevPtrList[port_ix];
 
-		if (p_dev != (struct usbh_dev *)0) {
+		if (p_dev != NULL) {
 			usbh_dev_disconn(p_dev);
 			p_hub_dev->DevPtr->HC_Ptr->HostPtr->DevCount++;
 
@@ -884,7 +884,7 @@ static void USBH_HUB_ISR(struct usbh_ep *p_ep,
 	USBH_HUB_RefAdd(p_hub_dev);
 
 	key = irq_lock();
-	if (USBH_HUB_HeadPtr == (struct usbh_hub_dev *)0) {
+	if (USBH_HUB_HeadPtr == NULL) {
 		USBH_HUB_HeadPtr = USBH_HUB_TailPtr = p_hub_dev;
 	} else   {
 		USBH_HUB_TailPtr->NxtPtr = p_hub_dev;
@@ -937,7 +937,7 @@ static void USBH_HUB_EventProcess(void)
 	}
 	irq_unlock(key);
 
-	if (p_hub_dev == (struct usbh_hub_dev *)0) {
+	if (p_hub_dev == NULL) {
 		return;
 	}
 
@@ -976,7 +976,7 @@ static void USBH_HUB_EventProcess(void)
 
 				p_hub_dev->ConnCnt = 0; /* Reset re-connection counter                          */
 				p_dev = p_hub_dev->DevPtrList[port_nbr - 1u];
-				if (p_dev != (struct usbh_dev *)0) {
+				if (p_dev != NULL) {
 					usbh_dev_disconn(p_dev);
 					p_hub_dev->DevPtr->HC_Ptr->HostPtr->DevCount++;
 					p_hub_dev->DevPtrList[port_nbr - 1u] = NULL;
@@ -997,7 +997,7 @@ static void USBH_HUB_EventProcess(void)
 
 				p_dev = p_hub_dev->DevPtrList[port_nbr - 1u];
 
-				if (p_dev != (struct usbh_dev *)0) {
+				if (p_dev != NULL) {
 					usbh_dev_disconn(p_dev);
 					p_hub_dev->DevPtr->HC_Ptr->HostPtr->DevCount++;
 
@@ -1035,7 +1035,7 @@ static void USBH_HUB_EventProcess(void)
 
 				p_dev = p_hub_dev->DevPtrList[port_nbr - 1u];
 
-				if (p_dev != (struct usbh_dev *)0) {
+				if (p_dev != NULL) {
 					continue;
 				}
 
@@ -1763,7 +1763,7 @@ static USBH_ERR USBH_HUB_RefAdd(struct usbh_hub_dev *p_hub_dev)
 {
 	int key;
 
-	if (p_hub_dev == (struct usbh_hub_dev *)0) {
+	if (p_hub_dev == NULL) {
 		return (USBH_ERR_INVALID_ARG);
 	}
 
@@ -1793,7 +1793,7 @@ static USBH_ERR USBH_HUB_RefRel(struct usbh_hub_dev *p_hub_dev)
 {
 	int key;
 
-	if (p_hub_dev == (struct usbh_hub_dev *)0) {
+	if (p_hub_dev == NULL) {
 		return (USBH_ERR_INVALID_ARG);
 	}
 
@@ -2046,7 +2046,7 @@ void usbh_rh_event(struct usbh_dev *p_dev)
 	p_hub_dev = p_dev->HC_Ptr->RH_ClassDevPtr;
 	p_hc_drv = &p_dev->HC_Ptr->HC_Drv;
 	p_rh_drv_api = p_hc_drv->RH_API_Ptr;
-	if (p_hub_dev == (struct usbh_hub_dev *)0) {
+	if (p_hub_dev == NULL) {
 		(void)p_rh_drv_api->IntDis(p_hc_drv);
 		return;
 	}
@@ -2056,7 +2056,7 @@ void usbh_rh_event(struct usbh_dev *p_dev)
 	USBH_HUB_RefAdd(p_hub_dev);
 
 	key = irq_lock();
-	if (USBH_HUB_HeadPtr == (struct usbh_hub_dev *)0) {
+	if (USBH_HUB_HeadPtr == NULL) {
 		USBH_HUB_HeadPtr = p_hub_dev;
 		USBH_HUB_TailPtr = p_hub_dev;
 	} else   {
