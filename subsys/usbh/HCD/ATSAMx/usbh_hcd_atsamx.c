@@ -646,7 +646,7 @@ static void usbh_atsamx_hcd_start(struct usbh_hc_drv *p_hc_drv,
 	p_drv_data = (USBH_DRV_DATA *)p_hc_drv->DataPtr;
 	p_bsp_api = p_hc_drv->BSP_API_Ptr;
 
-	if (p_bsp_api->Init != (void *)0)
+	if (p_bsp_api->Init != NULL)
 	{
 		p_bsp_api->Init(p_hc_drv, p_err);
 		if (*p_err != 0)
