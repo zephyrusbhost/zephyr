@@ -78,7 +78,7 @@ int usbh_reg_class_drv(const struct usbh_class_drv *p_class_drv,
 		       USBH_CLASS_NOTIFY_FNCT class_notify_fnct,
 		       void *p_class_notify_ctx);
 
-USBH_ERR usbh_class_drv_unreg(const struct usbh_class_drv *p_class_drv);
+int usbh_class_drv_unreg(const struct usbh_class_drv *p_class_drv);
 
 void usbh_class_suspend(struct usbh_dev *p_dev);
 

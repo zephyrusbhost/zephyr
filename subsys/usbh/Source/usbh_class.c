@@ -124,7 +124,7 @@ int usbh_reg_class_drv(const struct usbh_class_drv *p_class_drv,
  *********************************************************************************************************
  */
 
-USBH_ERR usbh_class_drv_unreg(const struct usbh_class_drv *p_class_drv)
+int usbh_class_drv_unreg(const struct usbh_class_drv *p_class_drv)
 {
 	uint32_t ix;
 	int key;
@@ -149,10 +149,10 @@ USBH_ERR usbh_class_drv_unreg(const struct usbh_class_drv *p_class_drv)
 	irq_unlock(key);
 
 	if (ix >= USBH_CFG_MAX_NBR_CLASS_DRVS) {
-		return (USBH_ERR_CLASS_DRV_NOT_FOUND);
+		return ENOENT;
 	}
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -177,12 +177,12 @@ void usbh_class_suspend(struct usbh_dev *p_dev)
 	struct usbh_if *p_if;
 	const struct usbh_class_drv *p_class_drv;
 
-	if ((p_dev->ClassDevPtr != (void *)0) && /* If class drv is present at dev level.                */
-	    (p_dev->ClassDrvRegPtr != (struct usbh_class_drv_reg *)0)) {
+	if ((p_dev->ClassDevPtr != NULL) && /* If class drv is present at dev level.                */
+	    (p_dev->ClassDrvRegPtr != NULL)) {
 		p_class_drv = p_dev->ClassDrvRegPtr->ClassDrvPtr;
 		/* Chk if class drv is present at dev level.            */
-		if ((p_class_drv != (const struct usbh_class_drv *)0) &&
-		    (p_class_drv->Suspend != (void *)0)) {
+		if ((p_class_drv != NULL) &&
+		    (p_class_drv->Suspend != NULL)) {
 			p_class_drv->Suspend(p_dev->ClassDevPtr);
 			return;
 		}
@@ -193,16 +193,16 @@ void usbh_class_suspend(struct usbh_dev *p_dev)
 
 	for (if_ix = 0u; if_ix < nbr_ifs; if_ix++) {
 		p_if = usbu_if_get(p_cfg, if_ix);
-		if (p_if == (struct usbh_if *)0) {
+		if (p_if == NULL) {
 			return;
 		}
 
-		if ((p_if->ClassDevPtr != (void *)0) &&
-		    (p_if->ClassDrvRegPtr != (struct usbh_class_drv_reg *)0)) {
+		if ((p_if->ClassDevPtr != NULL) &&
+		    (p_if->ClassDrvRegPtr != NULL)) {
 			p_class_drv = p_if->ClassDrvRegPtr->ClassDrvPtr;
 
-			if ((p_class_drv != (const struct usbh_class_drv *)0) &&
-			    (p_class_drv->Suspend != (void *)0)) {
+			if ((p_class_drv != NULL) &&
+			    (p_class_drv->Suspend != NULL)) {
 				p_class_drv->Suspend(p_if->ClassDevPtr);
 				return;
 			}
@@ -232,12 +232,12 @@ void usbh_class_resume(struct usbh_dev *p_dev)
 	struct usbh_if *p_if;
 	const struct usbh_class_drv *p_class_drv;
 
-	if ((p_dev->ClassDevPtr != (void *)0) && /* If class drv is present at dev level.                */
-	    (p_dev->ClassDrvRegPtr != (struct usbh_class_drv_reg *)0)) {
+	if ((p_dev->ClassDevPtr != NULL) && /* If class drv is present at dev level.                */
+	    (p_dev->ClassDrvRegPtr != NULL)) {
 		p_class_drv = p_dev->ClassDrvRegPtr->ClassDrvPtr;
 		/* Chk if class drv is present at dev level.            */
-		if ((p_class_drv != (const struct usbh_class_drv *)0) &&
-		    (p_class_drv->Resume != (void *)0)) {
+		if ((p_class_drv != NULL) &&
+		    (p_class_drv->Resume != NULL)) {
 			p_class_drv->Resume(p_dev->ClassDevPtr);
 			return;
 		}
@@ -248,16 +248,16 @@ void usbh_class_resume(struct usbh_dev *p_dev)
 
 	for (if_ix = 0u; if_ix < nbr_ifs; if_ix++) {
 		p_if = usbu_if_get(p_cfg, if_ix);
-		if (p_if == (struct usbh_if *)0) {
+		if (p_if == NULL) {
 			return;
 		}
 
-		if ((p_if->ClassDevPtr != (void *)0) &&
-		    (p_if->ClassDrvRegPtr != (struct usbh_class_drv_reg *)0)) {
+		if ((p_if->ClassDevPtr != NULL) &&
+		    (p_if->ClassDrvRegPtr != NULL)) {
 			p_class_drv = p_if->ClassDrvRegPtr->ClassDrvPtr;
 
-			if ((p_class_drv != (const struct usbh_class_drv *)0) &&
-			    (p_class_drv->Resume != (void *)0)) {
+			if ((p_class_drv != NULL) &&
+			    (p_class_drv->Resume != NULL)) {
 				p_class_drv->Resume(p_if->ClassDevPtr);
 				return;
 			}
@@ -337,7 +337,7 @@ USBH_ERR usbh_class_drv_conn(struct usbh_dev *p_dev)
 	for (if_ix = 0u; if_ix < nbr_if; if_ix++) { /* For all IFs present in cfg.                          */
 		LOG_DBG("IF_Get");
 		p_if = usbu_if_get(p_cfg, if_ix);
-		if (p_if == (struct usbh_if *)0) {
+		if (p_if == NULL) {
 			return (USBH_ERR_NULL_PTR);
 		}
 		LOG_DBG("ProbeIF");
@@ -359,7 +359,7 @@ USBH_ERR usbh_class_drv_conn(struct usbh_dev *p_dev)
 		LOG_DBG("IF_Get");
 
 		p_if = usbu_if_get(p_cfg, if_ix);
-		if (p_if == (struct usbh_if *)0) {
+		if (p_if == NULL) {
 			return (USBH_ERR_NULL_PTR);
 		}
 
@@ -399,8 +399,8 @@ void usbh_class_drv_disconn(struct usbh_dev *p_dev)
 	struct usbh_if *p_if = NULL;
 	const struct usbh_class_drv *p_class_drv;
 
-	if ((p_dev->ClassDevPtr != (void *)0) && /* If class drv is present at dev level.                */
-	    (p_dev->ClassDrvRegPtr != (struct usbh_class_drv_reg *)0)) {
+	if ((p_dev->ClassDevPtr != NULL) && /* If class drv is present at dev level.                */
+	    (p_dev->ClassDrvRegPtr != NULL)) {
 		p_class_drv = p_dev->ClassDrvRegPtr->ClassDrvPtr;
 
 		if ((p_class_drv != 0) &&
@@ -423,12 +423,12 @@ void usbh_class_drv_disconn(struct usbh_dev *p_dev)
 	nbr_ifs = usbh_cfg_if_nbr_get(p_cfg);
 	for (if_ix = 0u; if_ix < nbr_ifs; if_ix++) { /* For all IFs present in first cfg.                    */
 		p_if = usbu_if_get(p_cfg, if_ix);
-		if (p_if == (struct usbh_if *)0) {
+		if (p_if == NULL) {
 			return;
 		}
 
-		if ((p_if->ClassDevPtr != (void *)0) &&
-		    (p_if->ClassDrvRegPtr != (struct usbh_class_drv_reg *)0)) {
+		if ((p_if->ClassDevPtr != NULL) &&
+		    (p_if->ClassDrvRegPtr != NULL)) {
 			p_class_drv = p_if->ClassDrvRegPtr->ClassDrvPtr;
 
 			if ((p_class_drv != 0) &&
@@ -486,7 +486,7 @@ static USBH_ERR usbh_class_probe_dev(struct usbh_dev *p_dev)
 		if (usbh_class_drv_list[ix].InUse != 0) {
 			p_class_drv = usbh_class_drv_list[ix].ClassDrvPtr;
 
-			if (p_class_drv->ProbeDev != (void *)0) {
+			if (p_class_drv->ProbeDev != NULL) {
 				p_dev->ClassDrvRegPtr = &usbh_class_drv_list[ix];
 				p_class_dev = p_class_drv->ProbeDev(p_dev, &err);
 
@@ -534,7 +534,7 @@ static USBH_ERR usbh_class_probe_if(struct usbh_dev *p_dev,
 		if (usbh_class_drv_list[ix].InUse != 0u) {
 			p_class_drv = usbh_class_drv_list[ix].ClassDrvPtr;
 
-			if (p_class_drv->ProbeIF != (void *)0) {
+			if (p_class_drv->ProbeIF != NULL) {
 				p_if->ClassDrvRegPtr = &usbh_class_drv_list[ix];
 				p_class_dev = p_class_drv->ProbeIF(p_dev, p_if, &err);
 
@@ -579,7 +579,7 @@ static void usbh_class_notify(struct usbh_dev *p_dev,
 
 	p_class_drv_reg = p_dev->ClassDrvRegPtr;
 
-	if (p_class_drv_reg == (struct usbh_class_drv_reg *)0) {
+	if (p_class_drv_reg == NULL) {
 		p_class_drv_reg = p_if->ClassDrvRegPtr;
 	}
 
