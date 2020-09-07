@@ -368,7 +368,7 @@ int usbh_init(USBH_KERNEL_TASK_INFO *async_task_info,
 	}
 
 	err = usbh_reg_class_drv(&USBH_HUB_Drv, usbh_hub_class_notify,
-				 (void *)0);
+				 NULL);
 	if (err != 0) {
 		return (err);
 	}
@@ -1101,13 +1101,13 @@ struct usbh_cfg *usbh_cfg_get(struct usbh_dev *p_dev, uint8_t cfg_ix)
 	uint8_t nbr_cfgs;
 
 	if (p_dev == NULL) {
-		return ((struct usbh_cfg *)0);
+		return (NULL);
 	}
 
 	nbr_cfgs = usbh_dev_cfg_nbr_get(
 		p_dev); /* Get nbr of cfg(s) present in dev.                    */
 	if ((cfg_ix >= nbr_cfgs) || (nbr_cfgs == 0u)) {
-		return ((struct usbh_cfg *)0);
+		return (NULL);
 	}
 
 	return (&p_dev->CfgList
@@ -1211,7 +1211,7 @@ struct usbh_desc_hdr *usbh_cfg_extra_desc_get(struct usbh_cfg *p_cfg,
 
 	if (p_cfg == NULL) {
 		*p_err = USBH_ERR_INVALID_ARG;
-		return ((struct usbh_desc_hdr *)0);
+		return (NULL);
 	}
 
 	p_desc =
@@ -1235,7 +1235,7 @@ struct usbh_desc_hdr *usbh_cfg_extra_desc_get(struct usbh_cfg *p_cfg,
 
 	*p_err = USBH_ERR_DESC_EXTRA_NOT_FOUND;
 
-	return ((struct usbh_desc_hdr *)0);
+	return (NULL);
 }
 
 /*
@@ -1326,7 +1326,7 @@ struct usbh_if *usbu_if_get(struct usbh_cfg *p_cfg, uint8_t if_ix)
 		return (&p_cfg->IF_List
 			[if_ix]);          /* Return IF structure at selected ix.                  */
 	} else {
-		return ((struct usbh_if *)0);
+		return (NULL);
 	}
 }
 
@@ -1498,7 +1498,7 @@ uint8_t *usbh_if_extra_desc_get(struct usbh_if *p_if, uint8_t alt_ix,
 
 	if ((p_if == NULL) ||
 	    (p_if->IF_DataPtr == NULL)) {
-		return ((uint8_t *)0);
+		return (NULL);
 	}
 
 	if_off = 0u;
@@ -1533,7 +1533,7 @@ uint8_t *usbh_if_extra_desc_get(struct usbh_if *p_if, uint8_t alt_ix,
 				}
 
 				if (*p_data_len == 0) {
-					return ((uint8_t *)0);
+					return (NULL);
 				} else {
 					return ((uint8_t *)p_data);
 				}
@@ -1541,7 +1541,7 @@ uint8_t *usbh_if_extra_desc_get(struct usbh_if *p_if, uint8_t alt_ix,
 		}
 	}
 
-	return ((uint8_t *)0);
+	return (NULL);
 }
 
 /*
@@ -1954,7 +1954,7 @@ uint32_t usbh_bulk_tx(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
 	}
 
 	xfer_len = usbh_sync_transfer(p_ep, p_buf, buf_len,
-				      (struct usbh_isoc_desc *)0,
+				      NULL,
 				      USBH_TOKEN_OUT, timeout_ms, p_err);
 
 	return (xfer_len);
@@ -2011,7 +2011,7 @@ int usbh_bulk_tx_async(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
 	}
 
 	err = usbh_async_transfer(p_ep, p_buf, buf_len,
-				  (struct usbh_isoc_desc *)0, USBH_TOKEN_OUT,
+				  NULL, USBH_TOKEN_OUT,
 				  (void *)fnct, p_fnct_arg);
 
 	return (err);
@@ -2071,7 +2071,7 @@ uint32_t usbh_bulk_rx(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
 	}
 
 	xfer_len = usbh_sync_transfer(p_ep, p_buf, buf_len,
-				      (struct usbh_isoc_desc *)0, USBH_TOKEN_IN,
+				      NULL, USBH_TOKEN_IN,
 				      timeout_ms, p_err);
 
 	return (xfer_len);
@@ -2128,7 +2128,7 @@ int usbh_bulk_rx_async(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
 	}
 
 	err = usbh_async_transfer(p_ep, p_buf, buf_len,
-				  (struct usbh_isoc_desc *)0, USBH_TOKEN_IN,
+				  NULL, USBH_TOKEN_IN,
 				  (void *)fnct, p_fnct_arg);
 
 	return (err);
@@ -2186,7 +2186,7 @@ uint32_t usbh_intr_tx(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
 	}
 
 	xfer_len = usbh_sync_transfer(p_ep, p_buf, buf_len,
-				      (struct usbh_isoc_desc *)0,
+				      NULL,
 				      USBH_TOKEN_OUT, timeout_ms, p_err);
 
 	return (xfer_len);
@@ -2243,7 +2243,7 @@ int usbh_intr_tx_async(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
 	}
 
 	err = usbh_async_transfer(p_ep, p_buf, buf_len,
-				  (struct usbh_isoc_desc *)0, USBH_TOKEN_OUT,
+				  NULL, USBH_TOKEN_OUT,
 				  (void *)fnct, p_fnct_arg);
 
 	return (err);
@@ -2301,7 +2301,7 @@ uint32_t usbh_intr_rx(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
 	}
 
 	xfer_len = usbh_sync_transfer(p_ep, p_buf, buf_len,
-				      (struct usbh_isoc_desc *)0, USBH_TOKEN_IN,
+				      NULL, USBH_TOKEN_IN,
 				      timeout_ms, p_err);
 
 	return (xfer_len);
@@ -2363,7 +2363,7 @@ int usbh_intr_rx_async(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
 	}
 
 	err = usbh_async_transfer(p_ep, p_buf, buf_len,
-				  (struct usbh_isoc_desc *)0, USBH_TOKEN_IN,
+				  NULL, USBH_TOKEN_IN,
 				  (void *)fnct, p_fnct_arg);
 
 	return (err);
@@ -2894,10 +2894,10 @@ int usbh_ep_stall_set(struct usbh_ep *p_ep)
 			   USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_STD |
 			   USBH_REQ_RECIPIENT_EP,
 			   USBH_FEATURE_SEL_EP_HALT,
-			   p_ep->Desc.bEndpointAddress, (void *)0, 0u,
+			   p_ep->Desc.bEndpointAddress, NULL, 0u,
 			   USBH_CFG_STD_REQ_TIMEOUT, &err);
 	if (err != 0) {
-		usbh_ep_reset(p_dev, (struct usbh_ep *)0);
+		usbh_ep_reset(p_dev, NULL);
 	}
 
 	return (err);
@@ -2938,9 +2938,9 @@ int usbh_ep_stall_clr(struct usbh_ep *p_ep)
 		USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_STD |
 		USBH_REQ_RECIPIENT_EP,
 		USBH_FEATURE_SEL_EP_HALT, p_ep->Desc.bEndpointAddress,
-		(void *)0, 0u, USBH_CFG_STD_REQ_TIMEOUT, &err);
+		NULL, 0u, USBH_CFG_STD_REQ_TIMEOUT, &err);
 	if (err != 0) {
-		usbh_ep_reset(p_dev, (struct usbh_ep *)0);
+		usbh_ep_reset(p_dev, NULL);
 	}
 
 	return (err);
@@ -3714,7 +3714,7 @@ static uint16_t usbh_sync_ctrl_transfer(struct usbh_ep *p_ep, uint8_t b_req,
 	is_in = (bm_req_type & USBH_REQ_DIR_MASK) != 0u ? true : false;
 
 	len = usbh_sync_transfer(p_ep, (void *)&setup_buf[0u],
-				 USBH_LEN_SETUP_PKT, (struct usbh_isoc_desc *)0,
+				 USBH_LEN_SETUP_PKT, NULL,
 				 USBH_TOKEN_SETUP, timeout_ms, p_err);
 	if (*p_err != 0) {
 		return (0u);
@@ -3730,7 +3730,7 @@ static uint16_t usbh_sync_ctrl_transfer(struct usbh_ep *p_ep, uint8_t b_req,
 		p_data_08 = (uint8_t *)p_arg;
 
 		rtn_len = usbh_sync_transfer(p_ep, (void *)p_data_08, w_len,
-					     (struct usbh_isoc_desc *)0,
+					     NULL,
 					     (is_in ? USBH_TOKEN_IN :
 					      USBH_TOKEN_OUT),
 					     timeout_ms, p_err);
@@ -3743,7 +3743,7 @@ static uint16_t usbh_sync_ctrl_transfer(struct usbh_ep *p_ep, uint8_t b_req,
 
 	(void)usbh_sync_transfer(
 		p_ep, /* ------------------- STATUS STAGE ------------------- */
-		(void *)0, 0u, (struct usbh_isoc_desc *)0,
+		NULL, 0u, NULL,
 		((w_len && is_in) ? USBH_TOKEN_OUT : USBH_TOKEN_IN), timeout_ms,
 		p_err);
 	if (*p_err != 0) {
@@ -4049,7 +4049,7 @@ static int usbh_dev_desc_rd(struct usbh_dev *p_dev)
 			8u, /* See Note (1).                                        */
 			&err);
 		if (err != 0) {
-			usbh_ep_reset(p_dev, (struct usbh_ep *)0);
+			usbh_ep_reset(p_dev, NULL);
 			k_sleep(K_MSEC(100u));
 		} else {
 			break;
@@ -4085,7 +4085,7 @@ static int usbh_dev_desc_rd(struct usbh_dev *p_dev)
 		USBH_GET_DESC(p_dev, USBH_DESC_TYPE_DEV, 0u, p_dev->DevDesc,
 			      USBH_LEN_DESC_DEV, &err);
 		if (err != 0) {
-			usbh_ep_reset(p_dev, (struct usbh_ep *)0);
+			usbh_ep_reset(p_dev, NULL);
 			k_sleep(K_MSEC(100u));
 		} else {
 			break;
@@ -4188,7 +4188,7 @@ static int usbh_cfg_rd(struct usbh_dev *p_dev, uint8_t cfg_ix)
 			&err);
 		if (err != 0) {
 			LOG_ERR("err get descriptor");
-			usbh_ep_reset(p_dev, (struct usbh_ep *)0);
+			usbh_ep_reset(p_dev, NULL);
 			k_sleep(K_MSEC(100u));
 		} else {
 			break;
@@ -4226,7 +4226,7 @@ static int usbh_cfg_rd(struct usbh_dev *p_dev, uint8_t cfg_ix)
 			&err);
 		if (err != 0) {
 			LOG_ERR("err get full descriptor");
-			usbh_ep_reset(p_dev, (struct usbh_ep *)0);
+			usbh_ep_reset(p_dev, NULL);
 			k_sleep(K_MSEC(100u));
 		} else {
 			break;
@@ -4423,7 +4423,7 @@ static int usbh_dev_addr_set(struct usbh_dev *p_dev)
 			p_dev, p_dev->DevAddr,
 			&err); /* See Note (1).                                        */
 		if (err != 0) {
-			usbh_ep_reset(p_dev, (struct usbh_ep *)0);
+			usbh_ep_reset(p_dev, NULL);
 			k_sleep(K_MSEC(100u));
 		} else {
 			break;
@@ -4517,8 +4517,7 @@ static uint32_t usbh_str_desc_get(struct usbh_dev *p_dev, uint8_t desc_ix,
 		if ((len == 0u) || (*p_err == USBH_ERR_EP_STALL)) {
 			usbh_ep_reset(
 				p_dev,
-				(struct usbh_ep
-				 *)0);         /* Rst EP to clr HC halt state.                         */
+				NULL);         /* Rst EP to clr HC halt state.                         */
 		} else {
 			break;
 		}
@@ -4556,7 +4555,7 @@ static uint32_t usbh_str_desc_get(struct usbh_dev *p_dev, uint8_t desc_ix,
 				   p_buf, len, USBH_CFG_STD_REQ_TIMEOUT, p_err);
 
 		if ((len == 0u) || (*p_err == USBH_ERR_EP_STALL)) {
-			usbh_ep_reset(p_dev, (struct usbh_ep *)0);
+			usbh_ep_reset(p_dev, NULL);
 		} else {
 			break;
 		}
