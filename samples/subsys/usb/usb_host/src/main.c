@@ -44,7 +44,7 @@ static void App_USBH_MSC_ClassNotify(void *p_class_dev, uint8_t is_conn,
 				     void *p_ctx)
 {
 	USBH_MSC_DEV *p_msc_dev;
-	USBH_ERR usb_err;
+	int usb_err;
 	// CPU_INT32U unit_nbr;
 
 	(void)p_ctx;
@@ -80,7 +80,7 @@ static void App_USBH_MSC_ClassNotify(void *p_class_dev, uint8_t is_conn,
 }
 void main(void)
 {
-	USBH_ERR err = usbh_init(NULL, NULL);
+	int err = usbh_init(NULL, NULL);
 	printk("Init return %d\n", err);
 
 	uint8_t hc_nbr =
