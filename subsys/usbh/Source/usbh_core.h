@@ -808,7 +808,7 @@ struct  usbh_isoc_desc {
 	uint32_t StartFrm;
 	uint32_t NbrFrm;
 	uint16_t  *FrmLen;
-	USBH_ERR    *FrmErr;
+	int    *FrmErr;
 };
 
 
@@ -821,7 +821,7 @@ struct  usbh_isoc_desc {
 struct  usbh_urb {
 	volatile uint8_t State;                                 /* State of URB.                                        */
 	struct usbh_ep         *EP_Ptr;                         /* EP the urb belongs to.                               */
-	volatile USBH_ERR Err;                                  /* The status of URB completion.                        */
+	volatile int Err;                                  /* The status of URB completion.                        */
 
 	void            *UserBufPtr;                            /* Ptr to buf supplied by app.                          */
 	uint32_t UserBufLen;                                    /* Buf len in bytes.                                    */
@@ -1032,66 +1032,66 @@ typedef  const struct  usbh_kernel_task_info {
 struct  usbh_hc_drv_api {
 	void (*Init)        (struct usbh_hc_drv  *p_hc_drv,
 	                     /* Initialize HC.                                       */
-			     USBH_ERR     *p_err);
+			     int     *p_err);
 
 	void (*Start)       (struct usbh_hc_drv  *p_hc_drv,
 	                     /* Start HC.                                            */
-			     USBH_ERR     *p_err);
+			     int     *p_err);
 
 	void (*Stop)        (struct usbh_hc_drv  *p_hc_drv,
 	                     /* Stop  HC.                                            */
-			     USBH_ERR     *p_err);
+			     int     *p_err);
 
 	enum usbh_device_speed (*SpdGet)(struct usbh_hc_drv  *p_hc_drv,
 	                                 /* Get HC speed.                                        */
-					 USBH_ERR     *p_err);
+					 int     *p_err);
 
 	void (*Suspend)     (struct usbh_hc_drv  *p_hc_drv,
 	                     /* Suspend HC.                                          */
-			     USBH_ERR     *p_err);
+			     int     *p_err);
 
 	void (*Resume)      (struct usbh_hc_drv  *p_hc_drv,
 	                     /* Resume HC.                                           */
-			     USBH_ERR     *p_err);
+			     int     *p_err);
 
 	uint32_t (*FrmNbrGet)   (struct usbh_hc_drv  *p_hc_drv,
 	                         /* Get HC frame number.                                 */
-				 USBH_ERR     *p_err);
+				 int     *p_err);
 
 	void (*EP_Open)     (struct usbh_hc_drv  *p_hc_drv,
 	                     /* Open endpoint.                                       */
 			     struct usbh_ep      *p_ep,
-			     USBH_ERR     *p_err);
+			     int     *p_err);
 
 	void (*EP_Close)    (struct usbh_hc_drv  *p_hc_drv,
 	                     /* Close endpoint.                                      */
 			     struct usbh_ep      *p_ep,
-			     USBH_ERR     *p_err);
+			     int     *p_err);
 
 	void (*EP_Abort)    (struct usbh_hc_drv  *p_hc_drv,
 	                     /* Abort all pending URB on an endpoint.                */
 			     struct usbh_ep      *p_ep,
-			     USBH_ERR     *p_err);
+			     int     *p_err);
 
 	bool (*EP_IsHalt)   (struct usbh_hc_drv  *p_hc_drv,
 	                     /* Get endpoint halt status.                            */
 			     struct usbh_ep      *p_ep,
-			     USBH_ERR     *p_err);
+			     int     *p_err);
 
 	void (*URB_Submit)  (struct usbh_hc_drv  *p_hc_drv,
 	                     /* Submit a URB.                                        */
 			     struct usbh_urb     *p_urb,
-			     USBH_ERR     *p_err);
+			     int     *p_err);
 
 	void (*URB_Complete)(struct usbh_hc_drv  *p_hc_drv,
 	                     /* Complete a URB.                                      */
 			     struct usbh_urb     *p_urb,
-			     USBH_ERR     *p_err);
+			     int     *p_err);
 
 	void (*URB_Abort)   (struct usbh_hc_drv  *p_hc_drv,
 	                     /* Abort a URB.                                         */
 			     struct usbh_urb     *p_urb,
-			     USBH_ERR     *p_err);
+			     int     *p_err);
 };
 
 
@@ -1165,7 +1165,7 @@ struct  usbh_hc_rh_api {
 struct  usbh_hc_bsp_api {
 	void (*Init)       (struct usbh_hc_drv   *p_hc_drv,
 	                    /* Init BSP.                                            */
-			    USBH_ERR      *p_err);
+			    int      *p_err);
 
 };
 
@@ -1182,16 +1182,16 @@ typedef  void (*USBH_ISOC_CMPL_FNCT)(struct usbh_ep     *p_ep,
 				     uint32_t start_frm,
 				     uint32_t nbr_frm,
 				     uint16_t  *p_frm_len,
-				     USBH_ERR    *p_frm_err,
+				     int    *p_frm_err,
 				     void        *p_arg,
-				     USBH_ERR err);
+				     int err);
 
 typedef  void (*USBH_XFER_CMPL_FNCT)(struct usbh_ep     *p_ep,
 				     void        *p_buf,
 				     uint32_t buf_len,
 				     uint32_t xfer_len,
 				     void        *p_arg,
-				     USBH_ERR err);
+				     int err);
 
 
 /*
@@ -1317,35 +1317,35 @@ typedef  void (*USBH_XFER_CMPL_FNCT)(struct usbh_ep     *p_ep,
 /* --------- USB HOST STACK GENERAL FUNCTIONS --------- */
 uint32_t      usbh_version_get(void);
 
-USBH_ERR        usbh_init(USBH_KERNEL_TASK_INFO  *async_task_info,
+int        usbh_init(USBH_KERNEL_TASK_INFO  *async_task_info,
 			  USBH_KERNEL_TASK_INFO  *hub_task_info);
 
-USBH_ERR        usbh_suspend(void);
+int        usbh_suspend(void);
 
-USBH_ERR        usbh_resume(void);
+int        usbh_resume(void);
 
 /* ------------ HOST CONTROLLER FUNCTIONS ------------- */
 uint8_t      usbh_hc_add(const struct usbh_hc_cfg            *p_hc_cfg,
 			 const struct usbh_hc_drv_api        *p_drv_api,
 			 const struct usbh_hc_rh_api         *p_hc_rh_api,
 			 const struct usbh_hc_bsp_api        *p_hc_bsp_api,
-			 USBH_ERR               *p_err);
+			 int               *p_err);
 
-USBH_ERR        usbh_hc_start(uint8_t hc_nbr);
+int        usbh_hc_start(uint8_t hc_nbr);
 
-USBH_ERR        usbh_hc_stop(uint8_t hc_nbr);
+int        usbh_hc_stop(uint8_t hc_nbr);
 
-USBH_ERR        usbh_hc_port_en(uint8_t hc_nbr,
+int        usbh_hc_port_en(uint8_t hc_nbr,
 				uint8_t port_nbr);
 
-USBH_ERR        usbh_hc_port_dis(uint8_t hc_nbr,
+int        usbh_hc_port_dis(uint8_t hc_nbr,
 				 uint8_t port_nbr);
 
 uint32_t      usbh_hc_frame_nbr_get(uint8_t hc_nbr,
-				    USBH_ERR               *p_err);
+				    int               *p_err);
 
 /* ------------- DEVICE CONTROL FUNCTIONS ------------- */
-USBH_ERR        usbh_dev_conn(struct usbh_dev               *p_dev);
+int        usbh_dev_conn(struct usbh_dev               *p_dev);
 
 void            usbh_dev_disconn(struct usbh_dev               *p_dev);
 
@@ -1355,7 +1355,7 @@ void            usbh_dev_desc_get(struct usbh_dev               *p_dev,
 				  struct usbh_dev_desc          *p_dev_desc);
 
 /* ---------- DEVICE CONFIGURATION FUNCTIONS ---------- */
-USBH_ERR        usbh_cfg_set(struct usbh_dev               *p_dev,
+int        usbh_cfg_set(struct usbh_dev               *p_dev,
 			     uint8_t cfg_nbr);
 
 struct usbh_cfg       *usbh_cfg_get(struct usbh_dev               *p_dev,
@@ -1363,14 +1363,14 @@ struct usbh_cfg       *usbh_cfg_get(struct usbh_dev               *p_dev,
 
 uint8_t      usbh_cfg_if_nbr_get(struct usbh_cfg               *p_cfg);
 
-USBH_ERR        usbh_cfg_desc_get(struct usbh_cfg               *p_cfg,
+int        usbh_cfg_desc_get(struct usbh_cfg               *p_cfg,
 				  struct usbh_cfg_desc          *p_cfg_desc);
 
 struct usbh_desc_hdr  *usbh_cfg_extra_desc_get(struct usbh_cfg               *p_cfg,
-					       USBH_ERR               *p_err);
+					       int               *p_err);
 
 /* -------- DEVICE INTERFACE CONTROL FUNCTIONS -------- */
-USBH_ERR        usbh_if_set(struct usbh_if                *p_if,
+int        usbh_if_set(struct usbh_if                *p_if,
 			    uint8_t alt_nbr);
 
 struct usbh_if        *usbu_if_get(struct usbh_cfg               *p_cfg,
@@ -1383,7 +1383,7 @@ uint8_t      usbh_if_nbr_get(struct usbh_if                *p_if);
 uint8_t      usbh_if_ep_nbr_get(struct usbh_if                *p_if,
 				uint8_t alt_ix);
 
-USBH_ERR        usbh_if_desc_get(struct usbh_if                *p_if,
+int        usbh_if_desc_get(struct usbh_if                *p_if,
 				 uint8_t alt_ix,
 				 struct usbh_if_desc           *p_if_desc);
 
@@ -1392,27 +1392,27 @@ uint8_t     *usbh_if_extra_desc_get(struct usbh_if                *p_if,
 				    uint16_t             *p_data_len);
 
 /* ---------- DEVICE ENDPOINT OPEN FUNCTIONS ---------- */
-USBH_ERR        usbh_bulk_in_open(struct usbh_dev               *p_dev,
+int        usbh_bulk_in_open(struct usbh_dev               *p_dev,
 				  struct usbh_if                *p_if,
 				  struct usbh_ep                *p_ep);
 
-USBH_ERR        usbh_bulk_out_open(struct usbh_dev               *p_dev,
+int        usbh_bulk_out_open(struct usbh_dev               *p_dev,
 				   struct usbh_if                *p_if,
 				   struct usbh_ep                *p_ep);
 
-USBH_ERR        usbh_intr_in_open(struct usbh_dev               *p_dev,
+int        usbh_intr_in_open(struct usbh_dev               *p_dev,
 				  struct usbh_if                *p_if,
 				  struct usbh_ep                *p_ep);
 
-USBH_ERR        usbh_intr_out_open(struct usbh_dev               *p_dev,
+int        usbh_intr_out_open(struct usbh_dev               *p_dev,
 				   struct usbh_if                *p_if,
 				   struct usbh_ep                *p_ep);
 
-USBH_ERR        usbh_isoc_in_open(struct usbh_dev               *p_dev,
+int        usbh_isoc_in_open(struct usbh_dev               *p_dev,
 				  struct usbh_if                *p_if,
 				  struct usbh_ep                *p_ep);
 
-USBH_ERR        usbh_isoc_out_open(struct usbh_dev               *p_dev,
+int        usbh_isoc_out_open(struct usbh_dev               *p_dev,
 				   struct usbh_if                *p_if,
 				   struct usbh_ep                *p_ep);
 
@@ -1425,7 +1425,7 @@ uint16_t      usbh_ctrl_tx(struct usbh_dev               *p_dev,
 			   void                   *p_data,
 			   uint16_t w_len,
 			   uint32_t timeout_ms,
-			   USBH_ERR               *p_err);
+			   int               *p_err);
 
 uint16_t      usbh_ctrl_rx(struct usbh_dev               *p_dev,
 			   uint8_t b_req,
@@ -1435,15 +1435,15 @@ uint16_t      usbh_ctrl_rx(struct usbh_dev               *p_dev,
 			   void                   *p_data,
 			   uint16_t w_len,
 			   uint32_t timeout_ms,
-			   USBH_ERR               *p_err);
+			   int               *p_err);
 
 uint32_t      usbh_bulk_tx(struct usbh_ep                *p_ep,
 			   void                   *p_buf,
 			   uint32_t buf_len,
 			   uint32_t timeout_ms,
-			   USBH_ERR               *p_err);
+			   int               *p_err);
 
-USBH_ERR        usbh_bulk_tx_async(struct usbh_ep                *p_ep,
+int        usbh_bulk_tx_async(struct usbh_ep                *p_ep,
 				   void                   *p_buf,
 				   uint32_t buf_len,
 				   USBH_XFER_CMPL_FNCT fnct,
@@ -1453,9 +1453,9 @@ uint32_t      usbh_bulk_rx(struct usbh_ep                *p_ep,
 			   void                   *p_buf,
 			   uint32_t buf_len,
 			   uint32_t timeout_ms,
-			   USBH_ERR               *p_err);
+			   int               *p_err);
 
-USBH_ERR        usbh_bulk_rx_async(struct usbh_ep                *p_ep,
+int        usbh_bulk_rx_async(struct usbh_ep                *p_ep,
 				   void                   *p_buf,
 				   uint32_t buf_len,
 				   USBH_XFER_CMPL_FNCT fnct,
@@ -1465,9 +1465,9 @@ uint32_t      usbh_intr_tx(struct usbh_ep                *p_ep,
 			   void                   *p_buf,
 			   uint32_t buf_len,
 			   uint32_t timeout_ms,
-			   USBH_ERR               *p_err);
+			   int               *p_err);
 
-USBH_ERR        usbh_intr_tx_async(struct usbh_ep                *p_ep,
+int        usbh_intr_tx_async(struct usbh_ep                *p_ep,
 				   void                   *p_buf,
 				   uint32_t buf_len,
 				   USBH_XFER_CMPL_FNCT fnct,
@@ -1477,9 +1477,9 @@ uint32_t      usbh_intr_rx(struct usbh_ep                *p_ep,
 			   void                   *p_buf,
 			   uint32_t buf_len,
 			   uint32_t timeout_ms,
-			   USBH_ERR               *p_err);
+			   int               *p_err);
 
-USBH_ERR        usbh_intr_rx_async(struct usbh_ep                *p_ep,
+int        usbh_intr_rx_async(struct usbh_ep                *p_ep,
 				   void                   *p_buf,
 				   uint32_t buf_len,
 				   USBH_XFER_CMPL_FNCT fnct,
@@ -1491,17 +1491,17 @@ uint32_t      usbh_isoc_tx(struct usbh_ep                *p_ep,
 			   uint32_t start_frm,
 			   uint32_t nbr_frm,
 			   uint16_t             *p_frm_len,
-			   USBH_ERR               *p_frm_err,
+			   int               *p_frm_err,
 			   uint32_t timeout_ms,
-			   USBH_ERR               *p_err);
+			   int               *p_err);
 
-USBH_ERR        usbh_isoc_tx_async(struct usbh_ep                *p_ep,
+int        usbh_isoc_tx_async(struct usbh_ep                *p_ep,
 				   uint8_t             *p_buf,
 				   uint32_t buf_len,
 				   uint32_t start_frm,
 				   uint32_t nbr_frm,
 				   uint16_t             *p_frm_len,
-				   USBH_ERR               *p_frm_err,
+				   int               *p_frm_err,
 				   USBH_ISOC_CMPL_FNCT fnct,
 				   void                   *p_fnct_arg);
 
@@ -1511,17 +1511,17 @@ uint32_t      usbh_isoc_rx(struct usbh_ep                *p_ep,
 			   uint32_t start_frm,
 			   uint32_t nbr_frm,
 			   uint16_t             *p_frm_len,
-			   USBH_ERR               *p_frm_err,
+			   int               *p_frm_err,
 			   uint32_t timeout_ms,
-			   USBH_ERR               *p_err);
+			   int               *p_err);
 
-USBH_ERR        usbh_isoc_rx_async(struct usbh_ep                *p_ep,
+int        usbh_isoc_rx_async(struct usbh_ep                *p_ep,
 				   uint8_t             *p_buf,
 				   uint32_t buf_len,
 				   uint32_t start_frm,
 				   uint32_t nbr_frm,
 				   uint16_t             *p_frm_len,
-				   USBH_ERR               *p_frm_err,
+				   int               *p_frm_err,
 				   USBH_ISOC_CMPL_FNCT fnct,
 				   void                   *p_fnct_arg);
 
@@ -1534,24 +1534,24 @@ uint16_t      usbh_ep_max_pkt_size_get(struct usbh_ep                *p_ep);
 
 uint8_t      usbh_ep_type_get(struct usbh_ep                *p_ep);
 
-USBH_ERR        usbh_ep_get(struct usbh_if                *p_if,
+int        usbh_ep_get(struct usbh_if                *p_if,
 			    uint8_t alt_ix,
 			    uint8_t ep_ix,
 			    struct usbh_ep                *p_ep);
 
-USBH_ERR        usbh_ep_stall_set(struct usbh_ep                *p_ep);
+int        usbh_ep_stall_set(struct usbh_ep                *p_ep);
 
-USBH_ERR        usbh_ep_stall_clr(struct usbh_ep                *p_ep);
+int        usbh_ep_stall_clr(struct usbh_ep                *p_ep);
 
-USBH_ERR        usbh_ep_reset(struct usbh_dev               *p_dev,
+int        usbh_ep_reset(struct usbh_dev               *p_dev,
 			      struct usbh_ep                *p_ep);
 
-USBH_ERR        usbh_ep_close(struct usbh_ep                *p_ep);
+int        usbh_ep_close(struct usbh_ep                *p_ep);
 
 /* ----------- USB REQUEST BLOCK FUNCTIONS ------------ */
 void            usbh_urb_done(struct usbh_urb               *p_urb);
 
-USBH_ERR        usbh_urb_complete(struct usbh_urb               *p_urb);
+int        usbh_urb_complete(struct usbh_urb               *p_urb);
 
 /* ------------- MISCELLENEOUS FUNCTIONS -------------- */
 uint32_t      usbh_str_get(struct usbh_dev               *p_dev,
@@ -1559,7 +1559,7 @@ uint32_t      usbh_str_get(struct usbh_dev               *p_dev,
 			   uint16_t lang_id,
 			   uint8_t             *p_buf,
 			   uint32_t buf_len,
-			   USBH_ERR               *p_err);
+			   int               *p_err);
 
 
 /*
