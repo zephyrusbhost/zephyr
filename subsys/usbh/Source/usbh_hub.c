@@ -318,7 +318,7 @@ int usbh_hub_port_dis(struct usbh_hub_dev *p_hub_dev,
 
 	err = USBH_HUB_PortEnClr(p_hub_dev, port_nbr);
 
-	return (err);
+	return err;
 }
 
 /*
@@ -352,12 +352,12 @@ int usbh_hub_port_en(struct usbh_hub_dev *p_hub_dev,
 	int err;
 
 	if (p_hub_dev == NULL) {
-		return (USBH_ERR_INVALID_ARG);
+		return EINVAL;
 	}
 
 	err = USBH_HUB_PortEnSet(p_hub_dev, port_nbr);
 
-	return (err);
+	return err;
 }
 
 /*
@@ -462,13 +462,13 @@ static void *USBH_HUB_IF_Probe(struct usbh_dev *p_dev,
 				  0u,
 				  &if_desc);
 	if (*p_err != 0) {
-		return ((void *)0);
+		return NULL;
 	}
 
 	if (if_desc.bInterfaceClass == USBH_CLASS_CODE_HUB) { /* If IF is HUB, alloc HUB dev.                         */
 		if (HubCount < 0) {
 			*p_err = USBH_ERR_DEV_ALLOC;
-			return ((void *)0);
+			return NULL);
 		} else   {
 			p_hub_dev = &USBH_HUB_Arr[HubCount--];
 		}
@@ -1516,15 +1516,15 @@ static int USBH_HUB_PortPwrSet(struct usbh_hub_dev *p_hub_dev,
 			   (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_OTHER),
 			   USBH_HUB_FEATURE_SEL_PORT_PWR,
 			   port_nbr,
-			   (void *)0,
+			   NULL,
 			   0u,
 			   USBH_HUB_TIMEOUT,
 			   &err);
 	if (err != 0) {
-		usbh_ep_reset(p_hub_dev->DevPtr, (struct usbh_ep *)0);
+		usbh_ep_reset(p_hub_dev->DevPtr, NULL);
 	}
 
-	return (err);
+	return err;
 }
 
 /*
@@ -1562,15 +1562,15 @@ static int USBH_HUB_PortSuspendClr(struct usbh_hub_dev *p_hub_dev,
 			   (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_OTHER),
 			   USBH_HUB_FEATURE_SEL_C_PORT_SUSPEND,
 			   port_nbr,
-			   (void *)0,
+			   NULL,
 			   0u,
 			   USBH_HUB_TIMEOUT,
 			   &err);
 	if (err != 0) {
-		usbh_ep_reset(p_hub_dev->DevPtr, (struct usbh_ep *)0);
+		usbh_ep_reset(p_hub_dev->DevPtr, NULL);
 	}
 
-	return (err);
+	return err;
 }
 
 /*
@@ -1654,15 +1654,15 @@ static int USBH_HUB_PortEnSet(struct usbh_hub_dev *p_hub_dev,
 			   (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_OTHER),
 			   USBH_HUB_FEATURE_SEL_PORT_EN,
 			   port_nbr,
-			   (void *)0,
+			   NULL,
 			   0u,
 			   USBH_HUB_TIMEOUT,
 			   &err);
 	if (err != 0) {
-		usbh_ep_reset(p_hub_dev->DevPtr, (struct usbh_ep *)0);
+		usbh_ep_reset(p_hub_dev->DevPtr, NULL);
 	}
 
-	return (err);
+	return err;
 }
 
 /*
@@ -1700,15 +1700,15 @@ int usbh_hub_port_suspend_set(struct usbh_hub_dev *p_hub_dev,
 			   (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_OTHER),
 			   USBH_HUB_FEATURE_SEL_PORT_SUSPEND,
 			   port_nbr,
-			   (void *)0,
+			   NULL,
 			   0u,
 			   USBH_HUB_TIMEOUT,
 			   &err);
 	if (err != 0) {
-		usbh_ep_reset(p_hub_dev->DevPtr, (struct usbh_ep *)0);
+		usbh_ep_reset(p_hub_dev->DevPtr, NULL);
 	}
 
-	return (err);
+	return err;
 }
 
 /*
