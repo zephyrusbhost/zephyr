@@ -82,7 +82,7 @@ static struct usbh_hc_drv *USBH_HC_Template_DrvPtr;
 **************************************************************************************************************
 */
 
-static void BSP_USBH_samr21_Init(struct usbh_hc_drv *p_drv, USBH_ERR *p_err);
+static void BSP_USBH_samr21_Init(struct usbh_hc_drv *p_drv, int *p_err);
 
 
 //static void BSP_USBH_samr21_ISR_Unregister(USBH_ERR *p_err);
@@ -128,7 +128,7 @@ const struct usbh_hc_bsp_api USBH_DrvBSP_Template = {BSP_USBH_samr21_Init};
 * Note(s)     : none.
 *********************************************************************************************************
 */
-static void BSP_USBH_samr21_Init(struct usbh_hc_drv *p_drv, USBH_ERR *p_err)
+static void BSP_USBH_samr21_Init(struct usbh_hc_drv *p_drv, int *p_err)
 {
 	LOG_INF("bsp init");
 	USBH_HC_Template_DrvPtr = p_drv;
