@@ -44,12 +44,12 @@ struct usbh_class_drv {
 
 	void *(*ProbeDev)(struct usbh_dev *p_dev,
 	                  /* Probe device descriptor.                             */
-			  USBH_ERR *p_err);
+			  int *p_err);
 
 	void *(*ProbeIF)(struct usbh_dev *p_dev,
 	                 /* Probe interface descriptor.                          */
 			 struct usbh_if *p_if,
-			 USBH_ERR *p_err);
+			 int *p_err);
 
 	void (*Suspend)(void *p_class_dev);     /* Called when bus suspends.                            */
 
@@ -84,7 +84,7 @@ void usbh_class_suspend(struct usbh_dev *p_dev);
 
 void usbh_class_resume(struct usbh_dev *p_dev);
 
-USBH_ERR usbh_class_drv_conn(struct usbh_dev *p_dev);
+int usbh_class_drv_conn(struct usbh_dev *p_dev);
 
 void usbh_class_drv_disconn(struct usbh_dev *p_dev);
 
