@@ -95,7 +95,7 @@ extern const struct usbh_class_drv USBH_HUB_Drv;
 USBH_ERR    usbh_hub_port_en(struct usbh_hub_dev   *p_hub_dev,
 			     uint16_t port_nbr);
 
-USBH_ERR    usbh_hub_port_dis(struct usbh_hub_dev   *p_hub_dev,
+int    usbh_hub_port_dis(struct usbh_hub_dev   *p_hub_dev,
 			      uint16_t port_nbr);
 
 USBH_ERR    usbh_hub_port_suspend_set(struct usbh_hub_dev   *p_hub_dev,

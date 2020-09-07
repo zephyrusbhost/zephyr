@@ -590,7 +590,7 @@ static void USBH_MSC_GlobalInit(int *p_err);
 
 static void *USBH_MSC_ProbeIF(struct usbh_dev *p_dev,
                               struct usbh_if *p_if,
-                              USBH_ERR *p_err);
+                              int *p_err);
 
 static void USBH_MSC_Disconn(void *p_class_dev);
 
@@ -1540,7 +1540,7 @@ static void USBH_MSC_GlobalInit(int *p_err)
 
 static void *USBH_MSC_ProbeIF(struct usbh_dev *p_dev,
                               struct usbh_if *p_if,
-                              USBH_ERR *p_err)
+                              int *p_err)
 {
     struct usbh_if_desc p_if_desc;
     USBH_MSC_DEV *p_msc_dev;
@@ -1578,9 +1578,6 @@ static void *USBH_MSC_ProbeIF(struct usbh_dev *p_dev,
         *p_err = USBH_MSC_EP_Open(p_msc_dev); /* Open Bulk in/out EPs.                                */
         if (*p_err != 0)
         {
-            // Mem_PoolBlkFree(&USBH_MSC_DevPool,
-            //                 (void *)p_msc_dev,
-            //                 &err_lib);
             USBH_MSC_DevCount++;
         }
     }

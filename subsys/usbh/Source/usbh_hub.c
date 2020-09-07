@@ -30,12 +30,11 @@
  *********************************************************************************************************
  */
 
-#define USBH_HUB_MODULE
-#define MICRIUM_SOURCE
 #include "usbh_hub.h"
 #include "usbh_core.h"
 #include "usbh_class.h"
 #include <sys/byteorder.h>
+
 #include <logging/log.h>
 LOG_MODULE_REGISTER(hub);
 /*
@@ -166,7 +165,7 @@ static void USBH_HUB_GlobalInit(int *p_err);
 
 static void *USBH_HUB_IF_Probe(struct usbh_dev *p_dev,
 			       struct usbh_if *p_if,
-			       USBH_ERR *p_err);
+			       int *p_err);
 
 static void USBH_HUB_Suspend(void *p_class_dev);
 
@@ -277,9 +276,7 @@ const struct usbh_class_drv USBH_HUB_Drv = {
 
 void usbh_hub_event_task(void *p_arg, void *p_arg2, void *p_arg3)
 {
-	(void)p_arg;
-
-	while (true) {
+	while (1) {
 		k_sem_take(&USBH_HUB_EventSem, K_FOREVER);
 		USBH_HUB_EventProcess();
 	}
@@ -310,13 +307,13 @@ void usbh_hub_event_task(void *p_arg, void *p_arg2, void *p_arg3)
  *********************************************************************************************************
  */
 
-USBH_ERR usbh_hub_port_dis(struct usbh_hub_dev *p_hub_dev,
+int usbh_hub_port_dis(struct usbh_hub_dev *p_hub_dev,
 			   uint16_t port_nbr)
 {
-	USBH_ERR err;
+	int err;
 
 	if (p_hub_dev == NULL) {
-		return (USBH_ERR_INVALID_ARG);
+		return EINVAL;
 	}
 
 	err = USBH_HUB_PortEnClr(p_hub_dev, port_nbr);
@@ -454,7 +451,7 @@ static void USBH_HUB_GlobalInit(int *p_err)
 
 static void *USBH_HUB_IF_Probe(struct usbh_dev *p_dev,
 			       struct usbh_if *p_if,
-			       USBH_ERR *p_err)
+			       int *p_err)
 {
 	LOG_INF("hub if");
 	struct usbh_hub_dev *p_hub_dev;
