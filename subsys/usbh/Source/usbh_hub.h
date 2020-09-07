@@ -92,13 +92,13 @@ extern const struct usbh_class_drv USBH_HUB_Drv;
  *********************************************************************************************************
  */
 
-USBH_ERR    usbh_hub_port_en(struct usbh_hub_dev   *p_hub_dev,
+int    usbh_hub_port_en(struct usbh_hub_dev   *p_hub_dev,
 			     uint16_t port_nbr);
 
 int    usbh_hub_port_dis(struct usbh_hub_dev   *p_hub_dev,
 			      uint16_t port_nbr);
 
-USBH_ERR    usbh_hub_port_suspend_set(struct usbh_hub_dev   *p_hub_dev,
+int    usbh_hub_port_suspend_set(struct usbh_hub_dev   *p_hub_dev,
 				      uint16_t port_nbr);
 
 void        usbh_hub_class_notify(void           *p_class_dev,
@@ -112,7 +112,7 @@ uint32_t  usbh_rh_ctrl_req(struct usbh_hc        *p_hc,
 			   uint16_t w_ix,
 			   void           *p_buf,
 			   uint32_t buf_len,
-			   USBH_ERR       *p_err);
+			   int       *p_err);
 
 void        usbh_rh_event(struct usbh_dev       *p_dev);
 

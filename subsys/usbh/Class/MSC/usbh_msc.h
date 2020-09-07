@@ -110,28 +110,28 @@ USBH_MSC_EXT const struct usbh_class_drv USBH_MSC_ClassDrv;
 *********************************************************************************************************
 */
 
-USBH_ERR usbh_msc_init(USBH_MSC_DEV *p_msc_dev,
+int usbh_msc_init(USBH_MSC_DEV *p_msc_dev,
                        uint8_t lun);
 
 uint8_t usbh_msc_max_lun_get(USBH_MSC_DEV *p_msc_dev,
-                               USBH_ERR *p_err);
+                               int *p_err);
 
 bool usbh_msc_unit_rdy_test(USBH_MSC_DEV *p_msc_dev,
                                  uint8_t lun,
-                                 USBH_ERR *p_err);
+                                 int *p_err);
 
-USBH_ERR usbh_msc_capacity_rd(USBH_MSC_DEV *p_msc_dev,
+int usbh_msc_capacity_rd(USBH_MSC_DEV *p_msc_dev,
                              uint8_t lun,
                              uint32_t *p_nbr_blks,
                              uint32_t *p_blk_size);
 
-USBH_ERR usbh_msc_std_inquiry(USBH_MSC_DEV *p_msc_dev,
+int usbh_msc_std_inquiry(USBH_MSC_DEV *p_msc_dev,
                              USBH_MSC_INQUIRY_INFO *p_msc_inquiry_info,
                              uint8_t lun);
 
-USBH_ERR usbh_msc_ref_add(USBH_MSC_DEV *p_msc_dev);
+int usbh_msc_ref_add(USBH_MSC_DEV *p_msc_dev);
 
-USBH_ERR usbh_msc_ref_rel(USBH_MSC_DEV *p_msc_dev);
+int usbh_msc_ref_rel(USBH_MSC_DEV *p_msc_dev);
 
 uint32_t usbh_msc_read(USBH_MSC_DEV *p_msc_dev,
                        uint8_t lun,
@@ -139,7 +139,7 @@ uint32_t usbh_msc_read(USBH_MSC_DEV *p_msc_dev,
                        uint16_t nbr_blks,
                        uint32_t blk_size,
                        void *p_arg,
-                       USBH_ERR *p_err);
+                       int *p_err);
 
 uint32_t usbh_msc_write(USBH_MSC_DEV *p_msc_dev,
                        uint8_t lun,
@@ -147,7 +147,7 @@ uint32_t usbh_msc_write(USBH_MSC_DEV *p_msc_dev,
                        uint16_t nbr_blks,
                        uint32_t blk_size,
                        const void *p_arg,
-                       USBH_ERR *p_err);
+                       int *p_err);
 
 /*
 *********************************************************************************************************
