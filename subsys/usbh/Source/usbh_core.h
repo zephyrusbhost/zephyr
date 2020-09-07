@@ -1222,7 +1222,7 @@ typedef  void (*USBH_XFER_CMPL_FNCT)(struct usbh_ep     *p_ep,
 											 (rcpt),		     \
 											 (value),		     \
 											 (index),		     \
-											 (void *)0,		     \
+											 NULL,		     \
 											 0u,			     \
 											 (USBH_CFG_STD_REQ_TIMEOUT), \
 											 (p_err))
@@ -1232,7 +1232,7 @@ typedef  void (*USBH_XFER_CMPL_FNCT)(struct usbh_ep     *p_ep,
 											 (rcpt),		     \
 											 (value),		     \
 											 (index),		     \
-											 (void *)0,		     \
+											 NULL,		     \
 											 0u,			     \
 											 (USBH_CFG_STD_REQ_TIMEOUT), \
 											 (p_err))
@@ -1282,7 +1282,7 @@ typedef  void (*USBH_XFER_CMPL_FNCT)(struct usbh_ep     *p_ep,
 											 (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_RECIPIENT_DEV), \
 											 new_usb_addr,					      \
 											 0u,						      \
-											 (void *)0,					      \
+											 NULL,					      \
 											 0u,						      \
 											 (USBH_CFG_STD_REQ_TIMEOUT),			      \
 											 (p_err))
@@ -1292,7 +1292,7 @@ typedef  void (*USBH_XFER_CMPL_FNCT)(struct usbh_ep     *p_ep,
 											 (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_RECIPIENT_DEV), \
 											 (cfg_nbr),					      \
 											 0u,						      \
-											 (void *)0,					      \
+											 NULL,					      \
 											 0u,						      \
 											 (USBH_CFG_STD_REQ_TIMEOUT),			      \
 											 (p_err))
@@ -1302,7 +1302,7 @@ typedef  void (*USBH_XFER_CMPL_FNCT)(struct usbh_ep     *p_ep,
 											 (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_RECIPIENT_IF), \
 											 (alt_nbr),					     \
 											 (if_nbr),					     \
-											 (void *)0,					     \
+											 NULL,					     \
 											 0u,						     \
 											 (USBH_CFG_STD_REQ_TIMEOUT),			     \
 											 (p_err))

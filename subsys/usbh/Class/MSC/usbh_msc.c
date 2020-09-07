@@ -940,7 +940,7 @@ uint8_t usbh_msc_max_lun_get(USBH_MSC_DEV *p_msc_dev,
         if (*p_err != 0)
         {
             (void)usbh_ep_reset(p_msc_dev->DevPtr, /* Reset dflt EP if ctrl xfer failed.                   */
-                                (struct usbh_ep *)0);
+                                NULL);
 
             if (*p_err == USBH_ERR_EP_STALL)
             { /* Device may stall if no multiple LUNs support.        */
@@ -1549,7 +1549,7 @@ static void *USBH_MSC_ProbeIF(struct usbh_dev *p_dev,
     *p_err = usbh_if_desc_get(p_if, 0u, &p_if_desc);
     if (*p_err != 0)
     {
-        return ((void *)0);
+        return (NULL);
     }
     /* Chk for class, sub class and protocol.               */
     if ((p_if_desc.bInterfaceClass == USBH_CLASS_CODE_MASS_STORAGE) &&
@@ -1562,7 +1562,7 @@ static void *USBH_MSC_ProbeIF(struct usbh_dev *p_dev,
         if (USBH_MSC_DevCount < 0)
         {
             *p_err = USBH_ERR_DEV_ALLOC;
-            return ((void *)0);
+            return (NULL);
         }
         else
         {
@@ -2341,7 +2341,7 @@ static int USBH_MSC_BulkOnlyReset(USBH_MSC_DEV *p_msc_dev)
                 (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_IF),
                 0u,
                 if_nbr,
-                (void *)0,
+                NULL,
                 0u,
                 USBH_MSC_TIMEOUT,
                 &err);
@@ -2349,7 +2349,7 @@ static int USBH_MSC_BulkOnlyReset(USBH_MSC_DEV *p_msc_dev)
     {
         LOG_ERR("%d", err);
         usbh_ep_reset(p_msc_dev->DevPtr,
-                      (struct usbh_ep *)0);
+                      NULL);
     }
 
     return (err);
@@ -2472,7 +2472,7 @@ static int USBH_SCSI_CMD_TestUnitReady(USBH_MSC_DEV *p_msc_dev,
                      USBH_MSC_DATA_DIR_NONE,
                      (void *)&cmd[0],
                      6u,
-                     (void *)0,
+                     NULL,
                      0u,
                      &err);
 
