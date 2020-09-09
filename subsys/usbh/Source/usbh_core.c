@@ -24,25 +24,14 @@
  *********************************************************************************************************
  */
 
-/*
- *********************************************************************************************************
- *                                            INCLUDE FILES
- *********************************************************************************************************
- */
-
-#define USBH_CORE_MODULE
-#define MICRIUM_SOURCE
 #include "usbh_core.h"
 #include "usbh_class.h"
 #include "usbh_hub.h"
 #include <sys/byteorder.h>
+
 #include <logging/log.h>
 LOG_MODULE_REGISTER(usbh_core, 4);
-/*
- *********************************************************************************************************
- *                                            LOCAL DEFINES
- *********************************************************************************************************
- */
+
 K_THREAD_STACK_DEFINE(USBH_AsyncTask_Stack, 1024);
 K_THREAD_STACK_DEFINE(USBH_HUB_EventTask_Stack, 2048);
 K_MEM_POOL_DEFINE(AsyncURB_PPool, sizeof(struct usbh_urb),
@@ -51,11 +40,6 @@ K_MEM_POOL_DEFINE(AsyncURB_PPool, sizeof(struct usbh_urb),
 		  sizeof(uint32_t));
 
 /*
- *********************************************************************************************************
- *                                      USB HOST DRIVER FUNCTIONS
- *********************************************************************************************************
- */
-
 #define USBH_HCD_Init(p_hc, p_err)					\
 	do {								\
 		k_mutex_lock(&(p_hc)->HCD_Mutex, K_NO_WAIT);		\
@@ -63,6 +47,7 @@ K_MEM_POOL_DEFINE(AsyncURB_PPool, sizeof(struct usbh_urb),
 		k_mutex_unlock(&(p_hc)->HCD_Mutex);			\
 	} while (0)
 
+*/	
 #define USBH_HCD_Start(p_hc, p_err)					 \
 	do {								 \
 		k_mutex_lock(&(p_hc)->HCD_Mutex, K_NO_WAIT);		 \
@@ -163,30 +148,6 @@ K_MEM_POOL_DEFINE(AsyncURB_PPool, sizeof(struct usbh_urb),
 		k_mutex_unlock(&(p_hc)->HCD_Mutex);			    \
 	} while (0)
 
-/*
- *********************************************************************************************************
- *                                           LOCAL CONSTANTS
- *********************************************************************************************************
- */
-
-/*
- *********************************************************************************************************
- *                                          LOCAL DATA TYPES
- *********************************************************************************************************
- */
-
-/*
- *********************************************************************************************************
- *                                            LOCAL TABLES
- *********************************************************************************************************
- */
-
-/*
- *********************************************************************************************************
- *                                       LOCAL GLOBAL VARIABLES
- *********************************************************************************************************
- */
-
 static volatile struct usbh_urb *USBH_URB_HeadPtr;
 static volatile struct usbh_urb *USBH_URB_TailPtr;
 static struct k_sem USBH_URB_Sem;
@@ -198,7 +159,6 @@ static struct k_sem USBH_URB_Sem;
  */
 
 static struct usbh_host USBH_Host;
-static uint32_t USBH_Version;
 
 /*
  *********************************************************************************************************
@@ -273,44 +233,6 @@ static void usbh_async_task(void *p_arg, void *p_arg2, void *p_arg3);
 
 /*
  *********************************************************************************************************
- *                                     LOCAL CONFIGURATION ERRORS
- *********************************************************************************************************
- */
-
-/*
- *********************************************************************************************************
- *********************************************************************************************************
- *                                          GLOBAL FUNCTIONS
- *********************************************************************************************************
- *********************************************************************************************************
- */
-
-/*
- *********************************************************************************************************
- *                                          USBH_VersionGet()
- *
- * Description : Get the uC/USB-Host software version.
- *
- * Argument(s) : None.
- *
- * Return(s)   : uC/USB-Host version.
- *
- * Note(s)     : The value returned is multiplied by 10000. For example, version 3.40.02, would be
- *               returned as 34002.
- *********************************************************************************************************
- */
-
-uint32_t usbh_version_get(void)
-{
-	uint32_t version;
-
-	version = USBH_VERSION;
-
-	return (version);
-}
-
-/*
- *********************************************************************************************************
  *                                             USBH_Init()
  *
  * Description : Allocates and initializes resources required by USB Host stack.
@@ -348,13 +270,8 @@ int usbh_init(USBH_KERNEL_TASK_INFO *async_task_info,
 	int err;
 	uint8_t ix;
 
-	USBH_Version = USBH_VERSION;
-	(void)USBH_Version;
-
 	USBH_URB_HeadPtr = NULL;
 	USBH_URB_TailPtr = NULL;
-
-
 
 	USBH_Host.HC_NbrNext = 0u;
 	USBH_Host.State = USBH_HOST_STATE_NONE;
@@ -572,9 +489,9 @@ uint8_t usbh_hc_add(const struct usbh_hc_cfg *p_hc_cfg,
 
 	k_mutex_init(&p_hc->HCD_Mutex);
 
-	USBH_HCD_Init(
-		p_hc,
-		p_err); /* Init HCD.                                            */
+	k_mutex_lock(&p_hc->HCD_Mutex, K_NO_WAIT);
+	p_hc->HC_Drv.API_Ptr->Init(&p_hc->HC_Drv, p_err);
+	k_mutex_unlock(&p_hc->HCD_Mutex); /* Init HCD.                                            */
 	if (*p_err != 0) {
 		return (USBH_HC_NBR_NONE);
 	}
