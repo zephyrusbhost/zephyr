@@ -284,7 +284,7 @@ int usbh_resume(void)
 
 	USBH_Host.State = USBH_HOST_STATE_RESUMED;
 
-	return (err);
+	return err;
 }
 
 /*
@@ -335,8 +335,8 @@ uint8_t usbh_hc_add(const struct usbh_hc_cfg *p_hc_cfg,
 	    (p_drv_api == NULL) ||
 	    (p_hc_rh_api == NULL) ||
 	    (p_hc_bsp_api == NULL)) {
-		*p_err = USBH_ERR_INVALID_ARG;
-		return (USBH_HC_NBR_NONE);
+		*p_err = EINVAL;
+		return USBH_HC_NBR_NONE;
 	}
 
 	key = irq_lock();
@@ -344,7 +344,7 @@ uint8_t usbh_hc_add(const struct usbh_hc_cfg *p_hc_cfg,
 	if (hc_nbr >=
 	    USBH_CFG_MAX_NBR_HC) { /* Chk if HC nbr is valid.                              */
 		irq_unlock(key);
-		*p_err = USBH_ERR_HC_ALLOC;
+		*p_err = EIO;
 		return (USBH_HC_NBR_NONE);
 	}
 	USBH_Host.HC_NbrNext++;
@@ -354,7 +354,7 @@ uint8_t usbh_hc_add(const struct usbh_hc_cfg *p_hc_cfg,
 	p_hc_drv = &p_hc->HC_Drv;
 
 	if (USBH_Host.DevCount < 0) {
-		return (USBH_HC_NBR_NONE);
+		return USBH_HC_NBR_NONE;
 	} else {
 		p_rh_dev = &USBH_Host.DevList[USBH_Host.DevCount--];
 	}
