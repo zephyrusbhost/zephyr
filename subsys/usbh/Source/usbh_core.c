@@ -39,114 +39,6 @@ K_MEM_POOL_DEFINE(AsyncURB_PPool, sizeof(struct usbh_urb),
 		  (USBH_CFG_MAX_NBR_DEVS * USBH_CFG_MAX_EXTRA_URB_PER_DEV),
 		  sizeof(uint32_t));
 
-/*
-#define USBH_HCD_Init(p_hc, p_err)					\
-	do {								\
-		k_mutex_lock(&(p_hc)->HCD_Mutex, K_NO_WAIT);		\
-		(p_hc)->HC_Drv.API_Ptr->Init(&(p_hc)->HC_Drv, (p_err));	\
-		k_mutex_unlock(&(p_hc)->HCD_Mutex);			\
-	} while (0)
-
-*/	
-#define USBH_HCD_Start(p_hc, p_err)					 \
-	do {								 \
-		k_mutex_lock(&(p_hc)->HCD_Mutex, K_NO_WAIT);		 \
-		(p_hc)->HC_Drv.API_Ptr->Start(&(p_hc)->HC_Drv, (p_err)); \
-		k_mutex_unlock(&(p_hc)->HCD_Mutex);			 \
-	} while (0)
-
-#define USBH_HCD_Stop(p_hc, p_err)					\
-	do {								\
-		k_mutex_lock(&(p_hc)->HCD_Mutex, K_NO_WAIT);		\
-		(p_hc)->HC_Drv.API_Ptr->Stop(&(p_hc)->HC_Drv, (p_err));	\
-		k_mutex_unlock(&(p_hc)->HCD_Mutex);			\
-	} while (0)
-
-#define USBH_HCD_SpdGet(p_hc, p_spd, p_err)				   \
-	do {								   \
-		k_mutex_lock(&(p_hc)->HCD_Mutex, K_NO_WAIT);		   \
-		*(p_spd) = (p_hc)->HC_Drv.API_Ptr->SpdGet(&(p_hc)->HC_Drv, \
-							  (p_err));	   \
-		k_mutex_unlock(&(p_hc)->HCD_Mutex);			   \
-	} while (0)
-
-#define USBH_HCD_Suspend(p_hc, p_err)					   \
-	do {								   \
-		k_mutex_lock(&(p_hc)->HCD_Mutex, K_NO_WAIT);		   \
-		(p_hc)->HC_Drv.API_Ptr->Suspend(&(p_hc)->HC_Drv, (p_err)); \
-		k_mutex_unlock(&(p_hc)->HCD_Mutex);			   \
-	} while (0)
-
-#define USBH_HCD_Resume(p_hc, p_err)					  \
-	do {								  \
-		k_mutex_lock(&(p_hc)->HCD_Mutex, K_NO_WAIT);		  \
-		(p_hc)->HC_Drv.API_Ptr->Resume(&(p_hc)->HC_Drv, (p_err)); \
-		k_mutex_unlock(&(p_hc)->HCD_Mutex);			  \
-	} while (0)
-
-#define USBH_HCD_FrmNbrGet(p_hc, p_frm_nbr, p_err)		  \
-	do {							  \
-		k_mutex_lock(&(p_hc)->HCD_Mutex, K_NO_WAIT);	  \
-		*(p_frm_nbr) = (p_hc)->HC_Drv.API_Ptr->FrmNbrGet( \
-			&(p_hc)->HC_Drv, (p_err));		  \
-		k_mutex_unlock(&(p_hc)->HCD_Mutex);		  \
-	} while (0)
-
-#define USBH_HCD_EP_Open(p_hc, p_ep, p_err)				 \
-	do {								 \
-		k_mutex_lock(&(p_hc)->HCD_Mutex, K_NO_WAIT);		 \
-		(p_hc)->HC_Drv.API_Ptr->EP_Open(&(p_hc)->HC_Drv, (p_ep), \
-						(p_err));		 \
-		k_mutex_unlock(&(p_hc)->HCD_Mutex);			 \
-	} while (0)
-
-#define USBH_HCD_EP_Close(p_hc, p_ep, p_err)				  \
-	do {								  \
-		k_mutex_lock(&(p_hc)->HCD_Mutex, K_NO_WAIT);		  \
-		(p_hc)->HC_Drv.API_Ptr->EP_Close(&(p_hc)->HC_Drv, (p_ep), \
-						 (p_err));		  \
-		k_mutex_unlock(&(p_hc)->HCD_Mutex);			  \
-	} while (0)
-
-#define USBH_HCD_EP_Abort(p_hc, p_ep, p_err)				  \
-	do {								  \
-		k_mutex_lock(&(p_hc)->HCD_Mutex, K_NO_WAIT);		  \
-		(p_hc)->HC_Drv.API_Ptr->EP_Abort(&(p_hc)->HC_Drv, (p_ep), \
-						 (p_err));		  \
-		k_mutex_unlock(&(p_hc)->HCD_Mutex);			  \
-	} while (0)
-
-#define USBH_HCD_EP_IsHalt(p_hc, p_ep, b_ret, p_err)			       \
-	do {								       \
-		k_mutex_lock(&(p_hc)->HCD_Mutex, K_NO_WAIT);		       \
-		*(b_ret) = (p_hc)->HC_Drv.API_Ptr->EP_IsHalt(&(p_hc)->HC_Drv,  \
-							     (p_ep), (p_err)); \
-		k_mutex_unlock(&(p_hc)->HCD_Mutex);			       \
-	} while (0)
-
-#define USBH_HCD_URB_Submit(p_hc, p_urb, p_err)				     \
-	do {								     \
-		k_mutex_lock(&(p_hc)->HCD_Mutex, K_NO_WAIT);		     \
-		(p_hc)->HC_Drv.API_Ptr->URB_Submit(&(p_hc)->HC_Drv, (p_urb), \
-						   (p_err));		     \
-		k_mutex_unlock(&(p_hc)->HCD_Mutex);			     \
-	} while (0)
-
-#define USBH_HCD_URB_Complete(p_hc, p_urb, p_err)			       \
-	do {								       \
-		k_mutex_lock(&(p_hc)->HCD_Mutex, K_NO_WAIT);		       \
-		(p_hc)->HC_Drv.API_Ptr->URB_Complete(&(p_hc)->HC_Drv, (p_urb), \
-						     (p_err));		       \
-		k_mutex_unlock(&(p_hc)->HCD_Mutex);			       \
-	} while (0)
-
-#define USBH_HCD_URB_Abort(p_hc, p_urb, p_err)				    \
-	do {								    \
-		k_mutex_lock(&(p_hc)->HCD_Mutex, K_NO_WAIT);		    \
-		(p_hc)->HC_Drv.API_Ptr->URB_Abort(&(p_hc)->HC_Drv, (p_urb), \
-						  (p_err));		    \
-		k_mutex_unlock(&(p_hc)->HCD_Mutex);			    \
-	} while (0)
 
 static volatile struct usbh_urb *USBH_URB_HeadPtr;
 static volatile struct usbh_urb *USBH_URB_TailPtr;
@@ -349,9 +241,9 @@ int usbh_suspend(void)
 
 		usbh_class_suspend(
 			hc->HC_Drv.RH_DevPtr); /* Suspend RH, and all downstream dev.                  */
-		USBH_HCD_Suspend(
-			hc,
-			&err); /* Suspend HC.                                          */
+		k_mutex_lock(&hc->HCD_Mutex, K_NO_WAIT);
+		hc->HC_Drv.API_Ptr->Suspend(&hc->HC_Drv, &err);
+		k_mutex_unlock(&hc->HCD_Mutex); /* Suspend HC.                                          */
 	}
 
 	USBH_Host.State = USBH_HOST_STATE_SUSPENDED;
@@ -384,9 +276,9 @@ int usbh_resume(void)
 	for (ix = 0u; ix < USBH_Host.HC_NbrNext; ix++) {
 		hc = &USBH_Host.HC_Tbl[ix];
 
-		USBH_HCD_Resume(
-			hc,
-			&err);                  /* Resume HC.                                           */
+		k_mutex_lock(&hc->HCD_Mutex, K_NO_WAIT);
+		hc->HC_Drv.API_Ptr->Resume(&hc->HC_Drv, &err);
+		k_mutex_unlock(&hc->HCD_Mutex);                  /* Resume HC.                                           */
 		usbh_class_resume(
 			hc->HC_Drv.RH_DevPtr);  /* Resume RH, and all downstream dev.                   */
 	}
@@ -496,7 +388,10 @@ uint8_t usbh_hc_add(const struct usbh_hc_cfg *p_hc_cfg,
 		return (USBH_HC_NBR_NONE);
 	}
 
-	USBH_HCD_SpdGet(p_hc, &p_rh_dev->DevSpd, p_err);
+	k_mutex_lock(&p_hc->HCD_Mutex, K_NO_WAIT);
+	p_rh_dev->DevSpd = p_hc->HC_Drv.API_Ptr->SpdGet(&p_hc->HC_Drv,
+							  p_err);
+	k_mutex_unlock(&p_hc->HCD_Mutex);
 
 	return (hc_nbr);
 }
@@ -554,7 +449,9 @@ int usbh_hc_start(uint8_t hc_nbr)
 		LOG_DBG("DevDisconn.");
 		usbh_dev_disconn(p_rh_dev);
 	}
-	USBH_HCD_Start(p_hc, &err);
+	k_mutex_lock(&p_hc->HCD_Mutex, K_NO_WAIT);
+	p_hc->HC_Drv.API_Ptr->Start(&p_hc->HC_Drv, &err);
+	k_mutex_unlock(&p_hc->HCD_Mutex);
 
 	return (err);
 }
@@ -591,7 +488,9 @@ int usbh_hc_stop(uint8_t hc_nbr)
 
 	usbh_dev_disconn(
 		p_rh_dev); /* Disconn RH dev.                                      */
-	USBH_HCD_Stop(p_hc, &err);
+	k_mutex_lock(&p_hc->HCD_Mutex, K_NO_WAIT);
+	p_hc->HC_Drv.API_Ptr->Stop(&p_hc->HC_Drv, &err);
+	k_mutex_unlock(&p_hc->HCD_Mutex);
 
 	return (err);
 }
@@ -715,7 +614,9 @@ uint32_t usbh_hc_frame_nbr_get(uint8_t hc_nbr, int *p_err)
 
 	p_hc = &USBH_Host.HC_Tbl[hc_nbr];
 
-	USBH_HCD_FrmNbrGet(p_hc, &frame_nbr, p_err);
+	k_mutex_lock(&p_hc->HCD_Mutex, K_NO_WAIT);
+	frame_nbr = p_hc->HC_Drv.API_Ptr->FrmNbrGet(&p_hc->HC_Drv, p_err);
+	k_mutex_unlock(&p_hc->HCD_Mutex);
 
 	return (frame_nbr);
 }
@@ -2897,21 +2798,26 @@ int usbh_ep_reset(struct usbh_dev *p_dev, struct usbh_ep *p_ep)
 		return (0);
 	}
 
-	USBH_HCD_EP_Abort(
-		p_dev->HC_Ptr, /* Abort pending xfers on EP.                           */
-		p_ep_t, &err);
+	k_mutex_lock(&p_dev->HC_Ptr->HCD_Mutex, K_NO_WAIT);
+	p_dev->HC_Ptr->HC_Drv.API_Ptr->EP_Abort(&p_dev->HC_Ptr->HC_Drv,
+						p_ep_t, &err);
+	k_mutex_unlock(&p_dev->HC_Ptr->HCD_Mutex);
 	if (err != 0) {
 		return (err);
 	}
 
-	USBH_HCD_EP_Close(
-		p_dev->HC_Ptr, /* Close / open EP.                                     */
-		p_ep_t, &err);
+	k_mutex_lock(&p_dev->HC_Ptr->HCD_Mutex, K_NO_WAIT);
+	p_dev->HC_Ptr->HC_Drv.API_Ptr->EP_Close(&p_dev->HC_Ptr->HC_Drv,
+						p_ep_t, &err);
+	k_mutex_unlock(&p_dev->HC_Ptr->HCD_Mutex);
 	if (err != 0) {
 		return (err);
 	}
 
-	USBH_HCD_EP_Open(p_dev->HC_Ptr, p_ep_t, &err);
+	k_mutex_lock(&p_dev->HC_Ptr->HCD_Mutex, K_NO_WAIT);
+	p_dev->HC_Ptr->HC_Drv.API_Ptr->EP_Open(&p_dev->HC_Ptr->HC_Drv, p_ep_t,
+					       &err);
+	k_mutex_unlock(&p_dev->HC_Ptr->HCD_Mutex);
 	if (err != 0) {
 		return (err);
 	}
@@ -2961,7 +2867,10 @@ int usbh_ep_close(struct usbh_ep *p_ep)
 	      (p_dev->HC_Ptr->IsVirRootHub == true))) {
 		LOG_DBG("close address %d",
 			((p_ep->DevAddr << 8u) | p_ep->Desc.bEndpointAddress));
-		USBH_HCD_EP_Close(p_ep->DevPtr->HC_Ptr, p_ep, &err);
+		k_mutex_lock(&p_ep->DevPtr->HC_Ptr->HCD_Mutex, K_NO_WAIT);
+		p_ep->DevPtr->HC_Ptr->HC_Drv.API_Ptr->EP_Close(&p_ep->DevPtr->HC_Ptr->HC_Drv,
+							       p_ep, &err);
+		k_mutex_unlock(&p_ep->DevPtr->HC_Ptr->HCD_Mutex);
 	}
 
 	if (p_ep->XferNbrInProgress > 1u) {
@@ -3050,13 +2959,15 @@ int usbh_urb_complete(struct usbh_urb *p_urb)
 	p_dev = p_ep->DevPtr;
 
 	if (p_urb->State == USBH_URB_STATE_QUEUED) {
-		USBH_HCD_URB_Complete(
-			p_dev->HC_Ptr, /* Call HC to cleanup completed URB.                    */
-			p_urb, &err);
+		k_mutex_lock(&p_dev->HC_Ptr->HCD_Mutex, K_NO_WAIT);
+		p_dev->HC_Ptr->HC_Drv.API_Ptr->URB_Complete(&p_dev->HC_Ptr->HC_Drv,
+							    p_urb, &err);
+		k_mutex_unlock(&p_dev->HC_Ptr->HCD_Mutex);
 	} else if (p_urb->State == USBH_URB_STATE_ABORTED) {
-		USBH_HCD_URB_Abort(
-			p_dev->HC_Ptr, /* Call HC to abort URB.                                */
-			p_urb, &err);
+		k_mutex_lock(&p_dev->HC_Ptr->HCD_Mutex, K_NO_WAIT);
+		p_dev->HC_Ptr->HC_Drv.API_Ptr->URB_Abort(&p_dev->HC_Ptr->HC_Drv,
+							 p_urb, &err);
+		k_mutex_unlock(&p_dev->HC_Ptr->HCD_Mutex);
 
 		p_urb->Err = USBH_ERR_URB_ABORT;
 		p_urb->XferLen = 0u;
@@ -3351,7 +3262,10 @@ static int usbh_ep_open(struct usbh_dev *p_dev, struct usbh_if *p_if,
 
 	if (!((p_dev->IsRootHub == true) &&
 	      (p_dev->HC_Ptr->IsVirRootHub == true))) {
-		USBH_HCD_EP_Open(p_dev->HC_Ptr, p_ep, &err);
+		k_mutex_lock(&p_dev->HC_Ptr->HCD_Mutex, K_NO_WAIT);
+		p_dev->HC_Ptr->HC_Drv.API_Ptr->EP_Open(&p_dev->HC_Ptr->HC_Drv,
+						       p_ep, &err);
+		k_mutex_unlock(&p_dev->HC_Ptr->HCD_Mutex);
 		if (err != 0) {
 			return (err);
 		}
@@ -3808,9 +3722,11 @@ static int usbh_urb_submit(struct usbh_urb *p_urb)
 	struct usbh_dev *p_dev;
 
 	p_dev = p_urb->EP_Ptr->DevPtr;
-	USBH_HCD_EP_IsHalt(
-		p_dev->HC_Ptr, /* Check EP's state.                                    */
-		p_urb->EP_Ptr, &ep_is_halt, &err);
+	k_mutex_lock(&p_dev->HC_Ptr->HCD_Mutex, K_NO_WAIT);
+	ep_is_halt = p_dev->HC_Ptr->HC_Drv.API_Ptr->EP_IsHalt(&p_dev->HC_Ptr->HC_Drv,
+							      p_urb->EP_Ptr,
+							      &err);
+	k_mutex_unlock(&p_dev->HC_Ptr->HCD_Mutex);
 	if ((ep_is_halt == true) && (err == 0)) {
 		return (USBH_ERR_EP_INVALID_STATE);
 	}
@@ -3819,7 +3735,10 @@ static int usbh_urb_submit(struct usbh_urb *p_urb)
 		USBH_URB_STATE_SCHEDULED; /* Set URB state to scheduled.                          */
 	p_urb->Err = 0;
 
-	USBH_HCD_URB_Submit(p_dev->HC_Ptr, p_urb, &err);
+	k_mutex_lock(&p_dev->HC_Ptr->HCD_Mutex, K_NO_WAIT);
+	p_dev->HC_Ptr->HC_Drv.API_Ptr->URB_Submit(&p_dev->HC_Ptr->HC_Drv,
+						  p_urb, &err);
+	k_mutex_unlock(&p_dev->HC_Ptr->HCD_Mutex);
 
 	return (err);
 }
@@ -3902,9 +3821,10 @@ static int usbh_dflt_ep_open(struct usbh_dev *p_dev)
 	if (!((p_dev->IsRootHub ==
 	       true) && /* Chk if RH fncts are supported before calling HCD.    */
 	      (p_dev->HC_Ptr->IsVirRootHub == true))) {
-		USBH_HCD_EP_Open(
-			p_dev->HC_Ptr, /* Open EP.                                             */
-			p_ep, &err);
+		k_mutex_lock(&p_dev->HC_Ptr->HCD_Mutex, K_NO_WAIT);
+		p_dev->HC_Ptr->HC_Drv.API_Ptr->EP_Open(&p_dev->HC_Ptr->HC_Drv,
+						       p_ep, &err);
+		k_mutex_unlock(&p_dev->HC_Ptr->HCD_Mutex);
 		if (err != 0) {
 			return (err);
 		}
@@ -3984,11 +3904,15 @@ static int usbh_dev_desc_rd(struct usbh_dev *p_dev)
 			return (USBH_ERR_DESC_INVALID);
 		}
 
-		USBH_HCD_EP_Close(p_dev->HC_Ptr, &p_dev->DfltEP, &err);
+		k_mutex_lock(&p_dev->HC_Ptr->HCD_Mutex, K_NO_WAIT);
+		p_dev->HC_Ptr->HC_Drv.API_Ptr->EP_Close(&p_dev->HC_Ptr->HC_Drv,
+							&p_dev->DfltEP, &err);
+		k_mutex_unlock(&p_dev->HC_Ptr->HCD_Mutex);
 
-		USBH_HCD_EP_Open(
-			p_dev->HC_Ptr, /* Modify EP with new max pkt size.                     */
-			&p_dev->DfltEP, &err);
+		k_mutex_lock(&p_dev->HC_Ptr->HCD_Mutex, K_NO_WAIT);
+		p_dev->HC_Ptr->HC_Drv.API_Ptr->EP_Open(&p_dev->HC_Ptr->HC_Drv,
+						       &p_dev->DfltEP, &err);
+		k_mutex_unlock(&p_dev->HC_Ptr->HCD_Mutex);
 		if (err != 0) {
 			USBH_PRINT_ERR(err);
 			return (err);
@@ -4355,14 +4279,18 @@ static int usbh_dev_addr_set(struct usbh_dev *p_dev)
 		return (0);
 	}
 
-	USBH_HCD_EP_Close(p_dev->HC_Ptr, &p_dev->DfltEP, &err);
+	k_mutex_lock(&p_dev->HC_Ptr->HCD_Mutex, K_NO_WAIT);
+	p_dev->HC_Ptr->HC_Drv.API_Ptr->EP_Close(&p_dev->HC_Ptr->HC_Drv,
+						&p_dev->DfltEP, &err);
+	k_mutex_unlock(&p_dev->HC_Ptr->HCD_Mutex);
 
 	p_dev->DfltEP.DevAddr =
 		p_dev->DevAddr; /* Update addr.                                         */
 
-	USBH_HCD_EP_Open(
-		p_dev->HC_Ptr, /* Modify ctrl EP with new USB addr.                    */
-		&p_dev->DfltEP, &err);
+	k_mutex_lock(&p_dev->HC_Ptr->HCD_Mutex, K_NO_WAIT);
+	p_dev->HC_Ptr->HC_Drv.API_Ptr->EP_Open(&p_dev->HC_Ptr->HC_Drv,
+					       &p_dev->DfltEP, &err);
+	k_mutex_unlock(&p_dev->HC_Ptr->HCD_Mutex);
 	if (err != 0) {
 		return (err);
 	}
