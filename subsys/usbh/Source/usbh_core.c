@@ -171,7 +171,7 @@ int usbh_init(USBH_KERNEL_TASK_INFO *async_task_info,
 	for (ix = 0u; ix < USBH_CFG_MAX_NBR_CLASS_DRVS;
 	     ix++) { /* Clr class drv struct table.                          */
 		usbh_class_drv_list[ix].ClassDrvPtr = NULL;
-		usbh_class_drv_list[ix].NotifyFnctPtr = (USBH_CLASS_NOTIFY_FNCT)0;
+		usbh_class_drv_list[ix].NotifyFnctPtr = NULL;
 		usbh_class_drv_list[ix].NotifyArgPtr = NULL;
 		usbh_class_drv_list[ix].InUse = 0u;
 	}
@@ -179,13 +179,13 @@ int usbh_init(USBH_KERNEL_TASK_INFO *async_task_info,
 	err = usbh_reg_class_drv(&USBH_HUB_Drv, usbh_hub_class_notify,
 				 NULL);
 	if (err != 0) {
-		return (err);
+		return err;
 	}
 
-	err = k_sem_init((struct k_sem *)&USBH_URB_Sem, 0u,
+	err = k_sem_init(&USBH_URB_Sem, 0u,
 			 USBH_OS_SEM_REQUIRED);
 	if (err != 0) {
-		return (err);
+		return err;
 	}
 
 	/* Create a task for processing async req.              */
@@ -209,9 +209,8 @@ int usbh_init(USBH_KERNEL_TASK_INFO *async_task_info,
 	USBH_Host.DevCount = (USBH_MAX_NBR_DEVS - 1);
 	USBH_Host.AsyncURB_Pool = AsyncURB_PPool;
 
-	err = 0;
 
-	return (err);
+	return 0;
 }
 
 /*
