@@ -247,7 +247,7 @@ int usbh_suspend(void)
 
 	USBH_Host.State = USBH_HOST_STATE_SUSPENDED;
 
-	return (err);
+	return err;
 }
 
 /*
