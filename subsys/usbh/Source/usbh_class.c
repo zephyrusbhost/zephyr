@@ -93,7 +93,7 @@ int usbh_reg_class_drv(const struct usbh_class_drv *p_class_drv,
 			usbh_class_drv_list[ix].ClassDrvPtr = p_class_drv;
 			usbh_class_drv_list[ix].NotifyFnctPtr = class_notify_fnct;
 			usbh_class_drv_list[ix].NotifyArgPtr = p_class_notify_ctx;
-			usbh_class_drv_list[ix].InUse = 1u;
+			usbh_class_drv_list[ix].InUse = 1;
 			break;
 		}
 	}
@@ -314,7 +314,7 @@ int usbh_class_drv_conn(struct usbh_dev *p_dev)
 				  p_if,
 				  p_dev->ClassDevPtr,
 				  USBH_CLASS_DEV_STATE_CONN);
-		return (0);
+		return 0;
 	} else if (err != ENOTSUP) {
 
 		LOG_ERR("ERROR: Probe class driver. #%d\r\n", err);
@@ -323,7 +323,7 @@ int usbh_class_drv_conn(struct usbh_dev *p_dev)
 	}
 
 	LOG_DBG("CfgSet");
-	err = usbh_cfg_set(p_dev, 1u); /* Select first cfg.                                    */
+	err = usbh_cfg_set(p_dev, 1); /* Select first cfg.                                    */
 	if (err != 0) {
 		return err;
 	}
