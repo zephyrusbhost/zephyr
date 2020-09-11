@@ -613,22 +613,22 @@ static int usbh_hub_init(struct usbh_hub_dev *p_hub_dev)
 
 	err = usbh_hub_ep_open(p_hub_dev); /* Open intr EP.                                        */
 	if (err != 0) {
-		return (err);
+		return err;
 	}
 
 	err = usbh_hub_desc_get(p_hub_dev); /* Get hub desc.                                        */
 	if (err != 0) {
-		return (err);
+		return err;
 	}
 
 	err = usbh_hub_ports_init(p_hub_dev); /* Init hub ports.                                      */
 	if (err != 0) {
-		return (err);
+		return err;
 	}
 
 	err = usbh_hub_event_req(p_hub_dev); /* Start receiving hub evts.                            */
 
-	return (err);
+	return err;
 }
 
 /*
@@ -1971,7 +1971,7 @@ uint32_t usbh_rh_ctrl_req(struct usbh_hc *p_hc,
 		*p_err = USBH_ERR_HC_IO;
 	}
 
-	return (len);
+	return len;
 }
 
 /*
