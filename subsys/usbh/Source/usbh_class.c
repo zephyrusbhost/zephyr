@@ -100,7 +100,7 @@ int usbh_reg_class_drv(const struct usbh_class_drv *p_class_drv,
 	irq_unlock(key);
 
 	if (ix >= USBH_CFG_MAX_NBR_CLASS_DRVS) { /* List is full.                                        */
-		return (ERANGE);
+		return ERANGE;
 	}
 
 	p_class_drv->GlobalInit(&err);
@@ -130,7 +130,7 @@ int usbh_class_drv_unreg(const struct usbh_class_drv *p_class_drv)
 	int key;
 
 	if (p_class_drv == NULL) {
-		return (EINVAL);
+		return EINVAL;
 	}
 
 	key = irq_lock();
