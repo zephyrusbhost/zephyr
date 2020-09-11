@@ -1037,7 +1037,7 @@ struct usbh_desc_hdr *usbh_cfg_extra_desc_get(struct usbh_cfg *p_cfg,
 
 	if ((p_desc->bLength == USBH_LEN_DESC_CFG) &&
 	    (p_desc->bDescriptorType == USBH_DESC_TYPE_CFG) &&
-	    (p_cfg->CfgDataLen > (p_desc->bLength + 2u))) {
+	    (p_cfg->CfgDataLen > (p_desc->bLength + 2))) {
 		cfg_off = p_desc->bLength;
 		p_extra_desc = usbh_next_desc_get(
 			p_desc,
@@ -1280,7 +1280,7 @@ int usbh_if_desc_get(struct usbh_if *p_if, uint8_t alt_ix,
 		    (p_desc->bDescriptorType == USBH_DESC_TYPE_IF) &&
 		    (alt_ix == ((uint8_t *)p_desc)[3])) {
 			usbh_parse_if_desc(p_if_desc, (void *)p_desc);
-			return (0);
+			return 0;
 		}
 	}
 
@@ -3083,7 +3083,7 @@ uint32_t usbh_str_get(struct usbh_dev *p_dev, uint8_t desc_ix, uint16_t lang_id,
 			return 0;
 		}
 
-		lang_id = sys_get_le16((uint8_t *)&p_buf[2u]); /* Rd language ID into CPU endianness.                  */
+		lang_id = sys_get_le16((uint8_t *)&p_buf[2]); /* Rd language ID into CPU endianness.                  */
 
 		if (lang_id == 0) {
 			*p_err = USBH_ERR_DESC_INVALID;
@@ -3102,15 +3102,15 @@ uint32_t usbh_str_get(struct usbh_dev *p_dev, uint8_t desc_ix, uint16_t lang_id,
 	if (str_len > USBH_LEN_DESC_HDR) {
 		str_len =
 			(p_hdr->bLength -
-			 2u); /* Remove 2-byte header.                                */
+			 2); /* Remove 2-byte header.                                */
 
-		if (str_len > (buf_len - 2u)) {
-			str_len = (buf_len - 2u);
+		if (str_len > (buf_len - 2)) {
+			str_len = (buf_len - 2);
 		}
 
 		for (ix = 0; ix < str_len; ix++) {
 			p_str[ix] = p_str
-				    [2u +
+				    [2 +
 				     ix]; /* Str starts from byte 3 in desc.                      */
 		}
 
@@ -3118,7 +3118,7 @@ uint32_t usbh_str_get(struct usbh_dev *p_dev, uint8_t desc_ix, uint16_t lang_id,
 		p_str[++ix] = 0;
 		str_len =
 			str_len /
-			2u; /* Len of ANSI str.                                     */
+			2; /* Len of ANSI str.                                     */
 
 		return str_len;
 	} else {
@@ -3185,7 +3185,7 @@ static int usbh_ep_open(struct usbh_dev *p_dev, struct usbh_if *p_if,
 	int err;
 
 	if (p_ep->IsOpen == true) {
-		return (0);
+		return 0;
 	}
 
 	usbh_urb_clr(&p_ep->URB);
@@ -3233,7 +3233,7 @@ static int usbh_ep_open(struct usbh_dev *p_dev, struct usbh_if *p_if,
 			    (p_dev->DevSpd == USBH_FULL_SPEED)) {
 				if (p_dev->HubHS_Ptr != NULL) {
 					p_ep->Interval =
-						8u *
+						8 *
 						p_ep->Desc
 						.bInterval;         /* 1 (1ms)frame = 8 (125us)microframe.                  */
 				} else {
@@ -3435,7 +3435,7 @@ static int usbh_async_transfer(struct usbh_ep *p_ep, void *p_buf,
 	     USBH_URB_STATE_SCHEDULED) &&       /* Chk if no xfer is pending or in progress on EP.      */
 	    (p_ep->XferNbrInProgress == 0)) {
 		p_urb = &p_ep->URB;             /* Use URB struct associated to EP.                     */
-	} else if (p_ep->XferNbrInProgress >= 1u) {
+	} else if (p_ep->XferNbrInProgress >= 1) {
 		/* Get a new URB struct from the URB async pool.        */
 		p_async_urb_pool =
 			&p_ep->DevPtr->HC_Ptr->HostPtr->AsyncURB_Pool;
@@ -3796,7 +3796,7 @@ static int usbh_dflt_ep_open(struct usbh_dev *p_dev)
 	p_ep = &p_dev->DfltEP;
 
 	if (p_ep->IsOpen == true) {
-		return (0);
+		return 0;
 	}
 
 	p_ep->DevAddr = 0;
@@ -3805,7 +3805,7 @@ static int usbh_dflt_ep_open(struct usbh_dev *p_dev)
 
 	if (p_dev->DevSpd ==
 	    USBH_LOW_SPEED) { /* See Note (1).                                        */
-		ep_max_pkt_size = 8u;
+		ep_max_pkt_size = 8;
 	} else {
 		ep_max_pkt_size = 64u;
 	}
@@ -3882,7 +3882,8 @@ static int usbh_dev_desc_rd(struct usbh_dev *p_dev)
 		/* ---------- READ FIRST 8 BYTES OF DEV DESC ---------- */
 		USBH_GET_DESC(
 			p_dev, USBH_DESC_TYPE_DEV, 0, p_dev->DevDesc,
-			8u, /* See Note (1).                                        */
+			8,
+			/* See Note (1).                                        */
 			&err);
 		if (err != 0) {
 			usbh_ep_reset(p_dev, NULL);
@@ -3967,7 +3968,7 @@ static int usbh_dev_desc_rd(struct usbh_dev *p_dev)
 		return USBH_ERR_DESC_INVALID;
 	}
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -4219,7 +4220,7 @@ static int usbh_cfg_parse(struct usbh_dev *p_dev, struct usbh_cfg *p_cfg)
 		return USBH_ERR_DESC_INVALID;
 	}
 
-	return (0);
+	return 0;
 }
 
 /*
@@ -4275,7 +4276,7 @@ static int usbh_dev_addr_set(struct usbh_dev *p_dev)
 
 	if ((p_dev->IsRootHub == true) &&
 	    (p_dev->HC_Ptr->IsVirRootHub == true)) {
-		return (0);
+		return 0;
 	}
 
 	k_mutex_lock(&p_dev->HC_Ptr->HCD_Mutex, K_NO_WAIT);
@@ -4294,7 +4295,7 @@ static int usbh_dev_addr_set(struct usbh_dev *p_dev)
 		return err;
 	}
 
-	k_sleep(K_MSEC(2u)); /* See Note (2).                                        */
+	k_sleep(K_MSEC(2)); /* See Note (2).                                        */
 
 	return err;
 }
@@ -4356,7 +4357,7 @@ static uint32_t usbh_str_desc_get(struct usbh_dev *p_dev, uint8_t desc_ix,
 		len = usbh_ctrl_rx(
 			p_dev, USBH_REQ_GET_DESC,
 			USBH_REQ_DIR_DEV_TO_HOST | USBH_REQ_RECIPIENT_DEV,
-			(USBH_DESC_TYPE_STR << 8u) | desc_ix, lang_id, p_buf,
+			(USBH_DESC_TYPE_STR << 8) | desc_ix, lang_id, p_buf,
 			req_len, USBH_CFG_STD_REQ_TIMEOUT, p_err);
 		if ((len == 0) || (*p_err == USBH_ERR_EP_STALL)) {
 			usbh_ep_reset(
