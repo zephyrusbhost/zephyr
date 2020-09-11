@@ -1287,16 +1287,6 @@ typedef  void (*USBH_XFER_CMPL_FNCT)(struct usbh_ep     *p_ep,
 											 (USBH_CFG_STD_REQ_TIMEOUT),			      \
 											 (p_err))
 
-#define  USBH_SET_CFG(p_dev, cfg_nbr, p_err)                                usbh_ctrl_tx((p_dev),					      \
-											 (USBH_REQ_SET_CFG),				      \
-											 (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_RECIPIENT_DEV), \
-											 (cfg_nbr),					      \
-											 0u,						      \
-											 NULL,					      \
-											 0u,						      \
-											 (USBH_CFG_STD_REQ_TIMEOUT),			      \
-											 (p_err))
-
 #define  USBH_SET_IF(p_dev, if_nbr, alt_nbr, p_err)                         usbh_ctrl_tx((p_dev),					     \
 											 (USBH_REQ_SET_IF),				     \
 											 (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_RECIPIENT_IF), \
@@ -1363,8 +1353,8 @@ struct usbh_cfg       *usbh_cfg_get(struct usbh_dev               *p_dev,
 
 uint8_t      usbh_cfg_if_nbr_get(struct usbh_cfg               *p_cfg);
 
-int        usbh_cfg_desc_get(struct usbh_cfg               *p_cfg,
-				  struct usbh_cfg_desc          *p_cfg_desc);
+//int        usbh_cfg_desc_get(struct usbh_cfg               *p_cfg,
+//				  struct usbh_cfg_desc          *p_cfg_desc);
 
 struct usbh_desc_hdr  *usbh_cfg_extra_desc_get(struct usbh_cfg               *p_cfg,
 					       int               *p_err);
