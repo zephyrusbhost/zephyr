@@ -942,7 +942,7 @@ static void usbh_atsamx_hcd_ep_open(struct usbh_hc_drv *p_hc_drv,
 	if (p_reg->STATUS ==
 	    0) { /* Do not open Endpoint if device is disconnected       */
 		LOG_ERR("device not connected");
-		*p_err = USBH_ERR_FAIL;
+		*p_err = EIO;
 		return;
 	}
 }
@@ -1099,7 +1099,7 @@ static void usbh_atsamx_hcd_urb_submit(struct usbh_hc_drv *p_hc_drv,
 
 	if (p_urb->State ==
 	    USBH_URB_STATE_ABORTED) { /* See note 1.                                          */
-		*p_err = USBH_ERR_FAIL;
+		*p_err = EIO;
 		return;
 	}
 
