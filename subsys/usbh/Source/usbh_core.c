@@ -4055,7 +4055,7 @@ static int usbh_cfg_rd(struct usbh_dev *p_dev, uint8_t cfg_ix)
 	if (w_tot_len >
 	    USBH_CFG_MAX_CFG_DATA_LEN) { /* Chk total len of config desc.                        */
 		LOG_ERR("w_tot_len > %d", USBH_CFG_MAX_CFG_DATA_LEN);
-		return USBH_ERR_CFG_MAX_CFG_LEN;
+		return ENOMEM;
 	}
 
 	retry = 3u;
