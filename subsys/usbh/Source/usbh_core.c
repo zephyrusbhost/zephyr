@@ -1102,9 +1102,7 @@ int usbh_if_set(struct usbh_if *p_if, uint8_t alt_nbr)
 		p_if); /* Get IF nbr.                                          */
 	p_dev = p_if->DevPtr;
 
-	USBH_SET_IF(
-		p_dev, if_nbr, alt_nbr,
-		&err); /* See Note (1).                                        */
+	usbh_ctrl_tx(p_dev, USBH_REQ_SET_IF, (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_RECIPIENT_IF), alt_nbr, if_nbr, NULL, 0, USBH_CFG_STD_REQ_TIMEOUT, &err);
 	if (err != 0) {
 		return err;
 	}
@@ -3880,11 +3878,10 @@ static int usbh_dev_desc_rd(struct usbh_dev *p_dev)
 	while (retry > 0) {
 		retry--;
 		/* ---------- READ FIRST 8 BYTES OF DEV DESC ---------- */
-		USBH_GET_DESC(
-			p_dev, USBH_DESC_TYPE_DEV, 0, p_dev->DevDesc,
-			8,
-			/* See Note (1).                                        */
-			&err);
+		usbh_ctrl_tx(p_dev, USBH_REQ_GET_DESC,
+			     (USBH_REQ_DIR_DEV_TO_HOST | USBH_REQ_RECIPIENT_DEV),
+			     (USBH_DESC_TYPE_DEV << 8) | 0, 0, p_dev->DevDesc,
+			     8, USBH_CFG_STD_REQ_TIMEOUT, &err);
 		if (err != 0) {
 			usbh_ep_reset(p_dev, NULL);
 			k_sleep(K_MSEC(100u));
@@ -3923,8 +3920,11 @@ static int usbh_dev_desc_rd(struct usbh_dev *p_dev)
 	while (retry > 0) {
 		retry--;
 		/* ---------------- RD FULL DEV DESC. ----------------- */
-		USBH_GET_DESC(p_dev, USBH_DESC_TYPE_DEV, 0, p_dev->DevDesc,
-			      USBH_LEN_DESC_DEV, &err);
+		usbh_ctrl_tx(p_dev, USBH_REQ_GET_DESC,
+			     (USBH_REQ_DIR_DEV_TO_HOST | USBH_REQ_RECIPIENT_DEV),
+			     (USBH_DESC_TYPE_DEV << 8) | 0, 0, p_dev->DevDesc,
+			     USBH_LEN_DESC_DEV, USBH_CFG_STD_REQ_TIMEOUT,
+			     &err);
 		if (err != 0) {
 			usbh_ep_reset(p_dev, NULL);
 			k_sleep(K_MSEC(100u));
@@ -4022,11 +4022,11 @@ static int usbh_cfg_rd(struct usbh_dev *p_dev, uint8_t cfg_ix)
 	retry = 3u;
 	while (retry > 0) {
 		retry--;
-		b_read = USBH_GET_DESC(
-			p_dev,                  /* See Note (1).                                        */
-			USBH_DESC_TYPE_CFG, cfg_ix, p_cfg->CfgData,
-			USBH_LEN_DESC_CFG,      /* See Note (2).                                        */
-			&err);
+		b_read = usbh_ctrl_tx(p_dev, USBH_REQ_GET_DESC,
+				      (USBH_REQ_DIR_DEV_TO_HOST | USBH_REQ_RECIPIENT_DEV),
+				      (USBH_DESC_TYPE_CFG << 8) | cfg_ix, 0,
+				      p_cfg->CfgData, USBH_LEN_DESC_CFG,
+				      USBH_CFG_STD_REQ_TIMEOUT, &err);
 		if (err != 0) {
 			LOG_ERR("err get descriptor");
 			usbh_ep_reset(p_dev, NULL);
@@ -4061,10 +4061,11 @@ static int usbh_cfg_rd(struct usbh_dev *p_dev, uint8_t cfg_ix)
 	retry = 3u;
 	while (retry > 0) {
 		retry--;
-		b_read = USBH_GET_DESC(
-			p_dev, /* Read full config desc.                               */
-			USBH_DESC_TYPE_CFG, cfg_ix, p_cfg->CfgData, w_tot_len,
-			&err);
+		b_read = usbh_ctrl_tx(p_dev, USBH_REQ_GET_DESC,
+				      (USBH_REQ_DIR_DEV_TO_HOST | USBH_REQ_RECIPIENT_DEV),
+				      (USBH_DESC_TYPE_CFG << 8) | cfg_ix, 0,
+				      p_cfg->CfgData, w_tot_len,
+				      USBH_CFG_STD_REQ_TIMEOUT, &err);
 		if (err != 0) {
 			LOG_ERR("err get full descriptor");
 			usbh_ep_reset(p_dev, NULL);
