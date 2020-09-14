@@ -3440,7 +3440,7 @@ static int usbh_async_transfer(struct usbh_ep *p_ep, void *p_buf,
 		p_urb = k_mem_pool_malloc(p_async_urb_pool,
 					  sizeof(struct usbh_urb));
 		if (p_urb == NULL) {
-			return USBH_ERR_ALLOC;
+			return ENOMEM;
 		}
 
 		usbh_urb_clr(p_urb);
@@ -3456,7 +3456,7 @@ static int usbh_async_transfer(struct usbh_ep *p_ep, void *p_buf,
 		p_async_urb->AsyncURB_NxtPtr =
 			p_urb; /* Insert new URB at end of extra async URB Q.          */
 	} else {
-		return USBH_ERR_UNKNOWN;
+		return EAGAIN;
 	}
 	p_ep->XferNbrInProgress++;
 
@@ -3549,7 +3549,7 @@ static uint16_t usbh_sync_ctrl_transfer(struct usbh_ep *p_ep, uint8_t b_req,
 	}
 
 	if (len != USBH_LEN_SETUP_PKT) {
-		*p_err = USBH_ERR_UNKNOWN;
+		*p_err = EAGAIN;
 		return 0;
 	}
 
@@ -4016,7 +4016,7 @@ static int usbh_cfg_rd(struct usbh_dev *p_dev, uint8_t cfg_ix)
 	p_cfg = usbh_cfg_get(p_dev, cfg_ix);
 	if (p_cfg == NULL) {
 		LOG_ERR("err cfg get");
-		return USBH_ERR_NULL_PTR;
+		return ENOMEM;
 	}
 
 	retry = 3u;

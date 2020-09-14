@@ -36,16 +36,7 @@
 
 typedef  enum  usbh_err {
 
-	USBH_ERR_NONE           =     0u,
 
-	USBH_ERR_FAIL           =     1u,
-	USBH_ERR_ALLOC          =     2u,
-	USBH_ERR_FREE           =     3u,
-	USBH_ERR_INVALID_ARG    =     4u,
-	USBH_ERR_NULL_PTR       =     5u,
-	USBH_ERR_BW_NOT_AVAIL   =     6u,
-	USBH_ERR_NOT_SUPPORTED  =     7u,
-	USBH_ERR_UNKNOWN        =     8u,
 
 
 /*
@@ -54,9 +45,6 @@ typedef  enum  usbh_err {
  *********************************************************************************************************
  */
 
-	USBH_ERR_DEV_ALLOC              =   100u,
-	USBH_ERR_DEV_NOT_READY          =   101u,
-	USBH_ERR_DEV_NOT_RESPONDING     =   102u,
 	USBH_ERR_DEV_NOT_HS             =   103u,
 
 
