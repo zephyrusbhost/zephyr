@@ -1105,7 +1105,7 @@ static void usbh_atsamx_hcd_urb_submit(struct usbh_hc_drv *p_hc_drv,
 
 	pipe_nbr = usbh_atsamx_get_free_pipe(p_drv_data);
 	if (pipe_nbr == ATSAMX_INVALID_PIPE) {
-		*p_err = USBH_ERR_EP_ALLOC;
+		*p_err = EBUSY;
 		return;
 	}
 	LOG_DBG("pipe %d set ep adress %d", pipe_nbr,
