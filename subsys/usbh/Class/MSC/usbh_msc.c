@@ -24,31 +24,12 @@
 *********************************************************************************************************
 */
 
-/*
-*********************************************************************************************************
-*                                            INCLUDE FILES
-*********************************************************************************************************
-*/
-
-#define USBH_MSC_MODULE
-#define MICRIUM_SOURCE
 #include "usbh_msc.h"
 #include "usbh_core.h"
 #include <sys/byteorder.h>
 #include <logging/log.h>
 LOG_MODULE_REGISTER(msc);
 
-/*
-*********************************************************************************************************
-*                                               MODULE
-*********************************************************************************************************
-*/
-
-/*
-*********************************************************************************************************
-*                                            LOCAL DEFINES
-*********************************************************************************************************
-*/
 
 #define USBH_MSC_SIG_CBW 0x43425355u
 #define USBH_MSC_SIG_CSW 0x53425355u
@@ -538,7 +519,7 @@ LOG_MODULE_REGISTER(msc);
 *********************************************************************************************************
 */
 
-typedef struct usbh_msc_cbw
+struct usbh_msc_cbw
 {
     uint32_t dCBWSignature;          /* Signature to identify this data pkt as CBW.          */
     uint32_t dCBWTag;                /* Command block tag sent by host.                      */
@@ -547,7 +528,7 @@ typedef struct usbh_msc_cbw
     uint8_t bCBWLUN;                /* LUN to which the command block is being sent.        */
     uint8_t bCBWCBLength;           /* Length of CBWCB in bytes.                            */
     uint8_t CBWCB[16];              /* Command block to be executed by device.              */
-} USBH_MSC_CBW;
+};
 
 /*
 *********************************************************************************************************
@@ -557,13 +538,13 @@ typedef struct usbh_msc_cbw
 *********************************************************************************************************
 */
 
-typedef struct usbh_msc_csw
+struct usbh_msc_csw
 {
     uint32_t dCSWSignature;   /* Signature to identify this data pkt as CSW.          */
     uint32_t dCSWTag;         /* Device shall set this to value in CBW's dCBWTag.     */
     uint32_t dCSWDataResidue; /* Difference between expected & actual nbr data bytes. */
     uint8_t bCSWStatus;      /* Indicates success or failure of command.             */
-} USBH_MSC_CSW;
+};
 
 /*
 *********************************************************************************************************
@@ -586,23 +567,23 @@ static int8_t USBH_MSC_DevCount;
 *********************************************************************************************************
 */
 
-static void USBH_MSC_GlobalInit(int *p_err);
+static void usbh_msc_global_init(int *p_err);
 
-static void *USBH_MSC_ProbeIF(struct usbh_dev *p_dev,
+static void *usbh_msc_probe_if(struct usbh_dev *p_dev,
                               struct usbh_if *p_if,
                               int *p_err);
 
-static void USBH_MSC_Disconn(void *p_class_dev);
+static void usbh_msc_disconn(void *p_class_dev);
 
-static void USBH_MSC_Suspend(void *p_class_dev);
+static void usbh_msc_supsend(void *p_class_dev);
 
-static void USBH_MSC_Resume(void *p_class_dev);
+static void usbh_msc_resume(void *p_class_dev);
 
-static void USBH_MSC_DevClr(USBH_MSC_DEV *p_msc_dev);
+static void usbh_msc_dev_clr(USBH_MSC_DEV *p_msc_dev);
 
-static int USBH_MSC_EP_Open(USBH_MSC_DEV *p_msc_dev);
+static int usbh_msc_ep_open(USBH_MSC_DEV *p_msc_dev);
 
-static void USBH_MSC_EP_Close(USBH_MSC_DEV *p_msc_dev);
+static void usbh_msc_ep_close(USBH_MSC_DEV *p_msc_dev);
 
 static uint32_t usbh_msc_xfer_cmd(USBH_MSC_DEV *p_msc_dev,
                                    uint8_t lun,
@@ -613,34 +594,34 @@ static uint32_t usbh_msc_xfer_cmd(USBH_MSC_DEV *p_msc_dev,
                                    uint32_t data_len,
                                    int *p_err);
 
-static int USBH_MSC_TxCBW(USBH_MSC_DEV *p_msc_dev,
-                               USBH_MSC_CBW *p_msc_cbw);
+static int usbh_msc_tx_cbw(USBH_MSC_DEV *p_msc_dev,
+                               struct usbh_msc_cbw *p_msc_cbw);
 
-static int USBH_MSC_RxCSW(USBH_MSC_DEV *p_msc_dev,
-                               USBH_MSC_CSW *p_msc_csw);
+static int usbh_msc_rx_csw(USBH_MSC_DEV *p_msc_dev,
+                               struct usbh_msc_csw *p_msc_csw);
 
-static int USBH_MSC_TxData(USBH_MSC_DEV *p_msc_dev,
+static int usbh_msc_tx_data(USBH_MSC_DEV *p_msc_dev,
                                 void *p_arg,
                                 uint32_t data_len);
 
-static int USBH_MSC_RxData(USBH_MSC_DEV *p_msc_dev,
+static int usbh_msc_rx_data(USBH_MSC_DEV *p_msc_dev,
                                 void *p_arg,
                                 uint32_t data_len);
 
-static int USBH_MSC_ResetRecovery(USBH_MSC_DEV *p_msc_dev);
+static int usbh_msc_rx_rst_rcv(USBH_MSC_DEV *p_msc_dev);
 
-static int USBH_MSC_BulkOnlyReset(USBH_MSC_DEV *p_msc_dev);
+static int usbh_msc_rx_bulk_only_reset(USBH_MSC_DEV *p_msc_dev);
 
-static void usbh_msc_fmt_cbw(USBH_MSC_CBW *p_cbw,
-                            void *p_buf_dest);
+static void usbh_msc_fmt_cbw(struct usbh_msc_cbw *p_cbw,
+			     void *p_buf_dest);
 
-static void usbh_msc_parse_csw(USBH_MSC_CSW *p_csw,
-                              void *p_buf_src);
+static void usbh_msc_parse_csw(struct usbh_msc_csw *p_csw,
+			       void *p_buf_src);
 
-static int USBH_SCSI_CMD_TestUnitReady(USBH_MSC_DEV *p_msc_dev,
+static int usbh_scsi_cmd_test_unit_rdy(USBH_MSC_DEV *p_msc_dev,
                                             uint8_t lun);
 
-static int USBH_SCSI_CMD_StdInquiry(USBH_MSC_DEV *p_msc_dev,
+static int usbh_scsi_cmd_std_inquiry(USBH_MSC_DEV *p_msc_dev,
                                          USBH_MSC_INQUIRY_INFO *p_msc_inquiry_info,
                                          uint8_t lun);
 
@@ -691,12 +672,12 @@ static uint32_t usbh_scsi_write(USBH_MSC_DEV *p_msc_dev,
 
 const struct usbh_class_drv USBH_MSC_ClassDrv = {
     (uint8_t *)"MASS STORAGE",
-    USBH_MSC_GlobalInit,
+    usbh_msc_global_init,
     0,
-    USBH_MSC_ProbeIF,
-    USBH_MSC_Suspend,
-    USBH_MSC_Resume,
-    USBH_MSC_Disconn};
+    usbh_msc_probe_if,
+    usbh_msc_supsend,
+    usbh_msc_resume,
+    usbh_msc_disconn};
 
 /*
 *********************************************************************************************************
@@ -725,7 +706,7 @@ const struct usbh_class_drv USBH_MSC_ClassDrv = {
 *               USBH_ERR_OS_ABORT,                      If mutex wait aborted.
 *               USBH_ERR_OS_FAIL,                       Otherwise.
 *
-*                                                       ----- RETURNED BY USBH_SCSI_CMD_TestUnitReady -----
+*                                                       ----- RETURNED BY usbh_scsi_cmd_test_unit_rdy -----
 *               USBH_ERR_MSC_CMD_FAILED                 Device reports command failed.
 *               USBH_ERR_MSC_CMD_PHASE                  Device reports command phase error.
 *               USBH_ERR_MSC_IO                         Unable to receive CSW.
@@ -790,7 +771,7 @@ int usbh_msc_init(USBH_MSC_DEV *p_msc_dev,
         while (retry > 0u)
         {
             /* --------------- TEST_UNIT_READY CMD ---------------- */
-            err = USBH_SCSI_CMD_TestUnitReady(p_msc_dev, lun);
+            err = usbh_scsi_cmd_test_unit_rdy(p_msc_dev, lun);
             if (err == 0)
             { /* MSC dev ready for comm.                              */
                 unit_ready = true;
@@ -980,7 +961,7 @@ uint8_t usbh_msc_max_lun_get(USBH_MSC_DEV *p_msc_dev,
 *                       USBH_ERR_OS_ABORT,                      If mutex wait aborted.
 *                       USBH_ERR_OS_FAIL,                       Otherwise.
 *
-*                                                               ---- RETURNED BY USBH_SCSI_CMD_TestUnitReady() ----
+*                                                               ---- RETURNED BY usbh_scsi_cmd_test_unit_rdy() ----
 *                       USBH_ERR_MSC_CMD_FAILED                 Device reports command failed.
 *                       USBH_ERR_MSC_CMD_PHASE                  Device reports command phase error.
 *                       USBH_ERR_MSC_IO                         Unable to receive CSW.
@@ -1020,7 +1001,7 @@ bool usbh_msc_unit_rdy_test(USBH_MSC_DEV *p_msc_dev,
         (p_msc_dev->RefCnt > 0u))
     {
 
-        *p_err = USBH_SCSI_CMD_TestUnitReady(p_msc_dev, 0u);
+        *p_err = usbh_scsi_cmd_test_unit_rdy(p_msc_dev, 0u);
         if (*p_err == 0)
         {
             unit_rdy = 1;
@@ -1170,7 +1151,7 @@ int usbh_msc_std_inquiry(USBH_MSC_DEV *p_msc_dev,
         (p_msc_dev->RefCnt > 0u))
     {
 
-        err = USBH_SCSI_CMD_StdInquiry(p_msc_dev, /* Issue INQUIRY SCSI command using Bulk xfers.         */
+        err = usbh_scsi_cmd_std_inquiry(p_msc_dev, /* Issue INQUIRY SCSI command using Bulk xfers.         */
                                        p_msc_inquiry_info,
                                        lun);
         if (err == 0)
@@ -1476,7 +1457,7 @@ uint32_t usbh_msc_write(USBH_MSC_DEV *p_msc_dev,
 
 /*
 *********************************************************************************************************
-*                                        USBH_MSC_GlobalInit()
+*                                        usbh_msc_global_init()
 *
 * Description : Initialize MSC.
 *
@@ -1491,7 +1472,7 @@ uint32_t usbh_msc_write(USBH_MSC_DEV *p_msc_dev,
 *********************************************************************************************************
 */
 
-static void USBH_MSC_GlobalInit(int *p_err)
+static void usbh_msc_global_init(int *p_err)
 {
 
     uint8_t ix;
@@ -1499,7 +1480,7 @@ static void USBH_MSC_GlobalInit(int *p_err)
     /* --------------- INIT MSC DEV STRUCT ---------------- */
     for (ix = 0u; ix < USBH_MSC_CFG_MAX_DEV; ix++)
     {
-        USBH_MSC_DevClr(&USBH_MSC_DevArr[ix]);
+        usbh_msc_dev_clr(&USBH_MSC_DevArr[ix]);
         k_mutex_init(&USBH_MSC_DevArr[ix].HMutex);
     }
     USBH_MSC_DevCount = (USBH_MSC_CFG_MAX_DEV - 1);
@@ -1508,7 +1489,7 @@ static void USBH_MSC_GlobalInit(int *p_err)
 
 /*
 *********************************************************************************************************
-*                                         USBH_MSC_ProbeIF()
+*                                         usbh_msc_probe_if()
 *
 * Description : Determine if interface is mass storage class interface.
 *
@@ -1525,7 +1506,7 @@ static void USBH_MSC_GlobalInit(int *p_err)
 *                                                           ----- RETURNED BY USBH_IF_DescGet() : -----
 *                       USBH_ERR_INVALID_ARG,               Invalid argument passed to 'alt_ix'.
 *
-*                                                           ----- RETURNED BY USBH_MSC_EP_Open -----
+*                                                           ----- RETURNED BY usbh_msc_ep_open -----
 *                       USBH_ERR_EP_ALLOC,                  If USBH_CFG_MAX_NBR_EPS reached.
 *                       USBH_ERR_EP_NOT_FOUND,              If endpoint with given type and direction not found.
 *                       USBH_ERR_OS_SIGNAL_CREATE,          if mutex or semaphore creation failed.
@@ -1538,7 +1519,7 @@ static void USBH_MSC_GlobalInit(int *p_err)
 *********************************************************************************************************
 */
 
-static void *USBH_MSC_ProbeIF(struct usbh_dev *p_dev,
+static void *usbh_msc_probe_if(struct usbh_dev *p_dev,
                               struct usbh_if *p_if,
                               int *p_err)
 {
@@ -1569,13 +1550,13 @@ static void *USBH_MSC_ProbeIF(struct usbh_dev *p_dev,
             p_msc_dev = &USBH_MSC_DevArr[USBH_MSC_DevCount--];
         }
 
-        USBH_MSC_DevClr(p_msc_dev);
+        usbh_msc_dev_clr(p_msc_dev);
         p_msc_dev->RefCnt = (uint8_t)0;
         p_msc_dev->State = USBH_CLASS_DEV_STATE_CONN;
         p_msc_dev->DevPtr = p_dev;
         p_msc_dev->IF_Ptr = p_if;
 
-        *p_err = USBH_MSC_EP_Open(p_msc_dev); /* Open Bulk in/out EPs.                                */
+        *p_err = usbh_msc_ep_open(p_msc_dev); /* Open Bulk in/out EPs.                                */
         if (*p_err != 0)
         {
             USBH_MSC_DevCount++;
@@ -1596,7 +1577,7 @@ static void *USBH_MSC_ProbeIF(struct usbh_dev *p_dev,
 
 /*
 *********************************************************************************************************
-*                                         USBH_MSC_Disconn()
+*                                         usbh_msc_disconn()
 *
 * Description : Handle disconnection of mass storage device.
 *
@@ -1608,7 +1589,7 @@ static void *USBH_MSC_ProbeIF(struct usbh_dev *p_dev,
 *********************************************************************************************************
 */
 
-static void USBH_MSC_Disconn(void *p_class_dev)
+static void usbh_msc_disconn(void *p_class_dev)
 {
     USBH_MSC_DEV *p_msc_dev;
 
@@ -1617,7 +1598,7 @@ static void USBH_MSC_Disconn(void *p_class_dev)
     k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
 
     p_msc_dev->State = USBH_CLASS_DEV_STATE_DISCONN;
-    USBH_MSC_EP_Close(p_msc_dev); /* Close bulk in/out EPs.                               */
+    usbh_msc_ep_close(p_msc_dev); /* Close bulk in/out EPs.                               */
 
     if (p_msc_dev->RefCnt == 0u)
     { /* Release MSC dev.                                     */
@@ -1630,7 +1611,7 @@ static void USBH_MSC_Disconn(void *p_class_dev)
 
 /*
 *********************************************************************************************************
-*                                         USBH_MSC_Suspend()
+*                                         usbh_msc_supsend()
 *
 * Description : Suspend MSC device. Waits for completion of any pending I/O.
 *
@@ -1642,7 +1623,7 @@ static void USBH_MSC_Disconn(void *p_class_dev)
 *********************************************************************************************************
 */
 
-static void USBH_MSC_Suspend(void *p_class_dev)
+static void usbh_msc_supsend(void *p_class_dev)
 {
     USBH_MSC_DEV *p_msc_dev;
 
@@ -1657,7 +1638,7 @@ static void USBH_MSC_Suspend(void *p_class_dev)
 
 /*
 *********************************************************************************************************
-*                                          USBH_MSC_Resume()
+*                                          usbh_msc_resume()
 *
 * Description : Resume MSC device.
 *
@@ -1669,7 +1650,7 @@ static void USBH_MSC_Suspend(void *p_class_dev)
 *********************************************************************************************************
 */
 
-static void USBH_MSC_Resume(void *p_class_dev)
+static void usbh_msc_resume(void *p_class_dev)
 {
     USBH_MSC_DEV *p_msc_dev;
 
@@ -1684,7 +1665,7 @@ static void USBH_MSC_Resume(void *p_class_dev)
 
 /*
 *********************************************************************************************************
-*                                          USBH_MSC_DevClr()
+*                                          usbh_msc_dev_clr()
 *
 * Description : Clear USBH_MSC_DEV structure.
 *
@@ -1696,7 +1677,7 @@ static void USBH_MSC_Resume(void *p_class_dev)
 *********************************************************************************************************
 */
 
-static void USBH_MSC_DevClr(USBH_MSC_DEV *p_msc_dev)
+static void usbh_msc_dev_clr(USBH_MSC_DEV *p_msc_dev)
 {
     p_msc_dev->DevPtr = NULL;
     p_msc_dev->IF_Ptr = NULL;
@@ -1706,7 +1687,7 @@ static void USBH_MSC_DevClr(USBH_MSC_DEV *p_msc_dev)
 
 /*
 *********************************************************************************************************
-*                                         USBH_MSC_EP_Open()
+*                                         usbh_msc_ep_open()
 *
 * Description : Open bulk IN & OUT endpoints.
 *
@@ -1730,7 +1711,7 @@ static void USBH_MSC_DevClr(USBH_MSC_DEV *p_msc_dev)
 *********************************************************************************************************
 */
 
-static int USBH_MSC_EP_Open(USBH_MSC_DEV *p_msc_dev)
+static int usbh_msc_ep_open(USBH_MSC_DEV *p_msc_dev)
 {
     int err;
 
@@ -1747,7 +1728,7 @@ static int USBH_MSC_EP_Open(USBH_MSC_DEV *p_msc_dev)
                            &p_msc_dev->BulkOutEP);
     if (err != 0)
     {
-        USBH_MSC_EP_Close(p_msc_dev);
+        usbh_msc_ep_close(p_msc_dev);
     }
 
     return (err);
@@ -1755,7 +1736,7 @@ static int USBH_MSC_EP_Open(USBH_MSC_DEV *p_msc_dev)
 
 /*
 *********************************************************************************************************
-*                                         USBH_MSC_EP_Close()
+*                                         usbh_msc_ep_close()
 *
 * Description : Close bulk IN & OUT endpoints.
 *
@@ -1767,7 +1748,7 @@ static int USBH_MSC_EP_Open(USBH_MSC_DEV *p_msc_dev)
 *********************************************************************************************************
 */
 
-static void USBH_MSC_EP_Close(USBH_MSC_DEV *p_msc_dev)
+static void usbh_msc_ep_close(USBH_MSC_DEV *p_msc_dev)
 {
     usbh_ep_close(&p_msc_dev->BulkInEP);
     usbh_ep_close(&p_msc_dev->BulkOutEP);
@@ -1800,25 +1781,25 @@ static void USBH_MSC_EP_Close(USBH_MSC_DEV *p_msc_dev)
 *                           USBH_ERR_MSC_CMD_PHASE                  Device reports command phase error.
 *                           USBH_ERR_MSC_IO                         Unable to receive CSW.
 *
-*                                                                   ----- RETURNED BY USBH_MSC_RxCSW() : -----
+*                                                                   ----- RETURNED BY usbh_msc_rx_csw() : -----
 *                           USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
 *                           USBH_ERR_EP_INVALID_TYPE                Endpoint type is not Bulk or direction is not IN.
 *                           USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
 *                           Host controller drivers error code,     Otherwise.
 *
-*                                                                   ----- RETURNED BY USBH_MSC_RxData() : -----
+*                                                                   ----- RETURNED BY usbh_msc_rx_data() : -----
 *                           USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
 *                           USBH_ERR_EP_INVALID_TYPE                Endpoint type is not Bulk or direction is not IN.
 *                           USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
 *                           Host controller drivers error code,     Otherwise.
 *
-*                                                                   ----- RETURNED BY USBH_MSC_TxCBW() : -----
+*                                                                   ----- RETURNED BY usbh_msc_tx_cbw() : -----
 *                           USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
 *                           USBH_ERR_EP_INVALID_TYPE                Endpoint type is not Bulk or direction is not OUT.
 *                           USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
 *                           Host controller drivers error code,     Otherwise.
 *
-*                                                                   ----- RETURNED BY USBH_MSC_TxData() : -----
+*                                                                   ----- RETURNED BY usbh_msc_tx_data() : -----
 *                           USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
 *                           USBH_ERR_EP_INVALID_TYPE                Endpoint type is not Bulk or direction is not OUT.
 *                           USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
@@ -1840,8 +1821,8 @@ static uint32_t usbh_msc_xfer_cmd(USBH_MSC_DEV *p_msc_dev,
                                    int *p_err)
 {
     uint32_t xfer_len;
-    USBH_MSC_CBW msc_cbw;
-    USBH_MSC_CSW msc_csw;
+    struct usbh_msc_cbw msc_cbw;
+    struct usbh_msc_csw msc_csw;
 
     /* Prepare CBW.                                         */
     msc_cbw.dCBWSignature = USBH_MSC_SIG_CBW;
@@ -1855,7 +1836,7 @@ static uint32_t usbh_msc_xfer_cmd(USBH_MSC_DEV *p_msc_dev,
              p_cb,
              cb_len);
 
-    *p_err = USBH_MSC_TxCBW(p_msc_dev, &msc_cbw); /* Send CBW to dev.                                     */
+    *p_err = usbh_msc_tx_cbw(p_msc_dev, &msc_cbw); /* Send CBW to dev.                                     */
     if (*p_err != 0)
     {
         return (0u);
@@ -1864,13 +1845,13 @@ static uint32_t usbh_msc_xfer_cmd(USBH_MSC_DEV *p_msc_dev,
     switch (dir)
     {
     case USBH_MSC_DATA_DIR_OUT:
-        *p_err = USBH_MSC_TxData(p_msc_dev,
+        *p_err = usbh_msc_tx_data(p_msc_dev,
                                  p_arg,
                                  data_len); /* Send data to dev.                                    */
         break;
 
     case USBH_MSC_DATA_DIR_IN:
-        *p_err = USBH_MSC_RxData(p_msc_dev,
+        *p_err = usbh_msc_rx_data(p_msc_dev,
                                  p_arg,
                                  data_len); /* Receive data from dev.                               */
         break;
@@ -1889,13 +1870,13 @@ static uint32_t usbh_msc_xfer_cmd(USBH_MSC_DEV *p_msc_dev,
             0u,
             USBH_MSC_LEN_CSW);
 
-    *p_err = USBH_MSC_RxCSW(p_msc_dev, &msc_csw); /* Receive CSW.                                         */
+    *p_err = usbh_msc_rx_csw(p_msc_dev, &msc_csw); /* Receive CSW.                                         */
 
     if ((msc_csw.dCSWSignature != USBH_MSC_SIG_CSW) ||
         (msc_csw.bCSWStatus == USBH_MSC_BCSWSTATUS_PHASE_ERROR) ||
         (msc_csw.dCSWTag != msc_cbw.dCBWTag))
     {
-        USBH_MSC_ResetRecovery(p_msc_dev); /* Invalid CSW, issue reset recovery.                   */
+        usbh_msc_rx_rst_rcv(p_msc_dev); /* Invalid CSW, issue reset recovery.                   */
     }
 
     if (*p_err == 0)
@@ -1932,7 +1913,7 @@ static uint32_t usbh_msc_xfer_cmd(USBH_MSC_DEV *p_msc_dev,
 
 /*
 *********************************************************************************************************
-*                                          USBH_MSC_TxCBW()
+*                                          usbh_msc_tx_cbw()
 *
 * Description : Send Command Block Wrapper (CBW) to device through bulk OUT endpoint.
 *
@@ -1952,8 +1933,8 @@ static uint32_t usbh_msc_xfer_cmd(USBH_MSC_DEV *p_msc_dev,
 *********************************************************************************************************
 */
 
-static int USBH_MSC_TxCBW(USBH_MSC_DEV *p_msc_dev,
-                               USBH_MSC_CBW *p_msc_cbw)
+static int usbh_msc_tx_cbw(USBH_MSC_DEV *p_msc_dev,
+                               struct usbh_msc_cbw *p_msc_cbw)
 {
     uint8_t cmd_buf[USBH_MSC_LEN_CBW];
     int err;
@@ -1979,7 +1960,7 @@ static int USBH_MSC_TxCBW(USBH_MSC_DEV *p_msc_dev,
 
         if (err == USBH_ERR_EP_STALL)
         {
-            USBH_MSC_ResetRecovery(p_msc_dev);
+            usbh_msc_rx_rst_rcv(p_msc_dev);
         }
     }
     else
@@ -1992,7 +1973,7 @@ static int USBH_MSC_TxCBW(USBH_MSC_DEV *p_msc_dev,
 
 /*
 *********************************************************************************************************
-*                                          USBH_MSC_RxCSW()
+*                                          usbh_msc_rx_csw()
 *
 * Description : Receive Command Status Word (CSW) from device through bulk IN endpoint.
 *
@@ -2012,8 +1993,8 @@ static int USBH_MSC_TxCBW(USBH_MSC_DEV *p_msc_dev,
 *********************************************************************************************************
 */
 
-static int USBH_MSC_RxCSW(USBH_MSC_DEV *p_msc_dev,
-                               USBH_MSC_CSW *p_msc_csw)
+static int usbh_msc_rx_csw(USBH_MSC_DEV *p_msc_dev,
+                               struct usbh_msc_csw *p_msc_csw)
 {
     uint32_t retry;
     uint8_t status_buf[USBH_MSC_LEN_CSW];
@@ -2059,7 +2040,7 @@ static int USBH_MSC_RxCSW(USBH_MSC_DEV *p_msc_dev,
 
 /*
 *********************************************************************************************************
-*                                          USBH_MSC_TxData()
+*                                          usbh_msc_tx_data()
 *
 * Description : Send data to device through bulk OUT endpoint.
 *
@@ -2083,7 +2064,7 @@ static int USBH_MSC_RxCSW(USBH_MSC_DEV *p_msc_dev,
 *********************************************************************************************************
 */
 
-static int USBH_MSC_TxData(USBH_MSC_DEV *p_msc_dev,
+static int usbh_msc_tx_data(USBH_MSC_DEV *p_msc_dev,
                                 void *p_arg,
                                 uint32_t data_len)
 {
@@ -2152,7 +2133,7 @@ static int USBH_MSC_TxData(USBH_MSC_DEV *p_msc_dev,
         }
         else
         {
-            (void)USBH_MSC_ResetRecovery(p_msc_dev);
+            (void)usbh_msc_rx_rst_rcv(p_msc_dev);
         }
     }
 
@@ -2161,7 +2142,7 @@ static int USBH_MSC_TxData(USBH_MSC_DEV *p_msc_dev,
 
 /*
 *********************************************************************************************************
-*                                          USBH_MSC_RxData()
+*                                          usbh_msc_rx_data()
 *
 * Description : Receive data from device through bulk IN endpoint.
 *
@@ -2183,7 +2164,7 @@ static int USBH_MSC_TxData(USBH_MSC_DEV *p_msc_dev,
 *********************************************************************************************************
 */
 
-static int USBH_MSC_RxData(USBH_MSC_DEV *p_msc_dev,
+static int usbh_msc_rx_data(USBH_MSC_DEV *p_msc_dev,
                                 void *p_arg,
                                 uint32_t data_len)
 
@@ -2254,7 +2235,7 @@ static int USBH_MSC_RxData(USBH_MSC_DEV *p_msc_dev,
         }
         else
         {
-            (void)USBH_MSC_ResetRecovery(p_msc_dev);
+            (void)usbh_msc_rx_rst_rcv(p_msc_dev);
             err = USBH_ERR_MSC_IO;
         }
     }
@@ -2264,7 +2245,7 @@ static int USBH_MSC_RxData(USBH_MSC_DEV *p_msc_dev,
 
 /*
 *********************************************************************************************************
-*                                      USBH_MSC_ResetRecovery()
+*                                      usbh_msc_rx_rst_rcv()
 *
 * Description : Apply bulk-only reset recovery to device on phase error & clear stalled endpoints.
 *
@@ -2272,7 +2253,7 @@ static int USBH_MSC_RxData(USBH_MSC_DEV *p_msc_dev,
 *
 * Return(s)   : USBH_ERR_NONE,                          If reset recovery procedure is successful.
 *
-*                                                       ----- RETURNED BY USBH_MSC_BulkOnlyReset -----
+*                                                       ----- RETURNED BY usbh_msc_rx_bulk_only_reset -----
 *               USBH_ERR_UNKNOWN,                       Unknown error occurred.
 *               USBH_ERR_INVALID_ARG,                   Invalid argument passed to 'p_ep'.
 *               USBH_ERR_EP_INVALID_STATE,              Endpoint is not opened.
@@ -2292,11 +2273,11 @@ static int USBH_MSC_RxData(USBH_MSC_DEV *p_msc_dev,
 *********************************************************************************************************
 */
 
-static int USBH_MSC_ResetRecovery(USBH_MSC_DEV *p_msc_dev)
+static int usbh_msc_rx_rst_rcv(USBH_MSC_DEV *p_msc_dev)
 {
     int err;
 
-    err = USBH_MSC_BulkOnlyReset(p_msc_dev);
+    err = usbh_msc_rx_bulk_only_reset(p_msc_dev);
     if (err != 0)
     {
         return (err);
@@ -2315,7 +2296,7 @@ static int USBH_MSC_ResetRecovery(USBH_MSC_DEV *p_msc_dev)
 
 /*
 *********************************************************************************************************
-*                                      USBH_MSC_BulkOnlyReset()
+*                                      usbh_msc_rx_bulk_only_reset()
 *
 * Description : Issue bulk-only reset.
 *
@@ -2328,7 +2309,7 @@ static int USBH_MSC_ResetRecovery(USBH_MSC_DEV *p_msc_dev)
 *********************************************************************************************************
 */
 
-static int USBH_MSC_BulkOnlyReset(USBH_MSC_DEV *p_msc_dev)
+static int usbh_msc_rx_bulk_only_reset(USBH_MSC_DEV *p_msc_dev)
 {
     int err;
     uint8_t if_nbr;
@@ -2357,7 +2338,7 @@ static int USBH_MSC_BulkOnlyReset(USBH_MSC_DEV *p_msc_dev)
 
 /*
 *********************************************************************************************************
-*                                     USBH_SCSI_CMD_StdInquiry()
+*                                     usbh_scsi_cmd_std_inquiry()
 *
 * Description : Read inquiry data of device.
 *
@@ -2383,7 +2364,7 @@ static int USBH_MSC_BulkOnlyReset(USBH_MSC_DEV *p_msc_dev)
 *********************************************************************************************************
 */
 
-static int USBH_SCSI_CMD_StdInquiry(USBH_MSC_DEV *p_msc_dev,
+static int usbh_scsi_cmd_std_inquiry(USBH_MSC_DEV *p_msc_dev,
                                          USBH_MSC_INQUIRY_INFO *p_msc_inquiry_info,
                                          uint8_t lun)
 {
@@ -2429,7 +2410,7 @@ static int USBH_SCSI_CMD_StdInquiry(USBH_MSC_DEV *p_msc_dev,
 
 /*
 *********************************************************************************************************
-*                                    USBH_SCSI_CMD_TestUnitReady()
+*                                    usbh_scsi_cmd_test_unit_rdy()
 *
 * Description : Read number of sectors & sector size.
 *
@@ -2453,7 +2434,7 @@ static int USBH_SCSI_CMD_StdInquiry(USBH_MSC_DEV *p_msc_dev,
 *********************************************************************************************************
 */
 
-static int USBH_SCSI_CMD_TestUnitReady(USBH_MSC_DEV *p_msc_dev,
+static int usbh_scsi_cmd_test_unit_rdy(USBH_MSC_DEV *p_msc_dev,
                                             uint8_t lun)
 {
     int err;
@@ -2868,13 +2849,13 @@ static uint32_t usbh_scsi_write(USBH_MSC_DEV *p_msc_dev,
 *********************************************************************************************************
 */
 
-static void usbh_msc_fmt_cbw(USBH_MSC_CBW *p_cbw,
-                            void *p_buf_dest)
+static void usbh_msc_fmt_cbw(struct usbh_msc_cbw *p_cbw,
+                             void *p_buf_dest)
 {
     uint8_t i;
-    USBH_MSC_CBW *p_buf_dest_cbw;
+    struct usbh_msc_cbw *p_buf_dest_cbw;
 
-    p_buf_dest_cbw = (USBH_MSC_CBW *)p_buf_dest;
+    p_buf_dest_cbw = (struct usbh_msc_cbw *)p_buf_dest;
 
     p_buf_dest_cbw->dCBWSignature = sys_get_le32((uint8_t *)&p_cbw->dCBWSignature);
     p_buf_dest_cbw->dCBWTag = sys_get_le32((uint8_t *)&p_cbw->dCBWTag);
@@ -2905,12 +2886,12 @@ static void usbh_msc_fmt_cbw(USBH_MSC_CBW *p_cbw,
 *********************************************************************************************************
 */
 
-static void usbh_msc_parse_csw(USBH_MSC_CSW *p_csw,
-                              void *p_buf_src)
+static void usbh_msc_parse_csw(struct usbh_msc_csw *p_csw,
+                               void *p_buf_src)
 {
-    USBH_MSC_CSW *p_buf_src_cbw;
+    struct usbh_msc_csw *p_buf_src_cbw;
 
-    p_buf_src_cbw = (USBH_MSC_CSW *)p_buf_src;
+    p_buf_src_cbw = (struct usbh_msc_csw *)p_buf_src;
 
     p_csw->dCSWSignature = sys_get_le32((uint8_t *)&p_buf_src_cbw->dCSWSignature);
     p_csw->dCSWTag = sys_get_le32((uint8_t *)&p_buf_src_cbw->dCSWTag);
