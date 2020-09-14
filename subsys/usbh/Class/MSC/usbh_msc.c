@@ -837,12 +837,12 @@ int usbh_msc_init(struct usbh_msc_dev *p_msc_dev,
         if (unit_ready == false)
         {
             LOG_ERR("Device is not ready\r\n");
-            err = USBH_ERR_DEV_NOT_READY;
+            err = ENODEV;
         }
     }
     else
     {
-        err = USBH_ERR_DEV_NOT_READY; /* MSC dev enum not completed by host.                  */
+        err = ENODEV; /* MSC dev enum not completed by host.                  */
     }
 
     k_mutex_unlock(&p_msc_dev->HMutex); /* Unlock access to MSC dev.                            */
@@ -932,7 +932,7 @@ uint8_t usbh_msc_max_lun_get(struct usbh_msc_dev *p_msc_dev,
     }
     else
     { /* MSC dev enumeration not completed by host.           */
-        *p_err = USBH_ERR_DEV_NOT_READY;
+        *p_err = ENODEV;
     }
 
     k_mutex_unlock(&p_msc_dev->HMutex);
@@ -1018,7 +1018,7 @@ bool usbh_msc_unit_rdy_test(struct usbh_msc_dev *p_msc_dev,
     }
     else
     { /* MSC dev enumeration not completed by host.           */
-        *p_err = USBH_ERR_DEV_NOT_READY;
+        *p_err = ENODEV;
     }
 
     k_mutex_unlock(&p_msc_dev->HMutex);
@@ -1090,7 +1090,7 @@ int usbh_msc_capacity_rd(struct usbh_msc_dev *p_msc_dev,
     }
     else
     { /* MSC dev enumeration not completed by host.           */
-        err = USBH_ERR_DEV_NOT_READY;
+        err = ENODEV;
     }
 
     k_mutex_unlock(&p_msc_dev->HMutex); /* Unlock access to MSC dev.                            */
@@ -1160,12 +1160,12 @@ int usbh_msc_std_inquiry(struct usbh_msc_dev *p_msc_dev,
         }
         else
         {
-            err = USBH_ERR_NOT_SUPPORTED;
+            err = ENOTSUP;
         }
     }
     else
     {
-        err = USBH_ERR_DEV_NOT_READY;
+        err = ENODEV;
     }
 
     k_mutex_unlock(&p_msc_dev->HMutex);
@@ -1350,7 +1350,7 @@ uint32_t usbh_msc_read(struct usbh_msc_dev *p_msc_dev,
     else
     {
         xfer_len = 0;
-        *p_err = USBH_ERR_DEV_NOT_READY;
+        *p_err = ENODEV;
     }
 
     k_mutex_unlock(&p_msc_dev->HMutex);
@@ -1439,7 +1439,7 @@ uint32_t usbh_msc_write(struct usbh_msc_dev *p_msc_dev,
     else
     {
         xfer_len = 0;
-        *p_err = USBH_ERR_DEV_NOT_READY;
+        *p_err = ENODEV;
     }
 
     k_mutex_unlock(&p_msc_dev->HMutex);
@@ -1542,7 +1542,7 @@ static void *usbh_msc_probe_if(struct usbh_dev *p_dev,
         /* Alloc dev from MSC dev pool.                         */
         if (USBH_MSC_DevCount < 0)
         {
-            *p_err = USBH_ERR_DEV_ALLOC;
+            *p_err = ENOMEM;
             return NULL;
         }
         else
@@ -2094,7 +2094,7 @@ static int usbh_msc_tx_data(struct usbh_msc_dev *p_msc_dev,
                                   &err);
         switch (err)
         {
-        case USBH_ERR_DEV_NOT_RESPONDING:
+        case EIO :
         case USBH_ERR_HC_IO:
             retry_cnt++;
             if (retry_cnt >= USBH_MSC_MAX_TRANSFER_RETRY)
@@ -2195,7 +2195,7 @@ static int usbh_msc_rx_data(struct usbh_msc_dev *p_msc_dev,
                                   &err);
         switch (err)
         {
-        case USBH_ERR_DEV_NOT_RESPONDING:
+        case EIO :
         case USBH_ERR_HC_IO:
             retry_cnt++;
             if (retry_cnt >= USBH_MSC_MAX_TRANSFER_RETRY)
@@ -2597,7 +2597,7 @@ static int usbh_scsi_get_sense_info(struct usbh_msc_dev *p_msc_dev,
             *p_sense_key = 0;
             *p_asc = 0;
             *p_ascq = 0;
-            err = USBH_ERR_UNKNOWN;
+            err = EAGAIN;
             LOG_ERR("ERROR Invalid SENSE response from device - ");
             LOG_ERR("xfer_len : %d, sense_data[0] : %02X\r\n", xfer_len, sense_data[0]);
         }
