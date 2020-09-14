@@ -1352,7 +1352,7 @@ uint8_t *usbh_if_extra_desc_get(struct usbh_if *p_if, uint8_t alt_ix,
 				if (*p_data_len == 0) {
 					return NULL;
 				} else {
-					return ((uint8_t *)p_data);
+					return (uint8_t *)p_data;
 				}
 			}
 		}
@@ -3892,7 +3892,7 @@ static int usbh_dev_desc_rd(struct usbh_dev *p_dev)
 			break;
 		}
 	}
-	if (err != (0)) {
+	if (err != 0) {
 		return err;
 	}
 
@@ -3914,7 +3914,7 @@ static int usbh_dev_desc_rd(struct usbh_dev *p_dev)
 						       &p_dev->DfltEP, &err);
 		k_mutex_unlock(&p_dev->HC_Ptr->HCD_Mutex);
 		if (err != 0) {
-			USBH_PRINT_ERR(err);
+			LOG_ERR("%d", err);
 			return err;
 		}
 	}
@@ -4259,10 +4259,8 @@ static int usbh_dev_addr_set(struct usbh_dev *p_dev)
 	retry = 3u;
 	while (retry > 0) {
 		retry--;
-
-		USBH_SET_ADDR(
-			p_dev, p_dev->DevAddr,
-			&err); /* See Note (1).                                        */
+		
+		usbh_ctrl_tx(p_dev, USBH_REQ_SET_ADDR, (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_RECIPIENT_DEV), p_dev->DevAddr, 0, NULL, 0, USBH_CFG_STD_REQ_TIMEOUT, &err); /* See Note (1). */
 		if (err != 0) {
 			usbh_ep_reset(p_dev, NULL);
 			k_sleep(K_MSEC(100u));
@@ -4703,7 +4701,6 @@ static void usbh_async_task(void *p_arg, void *p_arg2, void *p_arg3)
 	struct usbh_urb *p_urb;
 	int key;
 
-	(void)p_arg;
 
 	while (true) {
 		k_sem_take(&USBH_URB_Sem, K_FOREVER); /* Wait for URBs processed by HC.                       */
