@@ -751,24 +751,24 @@ int usbh_msc_init(USBH_MSC_DEV *p_msc_dev,
     /* ------------------- VALIDATE ARG ------------------- */
     if (p_msc_dev == NULL)
     {
-        return (USBH_ERR_INVALID_ARG);
+        return EINVAL;
     }
 
     err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT); /* Acquire MSC dev lock to avoid multiple access.       */
     if (err != 0)
     {
-        return (err);
+        return err;
     }
     /* See Note #1.                                         */
     if ((p_msc_dev->State == USBH_CLASS_DEV_STATE_CONN) &&
-        (p_msc_dev->RefCnt > 0u))
+        (p_msc_dev->RefCnt > 0))
     {
 
         LOG_INF("Mass Storage device (LUN %d) is initializing ...\r\n", lun);
         retry = 40u; /* Host attempts 20 times to know if MSC dev ready.     */
         unit_ready = false;
 
-        while (retry > 0u)
+        while (retry > 0)
         {
             /* --------------- TEST_UNIT_READY CMD ---------------- */
             err = usbh_scsi_cmd_test_unit_rdy(p_msc_dev, lun);
@@ -847,7 +847,7 @@ int usbh_msc_init(USBH_MSC_DEV *p_msc_dev,
 
     k_mutex_unlock(&p_msc_dev->HMutex); /* Unlock access to MSC dev.                            */
 
-    return (err);
+    return err;
 }
 
 /*
@@ -888,23 +888,23 @@ uint8_t usbh_msc_max_lun_get(USBH_MSC_DEV *p_msc_dev,
                                int *p_err)
 {
     uint8_t if_nbr;
-    uint8_t lun_nbr = 0u;
+    uint8_t lun_nbr = 0;
 
     /* ------------------ VALIDATE ARG -------------------- */
     if (p_msc_dev == NULL)
     {
-        *p_err = USBH_ERR_INVALID_ARG;
-        return (0u);
+        *p_err = EINVAL;
+        return 0;
     }
 
     *p_err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
     if (*p_err != 0)
     {
-        return (0u);
+        return 0;
     }
     /* --------------- GET_MAX_LUN REQUEST ---------------- */
     if ((p_msc_dev->State == USBH_CLASS_DEV_STATE_CONN) &&
-        (p_msc_dev->RefCnt > 0u))
+        (p_msc_dev->RefCnt > 0))
     {
 
         if_nbr = usbh_if_nbr_get(p_msc_dev->IF_Ptr); /* Get IF nbr matching to MSC dev.                      */
@@ -912,10 +912,10 @@ uint8_t usbh_msc_max_lun_get(USBH_MSC_DEV *p_msc_dev,
         usbh_ctrl_rx(p_msc_dev->DevPtr,        /* Send GET_MAX_LUN request via a Ctrl xfer.            */
                     USBH_MSC_REQ_GET_MAX_LUN, /* See Note #1.                                         */
                     (USBH_REQ_DIR_DEV_TO_HOST | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_IF),
-                    0u,
+                    0,
                     if_nbr,
                     (void *)&lun_nbr,
-                    1u,
+                    1,
                     USBH_MSC_TIMEOUT,
                     p_err);
         if (*p_err != 0)
@@ -925,7 +925,7 @@ uint8_t usbh_msc_max_lun_get(USBH_MSC_DEV *p_msc_dev,
 
             if (*p_err == USBH_ERR_EP_STALL)
             { /* Device may stall if no multiple LUNs support.        */
-                lun_nbr = 0u;
+                lun_nbr = 0;
                 *p_err = 0;
             }
         }
@@ -937,7 +937,7 @@ uint8_t usbh_msc_max_lun_get(USBH_MSC_DEV *p_msc_dev,
 
     k_mutex_unlock(&p_msc_dev->HMutex);
 
-    return (lun_nbr);
+    return lun_nbr;
 }
 
 /*
@@ -987,21 +987,21 @@ bool usbh_msc_unit_rdy_test(USBH_MSC_DEV *p_msc_dev,
     /* ------------------- VALIDATE PTR ------------------- */
     if (p_msc_dev == NULL)
     {
-        *p_err = USBH_ERR_INVALID_ARG;
-        return (unit_rdy);
+        *p_err = EINVAL;
+        return unit_rdy;
     }
 
     *p_err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
     if (*p_err != 0)
     {
-        return (unit_rdy);
+        return unit_rdy;
     }
     /* --------------- TEST_UNIT_READY REQ ---------------- */
     if ((p_msc_dev->State == USBH_CLASS_DEV_STATE_CONN) &&
-        (p_msc_dev->RefCnt > 0u))
+        (p_msc_dev->RefCnt > 0))
     {
 
-        *p_err = usbh_scsi_cmd_test_unit_rdy(p_msc_dev, 0u);
+        *p_err = usbh_scsi_cmd_test_unit_rdy(p_msc_dev, 0);
         if (*p_err == 0)
         {
             unit_rdy = 1;
@@ -1023,7 +1023,7 @@ bool usbh_msc_unit_rdy_test(USBH_MSC_DEV *p_msc_dev,
 
     k_mutex_unlock(&p_msc_dev->HMutex);
 
-    return (unit_rdy);
+    return unit_rdy;
 }
 
 /*
@@ -1068,19 +1068,19 @@ int usbh_msc_capacity_rd(USBH_MSC_DEV *p_msc_dev,
         (p_nbr_blks == NULL) ||
         (p_blk_size == NULL))
     {
-        err = USBH_ERR_INVALID_ARG;
-        return (err);
+        err = EINVAL;
+        return err;
     }
 
     err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
     if (err != 0)
     {
-        return (err);
+        return err;
     }
 
     /* -------------- READ_CAPACITY REQUEST --------------- */
     if ((p_msc_dev->State == USBH_CLASS_DEV_STATE_CONN) &&
-        (p_msc_dev->RefCnt > 0u))
+        (p_msc_dev->RefCnt > 0))
     {
 
         err = usbh_scsi_cmd_capacity_read(p_msc_dev, /* Issue READ_CAPACITY SCSI cmd using bulk xfers.       */
@@ -1095,7 +1095,7 @@ int usbh_msc_capacity_rd(USBH_MSC_DEV *p_msc_dev,
 
     k_mutex_unlock(&p_msc_dev->HMutex); /* Unlock access to MSC dev.                            */
 
-    return (err);
+    return err;
 }
 
 /*
@@ -1136,19 +1136,19 @@ int usbh_msc_std_inquiry(USBH_MSC_DEV *p_msc_dev,
     if ((p_msc_dev == NULL) ||
         (p_msc_inquiry_info == NULL))
     {
-        err = USBH_ERR_INVALID_ARG;
-        return (err);
+        err = EINVAL;
+        return err;
     }
 
     err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
     if (err != 0)
     {
-        return (err);
+        return err;
     }
 
     /* ----------------- INQUIRY REQUEST ------------------ */
     if ((p_msc_dev->State == USBH_CLASS_DEV_STATE_CONN) &&
-        (p_msc_dev->RefCnt > 0u))
+        (p_msc_dev->RefCnt > 0))
     {
 
         err = usbh_scsi_cmd_std_inquiry(p_msc_dev, /* Issue INQUIRY SCSI command using Bulk xfers.         */
@@ -1170,7 +1170,7 @@ int usbh_msc_std_inquiry(USBH_MSC_DEV *p_msc_dev,
 
     k_mutex_unlock(&p_msc_dev->HMutex);
 
-    return (err);
+    return err;
 }
 
 /*
@@ -1200,20 +1200,20 @@ int usbh_msc_ref_add(USBH_MSC_DEV *p_msc_dev)
     /* ------------------- VALIDATE ARG ------------------- */
     if (p_msc_dev == NULL)
     {
-        return (USBH_ERR_INVALID_ARG);
+        return EINVAL;
     }
 
     err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
     if (err != 0)
     {
-        return (err);
+        return err;
     }
 
     p_msc_dev->RefCnt++;
 
     k_mutex_unlock(&p_msc_dev->HMutex);
 
-    return (err);
+    return err;
 }
 
 /*
@@ -1243,20 +1243,20 @@ int usbh_msc_ref_rel(USBH_MSC_DEV *p_msc_dev)
     /* ------------------- VALIDATE PTR ------------------- */
     if (p_msc_dev == NULL)
     {
-        return (USBH_ERR_INVALID_ARG);
+        return EINVAL;
     }
 
     err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
     if (err != 0)
     {
-        return (err);
+        return err;
     }
 
-    if (p_msc_dev->RefCnt > 0u)
+    if (p_msc_dev->RefCnt > 0)
     {
         p_msc_dev->RefCnt--;
 
-        if ((p_msc_dev->RefCnt == 0u) &&
+        if ((p_msc_dev->RefCnt == 0) &&
             (p_msc_dev->State == USBH_CLASS_DEV_STATE_DISCONN))
         {
             /* Release MSC dev if no more ref on it.                */
@@ -1266,7 +1266,7 @@ int usbh_msc_ref_rel(USBH_MSC_DEV *p_msc_dev)
 
     k_mutex_unlock(&p_msc_dev->HMutex);
 
-    return (err);
+    return err;
 }
 
 /*
@@ -1326,18 +1326,18 @@ uint32_t usbh_msc_read(USBH_MSC_DEV *p_msc_dev,
 
     if (p_msc_dev == NULL)
     {
-        *p_err = USBH_ERR_INVALID_ARG;
-        return (0u);
+        *p_err = EINVAL;
+        return 0;
     }
 
     *p_err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
     if (*p_err != 0)
     {
-        return (0u);
+        return 0;
     }
 
     if ((p_msc_dev->State == USBH_CLASS_DEV_STATE_CONN) &&
-        (p_msc_dev->RefCnt > 0u))
+        (p_msc_dev->RefCnt > 0))
     {
         xfer_len = usbh_scsi_read(p_msc_dev,
                                 lun,
@@ -1349,13 +1349,13 @@ uint32_t usbh_msc_read(USBH_MSC_DEV *p_msc_dev,
     }
     else
     {
-        xfer_len = 0u;
+        xfer_len = 0;
         *p_err = USBH_ERR_DEV_NOT_READY;
     }
 
     k_mutex_unlock(&p_msc_dev->HMutex);
 
-    return (xfer_len);
+    return xfer_len;
 }
 
 /*
@@ -1415,14 +1415,14 @@ uint32_t usbh_msc_write(USBH_MSC_DEV *p_msc_dev,
 
     if (p_msc_dev == NULL)
     {
-        *p_err = USBH_ERR_INVALID_ARG;
-        return (0u);
+        *p_err = EINVAL;
+        return 0;
     }
 
     *p_err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
     if (*p_err != 0)
     {
-        return (0u);
+        return 0;
     }
 
     if ((p_msc_dev->State == USBH_CLASS_DEV_STATE_CONN) &&
@@ -1438,13 +1438,13 @@ uint32_t usbh_msc_write(USBH_MSC_DEV *p_msc_dev,
     }
     else
     {
-        xfer_len = 0u;
+        xfer_len = 0;
         *p_err = USBH_ERR_DEV_NOT_READY;
     }
 
     k_mutex_unlock(&p_msc_dev->HMutex);
 
-    return (xfer_len);
+    return xfer_len;
 }
 
 /*
@@ -1478,7 +1478,7 @@ static void usbh_msc_global_init(int *p_err)
     uint8_t ix;
 
     /* --------------- INIT MSC DEV STRUCT ---------------- */
-    for (ix = 0u; ix < USBH_MSC_CFG_MAX_DEV; ix++)
+    for (ix = 0; ix < USBH_MSC_CFG_MAX_DEV; ix++)
     {
         usbh_msc_dev_clr(&USBH_MSC_DevArr[ix]);
         k_mutex_init(&USBH_MSC_DevArr[ix].HMutex);
@@ -1527,10 +1527,10 @@ static void *usbh_msc_probe_if(struct usbh_dev *p_dev,
     USBH_MSC_DEV *p_msc_dev;
 
     p_msc_dev = NULL;
-    *p_err = usbh_if_desc_get(p_if, 0u, &p_if_desc);
+    *p_err = usbh_if_desc_get(p_if, 0, &p_if_desc);
     if (*p_err != 0)
     {
-        return (NULL);
+        return NULL;
     }
     /* Chk for class, sub class and protocol.               */
     if ((p_if_desc.bInterfaceClass == USBH_CLASS_CODE_MASS_STORAGE) &&
@@ -1543,7 +1543,7 @@ static void *usbh_msc_probe_if(struct usbh_dev *p_dev,
         if (USBH_MSC_DevCount < 0)
         {
             *p_err = USBH_ERR_DEV_ALLOC;
-            return (NULL);
+            return NULL;
         }
         else
         {
@@ -1600,7 +1600,7 @@ static void usbh_msc_disconn(void *p_class_dev)
     p_msc_dev->State = USBH_CLASS_DEV_STATE_DISCONN;
     usbh_msc_ep_close(p_msc_dev); /* Close bulk in/out EPs.                               */
 
-    if (p_msc_dev->RefCnt == 0u)
+    if (p_msc_dev->RefCnt == 0)
     { /* Release MSC dev.                                     */
         k_mutex_unlock(&p_msc_dev->HMutex);
         USBH_MSC_DevCount++;
@@ -1682,7 +1682,7 @@ static void usbh_msc_dev_clr(USBH_MSC_DEV *p_msc_dev)
     p_msc_dev->DevPtr = NULL;
     p_msc_dev->IF_Ptr = NULL;
     p_msc_dev->State = USBH_CLASS_DEV_STATE_NONE;
-    p_msc_dev->RefCnt = 0u;
+    p_msc_dev->RefCnt = 0;
 }
 
 /*
@@ -1720,7 +1720,7 @@ static int usbh_msc_ep_open(USBH_MSC_DEV *p_msc_dev)
                           &p_msc_dev->BulkInEP);
     if (err != 0)
     {
-        return (err);
+        return err;
     }
 
     err = usbh_bulk_out_open(p_msc_dev->DevPtr,
@@ -1731,7 +1731,7 @@ static int usbh_msc_ep_open(USBH_MSC_DEV *p_msc_dev)
         usbh_msc_ep_close(p_msc_dev);
     }
 
-    return (err);
+    return err;
 }
 
 /*
@@ -1826,9 +1826,9 @@ static uint32_t usbh_msc_xfer_cmd(USBH_MSC_DEV *p_msc_dev,
 
     /* Prepare CBW.                                         */
     msc_cbw.dCBWSignature = USBH_MSC_SIG_CBW;
-    msc_cbw.dCBWTag = 0u;
+    msc_cbw.dCBWTag = 0;
     msc_cbw.dCBWDataTransferLength = data_len;
-    msc_cbw.bmCBWFlags = (dir == USBH_MSC_DATA_DIR_NONE) ? 0u : dir;
+    msc_cbw.bmCBWFlags = (dir == USBH_MSC_DATA_DIR_NONE) ? 0 : dir;
     msc_cbw.bCBWLUN = lun;
     msc_cbw.bCBWCBLength = cb_len;
 
@@ -1839,7 +1839,7 @@ static uint32_t usbh_msc_xfer_cmd(USBH_MSC_DEV *p_msc_dev,
     *p_err = usbh_msc_tx_cbw(p_msc_dev, &msc_cbw); /* Send CBW to dev.                                     */
     if (*p_err != 0)
     {
-        return (0u);
+        return 0;
     }
 
     switch (dir)
@@ -1863,11 +1863,11 @@ static uint32_t usbh_msc_xfer_cmd(USBH_MSC_DEV *p_msc_dev,
 
     if (*p_err != 0)
     {
-        return (0u);
+        return 0;
     }
 
     memset((void *)&msc_csw,
-            0u,
+            0,
             USBH_MSC_LEN_CSW);
 
     *p_err = usbh_msc_rx_csw(p_msc_dev, &msc_csw); /* Receive CSW.                                         */
@@ -1908,7 +1908,7 @@ static uint32_t usbh_msc_xfer_cmd(USBH_MSC_DEV *p_msc_dev,
     /* Actual len of data xfered to dev.                    */
     xfer_len = msc_cbw.dCBWDataTransferLength - msc_csw.dCSWDataResidue;
 
-    return (xfer_len);
+    return xfer_len;
 }
 
 /*
@@ -1968,7 +1968,7 @@ static int usbh_msc_tx_cbw(USBH_MSC_DEV *p_msc_dev,
         err = 0;
     }
 
-    return (err);
+    return err;
 }
 
 /*
@@ -2002,10 +2002,10 @@ static int usbh_msc_rx_csw(USBH_MSC_DEV *p_msc_dev,
     uint32_t len;
 
     err = 0;
-    retry = 2u;
+    retry = 2;
 
     /* Receive CSW from dev through bulk IN EP.             */
-    while (retry > 0u)
+    while (retry > 0)
     {
         len = usbh_bulk_rx(&p_msc_dev->BulkInEP,
                           (void *)&status_buf[0],
@@ -2035,7 +2035,7 @@ static int usbh_msc_rx_csw(USBH_MSC_DEV *p_msc_dev,
         }
     }
 
-    return (err);
+    return err;
 }
 
 /*
@@ -2077,13 +2077,13 @@ static int usbh_msc_tx_data(USBH_MSC_DEV *p_msc_dev,
     uint32_t data_len_tx;
 
     err = 0;
-    p_data_ix = 0u;
+    p_data_ix = 0;
     p_data_08 = (uint8_t *)p_arg;
     data_len_rem = data_len;
-    retry_cnt = 0u;
+    retry_cnt = 0;
     retry = true;
 
-    while ((data_len_rem > 0u) &&
+    while ((data_len_rem > 0) &&
            (retry == true))
     {
 
@@ -2111,7 +2111,7 @@ static int usbh_msc_tx_data(USBH_MSC_DEV *p_msc_dev,
             }
             else
             {
-                data_len_rem = 0u;
+                data_len_rem = 0;
             }
             break;
 
@@ -2137,7 +2137,7 @@ static int usbh_msc_tx_data(USBH_MSC_DEV *p_msc_dev,
         }
     }
 
-    return (err);
+    return err;
 }
 
 /*
@@ -2178,13 +2178,13 @@ static int usbh_msc_rx_data(USBH_MSC_DEV *p_msc_dev,
     uint32_t data_len_rx;
 
     err = 0;
-    p_data_ix = 0u;
+    p_data_ix = 0;
     p_data_08 = (uint8_t *)p_arg;
     data_len_rem = data_len;
-    retry_cnt = 0u;
+    retry_cnt = 0;
     retry = true;
 
-    while ((data_len_rem > 0u) &&
+    while ((data_len_rem > 0) &&
            (retry == true))
     {
 
@@ -2212,7 +2212,7 @@ static int usbh_msc_rx_data(USBH_MSC_DEV *p_msc_dev,
             }
             else
             {
-                data_len_rem = 0u;
+                data_len_rem = 0;
             }
             break;
 
@@ -2240,7 +2240,7 @@ static int usbh_msc_rx_data(USBH_MSC_DEV *p_msc_dev,
         }
     }
 
-    return (err);
+    return err;
 }
 
 /*
@@ -2280,18 +2280,18 @@ static int usbh_msc_rx_rst_rcv(USBH_MSC_DEV *p_msc_dev)
     err = usbh_msc_rx_bulk_only_reset(p_msc_dev);
     if (err != 0)
     {
-        return (err);
+        return err;
     }
 
     err = usbh_ep_stall_clr(&p_msc_dev->BulkInEP);
     if (err != 0)
     {
-        return (err);
+        return err;
     }
 
     err = usbh_ep_stall_clr(&p_msc_dev->BulkOutEP);
 
-    return (err);
+    return err;
 }
 
 /*
@@ -2320,10 +2320,10 @@ static int usbh_msc_rx_bulk_only_reset(USBH_MSC_DEV *p_msc_dev)
     usbh_ctrl_tx(p_msc_dev->DevPtr,
                 USBH_MSC_REQ_MASS_STORAGE_RESET, /*  See Note(s) #1                                      */
                 (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_IF),
-                0u,
+                0,
                 if_nbr,
                 NULL,
-                0u,
+                0,
                 USBH_MSC_TIMEOUT,
                 &err);
     if (err != 0)
@@ -2333,7 +2333,7 @@ static int usbh_msc_rx_bulk_only_reset(USBH_MSC_DEV *p_msc_dev)
                       NULL);
     }
 
-    return (err);
+    return err;
 }
 
 /*
@@ -2374,11 +2374,11 @@ static int usbh_scsi_cmd_std_inquiry(USBH_MSC_DEV *p_msc_dev,
 
     /* ------- PREPARE SCSI CMD BLOCK (SEE NOTE #1) ------- */
     cmd[0] = USBH_SCSI_CMD_INQUIRY; /* Operation code (0x12).                               */
-    cmd[1] = 0u;                    /* Std inquiry data.                                    */
-    cmd[2] = 0u;                    /* Page code.                                           */
-    cmd[3] = 0u;                    /* Alloc len.                                           */
+    cmd[1] = 0;                    /* Std inquiry data.                                    */
+    cmd[2] = 0;                    /* Page code.                                           */
+    cmd[3] = 0;                    /* Alloc len.                                           */
     cmd[4] = 0x24u;                 /* Alloc len.                                           */
-    cmd[5] = 0u;                    /* Ctrl.                                                */
+    cmd[5] = 0;                    /* Ctrl.                                                */
 
     /* ------------------ SEND SCSI CMD ------------------- */
     usbh_msc_xfer_cmd(p_msc_dev,
@@ -2396,7 +2396,7 @@ static int usbh_scsi_cmd_std_inquiry(USBH_MSC_DEV *p_msc_dev,
 
         memcpy((void *)p_msc_inquiry_info->Vendor_ID,
                  (void *)&data[8],
-                 8u);
+                 8);
 
         memcpy((void *)p_msc_inquiry_info->Product_ID,
                  (void *)&data[16],
@@ -2405,7 +2405,7 @@ static int usbh_scsi_cmd_std_inquiry(USBH_MSC_DEV *p_msc_dev,
         p_msc_inquiry_info->ProductRevisionLevel = sys_get_le32(&data[32]);
     }
 
-    return (err);
+    return err;
 }
 
 /*
@@ -2442,11 +2442,11 @@ static int usbh_scsi_cmd_test_unit_rdy(USBH_MSC_DEV *p_msc_dev,
     /* See Note #1.                                         */
     /* ------------ PREPARE SCSI COMMAND BLOCK ------------ */
     cmd[0] = USBH_SCSI_CMD_TEST_UNIT_READY; /* Operation code (0x00).                               */
-    cmd[1] = 0u;                            /* Reserved.                                            */
-    cmd[2] = 0u;                            /* Reserved.                                            */
-    cmd[3] = 0u;                            /* Reserved.                                            */
-    cmd[4] = 0u;                            /* Reserved.                                            */
-    cmd[5] = 0u;                            /* Control.                                             */
+    cmd[1] = 0;                            /* Reserved.                                            */
+    cmd[2] = 0;                            /* Reserved.                                            */
+    cmd[3] = 0;                            /* Reserved.                                            */
+    cmd[4] = 0;                            /* Reserved.                                            */
+    cmd[5] = 0;                            /* Control.                                             */
 
     usbh_msc_xfer_cmd(p_msc_dev, /* ---------------- SEND SCSI COMMAND ----------------- */
                      lun,
@@ -2454,10 +2454,10 @@ static int usbh_scsi_cmd_test_unit_rdy(USBH_MSC_DEV *p_msc_dev,
                      (void *)&cmd[0],
                      6u,
                      NULL,
-                     0u,
+                     0,
                      &err);
 
-    return (err);
+    return err;
 }
 
 /*
@@ -2505,11 +2505,11 @@ static uint32_t usbh_scsi_cmd_req_sense(USBH_MSC_DEV *p_msc_dev,
     /* See Note(s) #1                                       */
     /* ------------ PREPARE SCSI COMMAND BLOCK ------------ */
     cmd[0] = USBH_SCSI_CMD_REQUEST_SENSE; /* Operation code (0x03).                               */
-    cmd[1] = 0u;                          /* Reserved.                                            */
-    cmd[2] = 0u;                          /* Reserved.                                            */
-    cmd[3] = 0u;                          /* Reserved.                                            */
+    cmd[1] = 0;                          /* Reserved.                                            */
+    cmd[2] = 0;                          /* Reserved.                                            */
+    cmd[3] = 0;                          /* Reserved.                                            */
     cmd[4] = (uint8_t)data_len;        /* Allocation length.                                   */
-    cmd[5] = 0u;                          /* Ctrl.                                                */
+    cmd[5] = 0;                          /* Ctrl.                                                */
 
     /* ------------------ SEND SCSI CMD ------------------- */
     xfer_len = usbh_msc_xfer_cmd(p_msc_dev,
@@ -2521,7 +2521,7 @@ static uint32_t usbh_scsi_cmd_req_sense(USBH_MSC_DEV *p_msc_dev,
                                 data_len,
                                 p_err);
 
-    return (xfer_len);
+    return xfer_len;
 }
 
 /*
@@ -2594,9 +2594,9 @@ static int usbh_scsi_get_sense_info(USBH_MSC_DEV *p_msc_dev,
         }
         else
         {
-            *p_sense_key = 0u;
-            *p_asc = 0u;
-            *p_ascq = 0u;
+            *p_sense_key = 0;
+            *p_asc = 0;
+            *p_ascq = 0;
             err = USBH_ERR_UNKNOWN;
             LOG_ERR("ERROR Invalid SENSE response from device - ");
             LOG_ERR("xfer_len : %d, sense_data[0] : %02X\r\n", xfer_len, sense_data[0]);
@@ -2604,13 +2604,13 @@ static int usbh_scsi_get_sense_info(USBH_MSC_DEV *p_msc_dev,
     }
     else
     {
-        *p_sense_key = 0u;
-        *p_asc = 0u;
-        *p_ascq = 0u;
+        *p_sense_key = 0;
+        *p_asc = 0;
+        *p_ascq = 0;
         LOG_ERR("%d", err);
     }
 
-    return (err);
+    return err;
 }
 
 /*
@@ -2654,15 +2654,15 @@ static int usbh_scsi_cmd_capacity_read(USBH_MSC_DEV *p_msc_dev,
     /* See Note #1.                                         */
     /* -------------- PREPARE SCSI CMD BLOCK -------------- */
     cmd[0] = USBH_SCSI_CMD_READ_CAPACITY; /* Operation code (0x25).                               */
-    cmd[1] = 0u;                          /* Reserved.                                            */
-    cmd[2] = 0u;                          /* Logical Block Address (MSB).                         */
-    cmd[3] = 0u;                          /* Logical Block Address.                               */
-    cmd[4] = 0u;                          /* Logical Block Address.                               */
-    cmd[5] = 0u;                          /* Logical Block Address (LSB).                         */
-    cmd[6] = 0u;                          /* Reserved.                                            */
-    cmd[7] = 0u;                          /* Reserved.                                            */
-    cmd[8] = 0u;                          /* ----------------------- PMI. ----------------------- */
-    cmd[9] = 0u;                          /* Control.                                             */
+    cmd[1] = 0;                          /* Reserved.                                            */
+    cmd[2] = 0;                          /* Logical Block Address (MSB).                         */
+    cmd[3] = 0;                          /* Logical Block Address.                               */
+    cmd[4] = 0;                          /* Logical Block Address.                               */
+    cmd[5] = 0;                          /* Logical Block Address (LSB).                         */
+    cmd[6] = 0;                          /* Reserved.                                            */
+    cmd[7] = 0;                          /* Reserved.                                            */
+    cmd[8] = 0;                          /* ----------------------- PMI. ----------------------- */
+    cmd[9] = 0;                          /* Control.                                             */
 
     usbh_msc_xfer_cmd(p_msc_dev, /* ------------------ SEND SCSI CMD ------------------- */
                      lun,
@@ -2670,16 +2670,16 @@ static int usbh_scsi_cmd_capacity_read(USBH_MSC_DEV *p_msc_dev,
                      (void *)cmd,
                      10u,
                      (void *)data,
-                     8u,
+                     8,
                      &err);
     if (err == 0)
     { /* -------------- HANDLE DEVICE RESPONSE -------------- */
         sys_memcpy_swap(p_nbr_blks, &data[0], sizeof(uint32_t));
-        *p_nbr_blks += 1u;
+        *p_nbr_blks += 1;
         sys_memcpy_swap(p_blk_size, &data[4], sizeof(uint32_t));
     }
 
-    return (err);
+    return err;
 }
 
 /*
@@ -2735,11 +2735,11 @@ static uint32_t usbh_scsi_read(USBH_MSC_DEV *p_msc_dev,
     /* See Note #1.                                         */
     /* -------------- PREPARE SCSI CMD BLOCK -------------- */
     cmd[0] = USBH_SCSI_CMD_READ_10;                  /* Operation code (0x28).                               */
-    cmd[1] = 0u;                                     /* Reserved.                                            */
+    cmd[1] = 0;                                     /* Reserved.                                            */
     sys_memcpy_swap(&cmd[2], &blk_addr, sizeof(uint32_t)); /* Logcal Block Address (LBA).                          */
-    cmd[6] = 0u;                                     /* Reserved.                                            */
+    cmd[6] = 0;                                     /* Reserved.                                            */
     sys_memcpy_swap(&cmd[7], &nbr_blks, sizeof(uint16_t)); /* Transfer length (number of logical blocks).          */
-    cmd[9] = 0u;                                     /* Control.                                             */
+    cmd[9] = 0;                                     /* Control.                                             */
 
     xfer_len = usbh_msc_xfer_cmd(p_msc_dev, /* ---------------- SEND SCSI COMMAND ----------------- */
                                 lun,
@@ -2754,7 +2754,7 @@ static uint32_t usbh_scsi_read(USBH_MSC_DEV *p_msc_dev,
         xfer_len = (uint32_t)0;
     }
 
-    return (xfer_len);
+    return xfer_len;
 }
 
 /*
@@ -2811,11 +2811,11 @@ static uint32_t usbh_scsi_write(USBH_MSC_DEV *p_msc_dev,
     /* See Note #1.                                         */
     /* -------------- PREPARE SCSI CMD BLOCK -------------- */
     cmd[0] = USBH_SCSI_CMD_WRITE_10;                 /* Operation code (0x2A).                               */
-    cmd[1] = 0u;                                     /* Reserved.                                            */
+    cmd[1] = 0;                                     /* Reserved.                                            */
     sys_memcpy_swap(&cmd[2], &blk_addr, sizeof(uint32_t)); /* Logical Block Address (LBA).                         */
-    cmd[6] = 0u;                                     /* Reserved.                                            */
+    cmd[6] = 0;                                     /* Reserved.                                            */
     sys_memcpy_swap(&cmd[7], &nbr_blks, sizeof(uint16_t)); /* Transfer length (number of logical blocks).          */
-    cmd[9] = 0u;                                     /* Control.                                             */
+    cmd[9] = 0;                                     /* Control.                                             */
 
     xfer_len = usbh_msc_xfer_cmd(p_msc_dev, /* ------------------ SEND SCSI CMD ------------------- */
                                 lun,
@@ -2827,10 +2827,10 @@ static uint32_t usbh_scsi_write(USBH_MSC_DEV *p_msc_dev,
                                 p_err);
     if (*p_err != 0)
     {
-        xfer_len = 0u;
+        xfer_len = 0;
     }
 
-    return (xfer_len);
+    return xfer_len;
 }
 
 /*
@@ -2864,7 +2864,7 @@ static void usbh_msc_fmt_cbw(struct usbh_msc_cbw *p_cbw,
     p_buf_dest_cbw->bCBWLUN = p_cbw->bCBWLUN;
     p_buf_dest_cbw->bCBWCBLength = p_cbw->bCBWCBLength;
 
-    for (i = 0u; i < 16u; i++)
+    for (i = 0; i < 16u; i++)
     {
         p_buf_dest_cbw->CBWCB[i] = p_cbw->CBWCB[i];
     }
