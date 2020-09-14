@@ -39,19 +39,7 @@ typedef  enum  usbh_err {
 
 
 
-	USBH_ERR_IF_ALLOC =   300u,
 
-
-/*
- *********************************************************************************************************
- *                                        ENDPOINT ERROR CODES
- *********************************************************************************************************
- */
-
-	USBH_ERR_EP_ALLOC               =   400u,
-	USBH_ERR_EP_FREE                =   401u,
-	USBH_ERR_EP_INVALID_STATE       =   402u,
-	USBH_ERR_EP_INVALID_TYPE        =   403u,
 	USBH_ERR_EP_STALL               =   404u,
 	USBH_ERR_EP_NACK                =   405u,
 	USBH_ERR_EP_NOT_FOUND           =   406u,
