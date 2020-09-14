@@ -553,7 +553,7 @@ static void usbh_atsamx_hcd_init(struct usbh_hc_drv *p_hc_drv,
 
 	p_drv_data = k_malloc(sizeof(struct usbh_drv_data));
 	if (p_drv_data == NULL) {
-		*p_err = USBH_ERR_ALLOC;
+		*p_err = ENOMEM;
 		return;
 	}
 
@@ -562,7 +562,7 @@ static void usbh_atsamx_hcd_init(struct usbh_hc_drv *p_hc_drv,
 
 	if ((p_hc_drv->HC_CfgPtr->DataBufMaxLen %
 	     USBH_MAX_EP_SIZE_TYPE_BULK_FS) != 0) {
-		*p_err = USBH_ERR_ALLOC;
+		*p_err = ENOMEM;
 		return;
 	}
 
@@ -1178,7 +1178,7 @@ static void usbh_atsamx_hcd_urb_submit(struct usbh_hc_drv *p_hc_drv,
 
 	case USBH_EP_TYPE_ISOC:
 	default:
-		*p_err = USBH_ERR_NOT_SUPPORTED;
+		*p_err = ENOTSUP;
 		return;
 	}
 
