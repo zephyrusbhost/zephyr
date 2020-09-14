@@ -558,7 +558,7 @@ struct usbh_msc_csw
 *********************************************************************************************************
 */
 
-static USBH_MSC_DEV USBH_MSC_DevArr[USBH_MSC_CFG_MAX_DEV];
+static struct usbh_msc_dev USBH_MSC_DevArr[USBH_MSC_CFG_MAX_DEV];
 // static MEM_POOL USBH_MSC_DevPool;
 static int8_t USBH_MSC_DevCount;
 /*
@@ -579,38 +579,38 @@ static void usbh_msc_supsend(void *p_class_dev);
 
 static void usbh_msc_resume(void *p_class_dev);
 
-static void usbh_msc_dev_clr(USBH_MSC_DEV *p_msc_dev);
+static void usbh_msc_dev_clr(struct usbh_msc_dev *p_msc_dev);
 
-static int usbh_msc_ep_open(USBH_MSC_DEV *p_msc_dev);
+static int usbh_msc_ep_open(struct usbh_msc_dev *p_msc_dev);
 
-static void usbh_msc_ep_close(USBH_MSC_DEV *p_msc_dev);
+static void usbh_msc_ep_close(struct usbh_msc_dev *p_msc_dev);
 
-static uint32_t usbh_msc_xfer_cmd(USBH_MSC_DEV *p_msc_dev,
+static uint32_t usbh_msc_xfer_cmd(struct usbh_msc_dev *p_msc_dev,
                                    uint8_t lun,
-                                   USBH_MSC_DATA_DIR dir,
+                                   uint8_t dir,
                                    void *p_cb,
                                    uint8_t cb_len,
                                    void *p_arg,
                                    uint32_t data_len,
                                    int *p_err);
 
-static int usbh_msc_tx_cbw(USBH_MSC_DEV *p_msc_dev,
+static int usbh_msc_tx_cbw(struct usbh_msc_dev *p_msc_dev,
                                struct usbh_msc_cbw *p_msc_cbw);
 
-static int usbh_msc_rx_csw(USBH_MSC_DEV *p_msc_dev,
+static int usbh_msc_rx_csw(struct usbh_msc_dev *p_msc_dev,
                                struct usbh_msc_csw *p_msc_csw);
 
-static int usbh_msc_tx_data(USBH_MSC_DEV *p_msc_dev,
+static int usbh_msc_tx_data(struct usbh_msc_dev *p_msc_dev,
                                 void *p_arg,
                                 uint32_t data_len);
 
-static int usbh_msc_rx_data(USBH_MSC_DEV *p_msc_dev,
+static int usbh_msc_rx_data(struct usbh_msc_dev *p_msc_dev,
                                 void *p_arg,
                                 uint32_t data_len);
 
-static int usbh_msc_rx_rst_rcv(USBH_MSC_DEV *p_msc_dev);
+static int usbh_msc_rx_rst_rcv(struct usbh_msc_dev *p_msc_dev);
 
-static int usbh_msc_rx_bulk_only_reset(USBH_MSC_DEV *p_msc_dev);
+static int usbh_msc_rx_bulk_only_reset(struct usbh_msc_dev *p_msc_dev);
 
 static void usbh_msc_fmt_cbw(struct usbh_msc_cbw *p_cbw,
 			     void *p_buf_dest);
@@ -618,31 +618,31 @@ static void usbh_msc_fmt_cbw(struct usbh_msc_cbw *p_cbw,
 static void usbh_msc_parse_csw(struct usbh_msc_csw *p_csw,
 			       void *p_buf_src);
 
-static int usbh_scsi_cmd_test_unit_rdy(USBH_MSC_DEV *p_msc_dev,
+static int usbh_scsi_cmd_test_unit_rdy(struct usbh_msc_dev *p_msc_dev,
                                             uint8_t lun);
 
-static int usbh_scsi_cmd_std_inquiry(USBH_MSC_DEV *p_msc_dev,
-                                         USBH_MSC_INQUIRY_INFO *p_msc_inquiry_info,
+static int usbh_scsi_cmd_std_inquiry(struct usbh_msc_dev *p_msc_dev,
+                                         struct msc_inquiry_info *p_msc_inquiry_info,
                                          uint8_t lun);
 
-static uint32_t usbh_scsi_cmd_req_sense(USBH_MSC_DEV *p_msc_dev,
+static uint32_t usbh_scsi_cmd_req_sense(struct usbh_msc_dev *p_msc_dev,
                                          uint8_t lun,
                                          uint8_t *p_arg,
                                          uint32_t data_len,
                                          int *p_err);
 
-static int usbh_scsi_get_sense_info(USBH_MSC_DEV *p_msc_dev,
+static int usbh_scsi_get_sense_info(struct usbh_msc_dev *p_msc_dev,
                                        uint8_t lun,
                                        uint8_t *p_sense_key,
                                        uint8_t *p_asc,
                                        uint8_t *p_ascq);
 
-static int usbh_scsi_cmd_capacity_read(USBH_MSC_DEV *p_msc_dev,
+static int usbh_scsi_cmd_capacity_read(struct usbh_msc_dev *p_msc_dev,
                                          uint8_t lun,
                                          uint32_t *p_nbr_blks,
                                          uint32_t *p_blk_size);
 
-static uint32_t usbh_scsi_read(USBH_MSC_DEV *p_msc_dev,
+static uint32_t usbh_scsi_read(struct usbh_msc_dev *p_msc_dev,
                                uint8_t lun,
                                uint32_t blk_addr,
                                uint16_t nbr_blks,
@@ -650,13 +650,13 @@ static uint32_t usbh_scsi_read(USBH_MSC_DEV *p_msc_dev,
                                void *p_arg,
                                int *p_err);
 
-static uint32_t usbh_scsi_write(USBH_MSC_DEV *p_msc_dev,
-                               uint8_t lun,
-                               uint32_t blk_addr,
-                               uint16_t nbr_blks,
-                               uint32_t blk_size,
-                               const void *p_arg,
-                               int *p_err);
+static uint32_t usbh_scsi_write(struct usbh_msc_dev *p_msc_dev,
+				uint8_t lun,
+				uint32_t blk_addr,
+				uint16_t nbr_blks,
+				uint32_t blk_size,
+				const void *p_arg,
+				int *p_err);
 
 /*
 *********************************************************************************************************
@@ -738,7 +738,7 @@ const struct usbh_class_drv USBH_MSC_ClassDrv = {
 *********************************************************************************************************
 */
 
-int usbh_msc_init(USBH_MSC_DEV *p_msc_dev,
+int usbh_msc_init(struct usbh_msc_dev *p_msc_dev,
                        uint8_t lun)
 {
     uint8_t retry;
@@ -884,7 +884,7 @@ int usbh_msc_init(USBH_MSC_DEV *p_msc_dev,
 *********************************************************************************************************
 */
 
-uint8_t usbh_msc_max_lun_get(USBH_MSC_DEV *p_msc_dev,
+uint8_t usbh_msc_max_lun_get(struct usbh_msc_dev *p_msc_dev,
                                int *p_err)
 {
     uint8_t if_nbr;
@@ -978,7 +978,7 @@ uint8_t usbh_msc_max_lun_get(USBH_MSC_DEV *p_msc_dev,
 *********************************************************************************************************
 */
 
-bool usbh_msc_unit_rdy_test(USBH_MSC_DEV *p_msc_dev,
+bool usbh_msc_unit_rdy_test(struct usbh_msc_dev *p_msc_dev,
                                  uint8_t lun,
                                  int *p_err)
 {
@@ -1056,7 +1056,7 @@ bool usbh_msc_unit_rdy_test(USBH_MSC_DEV *p_msc_dev,
 *********************************************************************************************************
 */
 
-int usbh_msc_capacity_rd(USBH_MSC_DEV *p_msc_dev,
+int usbh_msc_capacity_rd(struct usbh_msc_dev *p_msc_dev,
                              uint8_t lun,
                              uint32_t *p_nbr_blks,
                              uint32_t *p_blk_size)
@@ -1126,8 +1126,8 @@ int usbh_msc_capacity_rd(USBH_MSC_DEV *p_msc_dev,
 *********************************************************************************************************
 */
 
-int usbh_msc_std_inquiry(USBH_MSC_DEV *p_msc_dev,
-                             USBH_MSC_INQUIRY_INFO *p_msc_inquiry_info,
+int usbh_msc_std_inquiry(struct usbh_msc_dev *p_msc_dev,
+                             struct msc_inquiry_info *p_msc_inquiry_info,
                              uint8_t lun)
 {
     int err;
@@ -1193,7 +1193,7 @@ int usbh_msc_std_inquiry(USBH_MSC_DEV *p_msc_dev,
 *********************************************************************************************************
 */
 
-int usbh_msc_ref_add(USBH_MSC_DEV *p_msc_dev)
+int usbh_msc_ref_add(struct usbh_msc_dev *p_msc_dev)
 {
     int err;
 
@@ -1236,7 +1236,7 @@ int usbh_msc_ref_add(USBH_MSC_DEV *p_msc_dev)
 *********************************************************************************************************
 */
 
-int usbh_msc_ref_rel(USBH_MSC_DEV *p_msc_dev)
+int usbh_msc_ref_rel(struct usbh_msc_dev *p_msc_dev)
 {
     int err;
 
@@ -1313,7 +1313,7 @@ int usbh_msc_ref_rel(USBH_MSC_DEV *p_msc_dev)
 *********************************************************************************************************
 */
 
-uint32_t usbh_msc_read(USBH_MSC_DEV *p_msc_dev,
+uint32_t usbh_msc_read(struct usbh_msc_dev *p_msc_dev,
                        uint8_t lun,
                        uint32_t blk_addr,
                        uint16_t nbr_blks,
@@ -1402,13 +1402,13 @@ uint32_t usbh_msc_read(USBH_MSC_DEV *p_msc_dev,
 *********************************************************************************************************
 */
 
-uint32_t usbh_msc_write(USBH_MSC_DEV *p_msc_dev,
-                       uint8_t lun,
-                       uint32_t blk_addr,
-                       uint16_t nbr_blks,
-                       uint32_t blk_size,
-                       const void *p_arg,
-                       int *p_err)
+uint32_t usbh_msc_write(struct usbh_msc_dev *p_msc_dev,
+                        uint8_t lun,
+                        uint32_t blk_addr,
+                        uint16_t nbr_blks,
+                        uint32_t blk_size,
+                        const void *p_arg,
+                        int *p_err)
 
 {
     uint32_t xfer_len;
@@ -1524,7 +1524,7 @@ static void *usbh_msc_probe_if(struct usbh_dev *p_dev,
                               int *p_err)
 {
     struct usbh_if_desc p_if_desc;
-    USBH_MSC_DEV *p_msc_dev;
+    struct usbh_msc_dev *p_msc_dev;
 
     p_msc_dev = NULL;
     *p_err = usbh_if_desc_get(p_if, 0, &p_if_desc);
@@ -1551,7 +1551,7 @@ static void *usbh_msc_probe_if(struct usbh_dev *p_dev,
         }
 
         usbh_msc_dev_clr(p_msc_dev);
-        p_msc_dev->RefCnt = (uint8_t)0;
+        p_msc_dev->RefCnt = 0;
         p_msc_dev->State = USBH_CLASS_DEV_STATE_CONN;
         p_msc_dev->DevPtr = p_dev;
         p_msc_dev->IF_Ptr = p_if;
@@ -1572,7 +1572,7 @@ static void *usbh_msc_probe_if(struct usbh_dev *p_dev,
         p_msc_dev = NULL;
     }
 
-    return ((void *)p_msc_dev);
+    return (void *)p_msc_dev;
 }
 
 /*
@@ -1591,9 +1591,9 @@ static void *usbh_msc_probe_if(struct usbh_dev *p_dev,
 
 static void usbh_msc_disconn(void *p_class_dev)
 {
-    USBH_MSC_DEV *p_msc_dev;
+    struct usbh_msc_dev *p_msc_dev;
 
-    p_msc_dev = (USBH_MSC_DEV *)p_class_dev;
+    p_msc_dev = (struct usbh_msc_dev *)p_class_dev;
 
     k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
 
@@ -1625,9 +1625,9 @@ static void usbh_msc_disconn(void *p_class_dev)
 
 static void usbh_msc_supsend(void *p_class_dev)
 {
-    USBH_MSC_DEV *p_msc_dev;
+    struct usbh_msc_dev *p_msc_dev;
 
-    p_msc_dev = (USBH_MSC_DEV *)p_class_dev;
+    p_msc_dev = (struct usbh_msc_dev *)p_class_dev;
 
     k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
 
@@ -1652,9 +1652,9 @@ static void usbh_msc_supsend(void *p_class_dev)
 
 static void usbh_msc_resume(void *p_class_dev)
 {
-    USBH_MSC_DEV *p_msc_dev;
+    struct usbh_msc_dev *p_msc_dev;
 
-    p_msc_dev = (USBH_MSC_DEV *)p_class_dev;
+    p_msc_dev = (struct usbh_msc_dev *)p_class_dev;
 
     k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
 
@@ -1677,7 +1677,7 @@ static void usbh_msc_resume(void *p_class_dev)
 *********************************************************************************************************
 */
 
-static void usbh_msc_dev_clr(USBH_MSC_DEV *p_msc_dev)
+static void usbh_msc_dev_clr(struct usbh_msc_dev *p_msc_dev)
 {
     p_msc_dev->DevPtr = NULL;
     p_msc_dev->IF_Ptr = NULL;
@@ -1711,7 +1711,7 @@ static void usbh_msc_dev_clr(USBH_MSC_DEV *p_msc_dev)
 *********************************************************************************************************
 */
 
-static int usbh_msc_ep_open(USBH_MSC_DEV *p_msc_dev)
+static int usbh_msc_ep_open(struct usbh_msc_dev *p_msc_dev)
 {
     int err;
 
@@ -1748,7 +1748,7 @@ static int usbh_msc_ep_open(USBH_MSC_DEV *p_msc_dev)
 *********************************************************************************************************
 */
 
-static void usbh_msc_ep_close(USBH_MSC_DEV *p_msc_dev)
+static void usbh_msc_ep_close(struct usbh_msc_dev *p_msc_dev)
 {
     usbh_ep_close(&p_msc_dev->BulkInEP);
     usbh_ep_close(&p_msc_dev->BulkOutEP);
@@ -1811,9 +1811,9 @@ static void usbh_msc_ep_close(USBH_MSC_DEV *p_msc_dev)
 *********************************************************************************************************
 */
 
-static uint32_t usbh_msc_xfer_cmd(USBH_MSC_DEV *p_msc_dev,
+static uint32_t usbh_msc_xfer_cmd(struct usbh_msc_dev *p_msc_dev,
                                    uint8_t lun,
-                                   USBH_MSC_DATA_DIR dir,
+                                   uint8_t dir,
                                    void *p_cb,
                                    uint8_t cb_len,
                                    void *p_arg,
@@ -1933,7 +1933,7 @@ static uint32_t usbh_msc_xfer_cmd(USBH_MSC_DEV *p_msc_dev,
 *********************************************************************************************************
 */
 
-static int usbh_msc_tx_cbw(USBH_MSC_DEV *p_msc_dev,
+static int usbh_msc_tx_cbw(struct usbh_msc_dev *p_msc_dev,
                                struct usbh_msc_cbw *p_msc_cbw)
 {
     uint8_t cmd_buf[USBH_MSC_LEN_CBW];
@@ -1993,7 +1993,7 @@ static int usbh_msc_tx_cbw(USBH_MSC_DEV *p_msc_dev,
 *********************************************************************************************************
 */
 
-static int usbh_msc_rx_csw(USBH_MSC_DEV *p_msc_dev,
+static int usbh_msc_rx_csw(struct usbh_msc_dev *p_msc_dev,
                                struct usbh_msc_csw *p_msc_csw)
 {
     uint32_t retry;
@@ -2019,7 +2019,7 @@ static int usbh_msc_rx_csw(USBH_MSC_DEV *p_msc_dev,
 
             if (err == USBH_ERR_EP_STALL)
             {
-                (void)usbh_ep_stall_clr(&p_msc_dev->BulkInEP);
+                usbh_ep_stall_clr(&p_msc_dev->BulkInEP);
                 retry--;
             }
             else
@@ -2064,7 +2064,7 @@ static int usbh_msc_rx_csw(USBH_MSC_DEV *p_msc_dev,
 *********************************************************************************************************
 */
 
-static int usbh_msc_tx_data(USBH_MSC_DEV *p_msc_dev,
+static int usbh_msc_tx_data(struct usbh_msc_dev *p_msc_dev,
                                 void *p_arg,
                                 uint32_t data_len)
 {
@@ -2123,17 +2123,17 @@ static int usbh_msc_tx_data(USBH_MSC_DEV *p_msc_dev,
 
     if (err != 0)
     {
-        LOG_ERR("%d", err);
+        LOG_ERR("tx data %d", err);
 
         usbh_ep_reset(p_msc_dev->DevPtr,
                       &p_msc_dev->BulkOutEP);
         if (err == USBH_ERR_EP_STALL)
         {
-            (void)usbh_ep_stall_clr(&p_msc_dev->BulkOutEP);
+            usbh_ep_stall_clr(&p_msc_dev->BulkOutEP);
         }
         else
         {
-            (void)usbh_msc_rx_rst_rcv(p_msc_dev);
+            usbh_msc_rx_rst_rcv(p_msc_dev);
         }
     }
 
@@ -2164,7 +2164,7 @@ static int usbh_msc_tx_data(USBH_MSC_DEV *p_msc_dev,
 *********************************************************************************************************
 */
 
-static int usbh_msc_rx_data(USBH_MSC_DEV *p_msc_dev,
+static int usbh_msc_rx_data(struct usbh_msc_dev *p_msc_dev,
                                 void *p_arg,
                                 uint32_t data_len)
 
@@ -2224,18 +2224,18 @@ static int usbh_msc_rx_data(USBH_MSC_DEV *p_msc_dev,
 
     if (err != 0)
     {
-        LOG_ERR("%d", err);
+        LOG_ERR("rx data %d", err);
 
         (void)usbh_ep_reset(p_msc_dev->DevPtr,
                             &p_msc_dev->BulkInEP); /* Clr err on host side EP.                             */
         if (err == USBH_ERR_EP_STALL)
         {
-            (void)usbh_ep_stall_clr(&p_msc_dev->BulkInEP);
+            usbh_ep_stall_clr(&p_msc_dev->BulkInEP);
             err = 0;
         }
         else
         {
-            (void)usbh_msc_rx_rst_rcv(p_msc_dev);
+            usbh_msc_rx_rst_rcv(p_msc_dev);
             err = USBH_ERR_MSC_IO;
         }
     }
@@ -2273,7 +2273,7 @@ static int usbh_msc_rx_data(USBH_MSC_DEV *p_msc_dev,
 *********************************************************************************************************
 */
 
-static int usbh_msc_rx_rst_rcv(USBH_MSC_DEV *p_msc_dev)
+static int usbh_msc_rx_rst_rcv(struct usbh_msc_dev *p_msc_dev)
 {
     int err;
 
@@ -2309,7 +2309,7 @@ static int usbh_msc_rx_rst_rcv(USBH_MSC_DEV *p_msc_dev)
 *********************************************************************************************************
 */
 
-static int usbh_msc_rx_bulk_only_reset(USBH_MSC_DEV *p_msc_dev)
+static int usbh_msc_rx_bulk_only_reset(struct usbh_msc_dev *p_msc_dev)
 {
     int err;
     uint8_t if_nbr;
@@ -2364,8 +2364,8 @@ static int usbh_msc_rx_bulk_only_reset(USBH_MSC_DEV *p_msc_dev)
 *********************************************************************************************************
 */
 
-static int usbh_scsi_cmd_std_inquiry(USBH_MSC_DEV *p_msc_dev,
-                                         USBH_MSC_INQUIRY_INFO *p_msc_inquiry_info,
+static int usbh_scsi_cmd_std_inquiry(struct usbh_msc_dev *p_msc_dev,
+                                         struct msc_inquiry_info *p_msc_inquiry_info,
                                          uint8_t lun)
 {
     int err;
@@ -2434,7 +2434,7 @@ static int usbh_scsi_cmd_std_inquiry(USBH_MSC_DEV *p_msc_dev,
 *********************************************************************************************************
 */
 
-static int usbh_scsi_cmd_test_unit_rdy(USBH_MSC_DEV *p_msc_dev,
+static int usbh_scsi_cmd_test_unit_rdy(struct usbh_msc_dev *p_msc_dev,
                                             uint8_t lun)
 {
     int err;
@@ -2493,7 +2493,7 @@ static int usbh_scsi_cmd_test_unit_rdy(USBH_MSC_DEV *p_msc_dev,
 *********************************************************************************************************
 */
 
-static uint32_t usbh_scsi_cmd_req_sense(USBH_MSC_DEV *p_msc_dev,
+static uint32_t usbh_scsi_cmd_req_sense(struct usbh_msc_dev *p_msc_dev,
                                          uint8_t lun,
                                          uint8_t *p_arg,
                                          uint32_t data_len,
@@ -2564,7 +2564,7 @@ static uint32_t usbh_scsi_cmd_req_sense(USBH_MSC_DEV *p_msc_dev,
 *********************************************************************************************************
 */
 
-static int usbh_scsi_get_sense_info(USBH_MSC_DEV *p_msc_dev,
+static int usbh_scsi_get_sense_info(struct usbh_msc_dev *p_msc_dev,
                                        uint8_t lun,
                                        uint8_t *p_sense_key,
                                        uint8_t *p_asc,
@@ -2643,7 +2643,7 @@ static int usbh_scsi_get_sense_info(USBH_MSC_DEV *p_msc_dev,
 *********************************************************************************************************
 */
 
-static int usbh_scsi_cmd_capacity_read(USBH_MSC_DEV *p_msc_dev,
+static int usbh_scsi_cmd_capacity_read(struct usbh_msc_dev *p_msc_dev,
                                          uint8_t lun,
                                          uint32_t *p_nbr_blks,
                                          uint32_t *p_blk_size)
@@ -2719,7 +2719,7 @@ static int usbh_scsi_cmd_capacity_read(USBH_MSC_DEV *p_msc_dev,
 *********************************************************************************************************
 */
 
-static uint32_t usbh_scsi_read(USBH_MSC_DEV *p_msc_dev,
+static uint32_t usbh_scsi_read(struct usbh_msc_dev *p_msc_dev,
                                uint8_t lun,
                                uint32_t blk_addr,
                                uint16_t nbr_blks,
@@ -2794,13 +2794,13 @@ static uint32_t usbh_scsi_read(USBH_MSC_DEV *p_msc_dev,
 *********************************************************************************************************
 */
 
-static uint32_t usbh_scsi_write(USBH_MSC_DEV *p_msc_dev,
-                               uint8_t lun,
-                               uint32_t blk_addr,
-                               uint16_t nbr_blks,
-                               uint32_t blk_size,
-                               const void *p_arg,
-                               int *p_err)
+static uint32_t usbh_scsi_write(struct usbh_msc_dev *p_msc_dev,
+                                uint8_t lun,
+                                uint32_t blk_addr,
+                                uint16_t nbr_blks,
+                                uint32_t blk_size,
+                                const void *p_arg,
+                                int *p_err)
 
 {
     uint8_t cmd[10];
