@@ -1050,7 +1050,7 @@ struct usbh_desc_hdr *usbh_cfg_extra_desc_get(struct usbh_cfg *p_cfg,
 		}
 	}
 
-	*p_err = USBH_ERR_DESC_EXTRA_NOT_FOUND;
+	*p_err = ENOENT;
 
 	return NULL;
 }

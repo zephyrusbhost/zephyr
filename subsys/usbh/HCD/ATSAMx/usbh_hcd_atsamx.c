@@ -1056,7 +1056,7 @@ static bool usbh_atsamx_hcd_ep_is_halt(struct usbh_hc_drv *p_hc_drv,
 				       int *p_err)
 {
 	*p_err = 0;
-	if (p_ep->URB.Err == USBH_ERR_HC_IO) {
+	if (p_ep->URB.Err == EIO) {
 		return true;
 	}
 
@@ -1239,7 +1239,7 @@ static void usbh_atsamx_hcd_urb_complete(struct usbh_hc_drv *p_hc_drv,
 		if (p_drv_data->PipeTbl[pipe_nbr].AppBufLen >
 		    p_urb->UserBufLen) {
 			p_urb->XferLen += xfer_len;
-			p_urb->Err = USBH_ERR_HC_IO;
+			p_urb->Err = EIO;
 		} else   {
 			p_urb->XferLen += xfer_len;
 		}
@@ -1873,7 +1873,7 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 				USBH_ATSAMX_PSTATUS_PFREEZE;    /* Stop transfer                          */
 			p_reg->HPIPE[pipe_nbr].PINTFLAG =
 				USBH_ATSAMX_PINT_PERR;          /* Clear Pipe error interrupt flag        */
-			p_urb->Err = USBH_ERR_HC_IO;
+			p_urb->Err = EIO;
 			usbh_urb_done(
 				p_urb); /* Notify the Core layer about the URB completion       */
 		}
@@ -2012,7 +2012,7 @@ static void usbh_atsamx_process_urb(void *p_arg, void *p_arg2, void *p_arg3)
 					p_urb->XferLen +=
 						p_drv_data->PipeTbl[pipe_nbr]
 						.NextXferLen;
-					p_urb->Err = USBH_ERR_HC_IO;
+					p_urb->Err = EIO;
 
 					LOG_ERR("DRV: Rx'd more data than was expected.\r\n");
 					usbh_urb_done(
