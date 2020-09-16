@@ -1968,7 +1968,7 @@ uint32_t usbh_rh_ctrl_req(struct usbh_hc *p_hc,
 
 	if ((valid != 1) &&
 	    (*p_err == 0)) {
-		*p_err = USBH_ERR_HC_IO;
+		*p_err = EIO;
 	}
 
 	return len;

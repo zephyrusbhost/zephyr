@@ -57,36 +57,6 @@ typedef  enum  usbh_err {
  *********************************************************************************************************
  */
 
-	USBH_ERR_DESC_LANG_ID_NOT_SUPPORTED     =   602u,
-	USBH_ERR_DESC_EXTRA_NOT_FOUND           =   603u,
-
-
-/*
- *********************************************************************************************************
- *                                     HOST CONTROLLER ERROR CODES
- *********************************************************************************************************
- */
-
-	USBH_ERR_HC_ALLOC       =   700u,
-	USBH_ERR_HC_INIT        =   701u,
-	USBH_ERR_HC_START       =   702u,
-	USBH_ERR_HC_IO          =   703u,
-	USBH_ERR_HC_HALTED      =   704u,
-	USBH_ERR_HC_PORT_RESET  =   705u,
-
-
-/*
- *********************************************************************************************************
- *                               OPERATING SYSTEM (OS) LAYER ERROR CODES
- *********************************************************************************************************
- */
-
-	USBH_ERR_OS_TASK_CREATE         =   800u,
-	USBH_ERR_OS_SIGNAL_CREATE       =   801u,
-	USBH_ERR_OS_DEL                 =   802u,
-	USBH_ERR_OS_TIMEOUT             =   803u,
-	USBH_ERR_OS_ABORT               =   804u,
-	USBH_ERR_OS_FAIL                =   805u,
 
 
 /*
