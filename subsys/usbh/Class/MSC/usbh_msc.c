@@ -2095,7 +2095,6 @@ static int usbh_msc_tx_data(struct usbh_msc_dev *p_msc_dev,
         switch (err)
         {
         case EIO :
-        case USBH_ERR_HC_IO:
             retry_cnt++;
             if (retry_cnt >= USBH_MSC_MAX_TRANSFER_RETRY)
             {
@@ -2196,7 +2195,6 @@ static int usbh_msc_rx_data(struct usbh_msc_dev *p_msc_dev,
         switch (err)
         {
         case EIO :
-        case USBH_ERR_HC_IO:
             retry_cnt++;
             if (retry_cnt >= USBH_MSC_MAX_TRANSFER_RETRY)
             {
