@@ -1121,7 +1121,7 @@ static void usbh_atsamx_hcd_urb_submit(struct usbh_hc_drv *p_hc_drv,
 			k_mem_pool_malloc(&ATSAMX_DrvMemPool,
 					  USBH_DATA_BUF_MAX_LEN);
 		if (p_urb->DMA_BufPtr == NULL) {
-			*p_err = USBH_ERR_HC_ALLOC;
+			*p_err = ENOMEM;
 			return;
 		}
 	}
@@ -1297,7 +1297,7 @@ static void usbh_atsamx_hcd_urb_abort(struct usbh_hc_drv *p_hc_drv,
 				      int *p_err)
 {
 	p_urb->State = USBH_URB_STATE_ABORTED;
-	p_urb->Err = USBH_ERR_URB_ABORT;
+	p_urb->Err = EAGAIN;
 
 	*p_err = 0;
 }
