@@ -41,9 +41,6 @@ typedef  enum  usbh_err {
 
 
 	USBH_ERR_EP_STALL               =   404u,
-	USBH_ERR_EP_NACK                =   405u,
-	USBH_ERR_EP_NOT_FOUND           =   406u,
-	USBH_ERR_EP_DATA_TOGGLE         =   407u,
 
 
 /*
@@ -52,7 +49,6 @@ typedef  enum  usbh_err {
  ********************************************************************************************************
  */
 
-	USBH_ERR_URB_ABORT =   500u,
 
 
 /*
@@ -61,8 +57,6 @@ typedef  enum  usbh_err {
  *********************************************************************************************************
  */
 
-	USBH_ERR_DESC_ALLOC                     =   600u,
-	USBH_ERR_DESC_INVALID                   =   601u,
 	USBH_ERR_DESC_LANG_ID_NOT_SUPPORTED     =   602u,
 	USBH_ERR_DESC_EXTRA_NOT_FOUND           =   603u,
 

@@ -2321,7 +2321,7 @@ int usbh_isoc_tx_async(struct usbh_ep *p_ep, uint8_t *p_buf,
 	}
 
 	if (p_ep->DevPtr->HC_Ptr->HostPtr->IsocCount < 0) {
-		return USBH_ERR_DESC_ALLOC;
+		return ENOMEM;
 	} else {
 		p_isoc_desc = &p_ep->DevPtr->HC_Ptr->HostPtr
 			      ->IsocDesc[p_ep->DevPtr->HC_Ptr->HostPtr
@@ -2481,7 +2481,7 @@ int usbh_isoc_rx_async(struct usbh_ep *p_ep, uint8_t *p_buf,
 	}
 
 	if (p_ep->DevPtr->HC_Ptr->HostPtr->IsocCount < 0) {
-		return USBH_ERR_DESC_ALLOC;
+		return ENOMEM;
 	} else {
 		p_isoc_desc = &p_ep->DevPtr->HC_Ptr->HostPtr
 			      ->IsocDesc[p_ep->DevPtr->HC_Ptr->HostPtr
@@ -2673,7 +2673,7 @@ int usbh_ep_get(struct usbh_if *p_if, uint8_t alt_ix, uint8_t ep_ix,
 		}
 	}
 
-	return USBH_ERR_EP_NOT_FOUND;
+	return ENOENT;
 }
 
 /*
@@ -2966,7 +2966,7 @@ int usbh_urb_complete(struct usbh_urb *p_urb)
 							 p_urb, &err);
 		k_mutex_unlock(&p_dev->HC_Ptr->HCD_Mutex);
 
-		p_urb->Err = USBH_ERR_URB_ABORT;
+		p_urb->Err = EAGAIN;
 		p_urb->XferLen = 0;
 	} else {
 		/* Empty Else Statement                                 */
@@ -3077,14 +3077,14 @@ uint32_t usbh_str_get(struct usbh_dev *p_dev, uint8_t desc_ix, uint16_t lang_id,
 			usbh_str_desc_get(p_dev, 0, 0, p_buf, buf_len, p_err);
 		if (str_len <
 		    4u) { /* See Note #1.                                         */
-			*p_err = USBH_ERR_DESC_INVALID;
+			*p_err = EINVAL;
 			return 0;
 		}
 
 		lang_id = sys_get_le16((uint8_t *)&p_buf[2]); /* Rd language ID into CPU endianness.                  */
 
 		if (lang_id == 0) {
-			*p_err = USBH_ERR_DESC_INVALID;
+			*p_err = EINVAL;
 			return 0;
 		} else {
 			p_dev->LangID = lang_id;
@@ -3120,7 +3120,7 @@ uint32_t usbh_str_get(struct usbh_dev *p_dev, uint8_t desc_ix, uint16_t lang_id,
 
 		return str_len;
 	} else {
-		*p_err = USBH_ERR_DESC_INVALID;
+		*p_err = EINVAL;
 		return 0;
 	}
 }
@@ -3217,7 +3217,7 @@ static int usbh_ep_open(struct usbh_dev *p_dev, struct usbh_if *p_if,
 	}
 
 	if (ep_found == false) {
-		return USBH_ERR_EP_NOT_FOUND; /* Class specified EP not found.                        */
+		return ENOENT; /* Class specified EP not found.                        */
 	}
 
 	p_ep->Interval = 0;
@@ -3898,7 +3898,7 @@ static int usbh_dev_desc_rd(struct usbh_dev *p_dev)
 		/* Retrieve EP 0 max pkt size.                          */
 		p_dev->DfltEP.Desc.wMaxPacketSize = (uint8_t) p_dev->DevDesc[7u];
 		if (p_dev->DfltEP.Desc.wMaxPacketSize > 64u) {
-			return USBH_ERR_DESC_INVALID;
+			return EINVAL;
 		}
 
 		k_mutex_lock(&p_dev->HC_Ptr->HCD_Mutex, K_NO_WAIT);
@@ -3942,7 +3942,7 @@ static int usbh_dev_desc_rd(struct usbh_dev *p_dev)
 	if ((dev_desc.bLength < USBH_LEN_DESC_DEV) ||
 	    (dev_desc.bDescriptorType != USBH_DESC_TYPE_DEV) ||
 	    (dev_desc.bNbrConfigurations == 0)) {
-		return USBH_ERR_DESC_INVALID;
+		return EINVAL;
 	}
 
 	if ((dev_desc.bDeviceClass != USBH_CLASS_CODE_USE_IF_DESC) &&
@@ -3965,7 +3965,7 @@ static int usbh_dev_desc_rd(struct usbh_dev *p_dev)
 	    (dev_desc.bDeviceClass != USBH_CLASS_CODE_APP_SPECIFIC) &&
 	    (dev_desc.bDeviceClass != USBH_CLASS_CODE_VENDOR_SPECIFIC)) {
 		LOG_ERR("descriptor invalid");
-		return USBH_ERR_DESC_INVALID;
+		return EINVAL;
 	}
 
 	return 0;
@@ -4042,12 +4042,12 @@ static int usbh_cfg_rd(struct usbh_dev *p_dev, uint8_t cfg_ix)
 
 	if (b_read < USBH_LEN_DESC_CFG) {
 		LOG_ERR("bread < %d", USBH_LEN_DESC_CFG);
-		return USBH_ERR_DESC_INVALID;
+		return EINVAL;
 	}
 
 	if (p_cfg->CfgData[1] != USBH_DESC_TYPE_CFG) {
 		LOG_ERR("desc invalid");
-		return USBH_ERR_DESC_INVALID;
+		return EINVAL;
 	}
 
 	w_tot_len = sys_get_le16((uint8_t *)&p_cfg->CfgData[2]); /* See Note (3).                                        */
@@ -4081,13 +4081,13 @@ static int usbh_cfg_rd(struct usbh_dev *p_dev, uint8_t cfg_ix)
 
 	if (b_read < w_tot_len) {
 		LOG_ERR("bread < w_tot_len");
-		return USBH_ERR_DESC_INVALID;
+		return EINVAL;
 	}
 
 	if (p_cfg->CfgData[1] !=
 	    USBH_DESC_TYPE_CFG) { /* Validate config desc.                                */
 		LOG_ERR("ivalid");
-		return USBH_ERR_DESC_INVALID;
+		return EINVAL;
 	}
 
 	p_cfg->CfgDataLen = w_tot_len;
@@ -4131,7 +4131,7 @@ static int usbh_cfg_parse(struct usbh_dev *p_dev, struct usbh_cfg *p_cfg)
 	/* ---------------- VALIDATE CFG DESC ----------------- */
 	usbh_parse_cfg_desc(&cfg_desc, p_desc);
 	if ((cfg_desc.bMaxPower > 250u) || (cfg_desc.bNbrInterfaces == 0)) {
-		return USBH_ERR_DESC_INVALID;
+		return EINVAL;
 	}
 
 	nbr_ifs = usbh_cfg_if_nbr_get(
@@ -4185,11 +4185,11 @@ static int usbh_cfg_parse(struct usbh_dev *p_dev, struct usbh_cfg *p_cfg)
 			     USBH_CLASS_CODE_APP_SPECIFIC) &&
 			    (if_desc.bInterfaceClass !=
 			     USBH_CLASS_CODE_VENDOR_SPECIFIC)) {
-				return USBH_ERR_DESC_INVALID;
+				return EINVAL;
 			}
 
 			if ((if_desc.bNbrEndpoints > 30u)) {
-				return USBH_ERR_DESC_INVALID;
+				return EINVAL;
 			}
 
 			if (if_desc.bAlternateSetting == 0) {
@@ -4207,7 +4207,7 @@ static int usbh_cfg_parse(struct usbh_dev *p_dev, struct usbh_cfg *p_cfg)
 			if ((ep_desc.bEndpointAddress == 0x00u) ||
 			    (ep_desc.bEndpointAddress == 0x80u) ||
 			    (ep_desc.wMaxPacketSize == 0)) {
-				return USBH_ERR_DESC_INVALID;
+				return EINVAL;
 			}
 		}
 
@@ -4218,7 +4218,7 @@ static int usbh_cfg_parse(struct usbh_dev *p_dev, struct usbh_cfg *p_cfg)
 
 	if (if_ix !=
 	    nbr_ifs) { /* IF count must match max nbr of IFs.                  */
-		return USBH_ERR_DESC_INVALID;
+		return EINVAL;
 	}
 
 	return 0;
@@ -4382,7 +4382,7 @@ static uint32_t usbh_str_desc_get(struct usbh_dev *p_dev, uint8_t desc_ix,
 			return len;
 		}
 	} else {
-		*p_err = USBH_ERR_DESC_INVALID;
+		*p_err = EINVAL;
 		return 0;
 	}
 
@@ -4410,7 +4410,7 @@ static uint32_t usbh_str_desc_get(struct usbh_dev *p_dev, uint8_t desc_ix,
 	}
 
 	if (len == 0) {
-		*p_err = USBH_ERR_DESC_INVALID;
+		*p_err = EINVAL;
 		return 0;
 	}
 
