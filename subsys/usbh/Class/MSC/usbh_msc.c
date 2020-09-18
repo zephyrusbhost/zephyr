@@ -777,14 +777,14 @@ int usbh_msc_init(struct usbh_msc_dev *p_msc_dev,
                 unit_ready = true;
                 break;
             }
-            else if (err == USBH_ERR_MSC_IO)
+            else if (err == EIO)
             { /* Bulk xfers for the BOT protocol failed.              */
                 LOG_ERR("%d", err);
                 break;
             }
             else
             {
-                if (err != USBH_ERR_MSC_CMD_FAILED)
+                if (err != EAGAIN)
                 { /* MSC dev not ready ...                                */
                     LOG_ERR("%d", err);
                 }
@@ -923,7 +923,7 @@ uint8_t usbh_msc_max_lun_get(struct usbh_msc_dev *p_msc_dev,
             (void)usbh_ep_reset(p_msc_dev->DevPtr, /* Reset dflt EP if ctrl xfer failed.                   */
                                 NULL);
 
-            if (*p_err == USBH_ERR_EP_STALL)
+            if (*p_err == EBUSY)
             { /* Device may stall if no multiple LUNs support.        */
                 lun_nbr = 0;
                 *p_err = 0;
@@ -1006,7 +1006,7 @@ bool usbh_msc_unit_rdy_test(struct usbh_msc_dev *p_msc_dev,
         {
             unit_rdy = 1;
         }
-        else if (*p_err == USBH_ERR_MSC_CMD_FAILED)
+        else if (*p_err == EAGAIN)
         {
             *p_err = 0; /* CSW reporting cmd failed for this req NOT an err.    */
             unit_rdy = 1;
@@ -1564,7 +1564,7 @@ static void *usbh_msc_probe_if(struct usbh_dev *p_dev,
     }
     else
     {
-        *p_err = USBH_ERR_CLASS_DRV_NOT_FOUND;
+        *p_err = ENOENT;
     }
 
     if (*p_err != 0)
@@ -1888,21 +1888,21 @@ static uint32_t usbh_msc_xfer_cmd(struct usbh_msc_dev *p_msc_dev,
             break;
 
         case USBH_MSC_BCSWSTATUS_CMD_FAILED:
-            *p_err = USBH_ERR_MSC_CMD_FAILED;
+            *p_err = EAGAIN;
             break;
 
         case USBH_MSC_BCSWSTATUS_PHASE_ERROR:
-            *p_err = USBH_ERR_MSC_CMD_PHASE;
+            *p_err = EFAULT;
             break;
 
         default:
-            *p_err = USBH_ERR_MSC_CMD_FAILED;
+            *p_err = EAGAIN;
             break;
         }
     }
     else
     {
-        *p_err = USBH_ERR_MSC_IO;
+        *p_err = EIO;
     }
 
     /* Actual len of data xfered to dev.                    */
@@ -1958,7 +1958,7 @@ static int usbh_msc_tx_cbw(struct usbh_msc_dev *p_msc_dev,
                           &p_msc_dev->BulkOutEP); /* Clear EP err on host side.                           */
         }
 
-        if (err == USBH_ERR_EP_STALL)
+        if (err == EBUSY)
         {
             usbh_msc_rx_rst_rcv(p_msc_dev);
         }
@@ -2017,7 +2017,7 @@ static int usbh_msc_rx_csw(struct usbh_msc_dev *p_msc_dev,
             usbh_ep_reset(p_msc_dev->DevPtr,
                           &p_msc_dev->BulkInEP); /* Clear err on host side.                              */
 
-            if (err == USBH_ERR_EP_STALL)
+            if (err == EBUSY)
             {
                 usbh_ep_stall_clr(&p_msc_dev->BulkInEP);
                 retry--;
@@ -2126,7 +2126,7 @@ static int usbh_msc_tx_data(struct usbh_msc_dev *p_msc_dev,
 
         usbh_ep_reset(p_msc_dev->DevPtr,
                       &p_msc_dev->BulkOutEP);
-        if (err == USBH_ERR_EP_STALL)
+        if (err == EBUSY)
         {
             usbh_ep_stall_clr(&p_msc_dev->BulkOutEP);
         }
@@ -2226,7 +2226,7 @@ static int usbh_msc_rx_data(struct usbh_msc_dev *p_msc_dev,
 
         (void)usbh_ep_reset(p_msc_dev->DevPtr,
                             &p_msc_dev->BulkInEP); /* Clr err on host side EP.                             */
-        if (err == USBH_ERR_EP_STALL)
+        if (err == EBUSY)
         {
             usbh_ep_stall_clr(&p_msc_dev->BulkInEP);
             err = 0;
@@ -2234,7 +2234,7 @@ static int usbh_msc_rx_data(struct usbh_msc_dev *p_msc_dev,
         else
         {
             usbh_msc_rx_rst_rcv(p_msc_dev);
-            err = USBH_ERR_MSC_IO;
+            err = EIO;
         }
     }
 
