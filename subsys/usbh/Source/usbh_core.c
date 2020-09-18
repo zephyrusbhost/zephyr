@@ -4358,7 +4358,7 @@ static uint32_t usbh_str_desc_get(struct usbh_dev *p_dev, uint8_t desc_ix,
 			USBH_REQ_DIR_DEV_TO_HOST | USBH_REQ_RECIPIENT_DEV,
 			(USBH_DESC_TYPE_STR << 8) | desc_ix, lang_id, p_buf,
 			req_len, USBH_CFG_STD_REQ_TIMEOUT, p_err);
-		if ((len == 0) || (*p_err == USBH_ERR_EP_STALL)) {
+		if ((len == 0) || (*p_err == EBUSY)) {
 			usbh_ep_reset(
 				p_dev,
 				NULL);         /* Rst EP to clr HC halt state.                         */
@@ -4398,7 +4398,7 @@ static uint32_t usbh_str_desc_get(struct usbh_dev *p_dev, uint8_t desc_ix,
 				   (USBH_DESC_TYPE_STR << 8) | desc_ix, lang_id,
 				   p_buf, len, USBH_CFG_STD_REQ_TIMEOUT, p_err);
 
-		if ((len == 0) || (*p_err == USBH_ERR_EP_STALL)) {
+		if ((len == 0) || (*p_err == EBUSY)) {
 			usbh_ep_reset(p_dev, NULL);
 		} else {
 			break;

@@ -1104,7 +1104,7 @@ static int usbh_hub_desc_get(struct usbh_hub_dev *p_hub_dev)
 				   USBH_LEN_DESC_HDR,
 				   USBH_HUB_TIMEOUT,
 				   &err);
-		if ((err == USBH_ERR_EP_STALL) ||
+		if ((err == EBUSY) ||
 		    (len == 0)) {
 			usbh_ep_reset(p_hub_dev->DevPtr,
 				      NULL);
@@ -1133,7 +1133,7 @@ static int usbh_hub_desc_get(struct usbh_hub_dev *p_hub_dev)
 				   hdr.bLength,
 				   USBH_HUB_TIMEOUT,
 				   &err);
-		if ((err == USBH_ERR_EP_STALL) ||
+		if ((err == EBUSY) ||
 		    (len < hdr.bLength)) {
 			usbh_ep_reset(p_hub_dev->DevPtr,
 				      NULL);
@@ -1856,7 +1856,7 @@ uint32_t usbh_rh_ctrl_req(struct usbh_hc *p_hc,
 			break;
 
 		case USBH_HUB_FEATURE_SEL_C_PORT_OVER_CUR:
-			*p_err = USBH_ERR_EP_STALL;
+			*p_err = EBUSY;
 			break;
 
 		default:
@@ -1886,7 +1886,7 @@ uint32_t usbh_rh_ctrl_req(struct usbh_hc *p_hc,
 		case USBH_HUB_FEATURE_SEL_C_PORT_EN:
 		case USBH_HUB_FEATURE_SEL_C_PORT_SUSPEND:
 		case USBH_HUB_FEATURE_SEL_C_PORT_OVER_CUR:
-			*p_err = USBH_ERR_EP_STALL;
+			*p_err = EBUSY;
 			break;
 
 		default:
@@ -1941,7 +1941,7 @@ uint32_t usbh_rh_ctrl_req(struct usbh_hc *p_hc,
 				       (void *)USBH_HUB_RH_LangID,
 				       len);
 			} else   {
-				*p_err = USBH_ERR_EP_STALL;
+				*p_err = EBUSY;
 				break;
 			}
 			break;
@@ -1959,7 +1959,7 @@ uint32_t usbh_rh_ctrl_req(struct usbh_hc *p_hc,
 	case USBH_REQ_SET_IF:
 	case USBH_REQ_SET_DESC:
 	case USBH_REQ_SYNCH_FRAME:
-		*p_err = USBH_ERR_EP_STALL;
+		*p_err = EBUSY;
 		break;
 
 	default:

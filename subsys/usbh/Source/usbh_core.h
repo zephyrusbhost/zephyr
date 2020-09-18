@@ -33,7 +33,6 @@
 #ifndef  USBH_CORE_MODULE_PRESENT
 #define  USBH_CORE_MODULE_PRESENT
 #include  <usbh_cfg.h>
-#include  "usbh_err.h"
 #include <zephyr.h>
 
 /*
