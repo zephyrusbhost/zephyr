@@ -1862,7 +1862,7 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 				USBH_ATSAMX_PSTATUS_PFREEZE;    /* Stop transfer                          */
 			p_reg->HPIPE[pipe_nbr].PINTFLAG =
 				USBH_ATSAMX_PINT_STALL;         /* Clear Stall interrupt flag             */
-			p_urb->Err = USBH_ERR_EP_STALL;
+			p_urb->Err = EBUSY;
 			usbh_urb_done(
 				p_urb); /* Notify the Core layer about the URB completion       */
 		}
