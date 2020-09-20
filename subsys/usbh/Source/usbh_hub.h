@@ -30,7 +30,7 @@
 
 #include  <usbh_core.h>
 
-extern const struct usbh_class_drv USBH_HUB_Drv;
+extern const struct usbh_class_drv usbh_hub_drv;
 
 
 int    usbh_hub_port_en(struct usbh_hub_dev   *p_hub_dev,
