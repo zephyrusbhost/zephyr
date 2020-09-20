@@ -156,8 +156,7 @@ static void usbh_async_task(void *p_arg, void *p_arg2, void *p_arg3);
  *********************************************************************************************************
  */
 
-int usbh_init(USBH_KERNEL_TASK_INFO *async_task_info,
-		   USBH_KERNEL_TASK_INFO *hub_task_info)
+int usbh_init()
 {
 	int err;
 	uint8_t ix;
@@ -176,7 +175,7 @@ int usbh_init(USBH_KERNEL_TASK_INFO *async_task_info,
 		usbh_class_drv_list[ix].InUse = 0;
 	}
 
-	err = usbh_reg_class_drv(&USBH_HUB_Drv, usbh_hub_class_notify,
+	err = usbh_reg_class_drv(&usbh_hub_drv, usbh_hub_class_notify,
 				 NULL);
 	if (err != 0) {
 		return err;
