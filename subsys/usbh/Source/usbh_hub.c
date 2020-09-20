@@ -525,7 +525,7 @@ static void usbh_hub_resume(void *p_class_dev)
 						     port_ix + 1,
 						     &port_status);
 
-			if ((port_status.wPortStatus & USBH_HUB_STATUS_PORT_CONN) != 0) {
+			if ((port_status.w_port_status & USBH_HUB_STATUS_PORT_CONN) != 0) {
 				usbh_hub_port_reset_set(p_hub_dev,
 							    port_ix + 1);
 			}
@@ -912,7 +912,7 @@ static void usbh_hub_event_proc(void)
 			break;
 		}
 		/* ------------- CONNECTION STATUS CHANGE ------------- */
-		if (DEF_BIT_IS_SET(port_status.wPortChange, USBH_HUB_STATUS_C_PORT_CONN) == true) {
+		if (DEF_BIT_IS_SET(port_status.w_port_change, USBH_HUB_STATUS_C_PORT_CONN) == true) {
 			LOG_DBG("connection status change");
 			err = usbh_hub_port_conn_chng_clr(p_hub_dev, /* Clr port conn chng.                                  */
 						       port_nbr);
@@ -920,7 +920,7 @@ static void usbh_hub_event_proc(void)
 				break;
 			}
 			/* -------------- DEV HAS BEEN CONNECTED -------------- */
-			if (DEF_BIT_IS_SET(port_status.wPortStatus, USBH_HUB_STATUS_PORT_CONN) == true) {
+			if (DEF_BIT_IS_SET(port_status.w_port_status, USBH_HUB_STATUS_PORT_CONN) == true) {
 
 				LOG_DBG("Port %d : Device Connected.\r\n", port_nbr);
 
@@ -956,13 +956,13 @@ static void usbh_hub_event_proc(void)
 			}
 		}
 		/* ------------- PORT RESET STATUS CHANGE ------------- */
-		if (DEF_BIT_IS_SET(port_status.wPortChange, USBH_HUB_STATUS_C_PORT_RESET) == true) {
+		if (DEF_BIT_IS_SET(port_status.w_port_change, USBH_HUB_STATUS_C_PORT_RESET) == true) {
 			err = usbh_hub_port_rst_chng_clr(p_hub_dev, port_nbr);
 			if (err != 0) {
 				break;
 			}
 			/* Dev has been connected.                              */
-			if (DEF_BIT_IS_SET(port_status.wPortStatus, USBH_HUB_STATUS_PORT_CONN) == true) {
+			if (DEF_BIT_IS_SET(port_status.w_port_status, USBH_HUB_STATUS_PORT_CONN) == true) {
 
 				err = usbh_hub_port_status_get(p_hub_dev, /* Get port status info.                                */
 							     port_nbr,
@@ -972,9 +972,9 @@ static void usbh_hub_event_proc(void)
 				}
 
 				/* Determine dev spd.                                   */
-				if (DEF_BIT_IS_SET(port_status.wPortStatus, USBH_HUB_STATUS_PORT_LOW_SPD) == true) {
+				if (DEF_BIT_IS_SET(port_status.w_port_status, USBH_HUB_STATUS_PORT_LOW_SPD) == true) {
 					dev_spd = USBH_LOW_SPEED;
-				} else if (DEF_BIT_IS_SET(port_status.wPortStatus, USBH_HUB_STATUS_PORT_HIGH_SPD) == true) {
+				} else if (DEF_BIT_IS_SET(port_status.w_port_status, USBH_HUB_STATUS_PORT_HIGH_SPD) == true) {
 					dev_spd = USBH_HIGH_SPEED;
 				} else   {
 					dev_spd = USBH_FULL_SPEED;
@@ -1046,7 +1046,7 @@ static void usbh_hub_event_proc(void)
 			}
 		}
 		/* ------------ PORT ENABLE STATUS CHANGE ------------- */
-		if (DEF_BIT_IS_SET(port_status.wPortChange, USBH_HUB_STATUS_C_PORT_EN) == true) {
+		if (DEF_BIT_IS_SET(port_status.w_port_change, USBH_HUB_STATUS_C_PORT_EN) == true) {
 			err = usbh_hub_port_en_chng_clr(p_hub_dev, port_nbr);
 			if (err != 0) {
 				break;
@@ -1242,8 +1242,8 @@ static int usbh_hub_port_status_get(struct usbh_hub_dev *p_hub_dev,
 	if (err != 0) {
 		usbh_ep_reset(p_hub_dev->DevPtr, NULL);
 	} else   {
-		p_port_status->wPortStatus = sys_get_le16((uint8_t *)&port_status.wPortStatus);
-		p_port_status->wPortChange = sys_get_le16((uint8_t *)&port_status.wPortChange);
+		p_port_status->w_port_status = sys_get_le16((uint8_t *)&port_status.w_port_status);
+		p_port_status->w_port_change = sys_get_le16((uint8_t *)&port_status.w_port_change);
 	}
 
 	return err;

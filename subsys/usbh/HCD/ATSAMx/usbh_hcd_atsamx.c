@@ -1341,8 +1341,8 @@ usbh_atsamx_rh_port_status_get(struct usbh_hc_drv *p_hc_drv, uint8_t port_nbr,
 	p_drv_data = (struct usbh_drv_data *)p_hc_drv->DataPtr;
 
 	if (port_nbr != 1) {
-		p_port_status->wPortStatus = 0;
-		p_port_status->wPortChange = 0;
+		p_port_status->w_port_status = 0;
+		p_port_status->w_port_change = 0;
 		return 0;
 	}
 	/* Bits not used by the stack. Maintain constant value. */
@@ -1365,8 +1365,8 @@ usbh_atsamx_rh_port_status_get(struct usbh_hc_drv *p_hc_drv, uint8_t port_nbr,
 			~USBH_HUB_STATUS_PORT_HIGH_SPD; /* PORT_HIGH_SPEED = 0 = LS dev attached.        */
 	}
 
-	p_port_status->wPortStatus = p_drv_data->RH_PortStat;
-	p_port_status->wPortChange = p_drv_data->RH_PortChng;
+	p_port_status->w_port_status = p_drv_data->RH_PortStat;
+	p_port_status->w_port_change = p_drv_data->RH_PortChng;
 
 	return 1;
 }

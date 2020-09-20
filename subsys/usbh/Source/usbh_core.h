@@ -552,8 +552,8 @@ enum usbh_device_speed {
  */
 
 struct  usbh_hub_port_status {
-	uint16_t wPortStatus;
-	uint16_t wPortChange;
+	uint16_t w_port_status;
+	uint16_t w_port_change;
 };
 
 
