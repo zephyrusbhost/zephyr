@@ -1174,7 +1174,7 @@ struct  usbh_hc_bsp_api {
  *********************************************************************************************************
  */
 
-typedef  void (*USBH_ISOC_CMPL_FNCT)(struct usbh_ep     *p_ep,
+typedef  void (*usbh_isoc_cmpl_fnct)(struct usbh_ep     *p_ep,
 				     uint8_t  *p_buf,
 				     uint32_t buf_len,
 				     uint32_t cur_xfer_len,
@@ -1185,7 +1185,7 @@ typedef  void (*USBH_ISOC_CMPL_FNCT)(struct usbh_ep     *p_ep,
 				     void        *p_arg,
 				     int err);
 
-typedef  void (*USBH_XFER_CMPL_FNCT)(struct usbh_ep     *p_ep,
+typedef  void (*usbh_xfer_cmpl_fnct)(struct usbh_ep     *p_ep,
 				     void        *p_buf,
 				     uint32_t buf_len,
 				     uint32_t xfer_len,
@@ -1349,7 +1349,7 @@ uint32_t      usbh_bulk_tx(struct usbh_ep                *p_ep,
 int        usbh_bulk_tx_async(struct usbh_ep                *p_ep,
 				   void                   *p_buf,
 				   uint32_t buf_len,
-				   USBH_XFER_CMPL_FNCT fnct,
+				   usbh_xfer_cmpl_fnct fnct,
 				   void                   *p_fnct_arg);
 
 uint32_t      usbh_bulk_rx(struct usbh_ep                *p_ep,
@@ -1361,7 +1361,7 @@ uint32_t      usbh_bulk_rx(struct usbh_ep                *p_ep,
 int        usbh_bulk_rx_async(struct usbh_ep                *p_ep,
 				   void                   *p_buf,
 				   uint32_t buf_len,
-				   USBH_XFER_CMPL_FNCT fnct,
+				   usbh_xfer_cmpl_fnct fnct,
 				   void                   *p_fnct_arg);
 
 uint32_t      usbh_intr_tx(struct usbh_ep                *p_ep,
@@ -1373,7 +1373,7 @@ uint32_t      usbh_intr_tx(struct usbh_ep                *p_ep,
 int        usbh_intr_tx_async(struct usbh_ep                *p_ep,
 				   void                   *p_buf,
 				   uint32_t buf_len,
-				   USBH_XFER_CMPL_FNCT fnct,
+				   usbh_xfer_cmpl_fnct fnct,
 				   void                   *p_fnct_arg);
 
 uint32_t      usbh_intr_rx(struct usbh_ep                *p_ep,
@@ -1385,7 +1385,7 @@ uint32_t      usbh_intr_rx(struct usbh_ep                *p_ep,
 int        usbh_intr_rx_async(struct usbh_ep                *p_ep,
 				   void                   *p_buf,
 				   uint32_t buf_len,
-				   USBH_XFER_CMPL_FNCT fnct,
+				   usbh_xfer_cmpl_fnct fnct,
 				   void                   *p_fnct_arg);
 
 uint32_t      usbh_isoc_tx(struct usbh_ep                *p_ep,
@@ -1405,7 +1405,7 @@ int        usbh_isoc_tx_async(struct usbh_ep                *p_ep,
 				   uint32_t nbr_frm,
 				   uint16_t             *p_frm_len,
 				   int               *p_frm_err,
-				   USBH_ISOC_CMPL_FNCT fnct,
+				   usbh_isoc_cmpl_fnct fnct,
 				   void                   *p_fnct_arg);
 
 uint32_t      usbh_isoc_rx(struct usbh_ep                *p_ep,
@@ -1425,7 +1425,7 @@ int        usbh_isoc_rx_async(struct usbh_ep                *p_ep,
 				   uint32_t nbr_frm,
 				   uint16_t             *p_frm_len,
 				   int               *p_frm_err,
-				   USBH_ISOC_CMPL_FNCT fnct,
+				   usbh_isoc_cmpl_fnct fnct,
 				   void                   *p_fnct_arg);
 
 /* ------------ DEVICE ENDPOINT FUNCTIONS ------------- */
