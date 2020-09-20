@@ -1389,10 +1389,10 @@ usbh_atsamx_rh_port_status_get(struct usbh_hc_drv *p_hc_drv, uint8_t port_nbr,
  * Note(s)     : (1) For more information about the hub descriptor, see 'Universal Serial Bus Specification
  *                   Revision 2.0', Chapter 11.23.2.
  *
- *               (2) (a) 'bNbrPorts' is assigned the "number of downstream facing ports that this hub
+ *               (2) (a) 'b_nbr_ports' is assigned the "number of downstream facing ports that this hub
  *                       supports".
  *
- *                   (b) 'wHubCharacteristics' is a bit-mapped variables as follows :
+ *                   (b) 'w_hub_characteristics' is a bit-mapped variables as follows :
  *
  *                       (1) Bits 0-1 (Logical Power Switching Mode) :
  *                                       00b = All ports' power at once.
@@ -1407,10 +1407,10 @@ usbh_atsamx_rh_port_status_get(struct usbh_hc_drv *p_hc_drv, uint8_t port_nbr,
  *
  *                       (5) Bit  7 (Port Indicators Support).
  *
- *                   (c) 'bPwrOn2PwrGood' is assigned the "time (in 2 ms intervals) from the time the
+ *                   (c) 'b_pwr_on_to_pwr_good' is assigned the "time (in 2 ms intervals) from the time the
  *                       power-on sequence begins on a port until power is good on that port.
  *
- *                   (d) 'bHubContrCurrent' is assigned the "maximum current requirements of the Hub
+ *                   (d) 'b_hub_contr_current' is assigned the "maximum current requirements of the Hub
  *                       Controller electronics in mA."
  *********************************************************************************************************
  */
@@ -1426,10 +1426,10 @@ static bool usbh_atsamx_rh_hub_desc_get(struct usbh_hc_drv *p_hc_drv,
 
 	hub_desc.b_desc_length = USBH_HUB_LEN_HUB_DESC;
 	hub_desc.b_desc_type = USBH_HUB_DESC_TYPE_HUB;
-	hub_desc.bNbrPorts = 1;
-	hub_desc.wHubCharacteristics = 0;
-	hub_desc.bPwrOn2PwrGood = 100u;
-	hub_desc.bHubContrCurrent = 0;
+	hub_desc.b_nbr_ports = 1;
+	hub_desc.w_hub_characteristics = 0;
+	hub_desc.b_pwr_on_to_pwr_good = 100u;
+	hub_desc.b_hub_contr_current = 0;
 
 	usbh_hub_fmt_hub_desc(
 		&hub_desc,
