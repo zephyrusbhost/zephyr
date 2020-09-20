@@ -35,18 +35,6 @@
 #include  <usbh_cfg.h>
 #include <zephyr.h>
 
-/*
- *********************************************************************************************************
- *                                               EXTERNS
- *********************************************************************************************************
- */
-
-#ifdef   USBH_CORE_MODULE
-#define  USBH_CORE_EXT
-#else
-#define  USBH_CORE_EXT  extern
-#endif
-
 
 /*
  *********************************************************************************************************
@@ -54,7 +42,6 @@
  *********************************************************************************************************
  */
 
-#define  USBH_VERSION                                  34200u
 
 #define  USBH_LEN_DESC_HDR                              0x02u
 #define  USBH_LEN_DESC_DEV                              0x12u
@@ -241,7 +228,7 @@
 #define  USBH_MAX_EP_SIZE_TYPE_ISOC_FS                  1023u
 #define  USBH_MAX_EP_SIZE_TYPE_ISOC_HS                  1024u
 /* See Note #2                                          */
-#define  USBH_NBR_TRANSACTION_PER_UFRAME      (DEF_BIT_12 | DEF_BIT_11)
+#define  USBH_NBR_TRANSACTION_PER_UFRAME      (BIT(12) | BIT(11))
 #define  USBH_1_TRANSACTION_PER_UFRAME                     0u
 #define  USBH_2_TRANSACTION_PER_UFRAME                     1u
 #define  USBH_3_TRANSACTION_PER_UFRAME                     2u
@@ -1021,11 +1008,6 @@ struct  usbh_host {
  *********************************************************************************************************
  */
 
-typedef  const struct  usbh_kernel_task_info {
-	uint32_t Prio;
-	void        *StackPtr;
-	uint32_t StackSize;
-} USBH_KERNEL_TASK_INFO;
 
 
 struct  usbh_hc_drv_api {
@@ -1220,8 +1202,7 @@ typedef  void (*usbh_xfer_cmpl_fnct)(struct usbh_ep     *p_ep,
 /* --------- USB HOST STACK GENERAL FUNCTIONS --------- */
 uint32_t      usbh_version_get(void);
 
-int        usbh_init(USBH_KERNEL_TASK_INFO  *async_task_info,
-			  USBH_KERNEL_TASK_INFO  *hub_task_info);
+int        usbh_init();
 
 int        usbh_suspend(void);
 

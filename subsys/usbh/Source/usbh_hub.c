@@ -33,9 +33,6 @@
 #include <logging/log.h>
 LOG_MODULE_REGISTER(hub);
 
-K_MEM_POOL_DEFINE(USBH_HUB_Pool, sizeof(struct usbh_hub_dev),
-		  sizeof(struct usbh_hub_dev), USBH_CFG_MAX_HUBS,
-		  sizeof(uint32_t));
 
 /*
  ********************************************************************************************************
@@ -43,7 +40,7 @@ K_MEM_POOL_DEFINE(USBH_HUB_Pool, sizeof(struct usbh_hub_dev),
  ********************************************************************************************************
  */
 
-static const uint8_t USBH_HUB_RH_DevDesc[18] = {
+static const uint8_t usbh_hub_rh_dev_desc[18] = {
 	USBH_LEN_DESC_DEV,              /* bLength                                              */
 	USBH_DESC_TYPE_DEV,             /* bDescriptorType: Device                              */
 	0x10u, 0x01u,                   /* bcdUSB: v1.1                                         */
@@ -66,7 +63,7 @@ static const uint8_t USBH_HUB_RH_DevDesc[18] = {
  ********************************************************************************************************
  */
 
-static const uint8_t USBH_HUB_RH_FS_CfgDesc[] = {
+static const uint8_t usbh_hub_rh_fs_cfg_desc[] = {
 	/* ------------- CONFIGURATION DESCRIPTOR ------------- */
 	USBH_LEN_DESC_CFG,      /* bLength                                              */
 	USBH_DESC_TYPE_CFG,     /* bDescriptorType CONFIGURATION                        */
@@ -109,17 +106,17 @@ static const uint8_t USBH_HUB_RH_FS_CfgDesc[] = {
  ********************************************************************************************************
  */
 
-static const uint8_t USBH_HUB_RH_LangID[] = {
+static const uint8_t usbh_hub_rh_lang_id[] = {
 	0x04u,
 	USBH_DESC_TYPE_STR,
 	0x09u, 0x04u, /* Identifer for English (United States). See Note #1.  */
 };
 
-static uint8_t USBH_HUB_DescBuf[USBH_HUB_MAX_DESC_LEN];
-static struct usbh_hub_dev USBH_HUB_Arr[USBH_CFG_MAX_HUBS];
-static int8_t HubCount = USBH_CFG_MAX_HUBS;
-static volatile struct usbh_hub_dev *USBH_HUB_HeadPtr;
-static volatile struct usbh_hub_dev *USBH_HUB_TailPtr;
+static uint8_t usbh_hub_desc_buf[USBH_HUB_MAX_DESC_LEN];
+static struct usbh_hub_dev usbh_hub_arr[USBH_CFG_MAX_HUBS];
+static int8_t hub_count = USBH_CFG_MAX_HUBS;
+static volatile struct usbh_hub_dev *usbh_hub_head_ptr;
+static volatile struct usbh_hub_dev *usbh_hub_tail_ptr;
 static struct k_sem usbh_hub_event_sem;
 
 
@@ -198,7 +195,7 @@ static int usbh_hub_ref_rel(struct usbh_hub_dev *p_hub_dev);
  *********************************************************************************************************
  */
 
-const struct usbh_class_drv USBH_HUB_Drv = {
+const struct usbh_class_drv usbh_hub_drv = {
 	(uint8_t *)"HUB",
 	usbh_hub_class_init,
 	NULL,
@@ -349,16 +346,16 @@ static void usbh_hub_class_init(int *p_err)
 	uint8_t hub_ix;
 
 	for (hub_ix = 0; hub_ix < USBH_CFG_MAX_HUBS; hub_ix++) { /* Clr all HUB dev structs.                             */
-		usbh_hub_clr(&USBH_HUB_Arr[hub_ix]);
+		usbh_hub_clr(&usbh_hub_arr[hub_ix]);
 	}
-	HubCount = (USBH_CFG_MAX_HUBS - 1);
+	hub_count = (USBH_CFG_MAX_HUBS - 1);
 
 	*p_err = k_sem_init(&usbh_hub_event_sem, 0, USBH_OS_SEM_REQUIRED);
 
-	USBH_HUB_HeadPtr = NULL;
-	USBH_HUB_TailPtr = NULL;
+	usbh_hub_head_ptr = NULL;
+	usbh_hub_tail_ptr = NULL;
 
-	memset(USBH_HUB_DescBuf, 0, USBH_HUB_MAX_DESC_LEN);
+	memset(usbh_hub_desc_buf, 0, USBH_HUB_MAX_DESC_LEN);
 }
 
 /*
@@ -422,11 +419,11 @@ static void *usbh_hub_if_probe(struct usbh_dev *p_dev,
 	}
 
 	if (if_desc.bInterfaceClass == USBH_CLASS_CODE_HUB) { /* If IF is HUB, alloc HUB dev.                         */
-		if (HubCount < 0) {
+		if (hub_count < 0) {
 			*p_err = EAGAIN;
 			return NULL;
 		} else   {
-			p_hub_dev = &USBH_HUB_Arr[HubCount--];
+			p_hub_dev = &usbh_hub_arr[hub_count--];
 		}
 
 		usbh_hub_clr(p_hub_dev);
@@ -837,11 +834,11 @@ static void usbh_hub_isr_cb(struct usbh_ep *p_ep,
 	usbh_hub_ref_add(p_hub_dev);
 
 	key = irq_lock();
-	if (USBH_HUB_HeadPtr == NULL) {
-		USBH_HUB_HeadPtr = USBH_HUB_TailPtr = p_hub_dev;
+	if (usbh_hub_head_ptr == NULL) {
+		usbh_hub_head_ptr = usbh_hub_tail_ptr = p_hub_dev;
 	} else   {
-		USBH_HUB_TailPtr->NxtPtr = p_hub_dev;
-		USBH_HUB_TailPtr = p_hub_dev;
+		usbh_hub_tail_ptr->NxtPtr = p_hub_dev;
+		usbh_hub_tail_ptr = p_hub_dev;
 	}
 	irq_unlock(key);
 
@@ -880,13 +877,13 @@ static void usbh_hub_event_proc(void)
 	int key;
 
 	key = irq_lock();
-	p_hub_dev = (struct usbh_hub_dev *)USBH_HUB_HeadPtr;
+	p_hub_dev = (struct usbh_hub_dev *)usbh_hub_head_ptr;
 
-	if (USBH_HUB_HeadPtr == USBH_HUB_TailPtr) {
-		USBH_HUB_HeadPtr = NULL;
-		USBH_HUB_TailPtr = NULL;
+	if (usbh_hub_head_ptr == usbh_hub_tail_ptr) {
+		usbh_hub_head_ptr = NULL;
+		usbh_hub_tail_ptr = NULL;
 	} else   {
-		USBH_HUB_HeadPtr = USBH_HUB_HeadPtr->NxtPtr;
+		usbh_hub_head_ptr = usbh_hub_head_ptr->NxtPtr;
 	}
 	irq_unlock(key);
 
@@ -1129,7 +1126,7 @@ static int usbh_hub_desc_get(struct usbh_hub_dev *p_hub_dev)
 				   (USBH_REQ_DIR_DEV_TO_HOST | USBH_REQ_TYPE_CLASS),
 				   (USBH_HUB_DESC_TYPE_HUB << 8),
 				   0,
-				   (void *)USBH_HUB_DescBuf,
+				   (void *)usbh_hub_desc_buf,
 				   hdr.bLength,
 				   USBH_HUB_TIMEOUT,
 				   &err);
@@ -1143,7 +1140,7 @@ static int usbh_hub_desc_get(struct usbh_hub_dev *p_hub_dev)
 	}
 
 	usbh_hub_parse_hub_desc(&p_hub_dev->Desc,
-				USBH_HUB_DescBuf);
+				usbh_hub_desc_buf);
 
 	if (p_hub_dev->Desc.bNbrPorts > USBH_CFG_MAX_HUB_PORTS) { /* Warns limit on hub port nbr to max cfg'd.            */
 		LOG_WRN("Only ports [1..%d] are active.\r\n", USBH_CFG_MAX_HUB_PORTS);
@@ -1754,7 +1751,7 @@ static int usbh_hub_ref_rel(struct usbh_hub_dev *p_hub_dev)
 		p_hub_dev->RefCnt--; /* Decrement access ref cnt to hub dev.                 */
 
 		if (p_hub_dev->RefCnt == 0) {
-			HubCount++;
+			hub_count++;
 		}
 	}
 	irq_unlock(key);
@@ -1900,25 +1897,25 @@ uint32_t usbh_rh_ctrl_req(struct usbh_hc *p_hc,
 	case USBH_REQ_GET_DESC:
 		switch (w_val >> 8) { /* Desc type.                                           */
 		case USBH_DESC_TYPE_DEV:
-			if (buf_len > sizeof(USBH_HUB_RH_DevDesc)) {
-				len = sizeof(USBH_HUB_RH_DevDesc);
+			if (buf_len > sizeof(usbh_hub_rh_dev_desc)) {
+				len = sizeof(usbh_hub_rh_dev_desc);
 			} else   {
 				len = buf_len;
 			}
 
 			memcpy(p_buf,
-			       (void *)USBH_HUB_RH_DevDesc,
+			       (void *)usbh_hub_rh_dev_desc,
 			       len);
 			break;
 
 		case USBH_DESC_TYPE_CFG: /* Return cfg desc.                                     */
-			if (buf_len > sizeof(USBH_HUB_RH_FS_CfgDesc)) {
-				len = sizeof(USBH_HUB_RH_FS_CfgDesc);
+			if (buf_len > sizeof(usbh_hub_rh_fs_cfg_desc)) {
+				len = sizeof(usbh_hub_rh_fs_cfg_desc);
 			} else   {
 				len = buf_len;
 			}
 			memcpy(p_buf,
-			       (void *)USBH_HUB_RH_FS_CfgDesc,
+			       (void *)usbh_hub_rh_fs_cfg_desc,
 			       len);
 			break;
 
@@ -1932,13 +1929,13 @@ uint32_t usbh_rh_ctrl_req(struct usbh_hc *p_hc,
 		case USBH_DESC_TYPE_STR:
 
 			if ((w_val & 0x00FF) == 0) {
-				if (buf_len > sizeof(USBH_HUB_RH_LangID)) {
-					len = sizeof(USBH_HUB_RH_LangID);
+				if (buf_len > sizeof(usbh_hub_rh_lang_id)) {
+					len = sizeof(usbh_hub_rh_lang_id);
 				} else   {
 					len = buf_len;
 				}
 				memcpy(p_buf,
-				       (void *)USBH_HUB_RH_LangID,
+				       (void *)usbh_hub_rh_lang_id,
 				       len);
 			} else   {
 				*p_err = EBUSY;
@@ -2008,12 +2005,12 @@ void usbh_rh_event(struct usbh_dev *p_dev)
 	usbh_hub_ref_add(p_hub_dev);
 
 	key = irq_lock();
-	if (USBH_HUB_HeadPtr == NULL) {
-		USBH_HUB_HeadPtr = p_hub_dev;
-		USBH_HUB_TailPtr = p_hub_dev;
+	if (usbh_hub_head_ptr == NULL) {
+		usbh_hub_head_ptr = p_hub_dev;
+		usbh_hub_tail_ptr = p_hub_dev;
 	} else   {
-		USBH_HUB_TailPtr->NxtPtr = p_hub_dev;
-		USBH_HUB_TailPtr = p_hub_dev;
+		usbh_hub_tail_ptr->NxtPtr = p_hub_dev;
+		usbh_hub_tail_ptr = p_hub_dev;
 	}
 	irq_unlock(key);
 	k_sem_give(&usbh_hub_event_sem);
