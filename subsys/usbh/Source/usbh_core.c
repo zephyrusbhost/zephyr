@@ -1808,7 +1808,7 @@ uint32_t usbh_bulk_tx(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
  */
 
 int usbh_bulk_tx_async(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
-			    USBH_XFER_CMPL_FNCT fnct, void *p_fnct_arg)
+			    usbh_xfer_cmpl_fnct fnct, void *p_fnct_arg)
 {
 	int err;
 	uint8_t ep_type;
@@ -1925,7 +1925,7 @@ uint32_t usbh_bulk_rx(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
  */
 
 int usbh_bulk_rx_async(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
-			    USBH_XFER_CMPL_FNCT fnct, void *p_fnct_arg)
+			    usbh_xfer_cmpl_fnct fnct, void *p_fnct_arg)
 {
 	int err;
 	uint8_t ep_type;
@@ -2040,7 +2040,7 @@ uint32_t usbh_intr_tx(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
  */
 
 int usbh_intr_tx_async(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
-			    USBH_XFER_CMPL_FNCT fnct, void *p_fnct_arg)
+			    usbh_xfer_cmpl_fnct fnct, void *p_fnct_arg)
 {
 	int err;
 	uint8_t ep_type;
@@ -2155,7 +2155,7 @@ uint32_t usbh_intr_rx(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
  */
 
 int usbh_intr_rx_async(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
-			    USBH_XFER_CMPL_FNCT fnct, void *p_fnct_arg)
+			    usbh_xfer_cmpl_fnct fnct, void *p_fnct_arg)
 {
 	int err;
 	uint8_t ep_type;
@@ -2301,7 +2301,7 @@ uint32_t usbh_isoc_tx(struct usbh_ep *p_ep, uint8_t *p_buf, uint32_t buf_len,
 int usbh_isoc_tx_async(struct usbh_ep *p_ep, uint8_t *p_buf,
 			    uint32_t buf_len, uint32_t start_frm,
 			    uint32_t nbr_frm, uint16_t *p_frm_len,
-			    int *p_frm_err, USBH_ISOC_CMPL_FNCT fnct,
+			    int *p_frm_err, usbh_isoc_cmpl_fnct fnct,
 			    void *p_fnct_arg)
 {
 	int err;
@@ -2461,7 +2461,7 @@ uint32_t usbh_isoc_rx(struct usbh_ep *p_ep, uint8_t *p_buf, uint32_t buf_len,
 int usbh_isoc_rx_async(struct usbh_ep *p_ep, uint8_t *p_buf,
 			    uint32_t buf_len, uint32_t start_frm,
 			    uint32_t nbr_frm, uint16_t *p_frm_len,
-			    int *p_frm_err, USBH_ISOC_CMPL_FNCT fnct,
+			    int *p_frm_err, usbh_isoc_cmpl_fnct fnct,
 			    void *p_fnct_arg)
 {
 	int err;
@@ -3648,8 +3648,8 @@ static void usb_urb_notify(struct usbh_urb *p_urb)
 	void *p_arg;
 	struct usbh_ep *p_ep;
 	struct usbh_isoc_desc *p_isoc_desc;
-	USBH_XFER_CMPL_FNCT p_xfer_fnct;
-	USBH_ISOC_CMPL_FNCT p_isoc_fnct;
+	usbh_xfer_cmpl_fnct p_xfer_fnct;
+	usbh_isoc_cmpl_fnct p_isoc_fnct;
 	int *p_frm_err;
 	int err;
 	int key;
@@ -3674,12 +3674,12 @@ static void usb_urb_notify(struct usbh_urb *p_urb)
 		p_urb->State = USBH_URB_STATE_NONE;
 
 		if (p_isoc_desc == NULL) {
-			p_xfer_fnct = (USBH_XFER_CMPL_FNCT)p_urb->FnctPtr;
+			p_xfer_fnct = (usbh_xfer_cmpl_fnct)p_urb->FnctPtr;
 			irq_unlock(key);
 
 			p_xfer_fnct(p_ep, p_buf, buf_len, xfer_len, p_arg, err);
 		} else {
-			p_isoc_fnct = (USBH_ISOC_CMPL_FNCT)p_urb->FnctPtr;
+			p_isoc_fnct = (usbh_isoc_cmpl_fnct)p_urb->FnctPtr;
 			start_frm = p_isoc_desc->StartFrm;
 			nbr_frm = p_isoc_desc->NbrFrm;
 			p_frm_len = p_isoc_desc->FrmLen;
