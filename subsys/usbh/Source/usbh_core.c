@@ -169,10 +169,10 @@ int usbh_init()
 
 	for (ix = 0; ix < USBH_CFG_MAX_NBR_CLASS_DRVS;
 	     ix++) { /* Clr class drv struct table.                          */
-		usbh_class_drv_list[ix].ClassDrvPtr = NULL;
-		usbh_class_drv_list[ix].NotifyFnctPtr = NULL;
-		usbh_class_drv_list[ix].NotifyArgPtr = NULL;
-		usbh_class_drv_list[ix].InUse = 0;
+		usbh_class_drv_list[ix].class_drv_ptr = NULL;
+		usbh_class_drv_list[ix].notify_fnct_ptr = NULL;
+		usbh_class_drv_list[ix].notify_arg_ptr = NULL;
+		usbh_class_drv_list[ix].in_use = 0;
 	}
 
 	err = usbh_reg_class_drv(&usbh_hub_drv, usbh_hub_class_notify,
