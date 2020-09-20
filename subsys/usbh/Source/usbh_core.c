@@ -988,7 +988,7 @@ int usbh_cfg_desc_get(struct usbh_cfg *p_cfg,
 		->CfgData;         /* Check for valid cfg desc.                            */
 
 	if ((p_desc->bLength == USBH_LEN_DESC_CFG) &&
-	    (p_desc->bDescriptorType == USBH_DESC_TYPE_CFG)) {
+	    (p_desc->b_desc_type == USBH_DESC_TYPE_CFG)) {
 		usbh_parse_cfg_desc(p_cfg_desc, (void *)p_desc);
 
 		return 0;
@@ -1035,7 +1035,7 @@ struct usbh_desc_hdr *usbh_cfg_extra_desc_get(struct usbh_cfg *p_cfg,
 		->CfgData;         /* Get config desc data.                                */
 
 	if ((p_desc->bLength == USBH_LEN_DESC_CFG) &&
-	    (p_desc->bDescriptorType == USBH_DESC_TYPE_CFG) &&
+	    (p_desc->b_desc_type == USBH_DESC_TYPE_CFG) &&
 	    (p_cfg->CfgDataLen > (p_desc->bLength + 2))) {
 		cfg_off = p_desc->bLength;
 		p_extra_desc = usbh_next_desc_get(
@@ -1043,7 +1043,7 @@ struct usbh_desc_hdr *usbh_cfg_extra_desc_get(struct usbh_cfg *p_cfg,
 			&cfg_off); /* Get desc that follows config desc.                   */
 
 		/* No extra desc present.                               */
-		if (p_extra_desc->bDescriptorType != USBH_DESC_TYPE_IF) {
+		if (p_extra_desc->b_desc_type != USBH_DESC_TYPE_IF) {
 			*p_err = 0;
 			return p_extra_desc;
 		}
@@ -1172,7 +1172,7 @@ uint8_t usbh_if_alt_nbr_get(struct usbh_if *p_if)
 	       p_if->IF_DataLen) { /* Cnt nbr of alternate settings.                       */
 		p_desc = usbh_next_desc_get((void *)p_desc, &if_off);
 
-		if (p_desc->bDescriptorType == USBH_DESC_TYPE_IF) {
+		if (p_desc->b_desc_type == USBH_DESC_TYPE_IF) {
 			nbr_alts++;
 		}
 	}
@@ -1229,7 +1229,7 @@ uint8_t usbh_if_ep_nbr_get(struct usbh_if *p_if, uint8_t alt_ix)
 	while (if_off < p_if->IF_DataLen) {
 		p_desc = usbh_next_desc_get((void *)p_desc, &if_off);
 		/* IF desc.                                             */
-		if (p_desc->bDescriptorType == USBH_DESC_TYPE_IF) {
+		if (p_desc->b_desc_type == USBH_DESC_TYPE_IF) {
 			if (alt_ix ==
 			    ((uint8_t *)p_desc)
 			    [3]) {              /* Chk alternate setting.                               */
@@ -1274,7 +1274,7 @@ int usbh_if_desc_get(struct usbh_if *p_if, uint8_t alt_ix,
 		p_desc = usbh_next_desc_get((void *)p_desc, &if_off);
 
 		if ((p_desc->bLength == USBH_LEN_DESC_IF) &&
-		    (p_desc->bDescriptorType == USBH_DESC_TYPE_IF) &&
+		    (p_desc->b_desc_type == USBH_DESC_TYPE_IF) &&
 		    (alt_ix == ((uint8_t *)p_desc)[3])) {
 			usbh_parse_if_desc(p_if_desc, (void *)p_desc);
 			return 0;
@@ -1324,7 +1324,7 @@ uint8_t *usbh_if_extra_desc_get(struct usbh_if *p_if, uint8_t alt_ix,
 			&if_off); /* Get next desc from IF.                               */
 
 		if ((p_desc->bLength == USBH_LEN_DESC_IF) &&
-		    (p_desc->bDescriptorType == USBH_DESC_TYPE_IF) &&
+		    (p_desc->b_desc_type == USBH_DESC_TYPE_IF) &&
 		    (alt_ix == ((uint8_t *)p_desc)[3])) {
 			if (if_off <
 			    p_if->IF_DataLen) { /* Get desc that follows selected alternate setting.    */
@@ -1333,9 +1333,9 @@ uint8_t *usbh_if_extra_desc_get(struct usbh_if *p_if, uint8_t alt_ix,
 				p_data = (uint8_t *)p_desc;
 				*p_data_len = 0;
 
-				while ((p_desc->bDescriptorType !=
+				while ((p_desc->b_desc_type !=
 					USBH_DESC_TYPE_IF) &&
-				       (p_desc->bDescriptorType !=
+				       (p_desc->b_desc_type !=
 					USBH_DESC_TYPE_EP)) {
 					*p_data_len += p_desc->bLength;
 					p_desc = usbh_next_desc_get(
@@ -2648,7 +2648,7 @@ int usbh_ep_get(struct usbh_if *p_if, uint8_t alt_ix, uint8_t ep_ix,
 	while (if_off < p_if->IF_DataLen) {
 		p_desc = usbh_next_desc_get((void *)p_desc, &if_off);
 
-		if (p_desc->bDescriptorType ==
+		if (p_desc->b_desc_type ==
 		    USBH_DESC_TYPE_IF) { /* Chk if IF desc.                                      */
 			if (alt_ix ==
 			    ((uint8_t *)p_desc)
@@ -2661,7 +2661,7 @@ int usbh_ep_get(struct usbh_if *p_if, uint8_t alt_ix, uint8_t ep_ix,
 	while (if_off < p_if->IF_DataLen) {
 		p_desc = usbh_next_desc_get((void *)p_desc, &if_off);
 
-		if (p_desc->bDescriptorType ==
+		if (p_desc->b_desc_type ==
 		    USBH_DESC_TYPE_EP) {        /* Chk if EP desc.                                      */
 			if (ix ==
 			    ep_ix) {            /* Compare EP ix.                                       */
@@ -3808,7 +3808,7 @@ static int usbh_dflt_ep_open(struct usbh_dev *p_dev)
 	}
 
 	p_ep->Desc.bLength = 7u;
-	p_ep->Desc.bDescriptorType = USBH_DESC_TYPE_EP;
+	p_ep->Desc.b_desc_type = USBH_DESC_TYPE_EP;
 	p_ep->Desc.bEndpointAddress = 0;
 	p_ep->Desc.bmAttributes = USBH_EP_TYPE_CTRL;
 	p_ep->Desc.wMaxPacketSize = ep_max_pkt_size;
@@ -3939,7 +3939,7 @@ static int usbh_dev_desc_rd(struct usbh_dev *p_dev)
 	usbh_dev_desc_get(p_dev, &dev_desc);
 
 	if ((dev_desc.bLength < USBH_LEN_DESC_DEV) ||
-	    (dev_desc.bDescriptorType != USBH_DESC_TYPE_DEV) ||
+	    (dev_desc.b_desc_type != USBH_DESC_TYPE_DEV) ||
 	    (dev_desc.bNbrConfigurations == 0)) {
 		return EINVAL;
 	}
@@ -4148,7 +4148,7 @@ static int usbh_cfg_parse(struct usbh_dev *p_dev, struct usbh_cfg *p_cfg)
 		p_desc = usbh_next_desc_get((void *)p_desc, &cfg_off);
 
 		/* ---------- VALIDATE INTERFACE DESCRIPTOR ----------- */
-		if (p_desc->bDescriptorType == USBH_DESC_TYPE_IF) {
+		if (p_desc->b_desc_type == USBH_DESC_TYPE_IF) {
 			usbh_parse_if_desc(&if_desc, p_desc);
 			if ((if_desc.bInterfaceClass !=
 			     USBH_CLASS_CODE_AUDIO) &&
@@ -4200,7 +4200,7 @@ static int usbh_cfg_parse(struct usbh_dev *p_dev, struct usbh_cfg *p_cfg)
 			}
 		}
 
-		if (p_desc->bDescriptorType == USBH_DESC_TYPE_EP) {
+		if (p_desc->b_desc_type == USBH_DESC_TYPE_EP) {
 			usbh_parse_ep_desc(&ep_desc, p_desc);
 
 			if ((ep_desc.bEndpointAddress == 0x00u) ||
@@ -4375,7 +4375,7 @@ static uint32_t usbh_str_desc_get(struct usbh_dev *p_dev, uint8_t desc_ix,
 	if ((len ==
 	     req_len) && /* Chk desc hdr.                                        */
 	    (p_hdr->bLength != 0) &&
-	    (p_hdr->bDescriptorType == USBH_DESC_TYPE_STR)) {
+	    (p_hdr->b_desc_type == USBH_DESC_TYPE_STR)) {
 		len = p_hdr->bLength;
 		if (desc_ix == USBH_STRING_DESC_LANGID) {
 			return len;
@@ -4560,7 +4560,7 @@ static void usbh_parse_dev_desc(struct usbh_dev_desc *p_dev_desc,
 	p_buf_src_dev_desc = (struct usbh_dev_desc *)p_buf_src;
 
 	p_dev_desc->bLength = p_buf_src_dev_desc->bLength;
-	p_dev_desc->bDescriptorType = p_buf_src_dev_desc->bDescriptorType;
+	p_dev_desc->b_desc_type = p_buf_src_dev_desc->b_desc_type;
 	p_dev_desc->bcdUSB =
 		sys_get_le16((uint8_t *)&p_buf_src_dev_desc->bcdUSB);
 	p_dev_desc->bDeviceClass = p_buf_src_dev_desc->bDeviceClass;
@@ -4603,7 +4603,7 @@ static void usbh_parse_cfg_desc(struct usbh_cfg_desc *p_cfg_desc,
 	p_buf_src_cfg_desc = (struct usbh_cfg_desc *)p_buf_src;
 
 	p_cfg_desc->bLength = p_buf_src_cfg_desc->bLength;
-	p_cfg_desc->bDescriptorType = p_buf_src_cfg_desc->bDescriptorType;
+	p_cfg_desc->b_desc_type = p_buf_src_cfg_desc->b_desc_type;
 	p_cfg_desc->wTotalLength =
 		sys_get_le16((uint8_t *)&p_buf_src_cfg_desc->wTotalLength);
 	p_cfg_desc->bNbrInterfaces = p_buf_src_cfg_desc->bNbrInterfaces;
@@ -4637,7 +4637,7 @@ static void usbh_parse_if_desc(struct usbh_if_desc *p_if_desc, void *p_buf_src)
 	p_buf_src_if_desc = (struct usbh_if_desc *)p_buf_src;
 
 	p_if_desc->bLength = p_buf_src_if_desc->bLength;
-	p_if_desc->bDescriptorType = p_buf_src_if_desc->bDescriptorType;
+	p_if_desc->b_desc_type = p_buf_src_if_desc->b_desc_type;
 	p_if_desc->bInterfaceNumber = p_buf_src_if_desc->bInterfaceNumber;
 	p_if_desc->bAlternateSetting = p_buf_src_if_desc->bAlternateSetting;
 	p_if_desc->bNbrEndpoints = p_buf_src_if_desc->bNbrEndpoints;
@@ -4669,7 +4669,7 @@ static void usbh_parse_ep_desc(struct usbh_ep_desc *p_ep_desc, void *p_buf_src)
 
 	p_buf_desc = (struct usbh_ep_desc *)p_buf_src;
 	p_ep_desc->bLength = p_buf_desc->bLength;
-	p_ep_desc->bDescriptorType = p_buf_desc->bDescriptorType;
+	p_ep_desc->b_desc_type = p_buf_desc->b_desc_type;
 	p_ep_desc->bEndpointAddress = p_buf_desc->bEndpointAddress;
 	p_ep_desc->bmAttributes = p_buf_desc->bmAttributes;
 	p_ep_desc->wMaxPacketSize =

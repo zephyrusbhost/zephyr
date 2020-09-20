@@ -1424,8 +1424,8 @@ static bool usbh_atsamx_rh_hub_desc_get(struct usbh_hc_drv *p_hc_drv,
 
 	p_drv_data = (struct usbh_drv_data *)p_hc_drv->DataPtr;
 
-	hub_desc.bDescLength = USBH_HUB_LEN_HUB_DESC;
-	hub_desc.bDescriptorType = USBH_HUB_DESC_TYPE_HUB;
+	hub_desc.b_desc_length = USBH_HUB_LEN_HUB_DESC;
+	hub_desc.b_desc_type = USBH_HUB_DESC_TYPE_HUB;
 	hub_desc.bNbrPorts = 1;
 	hub_desc.wHubCharacteristics = 0;
 	hub_desc.bPwrOn2PwrGood = 100u;

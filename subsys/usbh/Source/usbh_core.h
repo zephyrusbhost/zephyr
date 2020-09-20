@@ -565,8 +565,8 @@ struct  usbh_hub_port_status {
  *********************************************************************************************************
  */
 struct  usbh_hub_desc {
-	uint8_t bDescLength;
-	uint8_t bDescriptorType;
+	uint8_t b_desc_length;
+	uint8_t b_desc_type;
 	uint8_t bNbrPorts;
 	uint16_t wHubCharacteristics;
 	uint8_t bPwrOn2PwrGood;
@@ -615,7 +615,7 @@ struct  usbh_setup_req {
 
 struct  usbh_desc_hdr {
 	uint8_t bLength;
-	uint8_t bDescriptorType;
+	uint8_t b_desc_type;
 };
 
 
@@ -629,7 +629,7 @@ struct  usbh_desc_hdr {
 
 struct  usbh_dev_desc {
 	uint8_t bLength;
-	uint8_t bDescriptorType;
+	uint8_t b_desc_type;
 	uint16_t bcdUSB;
 	uint8_t bDeviceClass;
 	uint8_t bDeviceSubClass;
@@ -655,7 +655,7 @@ struct  usbh_dev_desc {
 
 struct  usbh_dev_qualifier_desc {
 	uint8_t bLength;
-	uint8_t bDescriptorType;
+	uint8_t b_desc_type;
 	uint16_t bcdUSB;
 	uint8_t bDeviceClass;
 	uint8_t bDeviceSubClass;
@@ -676,7 +676,7 @@ struct  usbh_dev_qualifier_desc {
 
 struct  usbh_cfg_desc {
 	uint8_t bLength;
-	uint8_t bDescriptorType;
+	uint8_t b_desc_type;
 	uint16_t wTotalLength;
 	uint8_t bNbrInterfaces;
 	uint8_t bConfigurationValue;
@@ -696,7 +696,7 @@ struct  usbh_cfg_desc {
 
 struct  usbh_other_spd_cfg_desc {
 	uint8_t bLength;
-	uint8_t bDescriptorType;
+	uint8_t b_desc_type;
 	uint16_t wTotalLength;
 	uint8_t bNbrInterfaces;
 	uint8_t bConfigurationValue;
@@ -716,7 +716,7 @@ struct  usbh_other_spd_cfg_desc {
 
 struct  usbh_if_desc {
 	uint8_t bLength;
-	uint8_t bDescriptorType;
+	uint8_t b_desc_type;
 	uint8_t bInterfaceNumber;
 	uint8_t bAlternateSetting;
 	uint8_t bNbrEndpoints;
@@ -737,7 +737,7 @@ struct  usbh_if_desc {
 
 struct  usbh_if_association_desc {
 	uint8_t bLength;
-	uint8_t bDescriptorType;
+	uint8_t b_desc_type;
 	uint8_t bFirstInterface;
 	uint8_t bInterfaceCount;
 	uint8_t bFunctionClass;
@@ -757,7 +757,7 @@ struct  usbh_if_association_desc {
 
 struct  usbh_ep_desc {
 	uint8_t bLength;
-	uint8_t bDescriptorType;
+	uint8_t b_desc_type;
 	uint8_t bEndpointAddress;
 	uint8_t bmAttributes;
 	uint16_t wMaxPacketSize;
@@ -777,7 +777,7 @@ struct  usbh_ep_desc {
 
 struct  usbh_otg_desc {
 	uint8_t bLength;
-	uint8_t bDescriptorType;
+	uint8_t b_desc_type;
 	uint8_t bmAttributes;
 };
 
