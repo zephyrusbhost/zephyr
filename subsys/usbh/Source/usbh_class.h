@@ -56,10 +56,10 @@ typedef void (*usbh_class_notify_fnct)(void *p_class_dev,
 				       void *p_ctx);
 
 struct usbh_class_drv_reg {
-	const struct usbh_class_drv *ClassDrvPtr;       /* Class driver structure                               */
-	usbh_class_notify_fnct NotifyFnctPtr;           /* Called when device connection status changes         */
-	void *NotifyArgPtr;                             /* Context of the notification funtion                  */
-	uint8_t InUse;
+	const struct usbh_class_drv *class_drv_ptr;       /* Class driver structure                               */
+	usbh_class_notify_fnct notify_fnct_ptr;           /* Called when device connection status changes         */
+	void *notify_arg_ptr;                             /* Context of the notification funtion                  */
+	uint8_t in_use;
 };
 
 
