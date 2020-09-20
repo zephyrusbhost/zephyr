@@ -567,12 +567,12 @@ struct  usbh_hub_port_status {
 struct  usbh_hub_desc {
 	uint8_t b_desc_length;
 	uint8_t b_desc_type;
-	uint8_t bNbrPorts;
-	uint16_t wHubCharacteristics;
-	uint8_t bPwrOn2PwrGood;
-	uint8_t bHubContrCurrent;
-	uint8_t DeviceRemovable;
-	uint32_t PortPwrCtrlMask[USBH_CFG_MAX_HUB_PORTS];
+	uint8_t b_nbr_ports;
+	uint16_t w_hub_characteristics;
+	uint8_t b_pwr_on_to_pwr_good;
+	uint8_t b_hub_contr_current;
+	uint8_t device_removable;
+	uint32_t port_pwr_ctrl_mask[USBH_CFG_MAX_HUB_PORTS];
 };
 
 
@@ -585,8 +585,8 @@ struct  usbh_hub_desc {
  */
 
 struct  usbh_hub_status {
-	uint16_t wHubStatus;
-	uint16_t wHubChange;
+	uint16_t w_hub_status;
+	uint16_t w_hub_change;
 };
 
 

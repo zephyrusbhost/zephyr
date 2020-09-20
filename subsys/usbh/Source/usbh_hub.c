@@ -472,7 +472,7 @@ static void usbh_hub_suspend(void *p_class_dev)
 	struct usbh_hub_dev *p_hub_dev;
 
 	p_hub_dev = (struct usbh_hub_dev *)p_class_dev;
-	nbr_ports = MIN(p_hub_dev->Desc.bNbrPorts, USBH_CFG_MAX_HUB_PORTS);
+	nbr_ports = MIN(p_hub_dev->Desc.b_nbr_ports, USBH_CFG_MAX_HUB_PORTS);
 
 	for (port_ix = 0; port_ix < nbr_ports; port_ix++) {
 		p_dev = (struct usbh_dev *)p_hub_dev->DevPtrList[port_ix];
@@ -507,7 +507,7 @@ static void usbh_hub_resume(void *p_class_dev)
 	struct usbh_hub_port_status port_status;
 
 	p_hub_dev = (struct usbh_hub_dev *)p_class_dev;
-	nbr_ports = MIN(p_hub_dev->Desc.bNbrPorts, USBH_CFG_MAX_HUB_PORTS);
+	nbr_ports = MIN(p_hub_dev->Desc.b_nbr_ports, USBH_CFG_MAX_HUB_PORTS);
 
 	for (port_ix = 0; port_ix < nbr_ports; port_ix++) {
 		usbh_hub_port_susp_clr(p_hub_dev, port_ix + 1); /* En resume signaling on port.                         */
@@ -649,7 +649,7 @@ static void usbh_hub_uninit(struct usbh_hub_dev *p_hub_dev)
 	struct usbh_dev *p_dev;
 
 	usbh_hub_ep_close(p_hub_dev);
-	nbr_ports = MIN(p_hub_dev->Desc.bNbrPorts, USBH_CFG_MAX_HUB_PORTS);
+	nbr_ports = MIN(p_hub_dev->Desc.b_nbr_ports, USBH_CFG_MAX_HUB_PORTS);
 
 	for (port_ix = 0; port_ix < nbr_ports; port_ix++) {
 		p_dev = (struct usbh_dev *)p_hub_dev->DevPtrList[port_ix];
@@ -765,7 +765,7 @@ static int usbh_hub_event_req(struct usbh_hub_dev *p_hub_dev)
 		}
 	}
 
-	len = (p_hub_dev->Desc.bNbrPorts / 8) + 1;    /* See Note (1).                                        */
+	len = (p_hub_dev->Desc.b_nbr_ports / 8) + 1;    /* See Note (1).                                        */
 	err = usbh_intr_rx_async(&p_hub_dev->IntrEP,    /* Start receiving hub events.                          */
 				 (void *)p_hub_dev->HubIntrBuf,
 				 len,
@@ -901,7 +901,7 @@ static void usbh_hub_event_proc(void)
 	}
 
 	port_nbr = 1;
-	nbr_ports = MIN(p_hub_dev->Desc.bNbrPorts, USBH_CFG_MAX_HUB_PORTS);
+	nbr_ports = MIN(p_hub_dev->Desc.b_nbr_ports, USBH_CFG_MAX_HUB_PORTS);
 
 	while (port_nbr <= nbr_ports) {
 
@@ -1142,7 +1142,7 @@ static int usbh_hub_desc_get(struct usbh_hub_dev *p_hub_dev)
 	usbh_hub_parse_hub_desc(&p_hub_dev->Desc,
 				usbh_hub_desc_buf);
 
-	if (p_hub_dev->Desc.bNbrPorts > USBH_CFG_MAX_HUB_PORTS) { /* Warns limit on hub port nbr to max cfg'd.            */
+	if (p_hub_dev->Desc.b_nbr_ports > USBH_CFG_MAX_HUB_PORTS) { /* Warns limit on hub port nbr to max cfg'd.            */
 		LOG_WRN("Only ports [1..%d] are active.\r\n", USBH_CFG_MAX_HUB_PORTS);
 	}
 
@@ -1167,8 +1167,8 @@ static int usbh_hub_desc_get(struct usbh_hub_dev *p_hub_dev)
  *               USBH_ERR_EP_STALL,                      Root hub does not support request.
  *               Host controller drivers error code,     Otherwise.
  *
- * Note(s)     : (1) USB2.0 specification states that the host must wait for (bPwrOn2PwrGood * 2) ms
- *                   before accessing a powered port. See section 11.23.2.1, bPwrOn2PwrGood field in hub
+ * Note(s)     : (1) USB2.0 specification states that the host must wait for (b_pwr_on_to_pwr_good * 2) ms
+ *                   before accessing a powered port. See section 11.23.2.1, b_pwr_on_to_pwr_good field in hub
  *                   descriptor.
  *********************************************************************************************************
  */
@@ -1179,7 +1179,7 @@ static int usbh_hub_ports_init(struct usbh_hub_dev *p_hub_dev)
 	uint32_t i;
 	uint16_t nbr_ports;
 
-	nbr_ports = MIN(p_hub_dev->Desc.bNbrPorts, USBH_CFG_MAX_HUB_PORTS);
+	nbr_ports = MIN(p_hub_dev->Desc.b_nbr_ports, USBH_CFG_MAX_HUB_PORTS);
 
 	for (i = 0; i < nbr_ports; i++) {
 		err = usbh_hub_port_pwr_set(p_hub_dev, i + 1); /* Set port pwr.                                      */
@@ -1188,7 +1188,7 @@ static int usbh_hub_ports_init(struct usbh_hub_dev *p_hub_dev)
 			LOG_ERR("PortPwrSet error");
 			return err;
 		}
-		k_sleep(K_MSEC(p_hub_dev->Desc.bPwrOn2PwrGood * 2)); /* See Note (1).                                       */
+		k_sleep(K_MSEC(p_hub_dev->Desc.b_pwr_on_to_pwr_good * 2)); /* See Note (1).                                       */
 	}
 	return 0;
 }
@@ -2088,14 +2088,14 @@ void usbh_hub_parse_hub_desc(struct usbh_hub_desc *p_hub_desc,
 
 	p_hub_desc->b_desc_length = p_buf_src_desc->b_desc_length;
 	p_hub_desc->b_desc_type = p_buf_src_desc->b_desc_type;
-	p_hub_desc->bNbrPorts = p_buf_src_desc->bNbrPorts;
-	p_hub_desc->wHubCharacteristics = sys_get_le16((uint8_t *)&p_buf_src_desc->wHubCharacteristics);
-	p_hub_desc->bPwrOn2PwrGood = p_buf_src_desc->bPwrOn2PwrGood;
-	p_hub_desc->bHubContrCurrent = p_buf_src_desc->bHubContrCurrent;
-	p_hub_desc->DeviceRemovable = p_buf_src_desc->DeviceRemovable;
+	p_hub_desc->b_nbr_ports = p_buf_src_desc->b_nbr_ports;
+	p_hub_desc->w_hub_characteristics = sys_get_le16((uint8_t *)&p_buf_src_desc->w_hub_characteristics);
+	p_hub_desc->b_pwr_on_to_pwr_good = p_buf_src_desc->b_pwr_on_to_pwr_good;
+	p_hub_desc->b_hub_contr_current = p_buf_src_desc->b_hub_contr_current;
+	p_hub_desc->device_removable = p_buf_src_desc->device_removable;
 
 	for (i = 0; i < USBH_CFG_MAX_HUB_PORTS; i++) {
-		p_hub_desc->PortPwrCtrlMask[i] = sys_get_le32((uint8_t *)&p_buf_src_desc->PortPwrCtrlMask[i]);
+		p_hub_desc->port_pwr_ctrl_mask[i] = sys_get_le32((uint8_t *)&p_buf_src_desc->port_pwr_ctrl_mask[i]);
 	}
 }
 
@@ -2127,11 +2127,11 @@ void usbh_hub_fmt_hub_desc(struct usbh_hub_desc *p_hub_desc,
 
 	p_buf_dest_desc->b_desc_length = p_hub_desc->b_desc_length;
 	p_buf_dest_desc->b_desc_type = p_hub_desc->b_desc_type;
-	p_buf_dest_desc->bNbrPorts = p_hub_desc->bNbrPorts;
-	p_buf_dest_desc->wHubCharacteristics = sys_get_le16((uint8_t *)&p_hub_desc->wHubCharacteristics);
-	p_buf_dest_desc->bHubContrCurrent = p_hub_desc->bHubContrCurrent;
-	p_buf_dest_desc->DeviceRemovable = p_hub_desc->DeviceRemovable;
+	p_buf_dest_desc->b_nbr_ports = p_hub_desc->b_nbr_ports;
+	p_buf_dest_desc->w_hub_characteristics = sys_get_le16((uint8_t *)&p_hub_desc->w_hub_characteristics);
+	p_buf_dest_desc->b_hub_contr_current = p_hub_desc->b_hub_contr_current;
+	p_buf_dest_desc->device_removable = p_hub_desc->device_removable;
 
-	memcpy(&p_buf_dest_desc->bPwrOn2PwrGood, &p_hub_desc->bPwrOn2PwrGood, sizeof(uint8_t));
-	memcpy(&p_buf_dest_desc->PortPwrCtrlMask[0], &p_hub_desc->PortPwrCtrlMask[0], (sizeof(uint32_t) * USBH_CFG_MAX_HUB_PORTS));
+	memcpy(&p_buf_dest_desc->b_pwr_on_to_pwr_good, &p_hub_desc->b_pwr_on_to_pwr_good, sizeof(uint8_t));
+	memcpy(&p_buf_dest_desc->port_pwr_ctrl_mask[0], &p_hub_desc->port_pwr_ctrl_mask[0], (sizeof(uint32_t) * USBH_CFG_MAX_HUB_PORTS));
 }
