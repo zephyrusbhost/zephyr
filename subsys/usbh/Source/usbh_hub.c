@@ -42,7 +42,7 @@ LOG_MODULE_REGISTER(hub);
 
 static const uint8_t usbh_hub_rh_dev_desc[18] = {
 	USBH_LEN_DESC_DEV,              /* bLength                                              */
-	USBH_DESC_TYPE_DEV,             /* bDescriptorType: Device                              */
+	USBH_DESC_TYPE_DEV,             /* b_desc_type: Device                              */
 	0x10u, 0x01u,                   /* bcdUSB: v1.1                                         */
 	USBH_CLASS_CODE_HUB,            /* bDeviceClass: HUB_CLASSCODE                          */
 	USBH_SUBCLASS_CODE_USE_IF_DESC, /* bDeviceSubClass                                      */
@@ -66,7 +66,7 @@ static const uint8_t usbh_hub_rh_dev_desc[18] = {
 static const uint8_t usbh_hub_rh_fs_cfg_desc[] = {
 	/* ------------- CONFIGURATION DESCRIPTOR ------------- */
 	USBH_LEN_DESC_CFG,      /* bLength                                              */
-	USBH_DESC_TYPE_CFG,     /* bDescriptorType CONFIGURATION                        */
+	USBH_DESC_TYPE_CFG,     /* b_desc_type CONFIGURATION                        */
 	0x19u, 0x00u,           /* le16 wTotalLength                                    */
 	0x01u,                  /* bNumInterfaces                                       */
 	0x01u,                  /* bConfigurationValue                                  */
@@ -76,7 +76,7 @@ static const uint8_t usbh_hub_rh_fs_cfg_desc[] = {
 
 	/* --------------- INTERFACE DESCRIPTOR --------------- */
 	USBH_LEN_DESC_IF,       /* bLength                                              */
-	USBH_DESC_TYPE_IF,      /* bDescriptorType: Interface                           */
+	USBH_DESC_TYPE_IF,      /* b_desc_type: Interface                           */
 	0x00u,                  /* bInterfaceNumber                                     */
 	0x00u,                  /* bAlternateSetting                                    */
 	0x01u,                  /* bNumEndpoints                                        */
@@ -87,7 +87,7 @@ static const uint8_t usbh_hub_rh_fs_cfg_desc[] = {
 
 	/* --------------- ENDPOINT DESCRIPTOR ---------------- */
 	USBH_LEN_DESC_EP,       /* bLength                                              */
-	USBH_DESC_TYPE_EP,      /* bDescriptorType: Endpoint                            */
+	USBH_DESC_TYPE_EP,      /* b_desc_type: Endpoint                            */
 	0x81u,                  /* bEndpointAddress: IN Endpoint 1                      */
 	0x03u,                  /* bmAttributes Interrupt                               */
 	0x08u, 0x00u,           /* wMaxPacketSize                                       */
@@ -1116,7 +1116,7 @@ static int usbh_hub_desc_get(struct usbh_hub_dev *p_hub_dev)
 
 	if ((hdr.bLength == 0) ||
 	    (hdr.bLength > USBH_HUB_MAX_DESC_LEN) ||
-	    (hdr.bDescriptorType != USBH_HUB_DESC_TYPE_HUB)) {
+	    (hdr.b_desc_type != USBH_HUB_DESC_TYPE_HUB)) {
 		return EINVAL;
 	}
 
@@ -2086,8 +2086,8 @@ void usbh_hub_parse_hub_desc(struct usbh_hub_desc *p_hub_desc,
 
 	p_buf_src_desc = (struct usbh_hub_desc *)p_buf_src;
 
-	p_hub_desc->bDescLength = p_buf_src_desc->bDescLength;
-	p_hub_desc->bDescriptorType = p_buf_src_desc->bDescriptorType;
+	p_hub_desc->b_desc_length = p_buf_src_desc->b_desc_length;
+	p_hub_desc->b_desc_type = p_buf_src_desc->b_desc_type;
 	p_hub_desc->bNbrPorts = p_buf_src_desc->bNbrPorts;
 	p_hub_desc->wHubCharacteristics = sys_get_le16((uint8_t *)&p_buf_src_desc->wHubCharacteristics);
 	p_hub_desc->bPwrOn2PwrGood = p_buf_src_desc->bPwrOn2PwrGood;
@@ -2125,8 +2125,8 @@ void usbh_hub_fmt_hub_desc(struct usbh_hub_desc *p_hub_desc,
 
 	p_buf_dest_desc = (struct usbh_hub_desc *)p_buf_dest;
 
-	p_buf_dest_desc->bDescLength = p_hub_desc->bDescLength;
-	p_buf_dest_desc->bDescriptorType = p_hub_desc->bDescriptorType;
+	p_buf_dest_desc->b_desc_length = p_hub_desc->b_desc_length;
+	p_buf_dest_desc->b_desc_type = p_hub_desc->b_desc_type;
 	p_buf_dest_desc->bNbrPorts = p_hub_desc->bNbrPorts;
 	p_buf_dest_desc->wHubCharacteristics = sys_get_le16((uint8_t *)&p_hub_desc->wHubCharacteristics);
 	p_buf_dest_desc->bHubContrCurrent = p_hub_desc->bHubContrCurrent;
