@@ -14,7 +14,7 @@
  *********************************************************************************************************
  */
 
-#include "usbh_class.h"
+#include <usbh_class.h>
 
 #include <logging/log.h>
 LOG_MODULE_REGISTER(usbh_class);
@@ -31,19 +31,6 @@ static void usbh_class_notify(struct usbh_dev *p_dev,
 			      void *p_class_dev,
 			      uint8_t is_conn);
 
-/*
- *********************************************************************************************************
- *                                     LOCAL CONFIGURATION ERRORS
- *********************************************************************************************************
- */
-
-/*
- *********************************************************************************************************
- *********************************************************************************************************
- *                                          GLOBAL FUNCTIONS
- *********************************************************************************************************
- *********************************************************************************************************
- */
 
 /*
  *********************************************************************************************************
@@ -66,7 +53,7 @@ static void usbh_class_notify(struct usbh_dev *p_dev,
  */
 
 int usbh_reg_class_drv(const struct usbh_class_drv *p_class_drv,
-		       USBH_CLASS_NOTIFY_FNCT class_notify_fnct,
+		       usbh_class_notify_fnct class_notify_fnct,
 		       void *p_class_notify_ctx)
 {
 	uint8_t ix;
@@ -77,12 +64,12 @@ int usbh_reg_class_drv(const struct usbh_class_drv *p_class_drv,
 		return EINVAL;
 	}
 
-	if (p_class_drv->NamePtr == NULL) {
+	if (p_class_drv->name_ptr == NULL) {
 		return EINVAL;
 	}
 
-	if ((p_class_drv->ProbeDev == 0) &&
-	    (p_class_drv->ProbeIF == 0)) {
+	if ((p_class_drv->probe_dev == 0) &&
+	    (p_class_drv->probe_if == 0)) {
 		return EINVAL;
 	}
 
@@ -103,7 +90,7 @@ int usbh_reg_class_drv(const struct usbh_class_drv *p_class_drv,
 		return ERANGE;
 	}
 
-	p_class_drv->GlobalInit(&err);
+	p_class_drv->global_init(&err);
 
 	return err;
 }
@@ -157,9 +144,9 @@ int usbh_class_drv_unreg(const struct usbh_class_drv *p_class_drv)
 
 /*
  *********************************************************************************************************
- *                                         USBH_ClassSuspend()
+ *                                         USBH_Classsuspend()
  *
- * Description : Suspend all class drivers associated to the device.
+ * Description : suspend all class drivers associated to the device.
  *
  * Argument(s) : p_dev       Pointer to USB device.
  *
@@ -182,8 +169,8 @@ void usbh_class_suspend(struct usbh_dev *p_dev)
 		p_class_drv = p_dev->ClassDrvRegPtr->ClassDrvPtr;
 		/* Chk if class drv is present at dev level.            */
 		if ((p_class_drv != NULL) &&
-		    (p_class_drv->Suspend != NULL)) {
-			p_class_drv->Suspend(p_dev->ClassDevPtr);
+		    (p_class_drv->suspend != NULL)) {
+			p_class_drv->suspend(p_dev->ClassDevPtr);
 			return;
 		}
 	}
@@ -202,8 +189,8 @@ void usbh_class_suspend(struct usbh_dev *p_dev)
 			p_class_drv = p_if->ClassDrvRegPtr->ClassDrvPtr;
 
 			if ((p_class_drv != NULL) &&
-			    (p_class_drv->Suspend != NULL)) {
-				p_class_drv->Suspend(p_if->ClassDevPtr);
+			    (p_class_drv->suspend != NULL)) {
+				p_class_drv->suspend(p_if->ClassDevPtr);
 				return;
 			}
 		}
@@ -212,9 +199,9 @@ void usbh_class_suspend(struct usbh_dev *p_dev)
 
 /*
  *********************************************************************************************************
- *                                          USBH_ClassResume()
+ *                                          USBH_Classresume()
  *
- * Description : Resume all class drivers associated to the device.
+ * Description : resume all class drivers associated to the device.
  *
  * Argument(s) : p_dev   Pointer to USB device.
  *
@@ -237,8 +224,8 @@ void usbh_class_resume(struct usbh_dev *p_dev)
 		p_class_drv = p_dev->ClassDrvRegPtr->ClassDrvPtr;
 		/* Chk if class drv is present at dev level.            */
 		if ((p_class_drv != NULL) &&
-		    (p_class_drv->Resume != NULL)) {
-			p_class_drv->Resume(p_dev->ClassDevPtr);
+		    (p_class_drv->resume != NULL)) {
+			p_class_drv->resume(p_dev->ClassDevPtr);
 			return;
 		}
 	}
@@ -257,8 +244,8 @@ void usbh_class_resume(struct usbh_dev *p_dev)
 			p_class_drv = p_if->ClassDrvRegPtr->ClassDrvPtr;
 
 			if ((p_class_drv != NULL) &&
-			    (p_class_drv->Resume != NULL)) {
-				p_class_drv->Resume(p_if->ClassDevPtr);
+			    (p_class_drv->resume != NULL)) {
+				p_class_drv->resume(p_if->ClassDevPtr);
 				return;
 			}
 		}
@@ -303,7 +290,7 @@ int usbh_class_drv_conn(struct usbh_dev *p_dev)
 	struct usbh_cfg *p_cfg;
 	struct usbh_if *p_if;
 
-	LOG_DBG("ProbeDev");
+	LOG_DBG("probe_dev");
 	err = usbh_class_probe_dev(p_dev);
 	LOG_ERR("%d %d", err, ENOTSUP);
 	if (err == 0) {
@@ -340,7 +327,7 @@ int usbh_class_drv_conn(struct usbh_dev *p_dev)
 		if (p_if == NULL) {
 			return ENOTSUP;
 		}
-		LOG_DBG("ProbeIF");
+		LOG_DBG("probe_if");
 		err = usbh_class_probe_if(p_dev, p_if); /* Find class driver matching IF.                       */
 		if (err == 0) {
 			drv_found = true;
@@ -378,9 +365,9 @@ int usbh_class_drv_conn(struct usbh_dev *p_dev)
 
 /*
  *********************************************************************************************************
- *                                       USBH_ClassDrvDisconn()
+ *                                       USBH_ClassDrvdisconn()
  *
- * Description : Disconnect all the class drivers associated to the specified USB device.
+ * Description : disconnect all the class drivers associated to the specified USB device.
  *
  * Argument(s) : p_dev   Pointer to USB device.
  *
@@ -404,14 +391,14 @@ void usbh_class_drv_disconn(struct usbh_dev *p_dev)
 		p_class_drv = p_dev->ClassDrvRegPtr->ClassDrvPtr;
 
 		if ((p_class_drv != NULL) &&
-		    (p_class_drv->Disconn != 0)) {
+		    (p_class_drv->disconn != 0)) {
 			LOG_DBG("notify class");
 			usbh_class_notify(p_dev,
 					  p_if,
 					  p_dev->ClassDevPtr,
 					  USBH_CLASS_DEV_STATE_DISCONN);
 
-			p_class_drv->Disconn((void *)p_dev->ClassDevPtr);
+			p_class_drv->disconn((void *)p_dev->ClassDevPtr);
 		}
 
 		p_dev->ClassDrvRegPtr = NULL;
@@ -432,15 +419,15 @@ void usbh_class_drv_disconn(struct usbh_dev *p_dev)
 			p_class_drv = p_if->ClassDrvRegPtr->ClassDrvPtr;
 
 			if ((p_class_drv != NULL) &&
-			    (p_class_drv->Disconn != NULL)) {
+			    (p_class_drv->disconn != NULL)) {
 				LOG_DBG("notify class");
 				usbh_class_notify(p_dev,
 						  p_if,
 						  p_if->ClassDevPtr,
 						  USBH_CLASS_DEV_STATE_DISCONN);
 
-				/* Disconnect the class driver.                         */
-				p_class_drv->Disconn((void *)p_if->ClassDevPtr);
+				/* disconnect the class driver.                         */
+				p_class_drv->disconn((void *)p_if->ClassDevPtr);
 			}
 
 			p_if->ClassDrvRegPtr = NULL;
@@ -459,7 +446,7 @@ void usbh_class_drv_disconn(struct usbh_dev *p_dev)
 
 /*
  *********************************************************************************************************
- *                                         USBH_ClassProbeDev()
+ *                                         USBH_Classprobe_dev()
  *
  * Description : Find a class driver matching device descriptor of the USB device.
  *
@@ -486,9 +473,9 @@ static int usbh_class_probe_dev(struct usbh_dev *p_dev)
 		if (usbh_class_drv_list[ix].InUse != 0) {
 			p_class_drv = usbh_class_drv_list[ix].ClassDrvPtr;
 
-			if (p_class_drv->ProbeDev != NULL) {
+			if (p_class_drv->probe_dev != NULL) {
 				p_dev->ClassDrvRegPtr = &usbh_class_drv_list[ix];
-				p_class_dev = p_class_drv->ProbeDev(p_dev, &err);
+				p_class_dev = p_class_drv->probe_dev(p_dev, &err);
 
 				if (err == 0) {
 					p_dev->ClassDevPtr = p_class_dev; /* Drv found, store class dev ptr.                      */
@@ -504,7 +491,7 @@ static int usbh_class_probe_dev(struct usbh_dev *p_dev)
 
 /*
  *********************************************************************************************************
- *                                         USBH_ClassProbeIF()
+ *                                         USBH_Classprobe_if()
  *
  * Description : Finds a class driver matching interface descriptor of an interface.
  *
@@ -522,7 +509,7 @@ static int usbh_class_probe_dev(struct usbh_dev *p_dev)
 static int usbh_class_probe_if(struct usbh_dev *p_dev,
  				    struct usbh_if *p_if)
 {
-	LOG_DBG("ClassProbeIF");
+	LOG_DBG("Classprobe_if");
 	uint8_t ix;
 	const struct usbh_class_drv *p_class_drv;
 	void *p_class_dev;
@@ -534,9 +521,9 @@ static int usbh_class_probe_if(struct usbh_dev *p_dev,
 		if (usbh_class_drv_list[ix].InUse != 0) {
 			p_class_drv = usbh_class_drv_list[ix].ClassDrvPtr;
 
-			if (p_class_drv->ProbeIF != NULL) {
+			if (p_class_drv->probe_if != NULL) {
 				p_if->ClassDrvRegPtr = &usbh_class_drv_list[ix];
-				p_class_dev = p_class_drv->ProbeIF(p_dev, p_if, &err);
+				p_class_dev = p_class_drv->probe_if(p_dev, p_if, &err);
 
 				if (err == 0) {
 					p_if->ClassDevPtr = p_class_dev; /* Drv found, store class dev ptr.                      */
