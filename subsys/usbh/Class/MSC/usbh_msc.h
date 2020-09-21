@@ -69,7 +69,7 @@ struct usbh_msc_dev
     struct usbh_ep BulkOutEP; /* Bulk OUT endpoint.                                   */
     struct usbh_dev *DevPtr;  /* Pointer to USB device.                               */
     struct usbh_if *IF_Ptr;   /* Pointer to interface.                                */
-    uint8_t State;  /* State of MSC device.                                 */
+    uint8_t state;  /* state of MSC device.                                 */
     uint8_t RefCnt; /* Cnt of app ref on this dev.                          */
     struct k_mutex HMutex;
 };

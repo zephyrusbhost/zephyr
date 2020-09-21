@@ -306,7 +306,7 @@ int usbh_class_drv_conn(struct usbh_dev *p_dev)
 
 		LOG_ERR("ERROR: Probe class driver. #%d\r\n", err);
 	} else   {
-		/* Empty Else Statement                                 */
+		/* Empty Else statement                                 */
 	}
 
 	LOG_DBG("CfgSet");
@@ -334,7 +334,7 @@ int usbh_class_drv_conn(struct usbh_dev *p_dev)
 		} else if (err != ENOTSUP) {
 			LOG_ERR("ERROR: Probe class driver. #%d\r\n", err);
 		} else   {
-			/* Empty Else Statement                                 */
+			/* Empty Else statement                                 */
 		}
 	}
 	if (drv_found == false) {

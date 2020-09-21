@@ -319,7 +319,7 @@ struct usbh_atsamx_pinfo {
 		EP_Addr; /* Device addr | EP DIR | EP NBR.                       */
 	/* To ensure the URB EP xfer size is not corrupted ...  */
 	uint16_t
-		AppBufLen; /* ... for multi-transaction transfer                   */
+		Appbuf_len; /* ... for multi-transaction transfer                   */
 	uint32_t NextXferLen;
 	struct usbh_urb *URB_Ptr;
 };
@@ -705,7 +705,7 @@ static void usbh_atsamx_hcd_start(struct usbh_hc_drv *p_hc_drv,
 		p_reg->HPIPE[i].PCFG =
 			0; /* Disable the pipe                                     */
 		/* Set default pipe info fields.                        */
-		p_drv_data->PipeTbl[i].AppBufLen = 0;
+		p_drv_data->PipeTbl[i].Appbuf_len = 0;
 		p_drv_data->PipeTbl[i].NextXferLen = 0;
 		p_drv_data->PipeTbl[i].EP_Addr = ATSAMX_DFLT_EP_ADDR;
 	}
@@ -983,9 +983,9 @@ static void usbh_atsamx_hcd_ep_close(struct usbh_hc_drv *p_hc_drv,
 		0; /* Set PID to DATA0                                      */
 	*p_err = 0;
 
-	if (p_ep->URB.DMA_BufPtr != NULL) {
-		k_free(p_ep->URB.DMA_BufPtr);
-		p_ep->URB.DMA_BufPtr = NULL;
+	if (p_ep->URB.DMA_buf_ptr != NULL) {
+		k_free(p_ep->URB.DMA_buf_ptr);
+		p_ep->URB.DMA_buf_ptr = NULL;
 	}
 
 	if (pipe_nbr != ATSAMX_INVALID_PIPE) {
@@ -997,7 +997,7 @@ static void usbh_atsamx_hcd_ep_close(struct usbh_hc_drv *p_hc_drv,
 			0;                      /* Disable the pipe                                      */
 
 		p_drv_data->PipeTbl[pipe_nbr].EP_Addr = ATSAMX_DFLT_EP_ADDR;
-		p_drv_data->PipeTbl[pipe_nbr].AppBufLen = 0;
+		p_drv_data->PipeTbl[pipe_nbr].Appbuf_len = 0;
 		p_drv_data->PipeTbl[pipe_nbr].NextXferLen = 0;
 		WRITE_BIT(p_drv_data->PipeUsed, pipe_nbr, 0);
 
@@ -1097,7 +1097,7 @@ static void usbh_atsamx_hcd_urb_submit(struct usbh_hc_drv *p_hc_drv,
 	p_drv_data = (struct usbh_drv_data *)p_hc_drv->DataPtr;
 	ep_type = usbh_ep_type_get(p_urb->EP_Ptr);
 
-	if (p_urb->State ==
+	if (p_urb->state ==
 	    USBH_URB_STATE_ABORTED) { /* See note 1.                                          */
 		*p_err = EIO;
 		return;
@@ -1113,14 +1113,14 @@ static void usbh_atsamx_hcd_urb_submit(struct usbh_hc_drv *p_hc_drv,
 	p_drv_data->PipeTbl[pipe_nbr].EP_Addr =
 		((p_urb->EP_Ptr->DevAddr << 8) |
 		 p_urb->EP_Ptr->Desc.b_endpoint_address);
-	p_drv_data->PipeTbl[pipe_nbr].AppBufLen = 0;
+	p_drv_data->PipeTbl[pipe_nbr].Appbuf_len = 0;
 	p_drv_data->PipeTbl[pipe_nbr].NextXferLen = 0;
 
-	if (p_urb->DMA_BufPtr == NULL) {
-		p_urb->DMA_BufPtr =
+	if (p_urb->DMA_buf_ptr == NULL) {
+		p_urb->DMA_buf_ptr =
 			k_mem_pool_malloc(&ATSAMX_DrvMemPool,
 					  USBH_DATA_BUF_MAX_LEN);
-		if (p_urb->DMA_BufPtr == NULL) {
+		if (p_urb->DMA_buf_ptr == NULL) {
 			*p_err = ENOMEM;
 			return;
 		}
@@ -1231,20 +1231,20 @@ static void usbh_atsamx_hcd_urb_complete(struct usbh_hc_drv *p_hc_drv,
 
 	if (p_urb->Token ==
 	    USBH_TOKEN_IN) { /* -------------- HANDLE IN TRANSACTIONS -------------- */
-		memcpy((void *)((uint32_t)p_urb->UserBufPtr +
+		memcpy((void *)((uint32_t)p_urb->Userbuf_ptr +
 				p_urb->XferLen),
-		       p_urb->DMA_BufPtr, xfer_len);
+		       p_urb->DMA_buf_ptr, xfer_len);
 
 		/* Check if it rx'd more data than what was expected    */
-		if (p_drv_data->PipeTbl[pipe_nbr].AppBufLen >
-		    p_urb->UserBufLen) {
+		if (p_drv_data->PipeTbl[pipe_nbr].Appbuf_len >
+		    p_urb->Userbuf_len) {
 			p_urb->XferLen += xfer_len;
 			p_urb->Err = EIO;
 		} else   {
 			p_urb->XferLen += xfer_len;
 		}
 	} else   { /* ----------- HANDLE SETUP/OUT TRANSACTIONS ---------- */
-		xfer_len = (p_drv_data->PipeTbl[pipe_nbr].AppBufLen - xfer_len);
+		xfer_len = (p_drv_data->PipeTbl[pipe_nbr].Appbuf_len - xfer_len);
 		if (xfer_len == 0) {
 			p_urb->XferLen +=
 				p_drv_data->PipeTbl[pipe_nbr].NextXferLen;
@@ -1263,11 +1263,11 @@ static void usbh_atsamx_hcd_urb_complete(struct usbh_hc_drv *p_hc_drv,
 		0;                      /* Disable the pipe                                     */
 	irq_unlock(key);
 
-	k_free(p_urb->DMA_BufPtr);
-	p_urb->DMA_BufPtr = NULL;
+	k_free(p_urb->DMA_buf_ptr);
+	p_urb->DMA_buf_ptr = NULL;
 
 	p_drv_data->PipeTbl[pipe_nbr].EP_Addr = ATSAMX_DFLT_EP_ADDR;
-	p_drv_data->PipeTbl[pipe_nbr].AppBufLen = 0;
+	p_drv_data->PipeTbl[pipe_nbr].Appbuf_len = 0;
 	p_drv_data->PipeTbl[pipe_nbr].NextXferLen = 0;
 	p_drv_data->PipeTbl[pipe_nbr].URB_Ptr = NULL;
 	WRITE_BIT(p_drv_data->PipeUsed, pipe_nbr, 0);
@@ -1296,7 +1296,7 @@ static void usbh_atsamx_hcd_urb_abort(struct usbh_hc_drv *p_hc_drv,
 				      struct usbh_urb *p_urb,
 				      int *p_err)
 {
-	p_urb->State = USBH_URB_STATE_ABORTED;
+	p_urb->state = USBH_URB_STATE_ABORTED;
 	p_urb->Err = EAGAIN;
 
 	*p_err = 0;
@@ -1773,7 +1773,7 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 		p_drv_data->RH_PortStat |=
 			USBH_HUB_STATUS_PORT_EN;        /* Bit may be set due to SetPortFeature(PORT_RESET)     */
 		p_drv_data->RH_PortChng |=
-			USBH_HUB_STATUS_C_PORT_RESET;   /* Transitioned from RESET state to ENABLED State       */
+			USBH_HUB_STATUS_C_PORT_RESET;   /* Transitioned from RESET state to ENABLED state       */
 
 		usbh_rh_event(
 			p_hc_drv->RH_DevPtr); /* Notify the core layer.                               */
@@ -1886,7 +1886,7 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 			p_reg->HPIPE[pipe_nbr].PINTFLAG =
 				USBH_ATSAMX_PINT_TXSTP; /* Clear   Setup transfer flag                   */
 
-			xfer_len = p_drv_data->PipeTbl[pipe_nbr].AppBufLen +
+			xfer_len = p_drv_data->PipeTbl[pipe_nbr].Appbuf_len +
 				   p_urb->XferLen;
 			p_urb->Err = 0;
 
@@ -1909,11 +1909,11 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 				LOG_DBG("in packets handler");
 				max_pkt_size =
 					usbh_ep_max_pkt_size_get(p_urb->EP_Ptr);
-				p_drv_data->PipeTbl[pipe_nbr].AppBufLen +=
+				p_drv_data->PipeTbl[pipe_nbr].Appbuf_len +=
 					xfer_len;
 
-				if ((p_drv_data->PipeTbl[pipe_nbr].AppBufLen ==
-				     p_urb->UserBufLen) ||
+				if ((p_drv_data->PipeTbl[pipe_nbr].Appbuf_len ==
+				     p_urb->Userbuf_len) ||
 				    (xfer_len < max_pkt_size)) {
 					p_urb->Err = 0;
 					usbh_urb_done(
@@ -1930,10 +1930,10 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 			} else   { /* ---------------- OUT PACKETS HANDLER --------------- */
 				LOG_DBG("out packets handler");
 				xfer_len =
-					p_drv_data->PipeTbl[pipe_nbr].AppBufLen +
+					p_drv_data->PipeTbl[pipe_nbr].Appbuf_len +
 					p_urb->XferLen;
 
-				if (xfer_len == p_urb->UserBufLen) {
+				if (xfer_len == p_urb->Userbuf_len) {
 					p_urb->Err = 0;
 					usbh_urb_done(
 						p_urb); /* Notify the Core layer about the URB completion       */
@@ -2002,9 +2002,9 @@ static void usbh_atsamx_process_urb(void *p_arg, void *p_arg2, void *p_arg3)
 			if (p_urb->Token ==
 			    USBH_TOKEN_IN) { /* -------------- HANDLE IN TRANSACTIONS -------------- */
 				memcpy(
-					(void *)((uint32_t)p_urb->UserBufPtr +
+					(void *)((uint32_t)p_urb->Userbuf_ptr +
 						 p_urb->XferLen),
-					p_urb->DMA_BufPtr, xfer_len);
+					p_urb->DMA_buf_ptr, xfer_len);
 				/* Check if it rx'd more data than what was expected    */
 				if (xfer_len >
 				    p_drv_data->PipeTbl[pipe_nbr]
@@ -2022,7 +2022,7 @@ static void usbh_atsamx_process_urb(void *p_arg, void *p_arg2, void *p_arg3)
 				}
 			} else   { /* ------------- HANDLE OUT TRANSACTIONS -------------- */
 				xfer_len = (p_drv_data->PipeTbl[pipe_nbr]
-					    .AppBufLen -
+					    .Appbuf_len -
 					    xfer_len);
 				if (xfer_len == 0) {
 					p_urb->XferLen +=
@@ -2085,26 +2085,26 @@ static void usbh_atsamx_pipe_cfg(struct usbh_urb *p_urb,
 
 	max_pkt_size = usbh_ep_max_pkt_size_get(p_urb->EP_Ptr);
 	ep_nbr = usbh_ep_log_nbr_get(p_urb->EP_Ptr);
-	p_pipe_info->NextXferLen = p_urb->UserBufLen - p_urb->XferLen;
+	p_pipe_info->NextXferLen = p_urb->Userbuf_len - p_urb->XferLen;
 	p_pipe_info->NextXferLen =
 		MIN(p_pipe_info->NextXferLen, USBH_DATA_BUF_MAX_LEN);
 
-	memset(p_urb->DMA_BufPtr, 0, p_pipe_info->NextXferLen);
+	memset(p_urb->DMA_buf_ptr, 0, p_pipe_info->NextXferLen);
 	if (p_urb->Token !=
 	    USBH_TOKEN_IN) { /* ---------------- SETUP/OUT PACKETS ----------------- */
-		p_pipe_info->AppBufLen = p_pipe_info->NextXferLen;
+		p_pipe_info->Appbuf_len = p_pipe_info->NextXferLen;
 
-		memcpy(p_urb->DMA_BufPtr,
-		       (void *)((uint32_t)p_urb->UserBufPtr +
+		memcpy(p_urb->DMA_buf_ptr,
+		       (void *)((uint32_t)p_urb->Userbuf_ptr +
 				p_urb->XferLen),
 		       p_pipe_info->NextXferLen);
 
-		p_desc_bank->PCKSIZE = p_pipe_info->AppBufLen;
+		p_desc_bank->PCKSIZE = p_pipe_info->Appbuf_len;
 	} else   { /* -------------------- IN PACKETS -------------------- */
 		p_desc_bank->PCKSIZE = (p_pipe_info->NextXferLen << 14u);
 	}
 
-	p_desc_bank->ADDR = (uint32_t)p_urb->DMA_BufPtr;
+	p_desc_bank->ADDR = (uint32_t)p_urb->DMA_buf_ptr;
 	p_desc_bank->PCKSIZE |= (u32_count_trailing_zeros(max_pkt_size >> 3u) << 28u);
 	p_desc_bank->CTRL_PIPE = (p_urb->EP_Ptr->DevAddr | (ep_nbr << 8));
 
