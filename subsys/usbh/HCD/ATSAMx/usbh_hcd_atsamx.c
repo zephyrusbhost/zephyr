@@ -317,7 +317,7 @@ struct usbh_atsamx_reg {
 struct usbh_atsamx_pinfo {
 	uint16_t
 		EP_Addr; /* Device addr | EP DIR | EP NBR.                       */
-	/* To ensure the URB EP xfer size is not corrupted ...  */
+	/* To ensure the urb EP xfer size is not corrupted ...  */
 	uint16_t
 		Appbuf_len; /* ... for multi-transaction transfer                   */
 	uint32_t NextXferLen;
@@ -936,7 +936,7 @@ static void usbh_atsamx_hcd_ep_open(struct usbh_hc_drv *p_hc_drv,
 	p_reg = (struct usbh_atsamx_reg *)p_hc_drv->HC_CfgPtr->BaseAddr;
 	p_ep->DataPID =
 		0; /* Set PID to DATA0                                     */
-	p_ep->URB.err = 0;
+	p_ep->urb.err = 0;
 	*p_err = 0;
 
 	if (p_reg->STATUS ==
@@ -983,9 +983,9 @@ static void usbh_atsamx_hcd_ep_close(struct usbh_hc_drv *p_hc_drv,
 		0; /* Set PID to DATA0                                      */
 	*p_err = 0;
 
-	if (p_ep->URB.DMA_buf_ptr != NULL) {
-		k_free(p_ep->URB.DMA_buf_ptr);
-		p_ep->URB.DMA_buf_ptr = NULL;
+	if (p_ep->urb.dma_buf_ptr != NULL) {
+		k_free(p_ep->urb.dma_buf_ptr);
+		p_ep->urb.dma_buf_ptr = NULL;
 	}
 
 	if (pipe_nbr != ATSAMX_INVALID_PIPE) {
@@ -1056,7 +1056,7 @@ static bool usbh_atsamx_hcd_ep_is_halt(struct usbh_hc_drv *p_hc_drv,
 				       int *p_err)
 {
 	*p_err = 0;
-	if (p_ep->URB.err == EIO) {
+	if (p_ep->urb.err == EIO) {
 		return true;
 	}
 
@@ -1067,14 +1067,14 @@ static bool usbh_atsamx_hcd_ep_is_halt(struct usbh_hc_drv *p_hc_drv,
  *********************************************************************************************************
  *                                    usbh_atsamx_hcd_urb_submit()
  *
- * Description : Submit specified URB.
+ * Description : Submit specified urb.
  *
  * Argument(s) : p_hc_drv     Pointer to host controller driver structure.
  *
- *               p_urb        Pointer to URB structure.
+ *               p_urb        Pointer to urb structure.
  *
  *               p_err        Pointer to variable that will receive the return error code from this function
- *                                USBH_ERR_NONE           URB submitted successfuly.
+ *                                USBH_ERR_NONE           urb submitted successfuly.
  *                                Specific error code     otherwise.
  *
  * Return(s)   : None.
@@ -1116,11 +1116,11 @@ static void usbh_atsamx_hcd_urb_submit(struct usbh_hc_drv *p_hc_drv,
 	p_drv_data->PipeTbl[pipe_nbr].Appbuf_len = 0;
 	p_drv_data->PipeTbl[pipe_nbr].NextXferLen = 0;
 
-	if (p_urb->DMA_buf_ptr == NULL) {
-		p_urb->DMA_buf_ptr =
+	if (p_urb->dma_buf_ptr == NULL) {
+		p_urb->dma_buf_ptr =
 			k_mem_pool_malloc(&ATSAMX_DrvMemPool,
 					  USBH_DATA_BUF_MAX_LEN);
-		if (p_urb->DMA_buf_ptr == NULL) {
+		if (p_urb->dma_buf_ptr == NULL) {
 			*p_err = ENOMEM;
 			return;
 		}
@@ -1145,11 +1145,11 @@ static void usbh_atsamx_hcd_urb_submit(struct usbh_hc_drv *p_hc_drv,
 	}
 
 	p_drv_data->PipeTbl[pipe_nbr].URB_Ptr =
-		p_urb; /* Store transaction URB                                */
+		p_urb; /* Store transaction urb                                */
 
 	switch (ep_type) {
 	case USBH_EP_TYPE_CTRL:
-		if (p_urb->Token == USBH_TOKEN_SETUP) {
+		if (p_urb->token == USBH_TOKEN_SETUP) {
 			p_reg->HPIPE[pipe_nbr].PINTENSET =
 				USBH_ATSAMX_PINT_TXSTP;         /* Enable setup transfer interrupt      */
 			p_reg->HPIPE[pipe_nbr].PSTATUSCLR =
@@ -1194,14 +1194,14 @@ static void usbh_atsamx_hcd_urb_submit(struct usbh_hc_drv *p_hc_drv,
  *********************************************************************************************************
  *                                   usbh_atsamx_hcd_urb_complete()
  *
- * Description : Complete specified URB.
+ * Description : Complete specified urb.
  *
  * Argument(s) : p_hc_drv     Pointer to host controller driver structure.
  *
- *               p_urb        Pointer to URB structure.
+ *               p_urb        Pointer to urb structure.
  *
  *               p_err        Pointer to variable that will receive the return error code from this function
- *                                USBH_ERR_NONE           URB completed successfuly.
+ *                                USBH_ERR_NONE           urb completed successfuly.
  *                                Specific error code     otherwise.
  *
  * Return(s)   : None.
@@ -1229,27 +1229,27 @@ static void usbh_atsamx_hcd_urb_complete(struct usbh_hc_drv *p_hc_drv,
 	xfer_len = USBH_ATSAMX_GET_BYTE_CNT(
 		p_drv_data->DescTbl[pipe_nbr].DescBank[0].PCKSIZE);
 
-	if (p_urb->Token ==
+	if (p_urb->token ==
 	    USBH_TOKEN_IN) { /* -------------- HANDLE IN TRANSACTIONS -------------- */
 		memcpy((void *)((uint32_t)p_urb->userbuf_ptr +
-				p_urb->XferLen),
-		       p_urb->DMA_buf_ptr, xfer_len);
+				p_urb->xfer_len),
+		       p_urb->dma_buf_ptr, xfer_len);
 
 		/* Check if it rx'd more data than what was expected    */
 		if (p_drv_data->PipeTbl[pipe_nbr].Appbuf_len >
-		    p_urb->Userbuf_len) {
-			p_urb->XferLen += xfer_len;
+		    p_urb->uberbuf_len) {
+			p_urb->xfer_len += xfer_len;
 			p_urb->err = EIO;
 		} else   {
-			p_urb->XferLen += xfer_len;
+			p_urb->xfer_len += xfer_len;
 		}
 	} else   { /* ----------- HANDLE SETUP/OUT TRANSACTIONS ---------- */
 		xfer_len = (p_drv_data->PipeTbl[pipe_nbr].Appbuf_len - xfer_len);
 		if (xfer_len == 0) {
-			p_urb->XferLen +=
+			p_urb->xfer_len +=
 				p_drv_data->PipeTbl[pipe_nbr].NextXferLen;
 		} else   {
-			p_urb->XferLen +=
+			p_urb->xfer_len +=
 				(p_drv_data->PipeTbl[pipe_nbr].NextXferLen -
 				 xfer_len);
 		}
@@ -1263,8 +1263,8 @@ static void usbh_atsamx_hcd_urb_complete(struct usbh_hc_drv *p_hc_drv,
 		0;                      /* Disable the pipe                                     */
 	irq_unlock(key);
 
-	k_free(p_urb->DMA_buf_ptr);
-	p_urb->DMA_buf_ptr = NULL;
+	k_free(p_urb->dma_buf_ptr);
+	p_urb->dma_buf_ptr = NULL;
 
 	p_drv_data->PipeTbl[pipe_nbr].EP_Addr = ATSAMX_DFLT_EP_ADDR;
 	p_drv_data->PipeTbl[pipe_nbr].Appbuf_len = 0;
@@ -1277,14 +1277,14 @@ static void usbh_atsamx_hcd_urb_complete(struct usbh_hc_drv *p_hc_drv,
  *********************************************************************************************************
  *                                     usbh_atsamx_hcd_urb_abort()
  *
- * Description : Abort specified URB.
+ * Description : Abort specified urb.
  *
  * Argument(s) : p_hc_drv     Pointer to host controller driver structure.
  *
- *               p_urb        Pointer to URB structure.
+ *               p_urb        Pointer to urb structure.
  *
  *               p_err        Pointer to variable that will receive the return error code from this function
- *                                USBH_ERR_NONE           URB aborted successfuly.
+ *                                USBH_ERR_NONE           urb aborted successfuly.
  *
  * Return(s)   : None.
  *
@@ -1864,7 +1864,7 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 				USBH_ATSAMX_PINT_STALL;         /* Clear Stall interrupt flag             */
 			p_urb->err = EBUSY;
 			usbh_urb_done(
-				p_urb); /* Notify the Core layer about the URB completion       */
+				p_urb); /* Notify the Core layer about the urb completion       */
 		}
 
 		if (int_stat & USBH_ATSAMX_PINT_PERR) {
@@ -1875,7 +1875,7 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 				USBH_ATSAMX_PINT_PERR;          /* Clear Pipe error interrupt flag        */
 			p_urb->err = EIO;
 			usbh_urb_done(
-				p_urb); /* Notify the Core layer about the URB completion       */
+				p_urb); /* Notify the Core layer about the urb completion       */
 		}
 
 		if (int_stat &
@@ -1887,11 +1887,11 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 				USBH_ATSAMX_PINT_TXSTP; /* Clear   Setup transfer flag                   */
 
 			xfer_len = p_drv_data->PipeTbl[pipe_nbr].Appbuf_len +
-				   p_urb->XferLen;
+				   p_urb->xfer_len;
 			p_urb->err = 0;
 
 			usbh_urb_done(
-				p_urb); /* Notify the Core layer about the URB completion       */
+				p_urb); /* Notify the Core layer about the urb completion       */
 		}
 
 		if (int_stat & USBH_ATSAMX_PINT_TRCPT) {
@@ -1904,7 +1904,7 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 			p_urb->ep_ptr->DataPID = USBH_ATSAMX_GET_DPID(
 				p_reg->HPIPE[pipe_nbr].PSTATUS);
 
-			if (p_urb->Token ==
+			if (p_urb->token ==
 			    USBH_TOKEN_IN) { /* ---------------- IN PACKETS HANDLER ---------------- */
 				LOG_DBG("in packets handler");
 				max_pkt_size =
@@ -1913,37 +1913,37 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 					xfer_len;
 
 				if ((p_drv_data->PipeTbl[pipe_nbr].Appbuf_len ==
-				     p_urb->Userbuf_len) ||
+				     p_urb->uberbuf_len) ||
 				    (xfer_len < max_pkt_size)) {
 					p_urb->err = 0;
 					usbh_urb_done(
-						p_urb); /* Notify the Core layer about the URB completion       */
+						p_urb); /* Notify the Core layer about the urb completion       */
 				} else   {
 					p_urb->err = k_msgq_put(&ATSAMX_URB_Proc_Q,
 								(void *)p_urb,
 								K_NO_WAIT);
 					if (p_urb->err != 0) {
 						usbh_urb_done(
-							p_urb); /* Notify the Core layer about the URB completion       */
+							p_urb); /* Notify the Core layer about the urb completion       */
 					}
 				}
 			} else   { /* ---------------- OUT PACKETS HANDLER --------------- */
 				LOG_DBG("out packets handler");
 				xfer_len =
 					p_drv_data->PipeTbl[pipe_nbr].Appbuf_len +
-					p_urb->XferLen;
+					p_urb->xfer_len;
 
-				if (xfer_len == p_urb->Userbuf_len) {
+				if (xfer_len == p_urb->uberbuf_len) {
 					p_urb->err = 0;
 					usbh_urb_done(
-						p_urb); /* Notify the Core layer about the URB completion       */
+						p_urb); /* Notify the Core layer about the urb completion       */
 				} else   {
 					p_urb->err = k_msgq_put(&ATSAMX_URB_Proc_Q,
 								(void *)p_urb,
 								K_NO_WAIT);
 					if (p_urb->err != 0) {
 						usbh_urb_done(
-							p_urb); /* Notify the Core layer about the URB completion       */
+							p_urb); /* Notify the Core layer about the urb completion       */
 					}
 				}
 			}
@@ -1987,7 +1987,7 @@ static void usbh_atsamx_process_urb(void *p_arg, void *p_arg2, void *p_arg3)
 		p_err = k_msgq_get(&ATSAMX_URB_Proc_Q, (void *)p_urb,
 				   K_FOREVER);
 		if (p_err != 0) {
-			LOG_ERR("Cannot get USB URB");
+			LOG_ERR("Cannot get USB urb");
 		}
 
 		pipe_nbr = usbh_atsamx_get_pipe_nbr(p_drv_data, p_urb->ep_ptr);
@@ -1999,37 +1999,37 @@ static void usbh_atsamx_process_urb(void *p_arg, void *p_arg2, void *p_arg3)
 				.DescBank[0]
 				.PCKSIZE);
 
-			if (p_urb->Token ==
+			if (p_urb->token ==
 			    USBH_TOKEN_IN) { /* -------------- HANDLE IN TRANSACTIONS -------------- */
 				memcpy(
 					(void *)((uint32_t)p_urb->userbuf_ptr +
-						 p_urb->XferLen),
-					p_urb->DMA_buf_ptr, xfer_len);
+						 p_urb->xfer_len),
+					p_urb->dma_buf_ptr, xfer_len);
 				/* Check if it rx'd more data than what was expected    */
 				if (xfer_len >
 				    p_drv_data->PipeTbl[pipe_nbr]
 				    .NextXferLen) { /* Rx'd more data than what was expected   */
-					p_urb->XferLen +=
+					p_urb->xfer_len +=
 						p_drv_data->PipeTbl[pipe_nbr]
 						.NextXferLen;
 					p_urb->err = EIO;
 
 					LOG_ERR("DRV: Rx'd more data than was expected.\r\n");
 					usbh_urb_done(
-						p_urb); /* Notify the Core layer about the URB completion       */
+						p_urb); /* Notify the Core layer about the urb completion       */
 				} else   {
-					p_urb->XferLen += xfer_len;
+					p_urb->xfer_len += xfer_len;
 				}
 			} else   { /* ------------- HANDLE OUT TRANSACTIONS -------------- */
 				xfer_len = (p_drv_data->PipeTbl[pipe_nbr]
 					    .Appbuf_len -
 					    xfer_len);
 				if (xfer_len == 0) {
-					p_urb->XferLen +=
+					p_urb->xfer_len +=
 						p_drv_data->PipeTbl[pipe_nbr]
 						.NextXferLen;
 				} else   {
-					p_urb->XferLen +=
+					p_urb->xfer_len +=
 						(p_drv_data->PipeTbl[pipe_nbr]
 						 .NextXferLen -
 						 xfer_len);
@@ -2061,7 +2061,7 @@ static void usbh_atsamx_process_urb(void *p_arg, void *p_arg2, void *p_arg3)
  *
  * Argument(s) : p_reg           Pointer to ATSAMX Pipe register structure.
  *
- *               p_urb           Pointer to URB structure.
+ *               p_urb           Pointer to urb structure.
  *
  *               p_pipe_info     Pointer to pipe information.
  *
@@ -2085,18 +2085,18 @@ static void usbh_atsamx_pipe_cfg(struct usbh_urb *p_urb,
 
 	max_pkt_size = usbh_ep_max_pkt_size_get(p_urb->ep_ptr);
 	ep_nbr = usbh_ep_log_nbr_get(p_urb->ep_ptr);
-	p_pipe_info->NextXferLen = p_urb->Userbuf_len - p_urb->XferLen;
+	p_pipe_info->NextXferLen = p_urb->uberbuf_len - p_urb->xfer_len;
 	p_pipe_info->NextXferLen =
 		MIN(p_pipe_info->NextXferLen, USBH_DATA_BUF_MAX_LEN);
 
-	memset(p_urb->DMA_buf_ptr, 0, p_pipe_info->NextXferLen);
-	if (p_urb->Token !=
+	memset(p_urb->dma_buf_ptr, 0, p_pipe_info->NextXferLen);
+	if (p_urb->token !=
 	    USBH_TOKEN_IN) { /* ---------------- SETUP/OUT PACKETS ----------------- */
 		p_pipe_info->Appbuf_len = p_pipe_info->NextXferLen;
 
-		memcpy(p_urb->DMA_buf_ptr,
+		memcpy(p_urb->dma_buf_ptr,
 		       (void *)((uint32_t)p_urb->userbuf_ptr +
-				p_urb->XferLen),
+				p_urb->xfer_len),
 		       p_pipe_info->NextXferLen);
 
 		p_desc_bank->PCKSIZE = p_pipe_info->Appbuf_len;
@@ -2104,17 +2104,17 @@ static void usbh_atsamx_pipe_cfg(struct usbh_urb *p_urb,
 		p_desc_bank->PCKSIZE = (p_pipe_info->NextXferLen << 14u);
 	}
 
-	p_desc_bank->ADDR = (uint32_t)p_urb->DMA_buf_ptr;
+	p_desc_bank->ADDR = (uint32_t)p_urb->dma_buf_ptr;
 	p_desc_bank->PCKSIZE |= (u32_count_trailing_zeros(max_pkt_size >> 3u) << 28u);
 	p_desc_bank->CTRL_PIPE = (p_urb->ep_ptr->DevAddr | (ep_nbr << 8));
 
-	if (p_urb->Token !=
+	if (p_urb->token !=
 	    USBH_TOKEN_IN) { /* ---------------- SETUP/OUT PACKETS ----------------- */
 		LOG_DBG("setup out packets");
 		key = irq_lock();
 		reg_val = p_reg_hpipe->PCFG;
 		reg_val &= ~USBH_ATSAMX_PCFG_PTOKEN_MSK;
-		reg_val |= (p_urb->Token ? USBH_ATSAMX_PCFG_PTOKEN_OUT : USBH_ATSAMX_PCFG_PTOKEN_SETUP);
+		reg_val |= (p_urb->token ? USBH_ATSAMX_PCFG_PTOKEN_OUT : USBH_ATSAMX_PCFG_PTOKEN_SETUP);
 		p_reg_hpipe->PCFG = reg_val;
 		irq_unlock(key);
 
