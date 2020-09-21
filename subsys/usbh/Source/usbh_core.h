@@ -849,7 +849,7 @@ struct  usbh_ep {
 	struct usbh_urb urb;                                    /* urb used for data xfer on this endpoint.             */
 	struct k_mutex mutex;                                   /* mutex for I/O access serialization on this EP.       */
 	bool is_open;                                            /* EP state.                                            */
-	uint32_t xfer_nbr_in_prog;                             /* Nbr of urb(s) in progress. Used for async omm.       */
+	uint32_t xfer_nbr_in_prog;                             /* nbr of urb(s) in progress. Used for async omm.       */
 	uint8_t data_pid;                                        /* EP Data Toggle PID tracker.                          */
 };
 
@@ -936,13 +936,13 @@ struct  usbh_hub_dev {
  */
 
 struct  usbh_hc_drv {
-	uint8_t Nbr;                                            /* HC nbr.                                              */
-	void             *DataPtr;                              /* Drv's data.                                          */
-	struct usbh_dev         *RH_DevPtr;                     /* Ptr to RH dev struct.                                */
-	const struct usbh_hc_cfg      *HC_CfgPtr;               /* Ptr to HC config struct.                             */
-	const struct usbh_hc_drv_api  *API_Ptr;                 /* Ptr to HC drv API struct.                            */
-	const struct usbh_hc_rh_api   *RH_API_Ptr;              /* Ptr to RH drv API struct.                            */
-	const struct usbh_hc_bsp_api  *BSP_API_Ptr;             /* Ptr to HC BSP API struct.                            */
+	uint8_t nbr;                                            /* HC nbr.                                              */
+	void             *data_ptr;                              /* Drv's data.                                          */
+	struct usbh_dev         *rh_dev_ptr;                     /* Ptr to RH dev struct.                                */
+	const struct usbh_hc_cfg      *hc_cfg_ptr;               /* Ptr to HC config struct.                             */
+	const struct usbh_hc_drv_api  *api_ptr;                 /* Ptr to HC drv API struct.                            */
+	const struct usbh_hc_rh_api   *rh_api_ptr;              /* Ptr to RH drv API struct.                            */
+	const struct usbh_hc_bsp_api  *bsp_api_ptr;             /* Ptr to HC BSP API struct.                            */
 };
 
 
