@@ -560,7 +560,7 @@ struct usbh_msc_csw
 
 static struct usbh_msc_dev USBH_MSC_DevArr[USBH_MSC_CFG_MAX_DEV];
 // static MEM_POOL USBH_MSC_DevPool;
-static int8_t USBH_MSC_dev_cnt;
+static int8_t USBH_MSC_DevCount;
 /*
 *********************************************************************************************************
 *                                      LOCAL FUNCTION PROTOTYPES
@@ -1260,7 +1260,7 @@ int usbh_msc_ref_rel(struct usbh_msc_dev *p_msc_dev)
             (p_msc_dev->state == USBH_CLASS_DEV_STATE_DISCONN))
         {
             /* Release MSC dev if no more ref on it.                */
-            USBH_MSC_dev_cnt++;
+            USBH_MSC_DevCount++;
         }
     }
 
@@ -1483,7 +1483,7 @@ static void usbh_msc_global_init(int *p_err)
         usbh_msc_dev_clr(&USBH_MSC_DevArr[ix]);
         k_mutex_init(&USBH_MSC_DevArr[ix].HMutex);
     }
-    USBH_MSC_dev_cnt = (USBH_MSC_CFG_MAX_DEV - 1);
+    USBH_MSC_DevCount = (USBH_MSC_CFG_MAX_DEV - 1);
     *p_err = 0;
 }
 
@@ -1540,14 +1540,14 @@ static void *usbh_msc_probe_if(struct usbh_dev *p_dev,
     {
 
         /* Alloc dev from MSC dev pool.                         */
-        if (USBH_MSC_dev_cnt < 0)
+        if (USBH_MSC_DevCount < 0)
         {
             *p_err = ENOMEM;
             return NULL;
         }
         else
         {
-            p_msc_dev = &USBH_MSC_DevArr[USBH_MSC_dev_cnt--];
+            p_msc_dev = &USBH_MSC_DevArr[USBH_MSC_DevCount--];
         }
 
         usbh_msc_dev_clr(p_msc_dev);
@@ -1559,7 +1559,7 @@ static void *usbh_msc_probe_if(struct usbh_dev *p_dev,
         *p_err = usbh_msc_ep_open(p_msc_dev); /* Open Bulk in/out EPs.                                */
         if (*p_err != 0)
         {
-            USBH_MSC_dev_cnt++;
+            USBH_MSC_DevCount++;
         }
     }
     else
@@ -1603,7 +1603,7 @@ static void usbh_msc_disconn(void *p_class_dev)
     if (p_msc_dev->RefCnt == 0)
     { /* Release MSC dev.                                     */
         k_mutex_unlock(&p_msc_dev->HMutex);
-        USBH_MSC_dev_cnt++;
+        USBH_MSC_DevCount++;
     }
 
     k_mutex_unlock(&p_msc_dev->HMutex);

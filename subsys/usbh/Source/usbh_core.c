@@ -125,7 +125,7 @@ static void usbh_async_task(void *p_arg, void *p_arg2, void *p_arg3);
 
 /*
  *********************************************************************************************************
- *                                             USBH_Init()
+ *                                             USBH_init()
  *
  * Description : Allocates and initializes resources required by USB Host stack.
  *
@@ -150,7 +150,7 @@ static void usbh_async_task(void *p_arg, void *p_arg2, void *p_arg3);
  *                                               ----- RETURNED BY USBH_OS_TaskCreate() : -----
  *               USBH_ERR_OS_TASK_CREATE,        Task failed to be created.
  *
- * Note(s)     : USBH_Init() must be called:
+ * Note(s)     : USBH_init() must be called:
  *               (1) Only once from a product s application.
  *               (2) After product s OS has been initialized.
  *********************************************************************************************************
@@ -198,7 +198,7 @@ int usbh_init()
 			usbh_hub_event_task, NULL, NULL, NULL, 0, 0, K_NO_WAIT);
 
 	for (ix = 0; ix < USBH_MAX_NBR_DEVS;
-	     ix++) { /* Init USB dev list.                                   */
+	     ix++) { /* init USB dev list.                                   */
 		USBH_Host.dev_list[ix].DevAddr =
 			ix +
 			1; /* USB addr is ix + 1. Addr 0 is rsvd.                  */
@@ -380,8 +380,8 @@ uint8_t usbh_hc_add(const struct usbh_hc_cfg *p_hc_cfg,
 	k_mutex_init(&p_hc->HCD_Mutex);
 
 	k_mutex_lock(&p_hc->HCD_Mutex, K_NO_WAIT);
-	p_hc->HC_Drv.API_Ptr->Init(&p_hc->HC_Drv, p_err);
-	k_mutex_unlock(&p_hc->HCD_Mutex); /* Init HCD.                                            */
+	p_hc->HC_Drv.API_Ptr->init(&p_hc->HC_Drv, p_err);
+	k_mutex_unlock(&p_hc->HCD_Mutex); /* init HCD.                                            */
 	if (*p_err != 0) {
 		return USBH_HC_NBR_NONE;
 	}
@@ -2951,7 +2951,7 @@ int usbh_urb_complete(struct usbh_urb *p_urb)
 	struct usbh_ep *p_ep;
 	int key;
 
-	p_ep = p_urb->EP_Ptr;
+	p_ep = p_urb->ep_ptr;
 	p_dev = p_ep->DevPtr;
 
 	if (p_urb->state == USBH_URB_STATE_QUEUED) {
@@ -2965,7 +2965,7 @@ int usbh_urb_complete(struct usbh_urb *p_urb)
 							 p_urb, &err);
 		k_mutex_unlock(&p_dev->HC_Ptr->HCD_Mutex);
 
-		p_urb->Err = EAGAIN;
+		p_urb->err = EAGAIN;
 		p_urb->XferLen = 0;
 	} else {
 		/* Empty Else statement                                 */
@@ -3275,7 +3275,7 @@ static int usbh_ep_open(struct usbh_dev *p_dev, struct usbh_if *p_if,
 	k_mutex_init(&p_ep->Mutex);
 
 	p_ep->IsOpen = true;
-	p_ep->URB.EP_Ptr = p_ep;
+	p_ep->URB.ep_ptr = p_ep;
 
 	return err;
 }
@@ -3344,9 +3344,9 @@ static uint32_t usbh_sync_transfer(struct usbh_ep *p_ep, void *p_buf,
 	k_mutex_lock(&p_ep->Mutex, K_NO_WAIT);
 
 	p_urb = &p_ep->URB;
-	p_urb->EP_Ptr = p_ep;
+	p_urb->ep_ptr = p_ep;
 	p_urb->isoc_descPtr = p_isoc_desc;
-	p_urb->Userbuf_ptr = p_buf;
+	p_urb->userbuf_ptr = p_buf;
 	p_urb->Userbuf_len = buf_len;
 	p_urb->DMA_buf_len = 0;
 	p_urb->DMA_buf_ptr = NULL;
@@ -3366,7 +3366,7 @@ static uint32_t usbh_sync_transfer(struct usbh_ep *p_ep, void *p_buf,
 
 	if (*p_err == 0) {
 		usbh_urb_complete(p_urb);
-		*p_err = p_urb->Err;
+		*p_err = p_urb->err;
 	} else {
 		usbh_urb_abort(p_urb);
 	}
@@ -3459,10 +3459,10 @@ static int usbh_async_transfer(struct usbh_ep *p_ep, void *p_buf,
 	}
 	p_ep->XferNbrInProgress++;
 
-	p_urb->EP_Ptr =
+	p_urb->ep_ptr =
 		p_ep; /* ------------------- PREPARE URB -------------------- */
 	p_urb->isoc_descPtr = p_isoc_desc;
-	p_urb->Userbuf_ptr = p_buf;
+	p_urb->userbuf_ptr = p_buf;
 	p_urb->Userbuf_len = buf_len;
 	p_urb->XferLen = 0;
 	p_urb->FnctPtr = (void *)p_fnct;
@@ -3653,7 +3653,7 @@ static void usb_urb_notify(struct usbh_urb *p_urb)
 	int err;
 	int key;
 
-	p_ep = p_urb->EP_Ptr;
+	p_ep = p_urb->ep_ptr;
 	p_isoc_desc = p_urb->isoc_descPtr;
 
 	key = irq_lock();
@@ -3665,11 +3665,11 @@ static void usb_urb_notify(struct usbh_urb *p_urb)
 
 	if (p_urb->FnctPtr != NULL) { /*  Save URB info.                                       */
 
-		p_buf = p_urb->Userbuf_ptr;
+		p_buf = p_urb->userbuf_ptr;
 		buf_len = p_urb->Userbuf_len;
 		xfer_len = p_urb->XferLen;
 		p_arg = p_urb->FnctArgPtr;
-		err = p_urb->Err;
+		err = p_urb->err;
 		p_urb->state = USBH_URB_STATE_NONE;
 
 		if (p_isoc_desc == NULL) {
@@ -3717,10 +3717,10 @@ static int usbh_urb_submit(struct usbh_urb *p_urb)
 	bool ep_is_halt;
 	struct usbh_dev *p_dev;
 
-	p_dev = p_urb->EP_Ptr->DevPtr;
+	p_dev = p_urb->ep_ptr->DevPtr;
 	k_mutex_lock(&p_dev->HC_Ptr->HCD_Mutex, K_NO_WAIT);
 	ep_is_halt = p_dev->HC_Ptr->HC_Drv.API_Ptr->EP_IsHalt(&p_dev->HC_Ptr->HC_Drv,
-							      p_urb->EP_Ptr,
+							      p_urb->ep_ptr,
 							      &err);
 	k_mutex_unlock(&p_dev->HC_Ptr->HCD_Mutex);
 	if ((ep_is_halt == true) && (err == 0)) {
@@ -3729,7 +3729,7 @@ static int usbh_urb_submit(struct usbh_urb *p_urb)
 
 	p_urb->state =
 		USBH_URB_STATE_SCHEDULED; /* Set URB state to scheduled.                          */
-	p_urb->Err = 0;
+	p_urb->err = 0;
 
 	k_mutex_lock(&p_dev->HC_Ptr->HCD_Mutex, K_NO_WAIT);
 	p_dev->HC_Ptr->HC_Drv.API_Ptr->URB_Submit(&p_dev->HC_Ptr->HC_Drv,
@@ -3755,7 +3755,7 @@ static int usbh_urb_submit(struct usbh_urb *p_urb)
 
 static void usbh_urb_clr(struct usbh_urb *p_urb)
 {
-	p_urb->Err = 0;
+	p_urb->err = 0;
 	p_urb->state = USBH_URB_STATE_NONE;
 	p_urb->AsyncURB_NxtPtr = NULL;
 }
@@ -3833,7 +3833,7 @@ static int usbh_dflt_ep_open(struct usbh_dev *p_dev)
 
 	k_mutex_init(&p_ep->Mutex);
 
-	p_ep->URB.EP_Ptr = p_ep;
+	p_ep->URB.ep_ptr = p_ep;
 	p_ep->IsOpen = true;
 
 	return err;
