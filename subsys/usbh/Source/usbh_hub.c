@@ -41,19 +41,19 @@ LOG_MODULE_REGISTER(hub);
  */
 
 static const uint8_t usbh_hub_rh_dev_desc[18] = {
-	USBH_LEN_DESC_DEV,              /* bLength                                              */
+	USBH_LEN_DESC_DEV,              /* b_length                                              */
 	USBH_DESC_TYPE_DEV,             /* b_desc_type: Device                              */
-	0x10u, 0x01u,                   /* bcdUSB: v1.1                                         */
-	USBH_CLASS_CODE_HUB,            /* bDeviceClass: HUB_CLASSCODE                          */
-	USBH_SUBCLASS_CODE_USE_IF_DESC, /* bDeviceSubClass                                      */
-	USBH_PROTOCOL_CODE_USE_IF_DESC, /* bDeviceProtocol                                      */
-	0x40u,                          /* bMaxPacketSize0: 64 Bytes                            */
-	0x00u, 0x00u,                   /* idVendor                                             */
-	0x00u, 0x00u,                   /* idProduct                                            */
-	0x00u, 0x00u,                   /* bcdDevice                                            */
-	0x00u,                          /* iManufacturer                                        */
-	0x00u,                          /* iProduct                                             */
-	0x00u,                          /* iSerialNumber                                        */
+	0x10u, 0x01u,                   /* bcd_usb: v1.1                                         */
+	USBH_CLASS_CODE_HUB,            /* b_device_class: HUB_CLASSCODE                          */
+	USBH_SUBCLASS_CODE_USE_IF_DESC, /* b_device_sub_class                                      */
+	USBH_PROTOCOL_CODE_USE_IF_DESC, /* b_device_protocol                                      */
+	0x40u,                          /* b_max_packet_size_zero: 64 Bytes                            */
+	0x00u, 0x00u,                   /* id_vendor                                             */
+	0x00u, 0x00u,                   /* id_product                                            */
+	0x00u, 0x00u,                   /* bcd_device                                            */
+	0x00u,                          /* i_manufacturer                                        */
+	0x00u,                          /* i_product                                             */
+	0x00u,                          /* i_serial_number                                        */
 	0x01u                           /* bNumConfigurations                                   */
 };
 
@@ -65,7 +65,7 @@ static const uint8_t usbh_hub_rh_dev_desc[18] = {
 
 static const uint8_t usbh_hub_rh_fs_cfg_desc[] = {
 	/* ------------- CONFIGURATION DESCRIPTOR ------------- */
-	USBH_LEN_DESC_CFG,      /* bLength                                              */
+	USBH_LEN_DESC_CFG,      /* b_length                                              */
 	USBH_DESC_TYPE_CFG,     /* b_desc_type CONFIGURATION                        */
 	0x19u, 0x00u,           /* le16 wTotalLength                                    */
 	0x01u,                  /* bNumInterfaces                                       */
@@ -75,7 +75,7 @@ static const uint8_t usbh_hub_rh_fs_cfg_desc[] = {
 	0x00u,                  /* bMaxPower                                            */
 
 	/* --------------- INTERFACE DESCRIPTOR --------------- */
-	USBH_LEN_DESC_IF,       /* bLength                                              */
+	USBH_LEN_DESC_IF,       /* b_length                                              */
 	USBH_DESC_TYPE_IF,      /* b_desc_type: Interface                           */
 	0x00u,                  /* bInterfaceNumber                                     */
 	0x00u,                  /* bAlternateSetting                                    */
@@ -86,7 +86,7 @@ static const uint8_t usbh_hub_rh_fs_cfg_desc[] = {
 	0x00u,                  /* iInterface                                           */
 
 	/* --------------- ENDPOINT DESCRIPTOR ---------------- */
-	USBH_LEN_DESC_EP,       /* bLength                                              */
+	USBH_LEN_DESC_EP,       /* b_length                                              */
 	USBH_DESC_TYPE_EP,      /* b_desc_type: Endpoint                            */
 	0x81u,                  /* bEndpointAddress: IN Endpoint 1                      */
 	0x03u,                  /* bmAttributes Interrupt                               */
@@ -1114,8 +1114,8 @@ static int usbh_hub_desc_get(struct usbh_hub_dev *p_hub_dev)
 		return EINVAL;
 	}
 
-	if ((hdr.bLength == 0) ||
-	    (hdr.bLength > USBH_HUB_MAX_DESC_LEN) ||
+	if ((hdr.b_length == 0) ||
+	    (hdr.b_length > USBH_HUB_MAX_DESC_LEN) ||
 	    (hdr.b_desc_type != USBH_HUB_DESC_TYPE_HUB)) {
 		return EINVAL;
 	}
@@ -1127,11 +1127,11 @@ static int usbh_hub_desc_get(struct usbh_hub_dev *p_hub_dev)
 				   (USBH_HUB_DESC_TYPE_HUB << 8),
 				   0,
 				   (void *)usbh_hub_desc_buf,
-				   hdr.bLength,
+				   hdr.b_length,
 				   USBH_HUB_TIMEOUT,
 				   &err);
 		if ((err == EBUSY) ||
-		    (len < hdr.bLength)) {
+		    (len < hdr.b_length)) {
 			usbh_ep_reset(p_hub_dev->DevPtr,
 				      NULL);
 		} else   {
