@@ -109,7 +109,7 @@ static const uint8_t usbh_hub_rh_fs_cfg_desc[] = {
 static const uint8_t usbh_hub_rh_lang_id[] = {
 	0x04u,
 	USBH_DESC_TYPE_STR,
-	0x09u, 0x04u, /* Identifer for English (United States). See Note #1.  */
+	0x09u, 0x04u, /* Identifer for English (United states). See Note #1.  */
 };
 
 static uint8_t usbh_hub_desc_buf[USBH_HUB_MAX_DESC_LEN];
@@ -429,7 +429,7 @@ static void *usbh_hub_if_probe(struct usbh_dev *p_dev,
 		usbh_hub_clr(p_hub_dev);
 		usbh_hub_ref_add(p_hub_dev);
 
-		p_hub_dev->State = (uint8_t)USBH_CLASS_DEV_STATE_CONN;
+		p_hub_dev->state = (uint8_t)USBH_CLASS_DEV_STATE_CONN;
 		p_hub_dev->DevPtr = p_dev;
 		p_hub_dev->IF_Ptr = p_if;
 		p_hub_dev->ErrCnt = 0;
@@ -552,7 +552,7 @@ static void usbh_hub_disconn(void *p_class_dev)
 	struct usbh_hub_dev *p_hub_dev;
 
 	p_hub_dev = (struct usbh_hub_dev *)p_class_dev;
-	p_hub_dev->State = USBH_CLASS_DEV_STATE_DISCONN;
+	p_hub_dev->state = USBH_CLASS_DEV_STATE_DISCONN;
 
 	usbh_hub_uninit(p_hub_dev);
 	usbh_hub_ref_rel(p_hub_dev);
@@ -656,7 +656,7 @@ static void usbh_hub_uninit(struct usbh_hub_dev *p_hub_dev)
 
 		if (p_dev != NULL) {
 			usbh_dev_disconn(p_dev);
-			p_hub_dev->DevPtr->HC_Ptr->HostPtr->DevCount++;
+			p_hub_dev->DevPtr->HC_Ptr->HostPtr->dev_cnt++;
 
 			p_hub_dev->DevPtrList[port_ix] = NULL;
 		}
@@ -816,7 +816,7 @@ static void usbh_hub_isr_cb(struct usbh_ep *p_ep,
 	p_hub_dev = (struct usbh_hub_dev *)p_arg;
 
 	if (err != 0) {
-		if (p_hub_dev->State == USBH_CLASS_DEV_STATE_CONN) {
+		if (p_hub_dev->state == USBH_CLASS_DEV_STATE_CONN) {
 			if (p_hub_dev->ErrCnt < 3u) {
 				LOG_ERR("usbh_hub_isr_cb() fails. Err=%d errcnt=%d\r\n",
 					err,
@@ -891,7 +891,7 @@ static void usbh_hub_event_proc(void)
 		return;
 	}
 
-	if (p_hub_dev->State == USBH_CLASS_DEV_STATE_DISCONN) {
+	if (p_hub_dev->state == USBH_CLASS_DEV_STATE_DISCONN) {
 		LOG_DBG("device state disconnected");
 		err = usbh_hub_ref_rel(p_hub_dev);
 		if (err != 0) {
@@ -928,7 +928,7 @@ static void usbh_hub_event_proc(void)
 				p_dev = p_hub_dev->DevPtrList[port_nbr - 1];
 				if (p_dev != NULL) {
 					usbh_dev_disconn(p_dev);
-					p_hub_dev->DevPtr->HC_Ptr->HostPtr->DevCount++;
+					p_hub_dev->DevPtr->HC_Ptr->HostPtr->dev_cnt++;
 					p_hub_dev->DevPtrList[port_nbr - 1] = NULL;
 				}
 
@@ -949,7 +949,7 @@ static void usbh_hub_event_proc(void)
 
 				if (p_dev != NULL) {
 					usbh_dev_disconn(p_dev);
-					p_hub_dev->DevPtr->HC_Ptr->HostPtr->DevCount++;
+					p_hub_dev->DevPtr->HC_Ptr->HostPtr->dev_cnt++;
 
 					p_hub_dev->DevPtrList[port_nbr - 1] = NULL;
 				}
@@ -989,17 +989,17 @@ static void usbh_hub_event_proc(void)
 					continue;
 				}
 
-				if (p_hub_dev->DevPtr->HC_Ptr->HostPtr->State == USBH_HOST_STATE_SUSPENDED) {
+				if (p_hub_dev->DevPtr->HC_Ptr->HostPtr->state == USBH_HOST_STATE_SUSPENDED) {
 					continue;
 				}
-				if (p_hub_dev->DevPtr->HC_Ptr->HostPtr->DevCount < 0) {
+				if (p_hub_dev->DevPtr->HC_Ptr->HostPtr->dev_cnt < 0) {
 					usbh_hub_port_dis(p_hub_dev, port_nbr);
 					usbh_hub_ref_rel(p_hub_dev);
 					usbh_hub_event_req(p_hub_dev); /* Retry URB.                                           */
 
 					return;
 				} else   {
-					p_dev = &p_hub_dev->DevPtr->HC_Ptr->HostPtr->DevList[p_hub_dev->DevPtr->HC_Ptr->HostPtr->DevCount--];
+					p_dev = &p_hub_dev->DevPtr->HC_Ptr->HostPtr->dev_list[p_hub_dev->DevPtr->HC_Ptr->HostPtr->dev_cnt--];
 				}
 
 				p_dev->DevSpd = dev_spd;
@@ -1023,7 +1023,7 @@ static void usbh_hub_event_proc(void)
 					usbh_hub_port_dis(p_hub_dev, port_nbr);
 					usbh_dev_disconn(p_dev);
 
-					p_hub_dev->DevPtr->HC_Ptr->HostPtr->DevCount++;
+					p_hub_dev->DevPtr->HC_Ptr->HostPtr->dev_cnt++;
 
 					if (p_hub_dev->ConnCnt < USBH_CFG_MAX_NUM_DEV_RECONN) {
 						/*This condition may happen due to EP_STALL return      */
@@ -1689,7 +1689,7 @@ static void usbh_hub_clr(struct usbh_hub_dev *p_hub_dev)
 	}
 
 	p_hub_dev->RefCnt = 0;
-	p_hub_dev->State = USBH_CLASS_DEV_STATE_NONE;
+	p_hub_dev->state = USBH_CLASS_DEV_STATE_NONE;
 	p_hub_dev->NxtPtr = 0;
 }
 
@@ -2024,7 +2024,7 @@ void usbh_rh_event(struct usbh_dev *p_dev)
  *
  * Argument(s) : p_class_dev     Pointer to class device.
  *
- *               state           State of device.
+ *               state           state of device.
  *
  *               p_ctx           Pointer to context.
  *

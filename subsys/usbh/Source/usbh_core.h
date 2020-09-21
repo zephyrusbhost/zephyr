@@ -789,12 +789,12 @@ struct  usbh_otg_desc {
  */
 
 struct  usbh_isoc_desc {
-	uint8_t  *BufPtr;
-	uint32_t BufLen;
-	uint32_t StartFrm;
-	uint32_t NbrFrm;
-	uint16_t  *FrmLen;
-	int    *FrmErr;
+	uint8_t  *buf_ptr;
+	uint32_t buf_len;
+	uint32_t start_frm;
+	uint32_t nbr_frm;
+	uint16_t  *frm_len;
+	int    *frm_err;
 };
 
 
@@ -805,17 +805,17 @@ struct  usbh_isoc_desc {
  */
 
 struct  usbh_urb {
-	volatile uint8_t State;                                 /* State of URB.                                        */
+	volatile uint8_t state;                                 /* state of URB.                                        */
 	struct usbh_ep         *EP_Ptr;                         /* EP the urb belongs to.                               */
 	volatile int Err;                                  /* The status of URB completion.                        */
 
-	void            *UserBufPtr;                            /* Ptr to buf supplied by app.                          */
-	uint32_t UserBufLen;                                    /* Buf len in bytes.                                    */
-	void            *DMA_BufPtr;                            /* DMA buf ptr used by DMA HW.                          */
-	uint32_t DMA_BufLen;                                    /* DMA buf len.                                         */
+	void            *Userbuf_ptr;                            /* Ptr to buf supplied by app.                          */
+	uint32_t Userbuf_len;                                    /* Buf len in bytes.                                    */
+	void            *DMA_buf_ptr;                            /* DMA buf ptr used by DMA HW.                          */
+	int32_t DMA_buf_len;                                    /* DMA buf len.                                         */
 	uint32_t XferLen;                                       /* Actual len xfer'd by ctrlr.                          */
 
-	struct usbh_isoc_desc  *IsocDescPtr;                    /* Isoc xfer desc.                                      */
+	struct usbh_isoc_desc  *isoc_descPtr;                    /* Isoc xfer desc.                                      */
 
 	void            *FnctPtr;                               /* Fnct ptr, called when I/O is completed.              */
 	void            *FnctArgPtr;                            /* Fnct context.                                        */
@@ -922,7 +922,7 @@ struct  usbh_hub_dev {
 	struct usbh_if        *IF_Ptr;                                  /* HUB IF ptr.                                          */
 	uint8_t HubIntrBuf[64];                                         /* Buf to recv hub events.                              */
 	uint32_t ErrCnt;
-	uint8_t State;
+	uint8_t state;
 	uint8_t RefCnt;
 	struct usbh_hub_dev   *NxtPtr;
 	uint8_t ConnCnt;                                     /* Re-connection counter                                */
@@ -986,19 +986,19 @@ struct usbh_hc {
  */
 
 struct  usbh_host {
-	uint8_t State;                                  /* State of USB host stack.                             */
+	uint8_t state;                                  /* state of USB host stack.                             */
 
-	struct usbh_dev DevList[USBH_MAX_NBR_DEVS];     /* List of USB dev connected.                           */
-	int8_t DevCount;                                /* Pool for mem mgmt of USB devs.                       */
-	int8_t IsocCount;
-	struct usbh_isoc_desc IsocDesc[USBH_CFG_MAX_ISOC_DESC];
-	struct k_mem_pool AsyncURB_Pool;                                /* Pool of extra URB when using async comm.             */
+	struct usbh_dev dev_list[USBH_MAX_NBR_DEVS];     /* List of USB dev connected.                           */
+	int8_t dev_cnt;                                /* Pool for mem mgmt of USB devs.                       */
+	int8_t isoc_cnt;
+	struct usbh_isoc_desc isoc_desc[USBH_CFG_MAX_ISOC_DESC];
+	struct k_mem_pool async_urb_pool;                                /* Pool of extra URB when using async comm.             */
 
-	struct usbh_hc HC_Tbl[USBH_CFG_MAX_NBR_HC];                     /* Array of HC structs.                                 */
-	uint8_t HC_NbrNext;
+	struct usbh_hc hc_tbl[USBH_CFG_MAX_NBR_HC];                     /* Array of HC structs.                                 */
+	uint8_t hc_nbr_next;
 
-	struct k_thread HAsyncTask;                                     /* Async task handle.                                   */
-	struct k_thread HHubTask;                                       /* Hub event task handle.                               */
+	struct k_thread h_async_task;                                     /* Async task handle.                                   */
+	struct k_thread h_hub_task;                                       /* Hub event task handle.                               */
 };
 
 
