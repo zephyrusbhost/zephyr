@@ -202,7 +202,7 @@ int usbh_init()
 		USBH_Host.dev_list[ix].dev_addr =
 			ix +
 			1; /* USB addr is ix + 1. Addr 0 is rsvd.                  */
-		k_mutex_init(&USBH_Host.dev_list[ix].DfltEP_Mutex);
+		k_mutex_init(&USBH_Host.dev_list[ix].dflt_ep_mutex);
 	}
 	USBH_Host.isoc_cnt = (USBH_CFG_MAX_ISOC_DESC - 1);
 	USBH_Host.dev_cnt = (USBH_MAX_NBR_DEVS - 1);
@@ -358,8 +358,8 @@ uint8_t usbh_hc_add(const struct usbh_hc_cfg *p_hc_cfg,
 		p_rh_dev = &USBH_Host.dev_list[USBH_Host.dev_cnt--];
 	}
 
-	p_rh_dev->IsRootHub = true;
-	p_rh_dev->HC_Ptr = p_hc;
+	p_rh_dev->is_root_hub = true;
+	p_rh_dev->hc_ptr = p_hc;
 
 	p_hc->HostPtr = &USBH_Host;
 
@@ -697,10 +697,10 @@ int usbh_dev_conn(struct usbh_dev *p_dev)
 	uint8_t nbr_cfgs;
 	uint8_t cfg_ix;
 
-	p_dev->SelCfg = 0;
+	p_dev->sel_cfg = 0;
 
 	p_dev->class_drv_reg_ptr = NULL;
-	memset(p_dev->DevDesc, 0, USBH_LEN_DESC_DEV);
+	memset(p_dev->dev_desc, 0, USBH_LEN_DESC_DEV);
 
 	LOG_DBG("DftlEP_Open");
 	err = usbh_dflt_ep_open(p_dev);
@@ -722,21 +722,21 @@ int usbh_dev_conn(struct usbh_dev *p_dev)
 		return err;
 	}
 
-	LOG_DBG("Port %d: Device Address: %d.\r\n", p_dev->PortNbr,
+	LOG_DBG("Port %d: Device Address: %d.\r\n", p_dev->port_nbr,
 		p_dev->dev_addr);
 
-	// if (p_dev->DevDesc[14] != 0u)
+	// if (p_dev->dev_desc[14] != 0u)
 	// { /* i_manufacturer = 0 -> no str desc for manufacturer.   */
 	// 	USBH_StrDescPrint(p_dev,
 	// 					  (CPU_INT08U *)"Manufacturer : ",
-	// 					  p_dev->DevDesc[14]);
+	// 					  p_dev->dev_desc[14]);
 	// }
 
-	// if (p_dev->DevDesc[15] != 0u)
+	// if (p_dev->dev_desc[15] != 0u)
 	// { /* i_product = 0 -> no str desc for product.             */
 	// 	USBH_StrDescPrint(p_dev,
 	// 					  (CPU_INT08U *)"Product      : ",
-	// 					  p_dev->DevDesc[15]);
+	// 					  p_dev->dev_desc[15]);
 	// }
 
 	nbr_cfgs = usbh_dev_cfg_nbr_get(
@@ -788,7 +788,7 @@ void usbh_dev_disconn(struct usbh_dev *p_dev)
 		p_dev); /* Unload class drv(s).                                 */
 
 	usbh_ep_close(
-		&p_dev->DfltEP); /* Close dflt EPs.                                      */
+		&p_dev->dflt_ep); /* Close dflt EPs.                                      */
 }
 
 /*
@@ -808,7 +808,7 @@ void usbh_dev_disconn(struct usbh_dev *p_dev)
 
 uint8_t usbh_dev_cfg_nbr_get(struct usbh_dev *p_dev)
 {
-	return (p_dev->DevDesc
+	return (p_dev->dev_desc
 		[17]);         /* See Note (1).                                        */
 }
 
@@ -830,7 +830,7 @@ uint8_t usbh_dev_cfg_nbr_get(struct usbh_dev *p_dev)
 
 void usbh_dev_desc_get(struct usbh_dev *p_dev, struct usbh_dev_desc *p_dev_desc)
 {
-	usbh_parse_dev_desc(p_dev_desc, (void *)p_dev->DevDesc);
+	usbh_parse_dev_desc(p_dev_desc, (void *)p_dev->dev_desc);
 }
 
 /*
@@ -888,7 +888,7 @@ int usbh_cfg_set(struct usbh_dev *p_dev, uint8_t cfg_nbr)
 		     cfg_nbr, 0, NULL, 0, USBH_CFG_STD_REQ_TIMEOUT, &err); /* See Note (1).                                        */
 
 	if (err == 0) {
-		p_dev->SelCfg = cfg_nbr;
+		p_dev->sel_cfg = cfg_nbr;
 	}
 	LOG_DBG("set configuration %d ret %d", cfg_nbr, err);
 
@@ -926,7 +926,7 @@ struct usbh_cfg *usbh_cfg_get(struct usbh_dev *p_dev, uint8_t cfg_ix)
 		return NULL;
 	}
 
-	return (&p_dev->CfgList
+	return (&p_dev->cfg_list
 		[cfg_ix]);          /* Get cfg struct.                                      */
 }
 
@@ -948,7 +948,7 @@ struct usbh_cfg *usbh_cfg_get(struct usbh_dev *p_dev, uint8_t cfg_ix)
 uint8_t usbh_cfg_if_nbr_get(struct usbh_cfg *p_cfg)
 {
 	if (p_cfg != NULL) {
-		return (p_cfg->CfgData
+		return (p_cfg->cfg_data
 			[4]);         /* See Note (1).                                        */
 	} else {
 		return 0;
@@ -985,7 +985,7 @@ int usbh_cfg_desc_get(struct usbh_cfg *p_cfg,
 
 	p_desc =
 		(struct usbh_desc_hdr *)p_cfg
-		->CfgData;         /* Check for valid cfg desc.                            */
+		->cfg_data;         /* Check for valid cfg desc.                            */
 
 	if ((p_desc->b_length == USBH_LEN_DESC_CFG) &&
 	    (p_desc->b_desc_type == USBH_DESC_TYPE_CFG)) {
@@ -1032,11 +1032,11 @@ struct usbh_desc_hdr *usbh_cfg_extra_desc_get(struct usbh_cfg *p_cfg,
 
 	p_desc =
 		(struct usbh_desc_hdr *)p_cfg
-		->CfgData;         /* Get config desc data.                                */
+		->cfg_data;         /* Get config desc data.                                */
 
 	if ((p_desc->b_length == USBH_LEN_DESC_CFG) &&
 	    (p_desc->b_desc_type == USBH_DESC_TYPE_CFG) &&
-	    (p_cfg->CfgDataLen > (p_desc->b_length + 2))) {
+	    (p_cfg->cfg_data_len > (p_desc->b_length + 2))) {
 		cfg_off = p_desc->b_length;
 		p_extra_desc = usbh_next_desc_get(
 			p_desc,
@@ -1137,7 +1137,7 @@ struct usbh_if *usbu_if_get(struct usbh_cfg *p_cfg, uint8_t if_ix)
 		p_cfg); /* Get nbr of IFs.                                      */
 
 	if ((if_ix < nbr_ifs) && (if_ix < USBH_CFG_MAX_NBR_IFS)) {
-		return (&p_cfg->IF_List
+		return (&p_cfg->if_list
 			[if_ix]);          /* Return IF structure at selected ix.                  */
 	} else {
 		return NULL;
@@ -1620,22 +1620,22 @@ uint16_t usbh_ctrl_tx(struct usbh_dev *p_dev, uint8_t b_req,
 	// LOG_DBG("CtrlTx");
 	uint16_t xfer_len;
 
-	k_mutex_lock(&p_dev->DfltEP_Mutex, K_NO_WAIT);
+	k_mutex_lock(&p_dev->dflt_ep_mutex, K_NO_WAIT);
 
-	if ((p_dev->IsRootHub ==
+	if ((p_dev->is_root_hub ==
 	     true) && /* Check if RH features are supported.                  */
-	    (p_dev->HC_Ptr->IsVirRootHub == true)) {
+	    (p_dev->hc_ptr->IsVirRootHub == true)) {
 		xfer_len = usbh_rh_ctrl_req(
-			p_dev->HC_Ptr, /* Send req to virtual HUB.                             */
+			p_dev->hc_ptr, /* Send req to virtual HUB.                             */
 			b_req, bm_req_type, w_val, w_ix, p_data, w_len, p_err);
 	} else {
-		xfer_len = usbh_sync_ctrl_transfer(&p_dev->DfltEP, b_req,
+		xfer_len = usbh_sync_ctrl_transfer(&p_dev->dflt_ep, b_req,
 						   bm_req_type, w_val, w_ix,
 						   p_data, w_len, timeout_ms,
 						   p_err);
 	}
 
-	k_mutex_unlock(&p_dev->DfltEP_Mutex);
+	k_mutex_unlock(&p_dev->dflt_ep_mutex);
 	return xfer_len;
 }
 
@@ -1692,24 +1692,24 @@ uint16_t usbh_ctrl_rx(struct usbh_dev *p_dev, uint8_t b_req,
 	// LOG_DBG("CtrlRx");
 	uint16_t xfer_len;
 
-	k_mutex_lock(&p_dev->DfltEP_Mutex, K_NO_WAIT);
+	k_mutex_lock(&p_dev->dflt_ep_mutex, K_NO_WAIT);
 
-	if ((p_dev->IsRootHub ==
+	if ((p_dev->is_root_hub ==
 	     true) && /* Check if RH features are supported.                  */
-	    (p_dev->HC_Ptr->IsVirRootHub == true)) {
+	    (p_dev->hc_ptr->IsVirRootHub == true)) {
 		LOG_DBG("request from roothub");
 		xfer_len = usbh_rh_ctrl_req(
-			p_dev->HC_Ptr, /* Send req to virtual HUB.                             */
+			p_dev->hc_ptr, /* Send req to virtual HUB.                             */
 			b_req, bm_req_type, w_val, w_ix, p_data, w_len, p_err);
 	} else {
 		LOG_DBG("request from non roothub");
-		xfer_len = usbh_sync_ctrl_transfer(&p_dev->DfltEP, b_req,
+		xfer_len = usbh_sync_ctrl_transfer(&p_dev->dflt_ep, b_req,
 						   bm_req_type, w_val, w_ix,
 						   p_data, w_len, timeout_ms,
 						   p_err);
 	}
 
-	k_mutex_unlock(&p_dev->DfltEP_Mutex);
+	k_mutex_unlock(&p_dev->dflt_ep_mutex);
 
 	return xfer_len;
 }
@@ -2319,11 +2319,11 @@ int usbh_isoc_tx_async(struct usbh_ep *p_ep, uint8_t *p_buf,
 		return EAGAIN;
 	}
 
-	if (p_ep->dev_ptr->HC_Ptr->HostPtr->isoc_cnt < 0) {
+	if (p_ep->dev_ptr->hc_ptr->HostPtr->isoc_cnt < 0) {
 		return ENOMEM;
 	} else {
-		p_isoc_desc = &p_ep->dev_ptr->HC_Ptr->HostPtr
-			      ->isoc_desc[p_ep->dev_ptr->HC_Ptr->HostPtr
+		p_isoc_desc = &p_ep->dev_ptr->hc_ptr->HostPtr
+			      ->isoc_desc[p_ep->dev_ptr->hc_ptr->HostPtr
 					 ->isoc_cnt--];
 	}
 
@@ -2337,7 +2337,7 @@ int usbh_isoc_tx_async(struct usbh_ep *p_ep, uint8_t *p_buf,
 	err = usbh_async_transfer(p_ep, p_buf, buf_len, p_isoc_desc,
 				  USBH_TOKEN_IN, (void *)fnct, p_fnct_arg);
 	if (err != 0) {
-		p_ep->dev_ptr->HC_Ptr->HostPtr->isoc_cnt++;
+		p_ep->dev_ptr->hc_ptr->HostPtr->isoc_cnt++;
 	}
 
 	return err;
@@ -2479,11 +2479,11 @@ int usbh_isoc_rx_async(struct usbh_ep *p_ep, uint8_t *p_buf,
 		return EAGAIN;
 	}
 
-	if (p_ep->dev_ptr->HC_Ptr->HostPtr->isoc_cnt < 0) {
+	if (p_ep->dev_ptr->hc_ptr->HostPtr->isoc_cnt < 0) {
 		return ENOMEM;
 	} else {
-		p_isoc_desc = &p_ep->dev_ptr->HC_Ptr->HostPtr
-			      ->isoc_desc[p_ep->dev_ptr->HC_Ptr->HostPtr
+		p_isoc_desc = &p_ep->dev_ptr->hc_ptr->HostPtr
+			      ->isoc_desc[p_ep->dev_ptr->hc_ptr->HostPtr
 					 ->isoc_cnt--];
 	}
 
@@ -2497,7 +2497,7 @@ int usbh_isoc_rx_async(struct usbh_ep *p_ep, uint8_t *p_buf,
 	err = usbh_async_transfer(p_ep, p_buf, buf_len, p_isoc_desc,
 				  USBH_TOKEN_IN, (void *)fnct, p_fnct_arg);
 	if (err != 0) {
-		p_ep->dev_ptr->HC_Ptr->HostPtr->isoc_cnt++;
+		p_ep->dev_ptr->hc_ptr->HostPtr->isoc_cnt++;
 	}
 
 	return err;
@@ -2783,37 +2783,37 @@ int usbh_ep_reset(struct usbh_dev *p_dev, struct usbh_ep *p_ep)
 	int err;
 
 	if (p_ep == NULL) {
-		p_ep_t = &p_dev->DfltEP;
+		p_ep_t = &p_dev->dflt_ep;
 	} else {
 		p_ep_t = p_ep;
 	}
 
-	if ((p_dev->IsRootHub ==
+	if ((p_dev->is_root_hub ==
 	     true) && /* Do nothing if virtual RH.                            */
-	    (p_dev->HC_Ptr->IsVirRootHub == true)) {
+	    (p_dev->hc_ptr->IsVirRootHub == true)) {
 		return 0;
 	}
 
-	k_mutex_lock(&p_dev->HC_Ptr->HCD_Mutex, K_NO_WAIT);
-	p_dev->HC_Ptr->HC_Drv.API_Ptr->EP_Abort(&p_dev->HC_Ptr->HC_Drv,
+	k_mutex_lock(&p_dev->hc_ptr->HCD_Mutex, K_NO_WAIT);
+	p_dev->hc_ptr->HC_Drv.API_Ptr->EP_Abort(&p_dev->hc_ptr->HC_Drv,
 						p_ep_t, &err);
-	k_mutex_unlock(&p_dev->HC_Ptr->HCD_Mutex);
+	k_mutex_unlock(&p_dev->hc_ptr->HCD_Mutex);
 	if (err != 0) {
 		return err;
 	}
 
-	k_mutex_lock(&p_dev->HC_Ptr->HCD_Mutex, K_NO_WAIT);
-	p_dev->HC_Ptr->HC_Drv.API_Ptr->EP_Close(&p_dev->HC_Ptr->HC_Drv,
+	k_mutex_lock(&p_dev->hc_ptr->HCD_Mutex, K_NO_WAIT);
+	p_dev->hc_ptr->HC_Drv.API_Ptr->EP_Close(&p_dev->hc_ptr->HC_Drv,
 						p_ep_t, &err);
-	k_mutex_unlock(&p_dev->HC_Ptr->HCD_Mutex);
+	k_mutex_unlock(&p_dev->hc_ptr->HCD_Mutex);
 	if (err != 0) {
 		return err;
 	}
 
-	k_mutex_lock(&p_dev->HC_Ptr->HCD_Mutex, K_NO_WAIT);
-	p_dev->HC_Ptr->HC_Drv.API_Ptr->EP_Open(&p_dev->HC_Ptr->HC_Drv, p_ep_t,
+	k_mutex_lock(&p_dev->hc_ptr->HCD_Mutex, K_NO_WAIT);
+	p_dev->hc_ptr->HC_Drv.API_Ptr->EP_Open(&p_dev->hc_ptr->HC_Drv, p_ep_t,
 					       &err);
-	k_mutex_unlock(&p_dev->HC_Ptr->HCD_Mutex);
+	k_mutex_unlock(&p_dev->hc_ptr->HCD_Mutex);
 	if (err != 0) {
 		return err;
 	}
@@ -2852,21 +2852,21 @@ int usbh_ep_close(struct usbh_ep *p_ep)
 	p_dev = p_ep->dev_ptr;
 	err = 0;
 
-	if (!((p_dev->IsRootHub == true) &&
-	      (p_dev->HC_Ptr->IsVirRootHub == true))) {
+	if (!((p_dev->is_root_hub == true) &&
+	      (p_dev->hc_ptr->IsVirRootHub == true))) {
 		usbh_urb_abort(
 			&p_ep->urb); /* Abort any pending urb.                               */
 	}
 
-	if (!((p_dev->IsRootHub ==
+	if (!((p_dev->is_root_hub ==
 	       true) && /* Close EP on HC.                                      */
-	      (p_dev->HC_Ptr->IsVirRootHub == true))) {
+	      (p_dev->hc_ptr->IsVirRootHub == true))) {
 		LOG_DBG("close address %d",
 			((p_ep->dev_addr << 8) | p_ep->desc.b_endpoint_address));
-		k_mutex_lock(&p_ep->dev_ptr->HC_Ptr->HCD_Mutex, K_NO_WAIT);
-		p_ep->dev_ptr->HC_Ptr->HC_Drv.API_Ptr->EP_Close(&p_ep->dev_ptr->HC_Ptr->HC_Drv,
+		k_mutex_lock(&p_ep->dev_ptr->hc_ptr->HCD_Mutex, K_NO_WAIT);
+		p_ep->dev_ptr->hc_ptr->HC_Drv.API_Ptr->EP_Close(&p_ep->dev_ptr->hc_ptr->HC_Drv,
 							       p_ep, &err);
-		k_mutex_unlock(&p_ep->dev_ptr->HC_Ptr->HCD_Mutex);
+		k_mutex_unlock(&p_ep->dev_ptr->hc_ptr->HCD_Mutex);
 	}
 
 	if (p_ep->xfer_nbr_in_prog > 1) {
@@ -2955,15 +2955,15 @@ int usbh_urb_complete(struct usbh_urb *p_urb)
 	p_dev = p_ep->dev_ptr;
 
 	if (p_urb->state == USBH_URB_STATE_QUEUED) {
-		k_mutex_lock(&p_dev->HC_Ptr->HCD_Mutex, K_NO_WAIT);
-		p_dev->HC_Ptr->HC_Drv.API_Ptr->URB_Complete(&p_dev->HC_Ptr->HC_Drv,
+		k_mutex_lock(&p_dev->hc_ptr->HCD_Mutex, K_NO_WAIT);
+		p_dev->hc_ptr->HC_Drv.API_Ptr->URB_Complete(&p_dev->hc_ptr->HC_Drv,
 							    p_urb, &err);
-		k_mutex_unlock(&p_dev->HC_Ptr->HCD_Mutex);
+		k_mutex_unlock(&p_dev->hc_ptr->HCD_Mutex);
 	} else if (p_urb->state == USBH_URB_STATE_ABORTED) {
-		k_mutex_lock(&p_dev->HC_Ptr->HCD_Mutex, K_NO_WAIT);
-		p_dev->HC_Ptr->HC_Drv.API_Ptr->URB_Abort(&p_dev->HC_Ptr->HC_Drv,
+		k_mutex_lock(&p_dev->hc_ptr->HCD_Mutex, K_NO_WAIT);
+		p_dev->hc_ptr->HC_Drv.API_Ptr->URB_Abort(&p_dev->hc_ptr->HC_Drv,
 							 p_urb, &err);
-		k_mutex_unlock(&p_dev->HC_Ptr->HCD_Mutex);
+		k_mutex_unlock(&p_dev->hc_ptr->HCD_Mutex);
 
 		p_urb->err = EAGAIN;
 		p_urb->xfer_len = 0;
@@ -3068,7 +3068,7 @@ uint32_t usbh_str_get(struct usbh_dev *p_dev, uint8_t desc_ix, uint16_t lang_id,
 		return 0;
 	}
 
-	lang_id = p_dev->LangID;
+	lang_id = p_dev->lang_id;
 
 	if (lang_id ==
 	    0) { /* If lang ID is zero, get dflt used by the dev.        */
@@ -3086,7 +3086,7 @@ uint32_t usbh_str_get(struct usbh_dev *p_dev, uint8_t desc_ix, uint16_t lang_id,
 			*p_err = EINVAL;
 			return 0;
 		} else {
-			p_dev->LangID = lang_id;
+			p_dev->lang_id = lang_id;
 		}
 	}
 
@@ -3228,7 +3228,7 @@ static int usbh_ep_open(struct usbh_dev *p_dev, struct usbh_if *p_if,
 
 			if ((p_dev->dev_spd == USBH_LOW_SPEED) ||
 			    (p_dev->dev_spd == USBH_FULL_SPEED)) {
-				if (p_dev->HubHS_Ptr != NULL) {
+				if (p_dev->hub_hs_ptr != NULL) {
 					p_ep->interval =
 						8 *
 						p_ep->desc
@@ -3256,12 +3256,12 @@ static int usbh_ep_open(struct usbh_dev *p_dev, struct usbh_if *p_if,
 	p_ep->dev_spd = p_dev->dev_spd;
 	p_ep->dev_ptr = p_dev;
 
-	if (!((p_dev->IsRootHub == true) &&
-	      (p_dev->HC_Ptr->IsVirRootHub == true))) {
-		k_mutex_lock(&p_dev->HC_Ptr->HCD_Mutex, K_NO_WAIT);
-		p_dev->HC_Ptr->HC_Drv.API_Ptr->EP_Open(&p_dev->HC_Ptr->HC_Drv,
+	if (!((p_dev->is_root_hub == true) &&
+	      (p_dev->hc_ptr->IsVirRootHub == true))) {
+		k_mutex_lock(&p_dev->hc_ptr->HCD_Mutex, K_NO_WAIT);
+		p_dev->hc_ptr->HC_Drv.API_Ptr->EP_Open(&p_dev->hc_ptr->HC_Drv,
 						       p_ep, &err);
-		k_mutex_unlock(&p_dev->HC_Ptr->HCD_Mutex);
+		k_mutex_unlock(&p_dev->hc_ptr->HCD_Mutex);
 		if (err != 0) {
 			return err;
 		}
@@ -3435,7 +3435,7 @@ static int usbh_async_transfer(struct usbh_ep *p_ep, void *p_buf,
 	} else if (p_ep->xfer_nbr_in_prog >= 1) {
 		/* Get a new urb struct from the urb async pool.        */
 		p_async_urb_pool =
-			&p_ep->dev_ptr->HC_Ptr->HostPtr->async_urb_pool;
+			&p_ep->dev_ptr->hc_ptr->HostPtr->async_urb_pool;
 		p_urb = k_mem_pool_malloc(p_async_urb_pool,
 					  sizeof(struct usbh_urb));
 		if (p_urb == NULL) {
@@ -3685,7 +3685,7 @@ static void usb_urb_notify(struct usbh_urb *p_urb)
 			p_frm_err = p_isoc_desc->frm_err;
 			irq_unlock(key);
 
-			p_ep->dev_ptr->HC_Ptr->HostPtr->isoc_cnt++;
+			p_ep->dev_ptr->hc_ptr->HostPtr->isoc_cnt++;
 
 			p_isoc_fnct(p_ep, p_buf, buf_len, xfer_len, start_frm,
 				    nbr_frm, p_frm_len, p_frm_err, p_arg, err);
@@ -3718,11 +3718,11 @@ static int usbh_urb_submit(struct usbh_urb *p_urb)
 	struct usbh_dev *p_dev;
 
 	p_dev = p_urb->ep_ptr->dev_ptr;
-	k_mutex_lock(&p_dev->HC_Ptr->HCD_Mutex, K_NO_WAIT);
-	ep_is_halt = p_dev->HC_Ptr->HC_Drv.API_Ptr->EP_IsHalt(&p_dev->HC_Ptr->HC_Drv,
+	k_mutex_lock(&p_dev->hc_ptr->HCD_Mutex, K_NO_WAIT);
+	ep_is_halt = p_dev->hc_ptr->HC_Drv.API_Ptr->EP_IsHalt(&p_dev->hc_ptr->HC_Drv,
 							      p_urb->ep_ptr,
 							      &err);
-	k_mutex_unlock(&p_dev->HC_Ptr->HCD_Mutex);
+	k_mutex_unlock(&p_dev->hc_ptr->HCD_Mutex);
 	if ((ep_is_halt == true) && (err == 0)) {
 		return EAGAIN;
 	}
@@ -3731,10 +3731,10 @@ static int usbh_urb_submit(struct usbh_urb *p_urb)
 		USBH_URB_STATE_SCHEDULED; /* Set urb state to scheduled.                          */
 	p_urb->err = 0;
 
-	k_mutex_lock(&p_dev->HC_Ptr->HCD_Mutex, K_NO_WAIT);
-	p_dev->HC_Ptr->HC_Drv.API_Ptr->URB_Submit(&p_dev->HC_Ptr->HC_Drv,
+	k_mutex_lock(&p_dev->hc_ptr->HCD_Mutex, K_NO_WAIT);
+	p_dev->hc_ptr->HC_Drv.API_Ptr->URB_Submit(&p_dev->hc_ptr->HC_Drv,
 						  p_urb, &err);
-	k_mutex_unlock(&p_dev->HC_Ptr->HCD_Mutex);
+	k_mutex_unlock(&p_dev->hc_ptr->HCD_Mutex);
 
 	return err;
 }
@@ -3790,7 +3790,7 @@ static int usbh_dflt_ep_open(struct usbh_dev *p_dev)
 	struct usbh_ep *p_ep;
 	int err;
 
-	p_ep = &p_dev->DfltEP;
+	p_ep = &p_dev->dflt_ep;
 
 	if (p_ep->is_open == true) {
 		return 0;
@@ -3814,13 +3814,13 @@ static int usbh_dflt_ep_open(struct usbh_dev *p_dev)
 	p_ep->desc.w_max_packet_size = ep_max_pkt_size;
 	p_ep->desc.b_interval = 0;
 
-	if (!((p_dev->IsRootHub ==
+	if (!((p_dev->is_root_hub ==
 	       true) && /* Chk if RH fncts are supported before calling HCD.    */
-	      (p_dev->HC_Ptr->IsVirRootHub == true))) {
-		k_mutex_lock(&p_dev->HC_Ptr->HCD_Mutex, K_NO_WAIT);
-		p_dev->HC_Ptr->HC_Drv.API_Ptr->EP_Open(&p_dev->HC_Ptr->HC_Drv,
+	      (p_dev->hc_ptr->IsVirRootHub == true))) {
+		k_mutex_lock(&p_dev->hc_ptr->HCD_Mutex, K_NO_WAIT);
+		p_dev->hc_ptr->HC_Drv.API_Ptr->EP_Open(&p_dev->hc_ptr->HC_Drv,
 						       p_ep, &err);
-		k_mutex_unlock(&p_dev->HC_Ptr->HCD_Mutex);
+		k_mutex_unlock(&p_dev->hc_ptr->HCD_Mutex);
 		if (err != 0) {
 			return err;
 		}
@@ -3879,7 +3879,7 @@ static int usbh_dev_desc_rd(struct usbh_dev *p_dev)
 		/* ---------- READ FIRST 8 BYTES OF DEV DESC ---------- */
 		usbh_ctrl_tx(p_dev, USBH_REQ_GET_DESC,
 			     (USBH_REQ_DIR_DEV_TO_HOST | USBH_REQ_RECIPIENT_DEV),
-			     (USBH_DESC_TYPE_DEV << 8) | 0, 0, p_dev->DevDesc,
+			     (USBH_DESC_TYPE_DEV << 8) | 0, 0, p_dev->dev_desc,
 			     8, USBH_CFG_STD_REQ_TIMEOUT, &err);
 		if (err != 0) {
 			usbh_ep_reset(p_dev, NULL);
@@ -3892,23 +3892,23 @@ static int usbh_dev_desc_rd(struct usbh_dev *p_dev)
 		return err;
 	}
 
-	if (!((p_dev->IsRootHub == true) &&
-	      (p_dev->HC_Ptr->IsVirRootHub == true))) {
+	if (!((p_dev->is_root_hub == true) &&
+	      (p_dev->hc_ptr->IsVirRootHub == true))) {
 		/* Retrieve EP 0 max pkt size.                          */
-		p_dev->DfltEP.desc.w_max_packet_size = (uint8_t) p_dev->DevDesc[7u];
-		if (p_dev->DfltEP.desc.w_max_packet_size > 64u) {
+		p_dev->dflt_ep.desc.w_max_packet_size = (uint8_t) p_dev->dev_desc[7u];
+		if (p_dev->dflt_ep.desc.w_max_packet_size > 64u) {
 			return EINVAL;
 		}
 
-		k_mutex_lock(&p_dev->HC_Ptr->HCD_Mutex, K_NO_WAIT);
-		p_dev->HC_Ptr->HC_Drv.API_Ptr->EP_Close(&p_dev->HC_Ptr->HC_Drv,
-							&p_dev->DfltEP, &err);
-		k_mutex_unlock(&p_dev->HC_Ptr->HCD_Mutex);
+		k_mutex_lock(&p_dev->hc_ptr->HCD_Mutex, K_NO_WAIT);
+		p_dev->hc_ptr->HC_Drv.API_Ptr->EP_Close(&p_dev->hc_ptr->HC_Drv,
+							&p_dev->dflt_ep, &err);
+		k_mutex_unlock(&p_dev->hc_ptr->HCD_Mutex);
 
-		k_mutex_lock(&p_dev->HC_Ptr->HCD_Mutex, K_NO_WAIT);
-		p_dev->HC_Ptr->HC_Drv.API_Ptr->EP_Open(&p_dev->HC_Ptr->HC_Drv,
-						       &p_dev->DfltEP, &err);
-		k_mutex_unlock(&p_dev->HC_Ptr->HCD_Mutex);
+		k_mutex_lock(&p_dev->hc_ptr->HCD_Mutex, K_NO_WAIT);
+		p_dev->hc_ptr->HC_Drv.API_Ptr->EP_Open(&p_dev->hc_ptr->HC_Drv,
+						       &p_dev->dflt_ep, &err);
+		k_mutex_unlock(&p_dev->hc_ptr->HCD_Mutex);
 		if (err != 0) {
 			LOG_ERR("%d", err);
 			return err;
@@ -3921,7 +3921,7 @@ static int usbh_dev_desc_rd(struct usbh_dev *p_dev)
 		/* ---------------- RD FULL DEV DESC. ----------------- */
 		usbh_ctrl_tx(p_dev, USBH_REQ_GET_DESC,
 			     (USBH_REQ_DIR_DEV_TO_HOST | USBH_REQ_RECIPIENT_DEV),
-			     (USBH_DESC_TYPE_DEV << 8) | 0, 0, p_dev->DevDesc,
+			     (USBH_DESC_TYPE_DEV << 8) | 0, 0, p_dev->dev_desc,
 			     USBH_LEN_DESC_DEV, USBH_CFG_STD_REQ_TIMEOUT,
 			     &err);
 		if (err != 0) {
@@ -4024,7 +4024,7 @@ static int usbh_cfg_rd(struct usbh_dev *p_dev, uint8_t cfg_ix)
 		b_read = usbh_ctrl_tx(p_dev, USBH_REQ_GET_DESC,
 				      (USBH_REQ_DIR_DEV_TO_HOST | USBH_REQ_RECIPIENT_DEV),
 				      (USBH_DESC_TYPE_CFG << 8) | cfg_ix, 0,
-				      p_cfg->CfgData, USBH_LEN_DESC_CFG,
+				      p_cfg->cfg_data, USBH_LEN_DESC_CFG,
 				      USBH_CFG_STD_REQ_TIMEOUT, &err);
 		if (err != 0) {
 			LOG_ERR("err get descriptor");
@@ -4044,12 +4044,12 @@ static int usbh_cfg_rd(struct usbh_dev *p_dev, uint8_t cfg_ix)
 		return EINVAL;
 	}
 
-	if (p_cfg->CfgData[1] != USBH_DESC_TYPE_CFG) {
+	if (p_cfg->cfg_data[1] != USBH_DESC_TYPE_CFG) {
 		LOG_ERR("desc invalid");
 		return EINVAL;
 	}
 
-	w_tot_len = sys_get_le16((uint8_t *)&p_cfg->CfgData[2]); /* See Note (3).                                        */
+	w_tot_len = sys_get_le16((uint8_t *)&p_cfg->cfg_data[2]); /* See Note (3).                                        */
 
 	if (w_tot_len >
 	    USBH_CFG_MAX_CFG_DATA_LEN) { /* Chk total len of config desc.                        */
@@ -4063,7 +4063,7 @@ static int usbh_cfg_rd(struct usbh_dev *p_dev, uint8_t cfg_ix)
 		b_read = usbh_ctrl_tx(p_dev, USBH_REQ_GET_DESC,
 				      (USBH_REQ_DIR_DEV_TO_HOST | USBH_REQ_RECIPIENT_DEV),
 				      (USBH_DESC_TYPE_CFG << 8) | cfg_ix, 0,
-				      p_cfg->CfgData, w_tot_len,
+				      p_cfg->cfg_data, w_tot_len,
 				      USBH_CFG_STD_REQ_TIMEOUT, &err);
 		if (err != 0) {
 			LOG_ERR("err get full descriptor");
@@ -4083,13 +4083,13 @@ static int usbh_cfg_rd(struct usbh_dev *p_dev, uint8_t cfg_ix)
 		return EINVAL;
 	}
 
-	if (p_cfg->CfgData[1] !=
+	if (p_cfg->cfg_data[1] !=
 	    USBH_DESC_TYPE_CFG) { /* Validate config desc.                                */
 		LOG_ERR("ivalid");
 		return EINVAL;
 	}
 
-	p_cfg->CfgDataLen = w_tot_len;
+	p_cfg->cfg_data_len = w_tot_len;
 	err = usbh_cfg_parse(p_dev, p_cfg);
 	LOG_ERR("%d", err);
 	return err;
@@ -4125,7 +4125,7 @@ static int usbh_cfg_parse(struct usbh_dev *p_dev, struct usbh_cfg *p_cfg)
 	struct usbh_ep_desc ep_desc;
 
 	cfg_off = 0;
-	p_desc = (struct usbh_desc_hdr *)p_cfg->CfgData;
+	p_desc = (struct usbh_desc_hdr *)p_cfg->cfg_data;
 
 	/* ---------------- VALIDATE CFG DESC ----------------- */
 	usbh_parse_cfg_desc(&cfg_desc, p_desc);
@@ -4144,7 +4144,7 @@ static int usbh_cfg_parse(struct usbh_dev *p_dev, struct usbh_cfg *p_cfg)
 	if_ix = 0;
 	p_if = NULL;
 
-	while (cfg_off < p_cfg->CfgDataLen) {
+	while (cfg_off < p_cfg->cfg_data_len) {
 		p_desc = usbh_next_desc_get((void *)p_desc, &cfg_off);
 
 		/* ---------- VALIDATE INTERFACE DESCRIPTOR ----------- */
@@ -4192,7 +4192,7 @@ static int usbh_cfg_parse(struct usbh_dev *p_dev, struct usbh_cfg *p_cfg)
 			}
 
 			if (if_desc.b_alt_setting == 0) {
-				p_if = &p_cfg->IF_List[if_ix];
+				p_if = &p_cfg->if_list[if_ix];
 				p_if->dev_ptr = (struct usbh_dev *)p_dev;
 				p_if->if_data_ptr = (uint8_t *)p_desc;
 				p_if->if_data_len = 0;
@@ -4272,23 +4272,23 @@ static int usbh_dev_addr_set(struct usbh_dev *p_dev)
 		return err;
 	}
 
-	if ((p_dev->IsRootHub == true) &&
-	    (p_dev->HC_Ptr->IsVirRootHub == true)) {
+	if ((p_dev->is_root_hub == true) &&
+	    (p_dev->hc_ptr->IsVirRootHub == true)) {
 		return 0;
 	}
 
-	k_mutex_lock(&p_dev->HC_Ptr->HCD_Mutex, K_NO_WAIT);
-	p_dev->HC_Ptr->HC_Drv.API_Ptr->EP_Close(&p_dev->HC_Ptr->HC_Drv,
-						&p_dev->DfltEP, &err);
-	k_mutex_unlock(&p_dev->HC_Ptr->HCD_Mutex);
+	k_mutex_lock(&p_dev->hc_ptr->HCD_Mutex, K_NO_WAIT);
+	p_dev->hc_ptr->HC_Drv.API_Ptr->EP_Close(&p_dev->hc_ptr->HC_Drv,
+						&p_dev->dflt_ep, &err);
+	k_mutex_unlock(&p_dev->hc_ptr->HCD_Mutex);
 
-	p_dev->DfltEP.dev_addr =
+	p_dev->dflt_ep.dev_addr =
 		p_dev->dev_addr; /* Update addr.                                         */
 
-	k_mutex_lock(&p_dev->HC_Ptr->HCD_Mutex, K_NO_WAIT);
-	p_dev->HC_Ptr->HC_Drv.API_Ptr->EP_Open(&p_dev->HC_Ptr->HC_Drv,
-					       &p_dev->DfltEP, &err);
-	k_mutex_unlock(&p_dev->HC_Ptr->HCD_Mutex);
+	k_mutex_lock(&p_dev->hc_ptr->HCD_Mutex, K_NO_WAIT);
+	p_dev->hc_ptr->HC_Drv.API_Ptr->EP_Open(&p_dev->hc_ptr->HC_Drv,
+					       &p_dev->dflt_ep, &err);
+	k_mutex_unlock(&p_dev->hc_ptr->HCD_Mutex);
 	if (err != 0) {
 		return err;
 	}
