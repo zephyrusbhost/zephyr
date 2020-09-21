@@ -67,12 +67,12 @@ static const uint8_t usbh_hub_rh_fs_cfg_desc[] = {
 	/* ------------- CONFIGURATION DESCRIPTOR ------------- */
 	USBH_LEN_DESC_CFG,      /* b_length                                              */
 	USBH_DESC_TYPE_CFG,     /* b_desc_type CONFIGURATION                        */
-	0x19u, 0x00u,           /* le16 wTotalLength                                    */
+	0x19u, 0x00u,           /* le16 w_total_length                                    */
 	0x01u,                  /* bNumInterfaces                                       */
-	0x01u,                  /* bConfigurationValue                                  */
-	0x00u,                  /* iConfiguration                                       */
-	0xC0u,                  /* bmAttributes -> Self-powered|Remote wakeup           */
-	0x00u,                  /* bMaxPower                                            */
+	0x01u,                  /* b_cfg_value                                  */
+	0x00u,                  /* i_cfg                                       */
+	0xC0u,                  /* bm_attributes -> Self-powered|Remote wakeup           */
+	0x00u,                  /* b_max_pwr                                            */
 
 	/* --------------- INTERFACE DESCRIPTOR --------------- */
 	USBH_LEN_DESC_IF,       /* b_length                                              */
@@ -89,7 +89,7 @@ static const uint8_t usbh_hub_rh_fs_cfg_desc[] = {
 	USBH_LEN_DESC_EP,       /* b_length                                              */
 	USBH_DESC_TYPE_EP,      /* b_desc_type: Endpoint                            */
 	0x81u,                  /* bEndpointAddress: IN Endpoint 1                      */
-	0x03u,                  /* bmAttributes Interrupt                               */
+	0x03u,                  /* bm_attributes Interrupt                               */
 	0x08u, 0x00u,           /* wMaxPacketSize                                       */
 	0x1u                    /* bInterval                                            */
 };

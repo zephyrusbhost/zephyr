@@ -160,11 +160,11 @@
 
 /*
  *********************************************************************************************************
- *                                    ENDPOINT TYPES (bmAttributes)
+ *                                    ENDPOINT TYPES (bm_attributes)
  *
  * Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 9.6.6, Table 9-13
  *
- *           (2) In an endpoint descriptor, the 'bmAttributes' value is one of these values.
+ *           (2) In an endpoint descriptor, the 'bm_attributes' value is one of these values.
  *********************************************************************************************************
  */
 
@@ -240,7 +240,7 @@
  *
  * Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 9.6.3, Table 9-10
  *
- *           (2) In a configuration descriptor, the 'bmAttributes' value is a bitmap composed of these values.
+ *           (2) In a configuration descriptor, the 'bm_attributes' value is a bitmap composed of these values.
  *********************************************************************************************************
  */
 
@@ -662,7 +662,7 @@ struct  usbh_dev_qualifier_desc {
 	uint8_t b_device_protocol;
 	uint8_t b_max_packet_size_zero;
 	uint8_t b_nbr_configs;
-	uint8_t bReserved;
+	uint8_t b_reserved;
 };
 
 
@@ -677,12 +677,12 @@ struct  usbh_dev_qualifier_desc {
 struct  usbh_cfg_desc {
 	uint8_t b_length;
 	uint8_t b_desc_type;
-	uint16_t wTotalLength;
-	uint8_t bNbrInterfaces;
-	uint8_t bConfigurationValue;
-	uint8_t iConfiguration;
-	uint8_t bmAttributes;
-	uint8_t bMaxPower;
+	uint16_t w_total_length;
+	uint8_t b_nbr_interfaces;
+	uint8_t b_cfg_value;
+	uint8_t i_cfg;
+	uint8_t bm_attributes;
+	uint8_t b_max_pwr;
 };
 
 
@@ -697,12 +697,12 @@ struct  usbh_cfg_desc {
 struct  usbh_other_spd_cfg_desc {
 	uint8_t b_length;
 	uint8_t b_desc_type;
-	uint16_t wTotalLength;
-	uint8_t bNbrInterfaces;
-	uint8_t bConfigurationValue;
-	uint8_t iConfiguration;
-	uint8_t bmAttributes;
-	uint8_t bMaxPower;
+	uint16_t w_total_length;
+	uint8_t b_nbr_interfaces;
+	uint8_t b_cfg_value;
+	uint8_t i_cfg;
+	uint8_t bm_attributes;
+	uint8_t b_max_pwr;
 };
 
 
@@ -759,7 +759,7 @@ struct  usbh_ep_desc {
 	uint8_t b_length;
 	uint8_t b_desc_type;
 	uint8_t bEndpointAddress;
-	uint8_t bmAttributes;
+	uint8_t bm_attributes;
 	uint16_t wMaxPacketSize;
 	uint8_t bInterval;
 	uint8_t bRefresh;
@@ -778,7 +778,7 @@ struct  usbh_ep_desc {
 struct  usbh_otg_desc {
 	uint8_t b_length;
 	uint8_t b_desc_type;
-	uint8_t bmAttributes;
+	uint8_t bm_attributes;
 };
 
 
