@@ -273,7 +273,7 @@ struct usbh_atsamx_pipe_reg {
 	/* -------------- USB HOST PIPE REGISTERS ------------- */
 	volatile uint8_t PCFG;          /* Host pipe configuration                              */
 	volatile uint8_t RSVD0[2];
-	volatile uint8_t BINTERVAL;     /* Interval for the Bulk-Out/Ping transaction           */
+	volatile uint8_t BINTERVAL;     /* interval for the Bulk-Out/Ping transaction           */
 	volatile uint8_t PSTATUSCLR;    /* Pipe status clear                                    */
 	volatile uint8_t PSTATUSSET;    /* Pipe status set                                      */
 	volatile uint8_t PSTATUS;       /* Pipe status register                                 */
@@ -934,7 +934,7 @@ static void usbh_atsamx_hcd_ep_open(struct usbh_hc_drv *p_hc_drv,
 	struct usbh_atsamx_reg *p_reg;
 
 	p_reg = (struct usbh_atsamx_reg *)p_hc_drv->HC_CfgPtr->BaseAddr;
-	p_ep->DataPID =
+	p_ep->data_pid =
 		0; /* Set PID to DATA0                                     */
 	p_ep->urb.err = 0;
 	*p_err = 0;
@@ -979,7 +979,7 @@ static void usbh_atsamx_hcd_ep_close(struct usbh_hc_drv *p_hc_drv,
 	p_reg = (struct usbh_atsamx_reg *)p_hc_drv->HC_CfgPtr->BaseAddr;
 	p_drv_data = (struct usbh_drv_data *)p_hc_drv->DataPtr;
 	pipe_nbr = usbh_atsamx_get_pipe_nbr(p_drv_data, p_ep);
-	p_ep->DataPID =
+	p_ep->data_pid =
 		0; /* Set PID to DATA0                                      */
 	*p_err = 0;
 
@@ -1109,10 +1109,10 @@ static void usbh_atsamx_hcd_urb_submit(struct usbh_hc_drv *p_hc_drv,
 		return;
 	}
 	LOG_DBG("pipe %d set ep adress %d", pipe_nbr,
-		((p_urb->ep_ptr->DevAddr << 8) | p_urb->ep_ptr->Desc.b_endpoint_address));
+		((p_urb->ep_ptr->dev_addr << 8) | p_urb->ep_ptr->desc.b_endpoint_address));
 	p_drv_data->PipeTbl[pipe_nbr].EP_Addr =
-		((p_urb->ep_ptr->DevAddr << 8) |
-		 p_urb->ep_ptr->Desc.b_endpoint_address);
+		((p_urb->ep_ptr->dev_addr << 8) |
+		 p_urb->ep_ptr->desc.b_endpoint_address);
 	p_drv_data->PipeTbl[pipe_nbr].Appbuf_len = 0;
 	p_drv_data->PipeTbl[pipe_nbr].NextXferLen = 0;
 
@@ -1137,11 +1137,11 @@ static void usbh_atsamx_hcd_urb_submit(struct usbh_hc_drv *p_hc_drv,
 	p_reg->HPIPE[pipe_nbr].PINTENSET =
 		(USBH_ATSAMX_PINT_STALL | USBH_ATSAMX_PINT_PERR);
 
-	if ((ep_type == USBH_EP_TYPE_BULK) && (p_urb->ep_ptr->Interval < 1)) {
+	if ((ep_type == USBH_EP_TYPE_BULK) && (p_urb->ep_ptr->interval < 1)) {
 		p_reg->HPIPE[pipe_nbr].BINTERVAL =
 			1; /* See Note 2.                                          */
 	} else   {
-		p_reg->HPIPE[pipe_nbr].BINTERVAL = p_urb->ep_ptr->Interval;
+		p_reg->HPIPE[pipe_nbr].BINTERVAL = p_urb->ep_ptr->interval;
 	}
 
 	p_drv_data->PipeTbl[pipe_nbr].URB_Ptr =
@@ -1167,7 +1167,7 @@ static void usbh_atsamx_hcd_urb_submit(struct usbh_hc_drv *p_hc_drv,
 		p_reg->HPIPE[pipe_nbr].PINTENSET =
 			USBH_ATSAMX_PINT_TRCPT; /* Enable transfer complete interrupt   */
 
-		if (p_urb->ep_ptr->DataPID == 0) {
+		if (p_urb->ep_ptr->data_pid == 0) {
 			p_reg->HPIPE[pipe_nbr].PSTATUSCLR =
 				USBH_ATSAMX_PSTATUS_DTGL; /* Set PID to DATA0                     */
 		} else   {
@@ -1901,7 +1901,7 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 				USBH_ATSAMX_PINT_TRCPT; /* Clear   transfer complete flag                */
 
 			/* Keep track of PID DATA toggle                        */
-			p_urb->ep_ptr->DataPID = USBH_ATSAMX_GET_DPID(
+			p_urb->ep_ptr->data_pid = USBH_ATSAMX_GET_DPID(
 				p_reg->HPIPE[pipe_nbr].PSTATUS);
 
 			if (p_urb->token ==
@@ -2106,7 +2106,7 @@ static void usbh_atsamx_pipe_cfg(struct usbh_urb *p_urb,
 
 	p_desc_bank->ADDR = (uint32_t)p_urb->dma_buf_ptr;
 	p_desc_bank->PCKSIZE |= (u32_count_trailing_zeros(max_pkt_size >> 3u) << 28u);
-	p_desc_bank->CTRL_PIPE = (p_urb->ep_ptr->DevAddr | (ep_nbr << 8));
+	p_desc_bank->CTRL_PIPE = (p_urb->ep_ptr->dev_addr | (ep_nbr << 8));
 
 	if (p_urb->token !=
 	    USBH_TOKEN_IN) { /* ---------------- SETUP/OUT PACKETS ----------------- */
@@ -2184,7 +2184,7 @@ static uint8_t usbh_atsamx_get_pipe_nbr(struct usbh_drv_data *p_drv_data,
 	uint8_t pipe_nbr;
 	uint16_t ep_addr;
 
-	ep_addr = ((p_ep->DevAddr << 8) | p_ep->Desc.b_endpoint_address);
+	ep_addr = ((p_ep->dev_addr << 8) | p_ep->desc.b_endpoint_address);
 
 	for (pipe_nbr = 0; pipe_nbr < ATSAMX_MAX_NBR_PIPE; pipe_nbr++) {
 		if (p_drv_data->PipeTbl[pipe_nbr].EP_Addr == ep_addr) {
