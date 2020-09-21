@@ -756,7 +756,7 @@ static int usbh_hub_event_req(struct usbh_hub_dev *p_hub_dev)
 	if ((p_dev->is_root_hub == true) && /* Chk if RH fncts are supported before calling HCD.    */
 	    (p_dev->hc_ptr->IsVirRootHub == true)) {
 
-		p_rh_api = p_dev->hc_ptr->HC_Drv.RH_API_Ptr;
+		p_rh_api = p_dev->hc_ptr->HC_Drv.rh_api_ptr;
 		valid = p_rh_api->IntEn(&p_dev->hc_ptr->HC_Drv);
 		if (valid != 1) {
 			return EIO;
@@ -1806,7 +1806,7 @@ uint32_t usbh_rh_ctrl_req(struct usbh_hc *p_hc,
 	bool valid;
 
 	p_hc_drv = &p_hc->HC_Drv;
-	p_hc_rh_api = p_hc_drv->RH_API_Ptr;
+	p_hc_rh_api = p_hc_drv->rh_api_ptr;
 	*p_err = 0;
 	len = 0;
 	valid = 1;
@@ -1994,7 +1994,7 @@ void usbh_rh_event(struct usbh_dev *p_dev)
 
 	p_hub_dev = p_dev->hc_ptr->RH_ClassDevPtr;
 	p_hc_drv = &p_dev->hc_ptr->HC_Drv;
-	p_rh_drv_api = p_hc_drv->RH_API_Ptr;
+	p_rh_drv_api = p_hc_drv->rh_api_ptr;
 	if (p_hub_dev == NULL) {
 		p_rh_drv_api->IntDis(p_hc_drv);
 		return;
