@@ -738,12 +738,12 @@ struct  usbh_if_desc {
 struct  usbh_if_association_desc {
 	uint8_t b_length;
 	uint8_t b_desc_type;
-	uint8_t bFirstInterface;
-	uint8_t bInterfaceCount;
-	uint8_t bFunctionClass;
-	uint8_t bFunctionSubClass;
-	uint8_t bFunctionProtocol;
-	uint8_t iFunction;
+	uint8_t b_first_if;
+	uint8_t b_if_cnt;
+	uint8_t b_fnct_class;
+	uint8_t b_fnct_sub_class;
+	uint8_t b_fnct_protocol;
+	uint8_t i_function;
 };
 
 
