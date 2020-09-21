@@ -164,13 +164,13 @@ void usbh_class_suspend(struct usbh_dev *p_dev)
 	struct usbh_if *p_if;
 	const struct usbh_class_drv *p_class_drv;
 
-	if ((p_dev->ClassDevPtr != NULL) && /* If class drv is present at dev level.                */
-	    (p_dev->ClassDrvRegPtr != NULL)) {
-		p_class_drv = p_dev->ClassDrvRegPtr->class_drv_ptr;
+	if ((p_dev->class_dev_ptr != NULL) && /* If class drv is present at dev level.                */
+	    (p_dev->class_drv_reg_ptr != NULL)) {
+		p_class_drv = p_dev->class_drv_reg_ptr->class_drv_ptr;
 		/* Chk if class drv is present at dev level.            */
 		if ((p_class_drv != NULL) &&
 		    (p_class_drv->suspend != NULL)) {
-			p_class_drv->suspend(p_dev->ClassDevPtr);
+			p_class_drv->suspend(p_dev->class_dev_ptr);
 			return;
 		}
 	}
@@ -184,13 +184,13 @@ void usbh_class_suspend(struct usbh_dev *p_dev)
 			return;
 		}
 
-		if ((p_if->ClassDevPtr != NULL) &&
-		    (p_if->ClassDrvRegPtr != NULL)) {
-			p_class_drv = p_if->ClassDrvRegPtr->class_drv_ptr;
+		if ((p_if->class_dev_ptr != NULL) &&
+		    (p_if->class_drv_reg_ptr != NULL)) {
+			p_class_drv = p_if->class_drv_reg_ptr->class_drv_ptr;
 
 			if ((p_class_drv != NULL) &&
 			    (p_class_drv->suspend != NULL)) {
-				p_class_drv->suspend(p_if->ClassDevPtr);
+				p_class_drv->suspend(p_if->class_dev_ptr);
 				return;
 			}
 		}
@@ -219,13 +219,13 @@ void usbh_class_resume(struct usbh_dev *p_dev)
 	struct usbh_if *p_if;
 	const struct usbh_class_drv *p_class_drv;
 
-	if ((p_dev->ClassDevPtr != NULL) && /* If class drv is present at dev level.                */
-	    (p_dev->ClassDrvRegPtr != NULL)) {
-		p_class_drv = p_dev->ClassDrvRegPtr->class_drv_ptr;
+	if ((p_dev->class_dev_ptr != NULL) && /* If class drv is present at dev level.                */
+	    (p_dev->class_drv_reg_ptr != NULL)) {
+		p_class_drv = p_dev->class_drv_reg_ptr->class_drv_ptr;
 		/* Chk if class drv is present at dev level.            */
 		if ((p_class_drv != NULL) &&
 		    (p_class_drv->resume != NULL)) {
-			p_class_drv->resume(p_dev->ClassDevPtr);
+			p_class_drv->resume(p_dev->class_dev_ptr);
 			return;
 		}
 	}
@@ -239,13 +239,13 @@ void usbh_class_resume(struct usbh_dev *p_dev)
 			return;
 		}
 
-		if ((p_if->ClassDevPtr != NULL) &&
-		    (p_if->ClassDrvRegPtr != NULL)) {
-			p_class_drv = p_if->ClassDrvRegPtr->class_drv_ptr;
+		if ((p_if->class_dev_ptr != NULL) &&
+		    (p_if->class_drv_reg_ptr != NULL)) {
+			p_class_drv = p_if->class_drv_reg_ptr->class_drv_ptr;
 
 			if ((p_class_drv != NULL) &&
 			    (p_class_drv->resume != NULL)) {
-				p_class_drv->resume(p_if->ClassDevPtr);
+				p_class_drv->resume(p_if->class_dev_ptr);
 				return;
 			}
 		}
@@ -299,7 +299,7 @@ int usbh_class_drv_conn(struct usbh_dev *p_dev)
 		LOG_DBG("ClassNotify");
 		usbh_class_notify(p_dev, /* Find a class drv matching dev desc.                  */
 				  p_if,
-				  p_dev->ClassDevPtr,
+				  p_dev->class_dev_ptr,
 				  USBH_CLASS_DEV_STATE_CONN);
 		return 0;
 	} else if (err != ENOTSUP) {
@@ -350,12 +350,12 @@ int usbh_class_drv_conn(struct usbh_dev *p_dev)
 			return ENOTSUP;
 		}
 
-		if (p_if->ClassDevPtr != 0) {
+		if (p_if->class_dev_ptr != 0) {
 			LOG_INF("ClassNotify");
 
 			usbh_class_notify(p_dev,
 					  p_if,
-					  p_if->ClassDevPtr,
+					  p_if->class_dev_ptr,
 					  USBH_CLASS_DEV_STATE_CONN);
 		}
 	}
@@ -386,23 +386,23 @@ void usbh_class_drv_disconn(struct usbh_dev *p_dev)
 	struct usbh_if *p_if = NULL;
 	const struct usbh_class_drv *p_class_drv;
 
-	if ((p_dev->ClassDevPtr != NULL) && /* If class drv is present at dev level.                */
-	    (p_dev->ClassDrvRegPtr != NULL)) {
-		p_class_drv = p_dev->ClassDrvRegPtr->class_drv_ptr;
+	if ((p_dev->class_dev_ptr != NULL) && /* If class drv is present at dev level.                */
+	    (p_dev->class_drv_reg_ptr != NULL)) {
+		p_class_drv = p_dev->class_drv_reg_ptr->class_drv_ptr;
 
 		if ((p_class_drv != NULL) &&
 		    (p_class_drv->disconn != 0)) {
 			LOG_DBG("notify class");
 			usbh_class_notify(p_dev,
 					  p_if,
-					  p_dev->ClassDevPtr,
+					  p_dev->class_dev_ptr,
 					  USBH_CLASS_DEV_STATE_DISCONN);
 
-			p_class_drv->disconn((void *)p_dev->ClassDevPtr);
+			p_class_drv->disconn((void *)p_dev->class_dev_ptr);
 		}
 
-		p_dev->ClassDrvRegPtr = NULL;
-		p_dev->ClassDevPtr = NULL;
+		p_dev->class_drv_reg_ptr = NULL;
+		p_dev->class_dev_ptr = NULL;
 		return;
 	}
 
@@ -414,24 +414,24 @@ void usbh_class_drv_disconn(struct usbh_dev *p_dev)
 			return;
 		}
 
-		if ((p_if->ClassDevPtr != NULL) &&
-		    (p_if->ClassDrvRegPtr != NULL)) {
-			p_class_drv = p_if->ClassDrvRegPtr->class_drv_ptr;
+		if ((p_if->class_dev_ptr != NULL) &&
+		    (p_if->class_drv_reg_ptr != NULL)) {
+			p_class_drv = p_if->class_drv_reg_ptr->class_drv_ptr;
 
 			if ((p_class_drv != NULL) &&
 			    (p_class_drv->disconn != NULL)) {
 				LOG_DBG("notify class");
 				usbh_class_notify(p_dev,
 						  p_if,
-						  p_if->ClassDevPtr,
+						  p_if->class_dev_ptr,
 						  USBH_CLASS_DEV_STATE_DISCONN);
 
 				/* disconnect the class driver.                         */
-				p_class_drv->disconn((void *)p_if->ClassDevPtr);
+				p_class_drv->disconn((void *)p_if->class_dev_ptr);
 			}
 
-			p_if->ClassDrvRegPtr = NULL;
-			p_if->ClassDevPtr = NULL;
+			p_if->class_drv_reg_ptr = NULL;
+			p_if->class_dev_ptr = NULL;
 		}
 	}
 }
@@ -474,14 +474,14 @@ static int usbh_class_probe_dev(struct usbh_dev *p_dev)
 			p_class_drv = usbh_class_drv_list[ix].class_drv_ptr;
 
 			if (p_class_drv->probe_dev != NULL) {
-				p_dev->ClassDrvRegPtr = &usbh_class_drv_list[ix];
+				p_dev->class_drv_reg_ptr = &usbh_class_drv_list[ix];
 				p_class_dev = p_class_drv->probe_dev(p_dev, &err);
 
 				if (err == 0) {
-					p_dev->ClassDevPtr = p_class_dev; /* Drv found, store class dev ptr.                      */
+					p_dev->class_dev_ptr = p_class_dev; /* Drv found, store class dev ptr.                      */
 					return err;
 				}
-				p_dev->ClassDrvRegPtr = NULL;
+				p_dev->class_drv_reg_ptr = NULL;
 			}
 		}
 	}
@@ -522,14 +522,14 @@ static int usbh_class_probe_if(struct usbh_dev *p_dev,
 			p_class_drv = usbh_class_drv_list[ix].class_drv_ptr;
 
 			if (p_class_drv->probe_if != NULL) {
-				p_if->ClassDrvRegPtr = &usbh_class_drv_list[ix];
+				p_if->class_drv_reg_ptr = &usbh_class_drv_list[ix];
 				p_class_dev = p_class_drv->probe_if(p_dev, p_if, &err);
 
 				if (err == 0) {
-					p_if->ClassDevPtr = p_class_dev; /* Drv found, store class dev ptr.                      */
+					p_if->class_dev_ptr = p_class_dev; /* Drv found, store class dev ptr.                      */
 					return err;
 				}
-				p_if->ClassDrvRegPtr = NULL;
+				p_if->class_drv_reg_ptr = NULL;
 			}
 		}
 	}
@@ -564,10 +564,10 @@ static void usbh_class_notify(struct usbh_dev *p_dev,
 {
 	struct usbh_class_drv_reg *p_class_drv_reg;
 
-	p_class_drv_reg = p_dev->ClassDrvRegPtr;
+	p_class_drv_reg = p_dev->class_drv_reg_ptr;
 
 	if (p_class_drv_reg == NULL) {
-		p_class_drv_reg = p_if->ClassDrvRegPtr;
+		p_class_drv_reg = p_if->class_drv_reg_ptr;
 	}
 
 	if (p_class_drv_reg->notify_fnct_ptr != NULL) {

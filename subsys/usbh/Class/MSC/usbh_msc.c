@@ -909,7 +909,7 @@ uint8_t usbh_msc_max_lun_get(struct usbh_msc_dev *p_msc_dev,
 
         if_nbr = usbh_if_nbr_get(p_msc_dev->IF_Ptr); /* Get IF nbr matching to MSC dev.                      */
 
-        usbh_ctrl_rx(p_msc_dev->DevPtr,        /* Send GET_MAX_LUN request via a Ctrl xfer.            */
+        usbh_ctrl_rx(p_msc_dev->dev_ptr,        /* Send GET_MAX_LUN request via a Ctrl xfer.            */
                     USBH_MSC_REQ_GET_MAX_LUN, /* See Note #1.                                         */
                     (USBH_REQ_DIR_DEV_TO_HOST | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_IF),
                     0,
@@ -920,7 +920,7 @@ uint8_t usbh_msc_max_lun_get(struct usbh_msc_dev *p_msc_dev,
                     p_err);
         if (*p_err != 0)
         {
-            (void)usbh_ep_reset(p_msc_dev->DevPtr, /* Reset dflt EP if ctrl xfer failed.                   */
+            (void)usbh_ep_reset(p_msc_dev->dev_ptr, /* Reset dflt EP if ctrl xfer failed.                   */
                                 NULL);
 
             if (*p_err == EBUSY)
@@ -1553,7 +1553,7 @@ static void *usbh_msc_probe_if(struct usbh_dev *p_dev,
         usbh_msc_dev_clr(p_msc_dev);
         p_msc_dev->RefCnt = 0;
         p_msc_dev->state = USBH_CLASS_DEV_STATE_CONN;
-        p_msc_dev->DevPtr = p_dev;
+        p_msc_dev->dev_ptr = p_dev;
         p_msc_dev->IF_Ptr = p_if;
 
         *p_err = usbh_msc_ep_open(p_msc_dev); /* Open Bulk in/out EPs.                                */
@@ -1679,7 +1679,7 @@ static void usbh_msc_resume(void *p_class_dev)
 
 static void usbh_msc_dev_clr(struct usbh_msc_dev *p_msc_dev)
 {
-    p_msc_dev->DevPtr = NULL;
+    p_msc_dev->dev_ptr = NULL;
     p_msc_dev->IF_Ptr = NULL;
     p_msc_dev->state = USBH_CLASS_DEV_STATE_NONE;
     p_msc_dev->RefCnt = 0;
@@ -1715,7 +1715,7 @@ static int usbh_msc_ep_open(struct usbh_msc_dev *p_msc_dev)
 {
     int err;
 
-    err = usbh_bulk_in_open(p_msc_dev->DevPtr,
+    err = usbh_bulk_in_open(p_msc_dev->dev_ptr,
                           p_msc_dev->IF_Ptr,
                           &p_msc_dev->BulkInEP);
     if (err != 0)
@@ -1723,7 +1723,7 @@ static int usbh_msc_ep_open(struct usbh_msc_dev *p_msc_dev)
         return err;
     }
 
-    err = usbh_bulk_out_open(p_msc_dev->DevPtr,
+    err = usbh_bulk_out_open(p_msc_dev->dev_ptr,
                            p_msc_dev->IF_Ptr,
                            &p_msc_dev->BulkOutEP);
     if (err != 0)
@@ -1954,7 +1954,7 @@ static int usbh_msc_tx_cbw(struct usbh_msc_dev *p_msc_dev,
         if (err != 0)
         {
             LOG_ERR("%d", err);
-            usbh_ep_reset(p_msc_dev->DevPtr,
+            usbh_ep_reset(p_msc_dev->dev_ptr,
                           &p_msc_dev->BulkOutEP); /* Clear EP err on host side.                           */
         }
 
@@ -2014,7 +2014,7 @@ static int usbh_msc_rx_csw(struct usbh_msc_dev *p_msc_dev,
                           &err);
         if (len != USBH_MSC_LEN_CSW)
         {
-            usbh_ep_reset(p_msc_dev->DevPtr,
+            usbh_ep_reset(p_msc_dev->dev_ptr,
                           &p_msc_dev->BulkInEP); /* Clear err on host side.                              */
 
             if (err == EBUSY)
@@ -2124,7 +2124,7 @@ static int usbh_msc_tx_data(struct usbh_msc_dev *p_msc_dev,
     {
         LOG_ERR("tx data %d", err);
 
-        usbh_ep_reset(p_msc_dev->DevPtr,
+        usbh_ep_reset(p_msc_dev->dev_ptr,
                       &p_msc_dev->BulkOutEP);
         if (err == EBUSY)
         {
@@ -2224,7 +2224,7 @@ static int usbh_msc_rx_data(struct usbh_msc_dev *p_msc_dev,
     {
         LOG_ERR("rx data %d", err);
 
-        (void)usbh_ep_reset(p_msc_dev->DevPtr,
+        (void)usbh_ep_reset(p_msc_dev->dev_ptr,
                             &p_msc_dev->BulkInEP); /* Clr err on host side EP.                             */
         if (err == EBUSY)
         {
@@ -2315,7 +2315,7 @@ static int usbh_msc_rx_bulk_only_reset(struct usbh_msc_dev *p_msc_dev)
     err = 0;
     if_nbr = usbh_if_nbr_get(p_msc_dev->IF_Ptr);
 
-    usbh_ctrl_tx(p_msc_dev->DevPtr,
+    usbh_ctrl_tx(p_msc_dev->dev_ptr,
                 USBH_MSC_REQ_MASS_STORAGE_RESET, /*  See Note(s) #1                                      */
                 (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_IF),
                 0,
@@ -2327,7 +2327,7 @@ static int usbh_msc_rx_bulk_only_reset(struct usbh_msc_dev *p_msc_dev)
     if (err != 0)
     {
         LOG_ERR("%d", err);
-        usbh_ep_reset(p_msc_dev->DevPtr,
+        usbh_ep_reset(p_msc_dev->dev_ptr,
                       NULL);
     }
 
