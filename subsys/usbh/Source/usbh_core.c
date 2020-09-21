@@ -164,8 +164,8 @@ int usbh_init()
 	USBH_URB_HeadPtr = NULL;
 	USBH_URB_TailPtr = NULL;
 
-	USBH_Host.HC_NbrNext = 0;
-	USBH_Host.State = USBH_HOST_STATE_NONE;
+	USBH_Host.hc_nbr_next = 0;
+	USBH_Host.state = USBH_HOST_STATE_NONE;
 
 	for (ix = 0; ix < USBH_CFG_MAX_NBR_CLASS_DRVS;
 	     ix++) { /* Clr class drv struct table.                          */
@@ -188,25 +188,25 @@ int usbh_init()
 	}
 
 	/* Create a task for processing async req.              */
-	k_thread_create(&USBH_Host.HAsyncTask, USBH_AsyncTask_Stack,
+	k_thread_create(&USBH_Host.h_async_task, USBH_AsyncTask_Stack,
 			K_THREAD_STACK_SIZEOF(USBH_AsyncTask_Stack),
 			usbh_async_task, NULL, NULL, NULL, 0, 0, K_NO_WAIT);
 
 	/* Create a task for processing hub events.             */
-	k_thread_create(&USBH_Host.HHubTask, USBH_HUB_EventTask_Stack,
+	k_thread_create(&USBH_Host.h_hub_task, USBH_HUB_EventTask_Stack,
 			K_THREAD_STACK_SIZEOF(USBH_HUB_EventTask_Stack),
 			usbh_hub_event_task, NULL, NULL, NULL, 0, 0, K_NO_WAIT);
 
 	for (ix = 0; ix < USBH_MAX_NBR_DEVS;
 	     ix++) { /* Init USB dev list.                                   */
-		USBH_Host.DevList[ix].DevAddr =
+		USBH_Host.dev_list[ix].DevAddr =
 			ix +
 			1; /* USB addr is ix + 1. Addr 0 is rsvd.                  */
-		k_mutex_init(&USBH_Host.DevList[ix].DfltEP_Mutex);
+		k_mutex_init(&USBH_Host.dev_list[ix].DfltEP_Mutex);
 	}
-	USBH_Host.IsocCount = (USBH_CFG_MAX_ISOC_DESC - 1);
-	USBH_Host.DevCount = (USBH_MAX_NBR_DEVS - 1);
-	USBH_Host.AsyncURB_Pool = AsyncURB_PPool;
+	USBH_Host.isoc_cnt = (USBH_CFG_MAX_ISOC_DESC - 1);
+	USBH_Host.dev_cnt = (USBH_MAX_NBR_DEVS - 1);
+	USBH_Host.async_urb_pool = AsyncURB_PPool;
 
 
 	return 0;
@@ -234,8 +234,8 @@ int usbh_suspend(void)
 	struct usbh_hc *hc;
 	int err;
 
-	for (ix = 0; ix < USBH_Host.HC_NbrNext; ix++) {
-		hc = &USBH_Host.HC_Tbl[ix];
+	for (ix = 0; ix < USBH_Host.hc_nbr_next; ix++) {
+		hc = &USBH_Host.hc_tbl[ix];
 
 		usbh_class_suspend(
 			hc->HC_Drv.RH_DevPtr); /* Suspend RH, and all downstream dev.                  */
@@ -244,7 +244,7 @@ int usbh_suspend(void)
 		k_mutex_unlock(&hc->HCD_Mutex); /* Suspend HC.                                          */
 	}
 
-	USBH_Host.State = USBH_HOST_STATE_SUSPENDED;
+	USBH_Host.state = USBH_HOST_STATE_SUSPENDED;
 
 	return err;
 }
@@ -271,8 +271,8 @@ int usbh_resume(void)
 	struct usbh_hc *hc;
 	int err;
 
-	for (ix = 0; ix < USBH_Host.HC_NbrNext; ix++) {
-		hc = &USBH_Host.HC_Tbl[ix];
+	for (ix = 0; ix < USBH_Host.hc_nbr_next; ix++) {
+		hc = &USBH_Host.hc_tbl[ix];
 
 		k_mutex_lock(&hc->HCD_Mutex, K_NO_WAIT);
 		hc->HC_Drv.API_Ptr->Resume(&hc->HC_Drv, &err);
@@ -281,7 +281,7 @@ int usbh_resume(void)
 			hc->HC_Drv.RH_DevPtr);  /* Resume RH, and all downstream dev.                   */
 	}
 
-	USBH_Host.State = USBH_HOST_STATE_RESUMED;
+	USBH_Host.state = USBH_HOST_STATE_RESUMED;
 
 	return err;
 }
@@ -339,23 +339,23 @@ uint8_t usbh_hc_add(const struct usbh_hc_cfg *p_hc_cfg,
 	}
 
 	key = irq_lock();
-	hc_nbr = USBH_Host.HC_NbrNext;
+	hc_nbr = USBH_Host.hc_nbr_next;
 	if (hc_nbr >=
 	    USBH_CFG_MAX_NBR_HC) { /* Chk if HC nbr is valid.                              */
 		irq_unlock(key);
 		*p_err = EIO;
 		return USBH_HC_NBR_NONE;
 	}
-	USBH_Host.HC_NbrNext++;
+	USBH_Host.hc_nbr_next++;
 	irq_unlock(key);
 
-	p_hc = &USBH_Host.HC_Tbl[hc_nbr];
+	p_hc = &USBH_Host.hc_tbl[hc_nbr];
 	p_hc_drv = &p_hc->HC_Drv;
 
-	if (USBH_Host.DevCount < 0) {
+	if (USBH_Host.dev_cnt < 0) {
 		return USBH_HC_NBR_NONE;
 	} else {
-		p_rh_dev = &USBH_Host.DevList[USBH_Host.DevCount--];
+		p_rh_dev = &USBH_Host.dev_list[USBH_Host.dev_cnt--];
 	}
 
 	p_rh_dev->IsRootHub = true;
@@ -431,18 +431,18 @@ int usbh_hc_start(uint8_t hc_nbr)
 	struct usbh_hc *p_hc;
 	struct usbh_dev *p_rh_dev;
 
-	if (hc_nbr >= USBH_Host.HC_NbrNext) { /* Chk if HC nbr is valid.
+	if (hc_nbr >= USBH_Host.hc_nbr_next) { /* Chk if HC nbr is valid.
 		                               */
 		LOG_DBG("Start HC nbr invalid.");
 		return EINVAL;
 	}
 
-	p_hc = &USBH_Host.HC_Tbl[hc_nbr];
+	p_hc = &USBH_Host.hc_tbl[hc_nbr];
 	p_rh_dev = p_hc->HC_Drv.RH_DevPtr;
 	err = usbh_dev_conn(
 		p_rh_dev); /* Add RH of given HC.                                  */
 	if (err == 0) {
-		USBH_Host.State = USBH_HOST_STATE_RESUMED;
+		USBH_Host.state = USBH_HOST_STATE_RESUMED;
 	} else {
 		LOG_DBG("DevDisconn.");
 		usbh_dev_disconn(p_rh_dev);
@@ -477,11 +477,11 @@ int usbh_hc_stop(uint8_t hc_nbr)
 	struct usbh_dev *p_rh_dev;
 
 	if (hc_nbr >=
-	    USBH_Host.HC_NbrNext) { /* Chk if HC nbr is valid.                              */
+	    USBH_Host.hc_nbr_next) { /* Chk if HC nbr is valid.                              */
 		return EINVAL;
 	}
 
-	p_hc = &USBH_Host.HC_Tbl[hc_nbr];
+	p_hc = &USBH_Host.hc_tbl[hc_nbr];
 	p_rh_dev = p_hc->HC_Drv.RH_DevPtr;
 
 	usbh_dev_disconn(
@@ -526,11 +526,11 @@ int usbh_hc_port_en(uint8_t hc_nbr, uint8_t port_nbr)
 	struct usbh_hc *p_hc;
 
 	if (hc_nbr >=
-	    USBH_Host.HC_NbrNext) { /* Chk if HC nbr is valid.                              */
+	    USBH_Host.hc_nbr_next) { /* Chk if HC nbr is valid.                              */
 		return EINVAL;
 	}
 
-	p_hc = &USBH_Host.HC_Tbl[hc_nbr];
+	p_hc = &USBH_Host.hc_tbl[hc_nbr];
 	err = usbh_hub_port_en(p_hc->RH_ClassDevPtr, port_nbr);
 
 	return err;
@@ -569,11 +569,11 @@ int usbh_hc_port_dis(uint8_t hc_nbr, uint8_t port_nbr)
 	struct usbh_hc *p_hc;
 
 	if (hc_nbr >=
-	    USBH_Host.HC_NbrNext) { /* Chk if HC nbr is valid.                              */
+	    USBH_Host.hc_nbr_next) { /* Chk if HC nbr is valid.                              */
 		return EINVAL;
 	}
 
-	p_hc = &USBH_Host.HC_Tbl[hc_nbr];
+	p_hc = &USBH_Host.hc_tbl[hc_nbr];
 	err = usbh_hub_port_dis(p_hc->RH_ClassDevPtr, port_nbr);
 	return err;
 }
@@ -605,12 +605,12 @@ uint32_t usbh_hc_frame_nbr_get(uint8_t hc_nbr, int *p_err)
 	struct usbh_hc *p_hc;
 
 	if (hc_nbr >=
-	    USBH_Host.HC_NbrNext) { /* Chk if HC nbr is valid.                              */
+	    USBH_Host.hc_nbr_next) { /* Chk if HC nbr is valid.                              */
 		*p_err = EINVAL;
 		return 0;
 	}
 
-	p_hc = &USBH_Host.HC_Tbl[hc_nbr];
+	p_hc = &USBH_Host.hc_tbl[hc_nbr];
 
 	k_mutex_lock(&p_hc->HCD_Mutex, K_NO_WAIT);
 	frame_nbr = p_hc->HC_Drv.API_Ptr->FrmNbrGet(&p_hc->HC_Drv, p_err);
@@ -748,7 +748,7 @@ int usbh_dev_conn(struct usbh_dev *p_dev)
 		LOG_ERR("config nbr %d", nbr_cfgs);
 		return EAGAIN;
 	} else {
-		/* Empty Else Statement                                 */
+		/* Empty Else statement                                 */
 	}
 
 	for (cfg_ix = 0; cfg_ix < nbr_cfgs;
@@ -2244,12 +2244,12 @@ uint32_t usbh_isoc_tx(struct usbh_ep *p_ep, uint8_t *p_buf, uint32_t buf_len,
 		return EAGAIN;
 	}
 
-	isoc_desc.BufPtr = p_buf;
-	isoc_desc.BufLen = buf_len;
-	isoc_desc.StartFrm = start_frm;
-	isoc_desc.NbrFrm = nbr_frm;
-	isoc_desc.FrmLen = p_frm_len;
-	isoc_desc.FrmErr = p_frm_err;
+	isoc_desc.buf_ptr = p_buf;
+	isoc_desc.buf_len = buf_len;
+	isoc_desc.start_frm = start_frm;
+	isoc_desc.nbr_frm = nbr_frm;
+	isoc_desc.frm_len = p_frm_len;
+	isoc_desc.frm_err = p_frm_err;
 
 	xfer_len = usbh_sync_transfer(p_ep, p_buf, buf_len, &isoc_desc,
 				      USBH_TOKEN_OUT, timeout_ms, p_err);
@@ -2319,25 +2319,25 @@ int usbh_isoc_tx_async(struct usbh_ep *p_ep, uint8_t *p_buf,
 		return EAGAIN;
 	}
 
-	if (p_ep->DevPtr->HC_Ptr->HostPtr->IsocCount < 0) {
+	if (p_ep->DevPtr->HC_Ptr->HostPtr->isoc_cnt < 0) {
 		return ENOMEM;
 	} else {
 		p_isoc_desc = &p_ep->DevPtr->HC_Ptr->HostPtr
-			      ->IsocDesc[p_ep->DevPtr->HC_Ptr->HostPtr
-					 ->IsocCount--];
+			      ->isoc_desc[p_ep->DevPtr->HC_Ptr->HostPtr
+					 ->isoc_cnt--];
 	}
 
-	p_isoc_desc->BufPtr = p_buf;
-	p_isoc_desc->BufLen = buf_len;
-	p_isoc_desc->StartFrm = start_frm;
-	p_isoc_desc->NbrFrm = nbr_frm;
-	p_isoc_desc->FrmLen = p_frm_len;
-	p_isoc_desc->FrmErr = p_frm_err;
+	p_isoc_desc->buf_ptr = p_buf;
+	p_isoc_desc->buf_len = buf_len;
+	p_isoc_desc->start_frm = start_frm;
+	p_isoc_desc->nbr_frm = nbr_frm;
+	p_isoc_desc->frm_len = p_frm_len;
+	p_isoc_desc->frm_err = p_frm_err;
 
 	err = usbh_async_transfer(p_ep, p_buf, buf_len, p_isoc_desc,
 				  USBH_TOKEN_IN, (void *)fnct, p_fnct_arg);
 	if (err != 0) {
-		p_ep->DevPtr->HC_Ptr->HostPtr->IsocCount++;
+		p_ep->DevPtr->HC_Ptr->HostPtr->isoc_cnt++;
 	}
 
 	return err;
@@ -2404,12 +2404,12 @@ uint32_t usbh_isoc_rx(struct usbh_ep *p_ep, uint8_t *p_buf, uint32_t buf_len,
 		return EAGAIN;
 	}
 
-	isoc_desc.BufPtr = p_buf;
-	isoc_desc.BufLen = buf_len;
-	isoc_desc.StartFrm = start_frm;
-	isoc_desc.NbrFrm = nbr_frm;
-	isoc_desc.FrmLen = p_frm_len;
-	isoc_desc.FrmErr = p_frm_err;
+	isoc_desc.buf_ptr = p_buf;
+	isoc_desc.buf_len = buf_len;
+	isoc_desc.start_frm = start_frm;
+	isoc_desc.nbr_frm = nbr_frm;
+	isoc_desc.frm_len = p_frm_len;
+	isoc_desc.frm_err = p_frm_err;
 
 	xfer_len = usbh_sync_transfer(p_ep, p_buf, buf_len, &isoc_desc,
 				      USBH_TOKEN_IN, timeout_ms, p_err);
@@ -2479,25 +2479,25 @@ int usbh_isoc_rx_async(struct usbh_ep *p_ep, uint8_t *p_buf,
 		return EAGAIN;
 	}
 
-	if (p_ep->DevPtr->HC_Ptr->HostPtr->IsocCount < 0) {
+	if (p_ep->DevPtr->HC_Ptr->HostPtr->isoc_cnt < 0) {
 		return ENOMEM;
 	} else {
 		p_isoc_desc = &p_ep->DevPtr->HC_Ptr->HostPtr
-			      ->IsocDesc[p_ep->DevPtr->HC_Ptr->HostPtr
-					 ->IsocCount--];
+			      ->isoc_desc[p_ep->DevPtr->HC_Ptr->HostPtr
+					 ->isoc_cnt--];
 	}
 
-	p_isoc_desc->BufPtr = p_buf;
-	p_isoc_desc->BufLen = buf_len;
-	p_isoc_desc->StartFrm = start_frm;
-	p_isoc_desc->NbrFrm = nbr_frm;
-	p_isoc_desc->FrmLen = p_frm_len;
-	p_isoc_desc->FrmErr = p_frm_err;
+	p_isoc_desc->buf_ptr = p_buf;
+	p_isoc_desc->buf_len = buf_len;
+	p_isoc_desc->start_frm = start_frm;
+	p_isoc_desc->nbr_frm = nbr_frm;
+	p_isoc_desc->frm_len = p_frm_len;
+	p_isoc_desc->frm_err = p_frm_err;
 
 	err = usbh_async_transfer(p_ep, p_buf, buf_len, p_isoc_desc,
 				  USBH_TOKEN_IN, (void *)fnct, p_fnct_arg);
 	if (err != 0) {
-		p_ep->DevPtr->HC_Ptr->HostPtr->IsocCount++;
+		p_ep->DevPtr->HC_Ptr->HostPtr->isoc_cnt++;
 	}
 
 	return err;
@@ -2902,9 +2902,9 @@ void usbh_urb_done(struct usbh_urb *p_urb)
 {
 	int key;
 
-	if (p_urb->State ==
+	if (p_urb->state ==
 	    USBH_URB_STATE_SCHEDULED) {         /* URB must be in scheduled state.                      */
-		p_urb->State =
+		p_urb->state =
 			USBH_URB_STATE_QUEUED;  /* Set URB state to done.                               */
 
 		if (p_urb->FnctPtr != NULL) { /* Check if req is async.                               */
@@ -2954,12 +2954,12 @@ int usbh_urb_complete(struct usbh_urb *p_urb)
 	p_ep = p_urb->EP_Ptr;
 	p_dev = p_ep->DevPtr;
 
-	if (p_urb->State == USBH_URB_STATE_QUEUED) {
+	if (p_urb->state == USBH_URB_STATE_QUEUED) {
 		k_mutex_lock(&p_dev->HC_Ptr->HCD_Mutex, K_NO_WAIT);
 		p_dev->HC_Ptr->HC_Drv.API_Ptr->URB_Complete(&p_dev->HC_Ptr->HC_Drv,
 							    p_urb, &err);
 		k_mutex_unlock(&p_dev->HC_Ptr->HCD_Mutex);
-	} else if (p_urb->State == USBH_URB_STATE_ABORTED) {
+	} else if (p_urb->state == USBH_URB_STATE_ABORTED) {
 		k_mutex_lock(&p_dev->HC_Ptr->HCD_Mutex, K_NO_WAIT);
 		p_dev->HC_Ptr->HC_Drv.API_Ptr->URB_Abort(&p_dev->HC_Ptr->HC_Drv,
 							 p_urb, &err);
@@ -2968,7 +2968,7 @@ int usbh_urb_complete(struct usbh_urb *p_urb)
 		p_urb->Err = EAGAIN;
 		p_urb->XferLen = 0;
 	} else {
-		/* Empty Else Statement                                 */
+		/* Empty Else statement                                 */
 	}
 
 	memcpy(
@@ -3005,8 +3005,8 @@ int usbh_urb_complete(struct usbh_urb *p_urb)
 	}
 	irq_unlock(key);
 
-	if ((urb_temp.State == USBH_URB_STATE_QUEUED) ||
-	    (urb_temp.State == USBH_URB_STATE_ABORTED)) {
+	if ((urb_temp.state == USBH_URB_STATE_QUEUED) ||
+	    (urb_temp.state == USBH_URB_STATE_ABORTED)) {
 		usb_urb_notify(&urb_temp);
 	}
 
@@ -3249,7 +3249,7 @@ static int usbh_ep_open(struct usbh_dev *p_dev, struct usbh_if *p_if,
 				<< (p_ep->Desc.b_interval -
 				    1); /* Isoc interval is 2 ^ (b_interval - 1). See Note #2.   */
 	} else {
-		/* Empty Else Statement                                 */
+		/* Empty Else statement                                 */
 	}
 
 	p_ep->DevAddr = p_dev->DevAddr;
@@ -3345,15 +3345,15 @@ static uint32_t usbh_sync_transfer(struct usbh_ep *p_ep, void *p_buf,
 
 	p_urb = &p_ep->URB;
 	p_urb->EP_Ptr = p_ep;
-	p_urb->IsocDescPtr = p_isoc_desc;
-	p_urb->UserBufPtr = p_buf;
-	p_urb->UserBufLen = buf_len;
-	p_urb->DMA_BufLen = 0;
-	p_urb->DMA_BufPtr = NULL;
+	p_urb->isoc_descPtr = p_isoc_desc;
+	p_urb->Userbuf_ptr = p_buf;
+	p_urb->Userbuf_len = buf_len;
+	p_urb->DMA_buf_len = 0;
+	p_urb->DMA_buf_ptr = NULL;
 	p_urb->XferLen = 0;
 	p_urb->FnctPtr = 0;
 	p_urb->FnctArgPtr = 0;
-	p_urb->State = USBH_URB_STATE_NONE;
+	p_urb->state = USBH_URB_STATE_NONE;
 	p_urb->ArgPtr = NULL;
 	p_urb->Token = token;
 
@@ -3372,7 +3372,7 @@ static uint32_t usbh_sync_transfer(struct usbh_ep *p_ep, void *p_buf,
 	}
 
 	len = p_urb->XferLen;
-	p_urb->State = USBH_URB_STATE_NONE;
+	p_urb->state = USBH_URB_STATE_NONE;
 	k_mutex_unlock(&p_ep->Mutex);
 
 	return len;
@@ -3428,14 +3428,14 @@ static int usbh_async_transfer(struct usbh_ep *p_ep, void *p_buf,
 		return EAGAIN;
 	}
 
-	if ((p_ep->URB.State !=
+	if ((p_ep->URB.state !=
 	     USBH_URB_STATE_SCHEDULED) &&       /* Chk if no xfer is pending or in progress on EP.      */
 	    (p_ep->XferNbrInProgress == 0)) {
 		p_urb = &p_ep->URB;             /* Use URB struct associated to EP.                     */
 	} else if (p_ep->XferNbrInProgress >= 1) {
 		/* Get a new URB struct from the URB async pool.        */
 		p_async_urb_pool =
-			&p_ep->DevPtr->HC_Ptr->HostPtr->AsyncURB_Pool;
+			&p_ep->DevPtr->HC_Ptr->HostPtr->async_urb_pool;
 		p_urb = k_mem_pool_malloc(p_async_urb_pool,
 					  sizeof(struct usbh_urb));
 		if (p_urb == NULL) {
@@ -3461,13 +3461,13 @@ static int usbh_async_transfer(struct usbh_ep *p_ep, void *p_buf,
 
 	p_urb->EP_Ptr =
 		p_ep; /* ------------------- PREPARE URB -------------------- */
-	p_urb->IsocDescPtr = p_isoc_desc;
-	p_urb->UserBufPtr = p_buf;
-	p_urb->UserBufLen = buf_len;
+	p_urb->isoc_descPtr = p_isoc_desc;
+	p_urb->Userbuf_ptr = p_buf;
+	p_urb->Userbuf_len = buf_len;
 	p_urb->XferLen = 0;
 	p_urb->FnctPtr = (void *)p_fnct;
 	p_urb->FnctArgPtr = p_fnct_arg;
-	p_urb->State = USBH_URB_STATE_NONE;
+	p_urb->state = USBH_URB_STATE_NONE;
 	p_urb->ArgPtr = NULL;
 	p_urb->Token = token;
 
@@ -3603,17 +3603,17 @@ static void usbh_urb_abort(struct usbh_urb *p_urb)
 
 	key = irq_lock();
 
-	if (p_urb->State == USBH_URB_STATE_SCHEDULED) {
-		p_urb->State =
+	if (p_urb->state == USBH_URB_STATE_SCHEDULED) {
+		p_urb->state =
 			USBH_URB_STATE_ABORTED; /* Abort scheduled URB.                                 */
 		cmpl = true;                    /* Mark URB as completion pending.                      */
-	} else if (p_urb->State ==
+	} else if (p_urb->state ==
 		   USBH_URB_STATE_QUEUED) {     /* Is URB queued in async Q?                            */
 		/* URB is in async lst.                                 */
 
-		p_urb->State = USBH_URB_STATE_ABORTED;
+		p_urb->state = USBH_URB_STATE_ABORTED;
 	} else {
-		/* Empty Else Statement                                 */
+		/* Empty Else statement                                 */
 	}
 	irq_unlock(key);
 
@@ -3654,23 +3654,23 @@ static void usb_urb_notify(struct usbh_urb *p_urb)
 	int key;
 
 	p_ep = p_urb->EP_Ptr;
-	p_isoc_desc = p_urb->IsocDescPtr;
+	p_isoc_desc = p_urb->isoc_descPtr;
 
 	key = irq_lock();
-	if ((p_urb->State == USBH_URB_STATE_ABORTED) &&
+	if ((p_urb->state == USBH_URB_STATE_ABORTED) &&
 	    (p_urb->FnctPtr == NULL)) {
-		p_urb->State = USBH_URB_STATE_NONE;
+		p_urb->state = USBH_URB_STATE_NONE;
 		k_sem_reset(&p_urb->Sem);
 	}
 
 	if (p_urb->FnctPtr != NULL) { /*  Save URB info.                                       */
 
-		p_buf = p_urb->UserBufPtr;
-		buf_len = p_urb->UserBufLen;
+		p_buf = p_urb->Userbuf_ptr;
+		buf_len = p_urb->Userbuf_len;
 		xfer_len = p_urb->XferLen;
 		p_arg = p_urb->FnctArgPtr;
 		err = p_urb->Err;
-		p_urb->State = USBH_URB_STATE_NONE;
+		p_urb->state = USBH_URB_STATE_NONE;
 
 		if (p_isoc_desc == NULL) {
 			p_xfer_fnct = (usbh_xfer_cmpl_fnct)p_urb->FnctPtr;
@@ -3679,13 +3679,13 @@ static void usb_urb_notify(struct usbh_urb *p_urb)
 			p_xfer_fnct(p_ep, p_buf, buf_len, xfer_len, p_arg, err);
 		} else {
 			p_isoc_fnct = (usbh_isoc_cmpl_fnct)p_urb->FnctPtr;
-			start_frm = p_isoc_desc->StartFrm;
-			nbr_frm = p_isoc_desc->NbrFrm;
-			p_frm_len = p_isoc_desc->FrmLen;
-			p_frm_err = p_isoc_desc->FrmErr;
+			start_frm = p_isoc_desc->start_frm;
+			nbr_frm = p_isoc_desc->nbr_frm;
+			p_frm_len = p_isoc_desc->frm_len;
+			p_frm_err = p_isoc_desc->frm_err;
 			irq_unlock(key);
 
-			p_ep->DevPtr->HC_Ptr->HostPtr->IsocCount++;
+			p_ep->DevPtr->HC_Ptr->HostPtr->isoc_cnt++;
 
 			p_isoc_fnct(p_ep, p_buf, buf_len, xfer_len, start_frm,
 				    nbr_frm, p_frm_len, p_frm_err, p_arg, err);
@@ -3727,7 +3727,7 @@ static int usbh_urb_submit(struct usbh_urb *p_urb)
 		return EAGAIN;
 	}
 
-	p_urb->State =
+	p_urb->state =
 		USBH_URB_STATE_SCHEDULED; /* Set URB state to scheduled.                          */
 	p_urb->Err = 0;
 
@@ -3756,7 +3756,7 @@ static int usbh_urb_submit(struct usbh_urb *p_urb)
 static void usbh_urb_clr(struct usbh_urb *p_urb)
 {
 	p_urb->Err = 0;
-	p_urb->State = USBH_URB_STATE_NONE;
+	p_urb->state = USBH_URB_STATE_NONE;
 	p_urb->AsyncURB_NxtPtr = NULL;
 }
 

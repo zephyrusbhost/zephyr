@@ -560,7 +560,7 @@ struct usbh_msc_csw
 
 static struct usbh_msc_dev USBH_MSC_DevArr[USBH_MSC_CFG_MAX_DEV];
 // static MEM_POOL USBH_MSC_DevPool;
-static int8_t USBH_MSC_DevCount;
+static int8_t USBH_MSC_dev_cnt;
 /*
 *********************************************************************************************************
 *                                      LOCAL FUNCTION PROTOTYPES
@@ -760,7 +760,7 @@ int usbh_msc_init(struct usbh_msc_dev *p_msc_dev,
         return err;
     }
     /* See Note #1.                                         */
-    if ((p_msc_dev->State == USBH_CLASS_DEV_STATE_CONN) &&
+    if ((p_msc_dev->state == USBH_CLASS_DEV_STATE_CONN) &&
         (p_msc_dev->RefCnt > 0))
     {
 
@@ -903,7 +903,7 @@ uint8_t usbh_msc_max_lun_get(struct usbh_msc_dev *p_msc_dev,
         return 0;
     }
     /* --------------- GET_MAX_LUN REQUEST ---------------- */
-    if ((p_msc_dev->State == USBH_CLASS_DEV_STATE_CONN) &&
+    if ((p_msc_dev->state == USBH_CLASS_DEV_STATE_CONN) &&
         (p_msc_dev->RefCnt > 0))
     {
 
@@ -997,7 +997,7 @@ bool usbh_msc_unit_rdy_test(struct usbh_msc_dev *p_msc_dev,
         return unit_rdy;
     }
     /* --------------- TEST_UNIT_READY REQ ---------------- */
-    if ((p_msc_dev->State == USBH_CLASS_DEV_STATE_CONN) &&
+    if ((p_msc_dev->state == USBH_CLASS_DEV_STATE_CONN) &&
         (p_msc_dev->RefCnt > 0))
     {
 
@@ -1013,7 +1013,7 @@ bool usbh_msc_unit_rdy_test(struct usbh_msc_dev *p_msc_dev,
         }
         else
         {
-            /* Empty Else Statement                                 */
+            /* Empty Else statement                                 */
         }
     }
     else
@@ -1079,7 +1079,7 @@ int usbh_msc_capacity_rd(struct usbh_msc_dev *p_msc_dev,
     }
 
     /* -------------- READ_CAPACITY REQUEST --------------- */
-    if ((p_msc_dev->State == USBH_CLASS_DEV_STATE_CONN) &&
+    if ((p_msc_dev->state == USBH_CLASS_DEV_STATE_CONN) &&
         (p_msc_dev->RefCnt > 0))
     {
 
@@ -1147,7 +1147,7 @@ int usbh_msc_std_inquiry(struct usbh_msc_dev *p_msc_dev,
     }
 
     /* ----------------- INQUIRY REQUEST ------------------ */
-    if ((p_msc_dev->State == USBH_CLASS_DEV_STATE_CONN) &&
+    if ((p_msc_dev->state == USBH_CLASS_DEV_STATE_CONN) &&
         (p_msc_dev->RefCnt > 0))
     {
 
@@ -1257,10 +1257,10 @@ int usbh_msc_ref_rel(struct usbh_msc_dev *p_msc_dev)
         p_msc_dev->RefCnt--;
 
         if ((p_msc_dev->RefCnt == 0) &&
-            (p_msc_dev->State == USBH_CLASS_DEV_STATE_DISCONN))
+            (p_msc_dev->state == USBH_CLASS_DEV_STATE_DISCONN))
         {
             /* Release MSC dev if no more ref on it.                */
-            USBH_MSC_DevCount++;
+            USBH_MSC_dev_cnt++;
         }
     }
 
@@ -1336,7 +1336,7 @@ uint32_t usbh_msc_read(struct usbh_msc_dev *p_msc_dev,
         return 0;
     }
 
-    if ((p_msc_dev->State == USBH_CLASS_DEV_STATE_CONN) &&
+    if ((p_msc_dev->state == USBH_CLASS_DEV_STATE_CONN) &&
         (p_msc_dev->RefCnt > 0))
     {
         xfer_len = usbh_scsi_read(p_msc_dev,
@@ -1425,7 +1425,7 @@ uint32_t usbh_msc_write(struct usbh_msc_dev *p_msc_dev,
         return 0;
     }
 
-    if ((p_msc_dev->State == USBH_CLASS_DEV_STATE_CONN) &&
+    if ((p_msc_dev->state == USBH_CLASS_DEV_STATE_CONN) &&
         (p_msc_dev->RefCnt > 0))
     {
         xfer_len = usbh_scsi_write(p_msc_dev,
@@ -1483,7 +1483,7 @@ static void usbh_msc_global_init(int *p_err)
         usbh_msc_dev_clr(&USBH_MSC_DevArr[ix]);
         k_mutex_init(&USBH_MSC_DevArr[ix].HMutex);
     }
-    USBH_MSC_DevCount = (USBH_MSC_CFG_MAX_DEV - 1);
+    USBH_MSC_dev_cnt = (USBH_MSC_CFG_MAX_DEV - 1);
     *p_err = 0;
 }
 
@@ -1540,26 +1540,26 @@ static void *usbh_msc_probe_if(struct usbh_dev *p_dev,
     {
 
         /* Alloc dev from MSC dev pool.                         */
-        if (USBH_MSC_DevCount < 0)
+        if (USBH_MSC_dev_cnt < 0)
         {
             *p_err = ENOMEM;
             return NULL;
         }
         else
         {
-            p_msc_dev = &USBH_MSC_DevArr[USBH_MSC_DevCount--];
+            p_msc_dev = &USBH_MSC_DevArr[USBH_MSC_dev_cnt--];
         }
 
         usbh_msc_dev_clr(p_msc_dev);
         p_msc_dev->RefCnt = 0;
-        p_msc_dev->State = USBH_CLASS_DEV_STATE_CONN;
+        p_msc_dev->state = USBH_CLASS_DEV_STATE_CONN;
         p_msc_dev->DevPtr = p_dev;
         p_msc_dev->IF_Ptr = p_if;
 
         *p_err = usbh_msc_ep_open(p_msc_dev); /* Open Bulk in/out EPs.                                */
         if (*p_err != 0)
         {
-            USBH_MSC_DevCount++;
+            USBH_MSC_dev_cnt++;
         }
     }
     else
@@ -1597,13 +1597,13 @@ static void usbh_msc_disconn(void *p_class_dev)
 
     k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
 
-    p_msc_dev->State = USBH_CLASS_DEV_STATE_DISCONN;
+    p_msc_dev->state = USBH_CLASS_DEV_STATE_DISCONN;
     usbh_msc_ep_close(p_msc_dev); /* Close bulk in/out EPs.                               */
 
     if (p_msc_dev->RefCnt == 0)
     { /* Release MSC dev.                                     */
         k_mutex_unlock(&p_msc_dev->HMutex);
-        USBH_MSC_DevCount++;
+        USBH_MSC_dev_cnt++;
     }
 
     k_mutex_unlock(&p_msc_dev->HMutex);
@@ -1631,7 +1631,7 @@ static void usbh_msc_supsend(void *p_class_dev)
 
     k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
 
-    p_msc_dev->State = USBH_CLASS_DEV_STATE_SUSPEND;
+    p_msc_dev->state = USBH_CLASS_DEV_STATE_SUSPEND;
 
     k_mutex_unlock(&p_msc_dev->HMutex);
 }
@@ -1658,7 +1658,7 @@ static void usbh_msc_resume(void *p_class_dev)
 
     k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
 
-    p_msc_dev->State = USBH_CLASS_DEV_STATE_CONN;
+    p_msc_dev->state = USBH_CLASS_DEV_STATE_CONN;
 
     k_mutex_unlock(&p_msc_dev->HMutex);
 }
@@ -1681,7 +1681,7 @@ static void usbh_msc_dev_clr(struct usbh_msc_dev *p_msc_dev)
 {
     p_msc_dev->DevPtr = NULL;
     p_msc_dev->IF_Ptr = NULL;
-    p_msc_dev->State = USBH_CLASS_DEV_STATE_NONE;
+    p_msc_dev->state = USBH_CLASS_DEV_STATE_NONE;
     p_msc_dev->RefCnt = 0;
 }
 
