@@ -1533,10 +1533,10 @@ static void *usbh_msc_probe_if(struct usbh_dev *p_dev,
         return NULL;
     }
     /* Chk for class, sub class and protocol.               */
-    if ((p_if_desc.bInterfaceClass == USBH_CLASS_CODE_MASS_STORAGE) &&
-        ((p_if_desc.bInterfaceSubClass == USBH_MSC_SUBCLASS_CODE_SCSI) ||
-         (p_if_desc.bInterfaceSubClass == USBH_MSC_SUBCLASS_CODE_SFF_8070i)) &&
-        (p_if_desc.bInterfaceProtocol == USBH_MSC_PROTOCOL_CODE_BULK_ONLY))
+    if ((p_if_desc.b_if_class == USBH_CLASS_CODE_MASS_STORAGE) &&
+        ((p_if_desc.b_if_sub_class == USBH_MSC_SUBCLASS_CODE_SCSI) ||
+         (p_if_desc.b_if_sub_class == USBH_MSC_SUBCLASS_CODE_SFF_8070i)) &&
+        (p_if_desc.b_if_protocol == USBH_MSC_PROTOCOL_CODE_BULK_ONLY))
     {
 
         /* Alloc dev from MSC dev pool.                         */

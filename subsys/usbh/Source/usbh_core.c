@@ -1190,7 +1190,7 @@ uint8_t usbh_if_alt_nbr_get(struct usbh_if *p_if)
  *
  * Return(s)   : Interface number.
  *
- * Note(s)     : (1) USB2.0 spec, section 9.6.5 states that offset 2 (bInterfaceNumber) of standard
+ * Note(s)     : (1) USB2.0 spec, section 9.6.5 states that offset 2 (b_if_nbr) of standard
  *                   interface descriptor contains the interface number of this interface.
  *********************************************************************************************************
  */
@@ -4150,48 +4150,48 @@ static int usbh_cfg_parse(struct usbh_dev *p_dev, struct usbh_cfg *p_cfg)
 		/* ---------- VALIDATE INTERFACE DESCRIPTOR ----------- */
 		if (p_desc->b_desc_type == USBH_DESC_TYPE_IF) {
 			usbh_parse_if_desc(&if_desc, p_desc);
-			if ((if_desc.bInterfaceClass !=
+			if ((if_desc.b_if_class !=
 			     USBH_CLASS_CODE_AUDIO) &&
-			    (if_desc.bInterfaceClass !=
+			    (if_desc.b_if_class !=
 			     USBH_CLASS_CODE_CDC_CTRL) &&
-			    (if_desc.bInterfaceClass != USBH_CLASS_CODE_HID) &&
-			    (if_desc.bInterfaceClass !=
+			    (if_desc.b_if_class != USBH_CLASS_CODE_HID) &&
+			    (if_desc.b_if_class !=
 			     USBH_CLASS_CODE_PHYSICAL) &&
-			    (if_desc.bInterfaceClass !=
+			    (if_desc.b_if_class !=
 			     USBH_CLASS_CODE_IMAGE) &&
-			    (if_desc.bInterfaceClass !=
+			    (if_desc.b_if_class !=
 			     USBH_CLASS_CODE_PRINTER) &&
-			    (if_desc.bInterfaceClass !=
+			    (if_desc.b_if_class !=
 			     USBH_CLASS_CODE_MASS_STORAGE) &&
-			    (if_desc.bInterfaceClass != USBH_CLASS_CODE_HUB) &&
-			    (if_desc.bInterfaceClass !=
+			    (if_desc.b_if_class != USBH_CLASS_CODE_HUB) &&
+			    (if_desc.b_if_class !=
 			     USBH_CLASS_CODE_CDC_DATA) &&
-			    (if_desc.bInterfaceClass !=
+			    (if_desc.b_if_class !=
 			     USBH_CLASS_CODE_SMART_CARD) &&
-			    (if_desc.bInterfaceClass !=
+			    (if_desc.b_if_class !=
 			     USBH_CLASS_CODE_CONTENT_SECURITY) &&
-			    (if_desc.bInterfaceClass !=
+			    (if_desc.b_if_class !=
 			     USBH_CLASS_CODE_VIDEO) &&
-			    (if_desc.bInterfaceClass !=
+			    (if_desc.b_if_class !=
 			     USBH_CLASS_CODE_PERSONAL_HEALTHCARE) &&
-			    (if_desc.bInterfaceClass !=
+			    (if_desc.b_if_class !=
 			     USBH_CLASS_CODE_DIAGNOSTIC_DEV) &&
-			    (if_desc.bInterfaceClass !=
+			    (if_desc.b_if_class !=
 			     USBH_CLASS_CODE_WIRELESS_CTRLR) &&
-			    (if_desc.bInterfaceClass !=
+			    (if_desc.b_if_class !=
 			     USBH_CLASS_CODE_MISCELLANEOUS) &&
-			    (if_desc.bInterfaceClass !=
+			    (if_desc.b_if_class !=
 			     USBH_CLASS_CODE_APP_SPECIFIC) &&
-			    (if_desc.bInterfaceClass !=
+			    (if_desc.b_if_class !=
 			     USBH_CLASS_CODE_VENDOR_SPECIFIC)) {
 				return EINVAL;
 			}
 
-			if ((if_desc.bNbrEndpoints > 30u)) {
+			if ((if_desc.b_nbr_endpoints > 30u)) {
 				return EINVAL;
 			}
 
-			if (if_desc.bAlternateSetting == 0) {
+			if (if_desc.b_alt_setting == 0) {
 				p_if = &p_cfg->IF_List[if_ix];
 				p_if->DevPtr = (struct usbh_dev *)p_dev;
 				p_if->IF_DataPtr = (uint8_t *)p_desc;
@@ -4638,13 +4638,13 @@ static void usbh_parse_if_desc(struct usbh_if_desc *p_if_desc, void *p_buf_src)
 
 	p_if_desc->b_length = p_buf_src_if_desc->b_length;
 	p_if_desc->b_desc_type = p_buf_src_if_desc->b_desc_type;
-	p_if_desc->bInterfaceNumber = p_buf_src_if_desc->bInterfaceNumber;
-	p_if_desc->bAlternateSetting = p_buf_src_if_desc->bAlternateSetting;
-	p_if_desc->bNbrEndpoints = p_buf_src_if_desc->bNbrEndpoints;
-	p_if_desc->bInterfaceClass = p_buf_src_if_desc->bInterfaceClass;
-	p_if_desc->bInterfaceSubClass = p_buf_src_if_desc->bInterfaceSubClass;
-	p_if_desc->bInterfaceProtocol = p_buf_src_if_desc->bInterfaceProtocol;
-	p_if_desc->iInterface = p_buf_src_if_desc->iInterface;
+	p_if_desc->b_if_nbr = p_buf_src_if_desc->b_if_nbr;
+	p_if_desc->b_alt_setting = p_buf_src_if_desc->b_alt_setting;
+	p_if_desc->b_nbr_endpoints = p_buf_src_if_desc->b_nbr_endpoints;
+	p_if_desc->b_if_class = p_buf_src_if_desc->b_if_class;
+	p_if_desc->b_if_sub_class = p_buf_src_if_desc->b_if_sub_class;
+	p_if_desc->b_if_protocol = p_buf_src_if_desc->b_if_protocol;
+	p_if_desc->i_interface = p_buf_src_if_desc->i_interface;
 }
 
 /*
