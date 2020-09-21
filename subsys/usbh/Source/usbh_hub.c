@@ -77,13 +77,13 @@ static const uint8_t usbh_hub_rh_fs_cfg_desc[] = {
 	/* --------------- INTERFACE DESCRIPTOR --------------- */
 	USBH_LEN_DESC_IF,       /* b_length                                              */
 	USBH_DESC_TYPE_IF,      /* b_desc_type: Interface                           */
-	0x00u,                  /* bInterfaceNumber                                     */
-	0x00u,                  /* bAlternateSetting                                    */
+	0x00u,                  /* b_if_nbr                                     */
+	0x00u,                  /* b_alt_setting                                    */
 	0x01u,                  /* bNumEndpoints                                        */
-	USBH_CLASS_CODE_HUB,    /* bInterfaceClass HUB_CLASSCODE                        */
-	0x00u,                  /* bInterfaceSubClass                                   */
-	0x00u,                  /* bInterfaceProtocol                                   */
-	0x00u,                  /* iInterface                                           */
+	USBH_CLASS_CODE_HUB,    /* b_if_class HUB_CLASSCODE                        */
+	0x00u,                  /* b_if_sub_class                                   */
+	0x00u,                  /* b_if_protocol                                   */
+	0x00u,                  /* i_interface                                           */
 
 	/* --------------- ENDPOINT DESCRIPTOR ---------------- */
 	USBH_LEN_DESC_EP,       /* b_length                                              */
@@ -418,7 +418,7 @@ static void *usbh_hub_if_probe(struct usbh_dev *p_dev,
 		return NULL;
 	}
 
-	if (if_desc.bInterfaceClass == USBH_CLASS_CODE_HUB) { /* If IF is HUB, alloc HUB dev.                         */
+	if (if_desc.b_if_class == USBH_CLASS_CODE_HUB) { /* If IF is HUB, alloc HUB dev.                         */
 		if (hub_count < 0) {
 			*p_err = EAGAIN;
 			return NULL;
