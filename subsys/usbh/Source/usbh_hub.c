@@ -818,7 +818,7 @@ static void usbh_hub_isr_cb(struct usbh_ep *p_ep,
 	if (err != 0) {
 		if (p_hub_dev->state == USBH_CLASS_DEV_STATE_CONN) {
 			if (p_hub_dev->ErrCnt < 3u) {
-				LOG_ERR("usbh_hub_isr_cb() fails. Err=%d errcnt=%d\r\n",
+				LOG_ERR("usbh_hub_isr_cb() fails. err=%d errcnt=%d\r\n",
 					err,
 					p_hub_dev->ErrCnt);
 
