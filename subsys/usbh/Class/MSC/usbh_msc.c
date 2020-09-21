@@ -73,25 +73,25 @@ LOG_MODULE_REGISTER(msc);
 *
 * Note(s) : (1) See 'USB Mass Storage Class - Bulk Only Transport', Section 3.
 *
-*           (2) The 'bRequest' field of a class-specific setup request may contain one of these values.
+*           (2) The 'b_request' field of a class-specific setup request may contain one of these values.
 *
 *           (3) The mass storage reset request is "used to reset the mass storage device and its
 *               associated interface".  The setup request packet will consist of :
 *
-*               (a) bmRequestType = 00100001b (class, interface, host-to-device)
-*               (b) bRequest      =     0xFF
-*               (c) wValue        =   0x0000
-*               (d) wIndex        = Interface number
-*               (e) wLength       =   0x0000
+*               (a) bm_request_type = 00100001b (class, interface, host-to-device)
+*               (b) b_request      =     0xFF
+*               (c) w_value        =   0x0000
+*               (d) w_index        = Interface number
+*               (e) w_length       =   0x0000
 *
 *           (4) The get max LUN is used to determine the number of LUN's supported by the device.  The
 *               setup request packet will consist of :
 *
-*               (a) bmRequestType = 10100001b (class, interface, device-to-host)
-*               (b) bRequest      =     0xFE
-*               (c) wValue        =   0x0000
-*               (d) wIndex        = Interface number
-*               (e) wLength       =   0x0001
+*               (a) bm_request_type = 10100001b (class, interface, device-to-host)
+*               (b) b_request      =     0xFE
+*               (c) w_value        =   0x0000
+*               (d) w_index        = Interface number
+*               (e) w_length       =   0x0001
 *********************************************************************************************************
 */
 
