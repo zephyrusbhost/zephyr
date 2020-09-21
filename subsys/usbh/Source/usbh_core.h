@@ -915,17 +915,17 @@ struct  usbh_dev {
  */
 
 struct  usbh_hub_dev {
-	struct usbh_ep IntrEP;                                          /* Intr EP to recv events from hub.                     */
+	struct usbh_ep intr_ep;                                          /* Intr EP to recv events from hub.                     */
 	struct usbh_hub_desc desc;                                      /* Hub desc.                                            */
-	struct usbh_dev       *DevPtrList[USBH_CFG_MAX_HUB_PORTS];      /* Ptrs to USB devs connected to this hub.              */
+	struct usbh_dev       *dev_ptr_list[USBH_CFG_MAX_HUB_PORTS];      /* Ptrs to USB devs connected to this hub.              */
 	struct usbh_dev       *dev_ptr;                                  /* USB dev ptr of the hub IF.                           */
-	struct usbh_if        *IF_Ptr;                                  /* HUB IF ptr.                                          */
-	uint8_t HubIntrBuf[64];                                         /* Buf to recv hub events.                              */
-	uint32_t ErrCnt;
+	struct usbh_if        *if_ptr;                                  /* HUB IF ptr.                                          */
+	uint8_t hub_intr_buf[64];                                         /* Buf to recv hub events.                              */
+	uint32_t err_cnt;
 	uint8_t state;
-	uint8_t RefCnt;
+	uint8_t ref_cnt;
 	struct usbh_hub_dev   *nxt_ptr;
-	uint8_t ConnCnt;                                     /* Re-connection counter                                */
+	uint8_t conn_cnt;                                     /* Re-connection counter                                */
 };
 
 

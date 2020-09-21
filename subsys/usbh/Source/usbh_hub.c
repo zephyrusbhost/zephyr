@@ -431,8 +431,8 @@ static void *usbh_hub_if_probe(struct usbh_dev *p_dev,
 
 		p_hub_dev->state = (uint8_t)USBH_CLASS_DEV_STATE_CONN;
 		p_hub_dev->dev_ptr = p_dev;
-		p_hub_dev->IF_Ptr = p_if;
-		p_hub_dev->ErrCnt = 0;
+		p_hub_dev->if_ptr = p_if;
+		p_hub_dev->err_cnt = 0;
 
 		if ((p_dev->is_root_hub == true) &&
 		    (p_dev->hc_ptr->IsVirRootHub == true)) {
@@ -475,7 +475,7 @@ static void usbh_hub_suspend(void *p_class_dev)
 	nbr_ports = MIN(p_hub_dev->desc.b_nbr_ports, USBH_CFG_MAX_HUB_PORTS);
 
 	for (port_ix = 0; port_ix < nbr_ports; port_ix++) {
-		p_dev = (struct usbh_dev *)p_hub_dev->DevPtrList[port_ix];
+		p_dev = (struct usbh_dev *)p_hub_dev->dev_ptr_list[port_ix];
 
 		if (p_dev != NULL) {
 			usbh_class_suspend(p_dev);
@@ -516,7 +516,7 @@ static void usbh_hub_resume(void *p_class_dev)
 	k_sleep(K_MSEC(20u + 12u)); /* See Note (1).                                        */
 
 	for (port_ix = 0; port_ix < nbr_ports; port_ix++) {
-		p_dev = p_hub_dev->DevPtrList[port_ix];
+		p_dev = p_hub_dev->dev_ptr_list[port_ix];
 
 		if (p_dev != NULL) {
 			usbh_class_resume(p_dev);
@@ -652,13 +652,13 @@ static void usbh_hub_uninit(struct usbh_hub_dev *p_hub_dev)
 	nbr_ports = MIN(p_hub_dev->desc.b_nbr_ports, USBH_CFG_MAX_HUB_PORTS);
 
 	for (port_ix = 0; port_ix < nbr_ports; port_ix++) {
-		p_dev = (struct usbh_dev *)p_hub_dev->DevPtrList[port_ix];
+		p_dev = (struct usbh_dev *)p_hub_dev->dev_ptr_list[port_ix];
 
 		if (p_dev != NULL) {
 			usbh_dev_disconn(p_dev);
 			p_hub_dev->dev_ptr->hc_ptr->HostPtr->dev_cnt++;
 
-			p_hub_dev->DevPtrList[port_ix] = NULL;
+			p_hub_dev->dev_ptr_list[port_ix] = NULL;
 		}
 	}
 }
@@ -690,11 +690,11 @@ static int usbh_hub_ep_open(struct usbh_hub_dev *p_hub_dev)
 	struct usbh_if *p_if;
 
 	p_dev = p_hub_dev->dev_ptr;
-	p_if = p_hub_dev->IF_Ptr;
+	p_if = p_hub_dev->if_ptr;
 
 	err = usbh_intr_in_open(p_dev, /* Find and open hub intr EP.                           */
 				p_if,
-				&p_hub_dev->IntrEP);
+				&p_hub_dev->intr_ep);
 
 	return err;
 }
@@ -715,7 +715,7 @@ static int usbh_hub_ep_open(struct usbh_hub_dev *p_hub_dev)
 
 static void usbh_hub_ep_close(struct usbh_hub_dev *p_hub_dev)
 {
-	usbh_ep_close(&p_hub_dev->IntrEP); /* Close hub intr EP.                                   */
+	usbh_ep_close(&p_hub_dev->intr_ep); /* Close hub intr EP.                                   */
 }
 
 /*
@@ -766,8 +766,8 @@ static int usbh_hub_event_req(struct usbh_hub_dev *p_hub_dev)
 	}
 
 	len = (p_hub_dev->desc.b_nbr_ports / 8) + 1;    /* See Note (1).                                        */
-	err = usbh_intr_rx_async(&p_hub_dev->IntrEP,    /* Start receiving hub events.                          */
-				 (void *)p_hub_dev->HubIntrBuf,
+	err = usbh_intr_rx_async(&p_hub_dev->intr_ep,    /* Start receiving hub events.                          */
+				 (void *)p_hub_dev->hub_intr_buf,
 				 len,
 				 usbh_hub_isr_cb,
 				 (void *)p_hub_dev);
@@ -817,19 +817,19 @@ static void usbh_hub_isr_cb(struct usbh_ep *p_ep,
 
 	if (err != 0) {
 		if (p_hub_dev->state == USBH_CLASS_DEV_STATE_CONN) {
-			if (p_hub_dev->ErrCnt < 3u) {
+			if (p_hub_dev->err_cnt < 3u) {
 				LOG_ERR("usbh_hub_isr_cb() fails. err=%d errcnt=%d\r\n",
 					err,
-					p_hub_dev->ErrCnt);
+					p_hub_dev->err_cnt);
 
-				p_hub_dev->ErrCnt++;
+				p_hub_dev->err_cnt++;
 				usbh_hub_event_req(p_hub_dev); /* Retry urb.                                           */
 			}
 		}
 		return;
 	}
 
-	p_hub_dev->ErrCnt = 0;
+	p_hub_dev->err_cnt = 0;
 
 	usbh_hub_ref_add(p_hub_dev);
 
@@ -924,12 +924,12 @@ static void usbh_hub_event_proc(void)
 
 				LOG_DBG("Port %d : Device Connected.\r\n", port_nbr);
 
-				p_hub_dev->ConnCnt = 0; /* Reset re-connection counter                          */
-				p_dev = p_hub_dev->DevPtrList[port_nbr - 1];
+				p_hub_dev->conn_cnt = 0; /* Reset re-connection counter                          */
+				p_dev = p_hub_dev->dev_ptr_list[port_nbr - 1];
 				if (p_dev != NULL) {
 					usbh_dev_disconn(p_dev);
 					p_hub_dev->dev_ptr->hc_ptr->HostPtr->dev_cnt++;
-					p_hub_dev->DevPtrList[port_nbr - 1] = NULL;
+					p_hub_dev->dev_ptr_list[port_nbr - 1] = NULL;
 				}
 
 				k_sleep(K_MSEC(100u));                  /* See Notes #1.                                        */
@@ -945,13 +945,13 @@ static void usbh_hub_event_proc(void)
 				LOG_DBG("device has been removed");
 				k_sleep(K_MSEC(10u)); /* Wait for any pending I/O xfer to rtn err.            */
 
-				p_dev = p_hub_dev->DevPtrList[port_nbr - 1];
+				p_dev = p_hub_dev->dev_ptr_list[port_nbr - 1];
 
 				if (p_dev != NULL) {
 					usbh_dev_disconn(p_dev);
 					p_hub_dev->dev_ptr->hc_ptr->HostPtr->dev_cnt++;
 
-					p_hub_dev->DevPtrList[port_nbr - 1] = NULL;
+					p_hub_dev->dev_ptr_list[port_nbr - 1] = NULL;
 				}
 			}
 		}
@@ -983,7 +983,7 @@ static void usbh_hub_event_proc(void)
 				LOG_DBG("Port %d : Port Reset complete, device speed is %s\r\n", port_nbr,
 					(dev_spd == USBH_LOW_SPEED) ? "LOW Speed(1.5 Mb/Sec)" : (dev_spd == USBH_FULL_SPEED) ? "FULL Speed(12 Mb/Sec)" : "HIGH Speed(480 Mb/Sec)");
 
-				p_dev = p_hub_dev->DevPtrList[port_nbr - 1];
+				p_dev = p_hub_dev->dev_ptr_list[port_nbr - 1];
 
 				if (p_dev != NULL) {
 					continue;
@@ -1010,7 +1010,7 @@ static void usbh_hub_event_proc(void)
 				if (dev_spd == USBH_HIGH_SPEED) {
 					p_dev->hub_hs_ptr = p_hub_dev;
 				} else   {
-					if (p_hub_dev->IntrEP.dev_spd == USBH_HIGH_SPEED) {
+					if (p_hub_dev->intr_ep.dev_spd == USBH_HIGH_SPEED) {
 						p_dev->hub_hs_ptr = p_hub_dev;
 					} else   {
 						p_dev->hub_hs_ptr = p_hub_dev->dev_ptr->hub_hs_ptr;
@@ -1025,7 +1025,7 @@ static void usbh_hub_event_proc(void)
 
 					p_hub_dev->dev_ptr->hc_ptr->HostPtr->dev_cnt++;
 
-					if (p_hub_dev->ConnCnt < USBH_CFG_MAX_NUM_DEV_RECONN) {
+					if (p_hub_dev->conn_cnt < USBH_CFG_MAX_NUM_DEV_RECONN) {
 						/*This condition may happen due to EP_STALL return      */
 						err = usbh_hub_port_reset_set(p_hub_dev, /* Apply port reset.                                    */
 									    port_nbr);
@@ -1034,14 +1034,14 @@ static void usbh_hub_event_proc(void)
 						}
 
 						k_sleep(K_MSEC(USBH_HUB_DLY_DEV_RESET)); /* See Notes #2.                                        */
-						p_hub_dev->ConnCnt++;
+						p_hub_dev->conn_cnt++;
 						;
 						continue; /* Handle port reset status change.                     */
 					} else   {
-						p_hub_dev->DevPtrList[port_nbr - 1] = NULL;
+						p_hub_dev->dev_ptr_list[port_nbr - 1] = NULL;
 					}
 				} else   {
-					p_hub_dev->DevPtrList[port_nbr - 1] = p_dev;
+					p_hub_dev->dev_ptr_list[port_nbr - 1] = p_dev;
 				}
 			}
 		}
@@ -1682,13 +1682,13 @@ static void usbh_hub_clr(struct usbh_hub_dev *p_hub_dev)
 	uint8_t dev_ix;
 
 	p_hub_dev->dev_ptr = NULL;
-	p_hub_dev->IF_Ptr = NULL;
+	p_hub_dev->if_ptr = NULL;
 	/* Clr dev ptr lst.                                     */
 	for (dev_ix = 0; dev_ix < USBH_CFG_MAX_HUB_PORTS; dev_ix++) {
-		p_hub_dev->DevPtrList[dev_ix] = NULL;
+		p_hub_dev->dev_ptr_list[dev_ix] = NULL;
 	}
 
-	p_hub_dev->RefCnt = 0;
+	p_hub_dev->ref_cnt = 0;
 	p_hub_dev->state = USBH_CLASS_DEV_STATE_NONE;
 	p_hub_dev->nxt_ptr = 0;
 }
@@ -1717,7 +1717,7 @@ static int usbh_hub_ref_add(struct usbh_hub_dev *p_hub_dev)
 	}
 
 	key = irq_lock();
-	p_hub_dev->RefCnt++; /* Increment access ref cnt to hub dev.                 */
+	p_hub_dev->ref_cnt++; /* Increment access ref cnt to hub dev.                 */
 
 	irq_unlock(key);
 	return 0;
@@ -1747,10 +1747,10 @@ static int usbh_hub_ref_rel(struct usbh_hub_dev *p_hub_dev)
 	}
 
 	key = irq_lock();
-	if (p_hub_dev->RefCnt > 0) {
-		p_hub_dev->RefCnt--; /* Decrement access ref cnt to hub dev.                 */
+	if (p_hub_dev->ref_cnt > 0) {
+		p_hub_dev->ref_cnt--; /* Decrement access ref cnt to hub dev.                 */
 
-		if (p_hub_dev->RefCnt == 0) {
+		if (p_hub_dev->ref_cnt == 0) {
 			hub_count++;
 		}
 	}
