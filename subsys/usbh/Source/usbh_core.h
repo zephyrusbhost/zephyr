@@ -806,10 +806,10 @@ struct  usbh_isoc_desc {
 
 struct  usbh_urb {
 	volatile uint8_t state;                                 /* state of URB.                                        */
-	struct usbh_ep         *EP_Ptr;                         /* EP the urb belongs to.                               */
-	volatile int Err;                                  /* The status of URB completion.                        */
+	struct usbh_ep         *ep_ptr;                         /* EP the urb belongs to.                               */
+	volatile int err;                                  /* The status of URB completion.                        */
 
-	void            *Userbuf_ptr;                            /* Ptr to buf supplied by app.                          */
+	void            *userbuf_ptr;                            /* Ptr to buf supplied by app.                          */
 	uint32_t Userbuf_len;                                    /* Buf len in bytes.                                    */
 	void            *DMA_buf_ptr;                            /* DMA buf ptr used by DMA HW.                          */
 	int32_t DMA_buf_len;                                    /* DMA buf len.                                         */
@@ -1011,7 +1011,7 @@ struct  usbh_host {
 
 
 struct  usbh_hc_drv_api {
-	void (*Init)        (struct usbh_hc_drv  *p_hc_drv,
+	void (*init)        (struct usbh_hc_drv  *p_hc_drv,
 	                     /* Initialize HC.                                       */
 			     int     *p_err);
 
@@ -1144,7 +1144,7 @@ struct  usbh_hc_rh_api {
  */
 
 struct  usbh_hc_bsp_api {
-	void (*Init)       (struct usbh_hc_drv   *p_hc_drv,
+	void (*init)       (struct usbh_hc_drv   *p_hc_drv,
 	                    /* Init BSP.                                            */
 			    int      *p_err);
 
