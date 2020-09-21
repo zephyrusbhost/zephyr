@@ -317,7 +317,7 @@ int usbh_class_drv_conn(struct usbh_dev *p_dev)
 
 	drv_found = false;
 	LOG_DBG("CfgGet");
-	p_cfg = usbh_cfg_get(p_dev, (p_dev->SelCfg - 1)); /* Get active cfg struct.                               */
+	p_cfg = usbh_cfg_get(p_dev, (p_dev->sel_cfg - 1)); /* Get active cfg struct.                               */
 	LOG_DBG("CfgIF_NbrGet");
 	nbr_if = usbh_cfg_if_nbr_get(p_cfg);
 
