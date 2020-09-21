@@ -434,9 +434,9 @@ static void *usbh_hub_if_probe(struct usbh_dev *p_dev,
 		p_hub_dev->IF_Ptr = p_if;
 		p_hub_dev->ErrCnt = 0;
 
-		if ((p_dev->IsRootHub == true) &&
-		    (p_dev->HC_Ptr->IsVirRootHub == true)) {
-			p_dev->HC_Ptr->RH_ClassDevPtr = p_hub_dev;
+		if ((p_dev->is_root_hub == true) &&
+		    (p_dev->hc_ptr->IsVirRootHub == true)) {
+			p_dev->hc_ptr->RH_ClassDevPtr = p_hub_dev;
 		}
 
 		*p_err = usbh_hub_init(p_hub_dev); /* Init HUB.                                            */
@@ -656,7 +656,7 @@ static void usbh_hub_uninit(struct usbh_hub_dev *p_hub_dev)
 
 		if (p_dev != NULL) {
 			usbh_dev_disconn(p_dev);
-			p_hub_dev->dev_ptr->HC_Ptr->HostPtr->dev_cnt++;
+			p_hub_dev->dev_ptr->hc_ptr->HostPtr->dev_cnt++;
 
 			p_hub_dev->DevPtrList[port_ix] = NULL;
 		}
@@ -753,11 +753,11 @@ static int usbh_hub_event_req(struct usbh_hub_dev *p_hub_dev)
 
 	p_dev = p_hub_dev->dev_ptr;
 
-	if ((p_dev->IsRootHub == true) && /* Chk if RH fncts are supported before calling HCD.    */
-	    (p_dev->HC_Ptr->IsVirRootHub == true)) {
+	if ((p_dev->is_root_hub == true) && /* Chk if RH fncts are supported before calling HCD.    */
+	    (p_dev->hc_ptr->IsVirRootHub == true)) {
 
-		p_rh_api = p_dev->HC_Ptr->HC_Drv.RH_API_Ptr;
-		valid = p_rh_api->IntEn(&p_dev->HC_Ptr->HC_Drv);
+		p_rh_api = p_dev->hc_ptr->HC_Drv.RH_API_Ptr;
+		valid = p_rh_api->IntEn(&p_dev->hc_ptr->HC_Drv);
 		if (valid != 1) {
 			return EIO;
 		} else   {
@@ -928,7 +928,7 @@ static void usbh_hub_event_proc(void)
 				p_dev = p_hub_dev->DevPtrList[port_nbr - 1];
 				if (p_dev != NULL) {
 					usbh_dev_disconn(p_dev);
-					p_hub_dev->dev_ptr->HC_Ptr->HostPtr->dev_cnt++;
+					p_hub_dev->dev_ptr->hc_ptr->HostPtr->dev_cnt++;
 					p_hub_dev->DevPtrList[port_nbr - 1] = NULL;
 				}
 
@@ -949,7 +949,7 @@ static void usbh_hub_event_proc(void)
 
 				if (p_dev != NULL) {
 					usbh_dev_disconn(p_dev);
-					p_hub_dev->dev_ptr->HC_Ptr->HostPtr->dev_cnt++;
+					p_hub_dev->dev_ptr->hc_ptr->HostPtr->dev_cnt++;
 
 					p_hub_dev->DevPtrList[port_nbr - 1] = NULL;
 				}
@@ -989,31 +989,31 @@ static void usbh_hub_event_proc(void)
 					continue;
 				}
 
-				if (p_hub_dev->dev_ptr->HC_Ptr->HostPtr->state == USBH_HOST_STATE_SUSPENDED) {
+				if (p_hub_dev->dev_ptr->hc_ptr->HostPtr->state == USBH_HOST_STATE_SUSPENDED) {
 					continue;
 				}
-				if (p_hub_dev->dev_ptr->HC_Ptr->HostPtr->dev_cnt < 0) {
+				if (p_hub_dev->dev_ptr->hc_ptr->HostPtr->dev_cnt < 0) {
 					usbh_hub_port_dis(p_hub_dev, port_nbr);
 					usbh_hub_ref_rel(p_hub_dev);
 					usbh_hub_event_req(p_hub_dev); /* Retry urb.                                           */
 
 					return;
 				} else   {
-					p_dev = &p_hub_dev->dev_ptr->HC_Ptr->HostPtr->dev_list[p_hub_dev->dev_ptr->HC_Ptr->HostPtr->dev_cnt--];
+					p_dev = &p_hub_dev->dev_ptr->hc_ptr->HostPtr->dev_list[p_hub_dev->dev_ptr->hc_ptr->HostPtr->dev_cnt--];
 				}
 
 				p_dev->dev_spd = dev_spd;
-				p_dev->HubDevPtr = p_hub_dev->dev_ptr;
-				p_dev->PortNbr = port_nbr;
-				p_dev->HC_Ptr = p_hub_dev->dev_ptr->HC_Ptr;
+				p_dev->hub_dev_ptr = p_hub_dev->dev_ptr;
+				p_dev->port_nbr = port_nbr;
+				p_dev->hc_ptr = p_hub_dev->dev_ptr->hc_ptr;
 
 				if (dev_spd == USBH_HIGH_SPEED) {
-					p_dev->HubHS_Ptr = p_hub_dev;
+					p_dev->hub_hs_ptr = p_hub_dev;
 				} else   {
 					if (p_hub_dev->IntrEP.dev_spd == USBH_HIGH_SPEED) {
-						p_dev->HubHS_Ptr = p_hub_dev;
+						p_dev->hub_hs_ptr = p_hub_dev;
 					} else   {
-						p_dev->HubHS_Ptr = p_hub_dev->dev_ptr->HubHS_Ptr;
+						p_dev->hub_hs_ptr = p_hub_dev->dev_ptr->hub_hs_ptr;
 					}
 				}
 
@@ -1023,7 +1023,7 @@ static void usbh_hub_event_proc(void)
 					usbh_hub_port_dis(p_hub_dev, port_nbr);
 					usbh_dev_disconn(p_dev);
 
-					p_hub_dev->dev_ptr->HC_Ptr->HostPtr->dev_cnt++;
+					p_hub_dev->dev_ptr->hc_ptr->HostPtr->dev_cnt++;
 
 					if (p_hub_dev->ConnCnt < USBH_CFG_MAX_NUM_DEV_RECONN) {
 						/*This condition may happen due to EP_STALL return      */
@@ -1992,8 +1992,8 @@ void usbh_rh_event(struct usbh_dev *p_dev)
 	const struct usbh_hc_rh_api *p_rh_drv_api;
 	int key;
 
-	p_hub_dev = p_dev->HC_Ptr->RH_ClassDevPtr;
-	p_hc_drv = &p_dev->HC_Ptr->HC_Drv;
+	p_hub_dev = p_dev->hc_ptr->RH_ClassDevPtr;
+	p_hc_drv = &p_dev->hc_ptr->HC_Drv;
 	p_rh_drv_api = p_hc_drv->RH_API_Ptr;
 	if (p_hub_dev == NULL) {
 		p_rh_drv_api->IntDis(p_hc_drv);
@@ -2044,7 +2044,7 @@ void usbh_hub_class_notify(void *p_class_dev,
 	p_hub_dev = (struct usbh_hub_dev *)p_class_dev;
 	p_dev = p_hub_dev->dev_ptr;
 
-	if (p_dev->IsRootHub == true) { /* If RH, return immediately.                           */
+	if (p_dev->is_root_hub == true) { /* If RH, return immediately.                           */
 		return;
 	}
 

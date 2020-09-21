@@ -877,9 +877,9 @@ struct  usbh_if {
  */
 
 struct  usbh_cfg {
-	uint8_t CfgData[USBH_CFG_MAX_CFG_DATA_LEN];             /* Buf containing cfg desc data.                        */
-	uint16_t CfgDataLen;                                    /* Cfg desc data len.                                   */
-	struct usbh_if IF_List[USBH_CFG_MAX_NBR_IFS];           /* Device IFs.                                          */
+	uint8_t cfg_data[USBH_CFG_MAX_CFG_DATA_LEN];             /* Buf containing cfg desc data.                        */
+	uint16_t cfg_data_len;                                    /* Cfg desc data len.                                   */
+	struct usbh_if if_list[USBH_CFG_MAX_NBR_IFS];           /* Device IFs.                                          */
 };
 
 
@@ -890,21 +890,21 @@ struct  usbh_cfg {
  */
 
 struct  usbh_dev {
-	struct usbh_hc             *HC_Ptr;                     /* Ptr to HC struct.                                    */
+	struct usbh_hc             *hc_ptr;                     /* Ptr to HC struct.                                    */
 	uint8_t dev_addr;                                        /* USB dev addr assigned by host.                       */
 	enum usbh_device_speed dev_spd;                          /* Dev spd (low, full or high).                         */
-	struct usbh_ep DfltEP;                                  /* Dflt ctrl EP.                                        */
-	struct k_mutex DfltEP_Mutex;                            /* Dev dflt EP mutex.                                   */
-	uint16_t LangID;                                        /* Language ID used by the str desc.                    */
+	struct usbh_ep dflt_ep;                                  /* Dflt ctrl EP.                                        */
+	struct k_mutex dflt_ep_mutex;                            /* Dev dflt EP mutex.                                   */
+	uint16_t lang_id;                                        /* Language ID used by the str desc.                    */
 	void                *class_dev_ptr;                       /* Ptr to class dev created by class drv.               */
 	struct usbh_class_drv_reg  *class_drv_reg_ptr;             /* Ptr to class drv managing this dev.                  */
-	uint8_t DevDesc[USBH_LEN_DESC_DEV];                     /* Dev desc.                                            */
-	struct usbh_cfg CfgList[USBH_CFG_MAX_NBR_CFGS];         /* Dev cfg.                                             */
-	uint8_t SelCfg;                                         /* Selected dev cfg nbr.                                */
-	struct usbh_dev            *HubDevPtr;                  /* Ptr to up stream hub dev struct.                     */
-	uint32_t PortNbr;                                       /* Port nbr to which this dev is connected.             */
-	bool IsRootHub;                                         /* Indicate if this is a RH dev.                        */
-	struct usbh_hub_dev        *HubHS_Ptr;                  /* Ptr to prev HS Hub.                                  */
+	uint8_t dev_desc[USBH_LEN_DESC_DEV];                     /* Dev desc.                                            */
+	struct usbh_cfg cfg_list[USBH_CFG_MAX_NBR_CFGS];         /* Dev cfg.                                             */
+	uint8_t sel_cfg;                                         /* Selected dev cfg nbr.                                */
+	struct usbh_dev            *hub_dev_ptr;                  /* Ptr to up stream hub dev struct.                     */
+	uint32_t port_nbr;                                       /* Port nbr to which this dev is connected.             */
+	bool is_root_hub;                                         /* Indicate if this is a RH dev.                        */
+	struct usbh_hub_dev        *hub_hs_ptr;                  /* Ptr to prev HS Hub.                                  */
 };
 
 
