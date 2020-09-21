@@ -71,7 +71,7 @@
  *
  * Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 9.3, Table 9-2.
  *
- *           (2) The 'bmRequestType' field of a setup request is a bit-mapped datum with three subfields :
+ *           (2) The 'bm_request_type' field of a setup request is a bit-mapped datum with three subfields :
  *
  *               (a) Bit  7  : Data transfer direction.
  *               (b) Bits 6-5: Type.
@@ -100,7 +100,7 @@
  *
  * Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 9.4, Table 9-4.
  *
- *           (2) The 'bRequest' field of a standard setup request may contain one of these values.
+ *           (2) The 'b_request' field of a standard setup request may contain one of these values.
  *********************************************************************************************************
  */
 
@@ -124,7 +124,7 @@
  * Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 9.4, Table 9-5, and
  *               Section 9.4.3.
  *
- *           (2) For a 'get descriptor' setup request, the low byte of the 'wValue' field may contain
+ *           (2) For a 'get descriptor' setup request, the low byte of the 'w_value' field may contain
  *               one of these values.
  *********************************************************************************************************
  */
@@ -148,7 +148,7 @@
  * Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 9.4, Table 9-6, and
  *               Section 9.4.1.
  *
- *           (2) For a 'clear feature' setup request, the 'wValue' field may contain one of these values.
+ *           (2) For a 'clear feature' setup request, the 'w_value' field may contain one of these values.
  *********************************************************************************************************
  */
 
@@ -357,7 +357,7 @@
  *
  * Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 9.6.1, Table 9-8.
  *
- *           (2) The field "bcdUSB" is part of the device descriptor and indicates the release number of the
+ *           (2) The field "bcd_usb" is part of the device descriptor and indicates the release number of the
  *               USB specification to which the device complies.
  *********************************************************************************************************
  */
@@ -436,7 +436,7 @@
  *
  * Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 11.24.2, Table 11-16.
  *
- *           (2) The 'bRequest' field of a class-specific setup request may contain one of these values.
+ *           (2) The 'b_request' field of a class-specific setup request may contain one of these values.
  *********************************************************************************************************
  */
 
@@ -457,7 +457,7 @@
  *
  * Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 11.23.2, Table 11-13.
  *
- *           (2) For a 'get descriptor' setup request, the low byte of the 'wValue' field may contain
+ *           (2) For a 'get descriptor' setup request, the low byte of the 'w_value' field may contain
  *               one of these values.
  *********************************************************************************************************
  */
@@ -471,7 +471,7 @@
  *
  * Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 11.24.2, Table 11-17.
  *
- *           (2) For a 'clear feature' setup request, the 'wValue' field may contain one of these values.
+ *           (2) For a 'clear feature' setup request, the 'w_value' field may contain one of these values.
  *********************************************************************************************************
  */
 
@@ -599,11 +599,11 @@ struct  usbh_hub_status {
  */
 
 struct  usbh_setup_req {
-	uint8_t bmRequestType;
-	uint8_t bRequest;
-	uint16_t wValue;
-	uint16_t wIndex;
-	uint16_t wLength;
+	uint8_t bm_request_type;
+	uint8_t b_request;
+	uint16_t w_value;
+	uint16_t w_index;
+	uint16_t w_length;
 };
 
 
@@ -614,7 +614,7 @@ struct  usbh_setup_req {
  */
 
 struct  usbh_desc_hdr {
-	uint8_t bLength;
+	uint8_t b_length;
 	uint8_t b_desc_type;
 };
 
@@ -628,20 +628,20 @@ struct  usbh_desc_hdr {
  */
 
 struct  usbh_dev_desc {
-	uint8_t bLength;
+	uint8_t b_length;
 	uint8_t b_desc_type;
-	uint16_t bcdUSB;
-	uint8_t bDeviceClass;
-	uint8_t bDeviceSubClass;
-	uint8_t bDeviceProtocol;
-	uint8_t bMaxPacketSize0;
-	uint16_t idVendor;
-	uint16_t idProduct;
-	uint16_t bcdDevice;
-	uint8_t iManufacturer;
-	uint8_t iProduct;
-	uint8_t iSerialNumber;
-	uint8_t bNbrConfigurations;
+	uint16_t bcd_usb;
+	uint8_t b_device_class;
+	uint8_t b_device_sub_class;
+	uint8_t b_device_protocol;
+	uint8_t b_max_packet_size_zero;
+	uint16_t id_vendor;
+	uint16_t id_product;
+	uint16_t bcd_device;
+	uint8_t i_manufacturer;
+	uint8_t i_product;
+	uint8_t i_serial_number;
+	uint8_t b_nbr_configs;
 };
 
 
@@ -654,14 +654,14 @@ struct  usbh_dev_desc {
  */
 
 struct  usbh_dev_qualifier_desc {
-	uint8_t bLength;
+	uint8_t b_length;
 	uint8_t b_desc_type;
-	uint16_t bcdUSB;
-	uint8_t bDeviceClass;
-	uint8_t bDeviceSubClass;
-	uint8_t bDeviceProtocol;
-	uint8_t bMaxPacketSize0;
-	uint8_t bNbrConfigurations;
+	uint16_t bcd_usb;
+	uint8_t b_device_class;
+	uint8_t b_device_sub_class;
+	uint8_t b_device_protocol;
+	uint8_t b_max_packet_size_zero;
+	uint8_t b_nbr_configs;
 	uint8_t bReserved;
 };
 
@@ -675,7 +675,7 @@ struct  usbh_dev_qualifier_desc {
  */
 
 struct  usbh_cfg_desc {
-	uint8_t bLength;
+	uint8_t b_length;
 	uint8_t b_desc_type;
 	uint16_t wTotalLength;
 	uint8_t bNbrInterfaces;
@@ -695,7 +695,7 @@ struct  usbh_cfg_desc {
  */
 
 struct  usbh_other_spd_cfg_desc {
-	uint8_t bLength;
+	uint8_t b_length;
 	uint8_t b_desc_type;
 	uint16_t wTotalLength;
 	uint8_t bNbrInterfaces;
@@ -715,7 +715,7 @@ struct  usbh_other_spd_cfg_desc {
  */
 
 struct  usbh_if_desc {
-	uint8_t bLength;
+	uint8_t b_length;
 	uint8_t b_desc_type;
 	uint8_t bInterfaceNumber;
 	uint8_t bAlternateSetting;
@@ -736,7 +736,7 @@ struct  usbh_if_desc {
  */
 
 struct  usbh_if_association_desc {
-	uint8_t bLength;
+	uint8_t b_length;
 	uint8_t b_desc_type;
 	uint8_t bFirstInterface;
 	uint8_t bInterfaceCount;
@@ -756,7 +756,7 @@ struct  usbh_if_association_desc {
  */
 
 struct  usbh_ep_desc {
-	uint8_t bLength;
+	uint8_t b_length;
 	uint8_t b_desc_type;
 	uint8_t bEndpointAddress;
 	uint8_t bmAttributes;
@@ -776,7 +776,7 @@ struct  usbh_ep_desc {
  */
 
 struct  usbh_otg_desc {
-	uint8_t bLength;
+	uint8_t b_length;
 	uint8_t b_desc_type;
 	uint8_t bmAttributes;
 };

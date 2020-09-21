@@ -726,14 +726,14 @@ int usbh_dev_conn(struct usbh_dev *p_dev)
 		p_dev->DevAddr);
 
 	// if (p_dev->DevDesc[14] != 0u)
-	// { /* iManufacturer = 0 -> no str desc for manufacturer.   */
+	// { /* i_manufacturer = 0 -> no str desc for manufacturer.   */
 	// 	USBH_StrDescPrint(p_dev,
 	// 					  (CPU_INT08U *)"Manufacturer : ",
 	// 					  p_dev->DevDesc[14]);
 	// }
 
 	// if (p_dev->DevDesc[15] != 0u)
-	// { /* iProduct = 0 -> no str desc for product.             */
+	// { /* i_product = 0 -> no str desc for product.             */
 	// 	USBH_StrDescPrint(p_dev,
 	// 					  (CPU_INT08U *)"Product      : ",
 	// 					  p_dev->DevDesc[15]);
@@ -987,7 +987,7 @@ int usbh_cfg_desc_get(struct usbh_cfg *p_cfg,
 		(struct usbh_desc_hdr *)p_cfg
 		->CfgData;         /* Check for valid cfg desc.                            */
 
-	if ((p_desc->bLength == USBH_LEN_DESC_CFG) &&
+	if ((p_desc->b_length == USBH_LEN_DESC_CFG) &&
 	    (p_desc->b_desc_type == USBH_DESC_TYPE_CFG)) {
 		usbh_parse_cfg_desc(p_cfg_desc, (void *)p_desc);
 
@@ -1034,10 +1034,10 @@ struct usbh_desc_hdr *usbh_cfg_extra_desc_get(struct usbh_cfg *p_cfg,
 		(struct usbh_desc_hdr *)p_cfg
 		->CfgData;         /* Get config desc data.                                */
 
-	if ((p_desc->bLength == USBH_LEN_DESC_CFG) &&
+	if ((p_desc->b_length == USBH_LEN_DESC_CFG) &&
 	    (p_desc->b_desc_type == USBH_DESC_TYPE_CFG) &&
-	    (p_cfg->CfgDataLen > (p_desc->bLength + 2))) {
-		cfg_off = p_desc->bLength;
+	    (p_cfg->CfgDataLen > (p_desc->b_length + 2))) {
+		cfg_off = p_desc->b_length;
 		p_extra_desc = usbh_next_desc_get(
 			p_desc,
 			&cfg_off); /* Get desc that follows config desc.                   */
@@ -1273,7 +1273,7 @@ int usbh_if_desc_get(struct usbh_if *p_if, uint8_t alt_ix,
 	while (if_off < p_if->IF_DataLen) {
 		p_desc = usbh_next_desc_get((void *)p_desc, &if_off);
 
-		if ((p_desc->bLength == USBH_LEN_DESC_IF) &&
+		if ((p_desc->b_length == USBH_LEN_DESC_IF) &&
 		    (p_desc->b_desc_type == USBH_DESC_TYPE_IF) &&
 		    (alt_ix == ((uint8_t *)p_desc)[3])) {
 			usbh_parse_if_desc(p_if_desc, (void *)p_desc);
@@ -1323,7 +1323,7 @@ uint8_t *usbh_if_extra_desc_get(struct usbh_if *p_if, uint8_t alt_ix,
 			(void *)p_desc,
 			&if_off); /* Get next desc from IF.                               */
 
-		if ((p_desc->bLength == USBH_LEN_DESC_IF) &&
+		if ((p_desc->b_length == USBH_LEN_DESC_IF) &&
 		    (p_desc->b_desc_type == USBH_DESC_TYPE_IF) &&
 		    (alt_ix == ((uint8_t *)p_desc)[3])) {
 			if (if_off <
@@ -1337,7 +1337,7 @@ uint8_t *usbh_if_extra_desc_get(struct usbh_if *p_if, uint8_t alt_ix,
 					USBH_DESC_TYPE_IF) &&
 				       (p_desc->b_desc_type !=
 					USBH_DESC_TYPE_EP)) {
-					*p_data_len += p_desc->bLength;
+					*p_data_len += p_desc->b_length;
 					p_desc = usbh_next_desc_get(
 						(void *)p_desc, /* Get next desc from IF.                               */
 						&if_off);
@@ -3098,7 +3098,7 @@ uint32_t usbh_str_get(struct usbh_dev *p_dev, uint8_t desc_ix, uint16_t lang_id,
 
 	if (str_len > USBH_LEN_DESC_HDR) {
 		str_len =
-			(p_hdr->bLength -
+			(p_hdr->b_length -
 			 2); /* Remove 2-byte header.                                */
 
 		if (str_len > (buf_len - 2)) {
@@ -3530,12 +3530,12 @@ static uint16_t usbh_sync_ctrl_transfer(struct usbh_ep *p_ep, uint8_t b_req,
 	uint16_t rtn_len;
 	uint8_t *p_data_08;
 
-	setup.bmRequestType =
+	setup.bm_request_type =
 		bm_req_type; /* ------------------- SETUP STAGE -------------------- */
-	setup.bRequest = b_req;
-	setup.wValue = w_val;
-	setup.wIndex = w_ix;
-	setup.wLength = w_len;
+	setup.b_request = b_req;
+	setup.w_value = w_val;
+	setup.w_index = w_ix;
+	setup.w_length = w_len;
 
 	usbh_fmt_setup_req(&setup, setup_buf);
 	is_in = (bm_req_type & USBH_REQ_DIR_MASK) != 0 ? true : false;
@@ -3807,7 +3807,7 @@ static int usbh_dflt_ep_open(struct usbh_dev *p_dev)
 		ep_max_pkt_size = 64u;
 	}
 
-	p_ep->Desc.bLength = 7u;
+	p_ep->Desc.b_length = 7u;
 	p_ep->Desc.b_desc_type = USBH_DESC_TYPE_EP;
 	p_ep->Desc.bEndpointAddress = 0;
 	p_ep->Desc.bmAttributes = USBH_EP_TYPE_CTRL;
@@ -3938,31 +3938,31 @@ static int usbh_dev_desc_rd(struct usbh_dev *p_dev)
 	/* ---------------- VALIDATE DEV DESC ----------------- */
 	usbh_dev_desc_get(p_dev, &dev_desc);
 
-	if ((dev_desc.bLength < USBH_LEN_DESC_DEV) ||
+	if ((dev_desc.b_length < USBH_LEN_DESC_DEV) ||
 	    (dev_desc.b_desc_type != USBH_DESC_TYPE_DEV) ||
-	    (dev_desc.bNbrConfigurations == 0)) {
+	    (dev_desc.b_nbr_configs == 0)) {
 		return EINVAL;
 	}
 
-	if ((dev_desc.bDeviceClass != USBH_CLASS_CODE_USE_IF_DESC) &&
-	    (dev_desc.bDeviceClass != USBH_CLASS_CODE_AUDIO) &&
-	    (dev_desc.bDeviceClass != USBH_CLASS_CODE_CDC_CTRL) &&
-	    (dev_desc.bDeviceClass != USBH_CLASS_CODE_HID) &&
-	    (dev_desc.bDeviceClass != USBH_CLASS_CODE_PHYSICAL) &&
-	    (dev_desc.bDeviceClass != USBH_CLASS_CODE_IMAGE) &&
-	    (dev_desc.bDeviceClass != USBH_CLASS_CODE_PRINTER) &&
-	    (dev_desc.bDeviceClass != USBH_CLASS_CODE_MASS_STORAGE) &&
-	    (dev_desc.bDeviceClass != USBH_CLASS_CODE_HUB) &&
-	    (dev_desc.bDeviceClass != USBH_CLASS_CODE_CDC_DATA) &&
-	    (dev_desc.bDeviceClass != USBH_CLASS_CODE_SMART_CARD) &&
-	    (dev_desc.bDeviceClass != USBH_CLASS_CODE_CONTENT_SECURITY) &&
-	    (dev_desc.bDeviceClass != USBH_CLASS_CODE_VIDEO) &&
-	    (dev_desc.bDeviceClass != USBH_CLASS_CODE_PERSONAL_HEALTHCARE) &&
-	    (dev_desc.bDeviceClass != USBH_CLASS_CODE_DIAGNOSTIC_DEV) &&
-	    (dev_desc.bDeviceClass != USBH_CLASS_CODE_WIRELESS_CTRLR) &&
-	    (dev_desc.bDeviceClass != USBH_CLASS_CODE_MISCELLANEOUS) &&
-	    (dev_desc.bDeviceClass != USBH_CLASS_CODE_APP_SPECIFIC) &&
-	    (dev_desc.bDeviceClass != USBH_CLASS_CODE_VENDOR_SPECIFIC)) {
+	if ((dev_desc.b_device_class != USBH_CLASS_CODE_USE_IF_DESC) &&
+	    (dev_desc.b_device_class != USBH_CLASS_CODE_AUDIO) &&
+	    (dev_desc.b_device_class != USBH_CLASS_CODE_CDC_CTRL) &&
+	    (dev_desc.b_device_class != USBH_CLASS_CODE_HID) &&
+	    (dev_desc.b_device_class != USBH_CLASS_CODE_PHYSICAL) &&
+	    (dev_desc.b_device_class != USBH_CLASS_CODE_IMAGE) &&
+	    (dev_desc.b_device_class != USBH_CLASS_CODE_PRINTER) &&
+	    (dev_desc.b_device_class != USBH_CLASS_CODE_MASS_STORAGE) &&
+	    (dev_desc.b_device_class != USBH_CLASS_CODE_HUB) &&
+	    (dev_desc.b_device_class != USBH_CLASS_CODE_CDC_DATA) &&
+	    (dev_desc.b_device_class != USBH_CLASS_CODE_SMART_CARD) &&
+	    (dev_desc.b_device_class != USBH_CLASS_CODE_CONTENT_SECURITY) &&
+	    (dev_desc.b_device_class != USBH_CLASS_CODE_VIDEO) &&
+	    (dev_desc.b_device_class != USBH_CLASS_CODE_PERSONAL_HEALTHCARE) &&
+	    (dev_desc.b_device_class != USBH_CLASS_CODE_DIAGNOSTIC_DEV) &&
+	    (dev_desc.b_device_class != USBH_CLASS_CODE_WIRELESS_CTRLR) &&
+	    (dev_desc.b_device_class != USBH_CLASS_CODE_MISCELLANEOUS) &&
+	    (dev_desc.b_device_class != USBH_CLASS_CODE_APP_SPECIFIC) &&
+	    (dev_desc.b_device_class != USBH_CLASS_CODE_VENDOR_SPECIFIC)) {
 		LOG_ERR("descriptor invalid");
 		return EINVAL;
 	}
@@ -4211,7 +4211,7 @@ static int usbh_cfg_parse(struct usbh_dev *p_dev, struct usbh_cfg *p_cfg)
 		}
 
 		if (p_if != NULL) {
-			p_if->IF_DataLen += p_desc->bLength;
+			p_if->IF_DataLen += p_desc->b_length;
 		}
 	}
 
@@ -4374,9 +4374,9 @@ static uint32_t usbh_str_desc_get(struct usbh_dev *p_dev, uint8_t desc_ix,
 
 	if ((len ==
 	     req_len) && /* Chk desc hdr.                                        */
-	    (p_hdr->bLength != 0) &&
+	    (p_hdr->b_length != 0) &&
 	    (p_hdr->b_desc_type == USBH_DESC_TYPE_STR)) {
-		len = p_hdr->bLength;
+		len = p_hdr->b_length;
 		if (desc_ix == USBH_STRING_DESC_LANGID) {
 			return len;
 		}
@@ -4493,11 +4493,11 @@ static struct usbh_desc_hdr *usbh_next_desc_get(void *p_buf, uint32_t *p_offset)
 		p_next_hdr = p_hdr;
 	} else {        /* Next desc is at end of current desc.                 */
 		p_next_hdr = (struct usbh_desc_hdr *)((uint8_t *)p_buf +
-						      p_hdr->bLength);
+						      p_hdr->b_length);
 	}
 
 	*p_offset +=
-		p_hdr->bLength; /* Update buf offset.                                   */
+		p_hdr->b_length; /* Update buf offset.                                   */
 
 	return p_next_hdr;
 }
@@ -4526,14 +4526,14 @@ static void usbh_fmt_setup_req(struct usbh_setup_req *p_setup_req,
 
 	p_buf_dest_setup_req = (struct usbh_setup_req *)p_buf_dest;
 
-	p_buf_dest_setup_req->bmRequestType = p_setup_req->bmRequestType;
-	p_buf_dest_setup_req->bRequest = p_setup_req->bRequest;
-	p_buf_dest_setup_req->wValue =
-		sys_get_le16((uint8_t *)&p_setup_req->wValue);
-	p_buf_dest_setup_req->wIndex =
-		sys_get_le16((uint8_t *)&p_setup_req->wIndex);
-	p_buf_dest_setup_req->wLength =
-		sys_get_le16((uint8_t *)&p_setup_req->wLength);
+	p_buf_dest_setup_req->bm_request_type = p_setup_req->bm_request_type;
+	p_buf_dest_setup_req->b_request = p_setup_req->b_request;
+	p_buf_dest_setup_req->w_value =
+		sys_get_le16((uint8_t *)&p_setup_req->w_value);
+	p_buf_dest_setup_req->w_index =
+		sys_get_le16((uint8_t *)&p_setup_req->w_index);
+	p_buf_dest_setup_req->w_length =
+		sys_get_le16((uint8_t *)&p_setup_req->w_length);
 }
 
 /*
@@ -4559,24 +4559,24 @@ static void usbh_parse_dev_desc(struct usbh_dev_desc *p_dev_desc,
 
 	p_buf_src_dev_desc = (struct usbh_dev_desc *)p_buf_src;
 
-	p_dev_desc->bLength = p_buf_src_dev_desc->bLength;
+	p_dev_desc->b_length = p_buf_src_dev_desc->b_length;
 	p_dev_desc->b_desc_type = p_buf_src_dev_desc->b_desc_type;
-	p_dev_desc->bcdUSB =
-		sys_get_le16((uint8_t *)&p_buf_src_dev_desc->bcdUSB);
-	p_dev_desc->bDeviceClass = p_buf_src_dev_desc->bDeviceClass;
-	p_dev_desc->bDeviceSubClass = p_buf_src_dev_desc->bDeviceSubClass;
-	p_dev_desc->bDeviceProtocol = p_buf_src_dev_desc->bDeviceProtocol;
-	p_dev_desc->bMaxPacketSize0 = p_buf_src_dev_desc->bMaxPacketSize0;
-	p_dev_desc->idVendor =
-		sys_get_le16((uint8_t *)&p_buf_src_dev_desc->idVendor);
-	p_dev_desc->idProduct =
-		sys_get_le16((uint8_t *)&p_buf_src_dev_desc->idProduct);
-	p_dev_desc->bcdDevice =
-		sys_get_le16((uint8_t *)&p_buf_src_dev_desc->bcdDevice);
-	p_dev_desc->iManufacturer = p_buf_src_dev_desc->iManufacturer;
-	p_dev_desc->iProduct = p_buf_src_dev_desc->iProduct;
-	p_dev_desc->iSerialNumber = p_buf_src_dev_desc->iSerialNumber;
-	p_dev_desc->bNbrConfigurations = p_buf_src_dev_desc->bNbrConfigurations;
+	p_dev_desc->bcd_usb =
+		sys_get_le16((uint8_t *)&p_buf_src_dev_desc->bcd_usb);
+	p_dev_desc->b_device_class = p_buf_src_dev_desc->b_device_class;
+	p_dev_desc->b_device_sub_class = p_buf_src_dev_desc->b_device_sub_class;
+	p_dev_desc->b_device_protocol = p_buf_src_dev_desc->b_device_protocol;
+	p_dev_desc->b_max_packet_size_zero = p_buf_src_dev_desc->b_max_packet_size_zero;
+	p_dev_desc->id_vendor =
+		sys_get_le16((uint8_t *)&p_buf_src_dev_desc->id_vendor);
+	p_dev_desc->id_product =
+		sys_get_le16((uint8_t *)&p_buf_src_dev_desc->id_product);
+	p_dev_desc->bcd_device =
+		sys_get_le16((uint8_t *)&p_buf_src_dev_desc->bcd_device);
+	p_dev_desc->i_manufacturer = p_buf_src_dev_desc->i_manufacturer;
+	p_dev_desc->i_product = p_buf_src_dev_desc->i_product;
+	p_dev_desc->i_serial_number = p_buf_src_dev_desc->i_serial_number;
+	p_dev_desc->b_nbr_configs = p_buf_src_dev_desc->b_nbr_configs;
 }
 
 /*
@@ -4602,7 +4602,7 @@ static void usbh_parse_cfg_desc(struct usbh_cfg_desc *p_cfg_desc,
 
 	p_buf_src_cfg_desc = (struct usbh_cfg_desc *)p_buf_src;
 
-	p_cfg_desc->bLength = p_buf_src_cfg_desc->bLength;
+	p_cfg_desc->b_length = p_buf_src_cfg_desc->b_length;
 	p_cfg_desc->b_desc_type = p_buf_src_cfg_desc->b_desc_type;
 	p_cfg_desc->wTotalLength =
 		sys_get_le16((uint8_t *)&p_buf_src_cfg_desc->wTotalLength);
@@ -4636,7 +4636,7 @@ static void usbh_parse_if_desc(struct usbh_if_desc *p_if_desc, void *p_buf_src)
 
 	p_buf_src_if_desc = (struct usbh_if_desc *)p_buf_src;
 
-	p_if_desc->bLength = p_buf_src_if_desc->bLength;
+	p_if_desc->b_length = p_buf_src_if_desc->b_length;
 	p_if_desc->b_desc_type = p_buf_src_if_desc->b_desc_type;
 	p_if_desc->bInterfaceNumber = p_buf_src_if_desc->bInterfaceNumber;
 	p_if_desc->bAlternateSetting = p_buf_src_if_desc->bAlternateSetting;
@@ -4668,7 +4668,7 @@ static void usbh_parse_ep_desc(struct usbh_ep_desc *p_ep_desc, void *p_buf_src)
 	struct usbh_ep_desc *p_buf_desc;
 
 	p_buf_desc = (struct usbh_ep_desc *)p_buf_src;
-	p_ep_desc->bLength = p_buf_desc->bLength;
+	p_ep_desc->b_length = p_buf_desc->b_length;
 	p_ep_desc->b_desc_type = p_buf_desc->b_desc_type;
 	p_ep_desc->bEndpointAddress = p_buf_desc->bEndpointAddress;
 	p_ep_desc->bmAttributes = p_buf_desc->bmAttributes;
