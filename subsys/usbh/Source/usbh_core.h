@@ -717,13 +717,13 @@ struct  usbh_other_spd_cfg_desc {
 struct  usbh_if_desc {
 	uint8_t b_length;
 	uint8_t b_desc_type;
-	uint8_t bInterfaceNumber;
-	uint8_t bAlternateSetting;
-	uint8_t bNbrEndpoints;
-	uint8_t bInterfaceClass;
-	uint8_t bInterfaceSubClass;
-	uint8_t bInterfaceProtocol;
-	uint8_t iInterface;
+	uint8_t b_if_nbr;
+	uint8_t b_alt_setting;
+	uint8_t b_nbr_endpoints;
+	uint8_t b_if_class;
+	uint8_t b_if_sub_class;
+	uint8_t b_if_protocol;
+	uint8_t i_interface;
 };
 
 
