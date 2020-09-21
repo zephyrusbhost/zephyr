@@ -2514,13 +2514,13 @@ int usbh_isoc_rx_async(struct usbh_ep *p_ep, uint8_t *p_buf,
  * Return(s)   : Logical number of given endpoint,
  *
  * Note(s)     : (1) USB2.0 spec, section 9.6.6 states that bits 3...0 in offset 2 of standard endpoint
- *                   descriptor (bEndpointAddress) contains the endpoint logical number.
+ *                   descriptor (b_endpoint_address) contains the endpoint logical number.
  *********************************************************************************************************
  */
 
 uint8_t usbh_ep_log_nbr_get(struct usbh_ep *p_ep)
 {
-	return ((uint8_t)p_ep->Desc.bEndpointAddress &
+	return ((uint8_t)p_ep->Desc.b_endpoint_address &
 		0x7F); /* See Note (1).                                        */
 }
 
@@ -2537,7 +2537,7 @@ uint8_t usbh_ep_log_nbr_get(struct usbh_ep *p_ep)
  *               USBH_EP_DIR_IN,     If endpoint direction is IN.
  *
  * Note(s)     : (1) USB2.0 spec, section 9.6.6 states that bit 7 in offset 2 of standard endpoint
- *                   descriptor (bEndpointAddress) gives the direction of that endpoint.
+ *                   descriptor (b_endpoint_address) gives the direction of that endpoint.
  *
  *                   (a) 0 = OUT endpoint
  *                   (b) 1 = IN  endpoint
@@ -2553,7 +2553,7 @@ uint8_t usbh_ep_dir_get(struct usbh_ep *p_ep)
 		return USBH_EP_DIR_NONE;
 	}
 
-	if (((uint8_t)p_ep->Desc.bEndpointAddress & 0x80) !=
+	if (((uint8_t)p_ep->Desc.b_endpoint_address & 0x80) !=
 	    0) { /* See Note (1).                                        */
 		return USBH_EP_DIR_IN;
 	} else {
@@ -2572,13 +2572,13 @@ uint8_t usbh_ep_dir_get(struct usbh_ep *p_ep)
  * Return(s)   : Maximum Packet Size of the given endpoint
  *
  * Note(s)     : (1) USB2.0 spec, section 9.6.6 states that offset 4 of standard endpoint descriptor
- *                   (wMaxPacketSize) gives the maximum packet size supported by this endpoint.
+ *                   (w_max_packet_size) gives the maximum packet size supported by this endpoint.
  *********************************************************************************************************
  */
 
 uint16_t usbh_ep_max_pkt_size_get(struct usbh_ep *p_ep)
 {
-	return ((uint16_t)p_ep->Desc.wMaxPacketSize &
+	return ((uint16_t)p_ep->Desc.w_max_packet_size &
 		0x07FF); /* See Note (1).                                        */
 }
 
@@ -2708,7 +2708,7 @@ int usbh_ep_stall_set(struct usbh_ep *p_ep)
 			   USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_STD |
 			   USBH_REQ_RECIPIENT_EP,
 			   USBH_FEATURE_SEL_EP_HALT,
-			   p_ep->Desc.bEndpointAddress, NULL, 0,
+			   p_ep->Desc.b_endpoint_address, NULL, 0,
 			   USBH_CFG_STD_REQ_TIMEOUT, &err);
 	if (err != 0) {
 		usbh_ep_reset(p_dev, NULL);
@@ -2751,7 +2751,7 @@ int usbh_ep_stall_clr(struct usbh_ep *p_ep)
 		USBH_REQ_CLR_FEATURE, /* See Note (1)                                         */
 		USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_STD |
 		USBH_REQ_RECIPIENT_EP,
-		USBH_FEATURE_SEL_EP_HALT, p_ep->Desc.bEndpointAddress,
+		USBH_FEATURE_SEL_EP_HALT, p_ep->Desc.b_endpoint_address,
 		NULL, 0, USBH_CFG_STD_REQ_TIMEOUT, &err);
 	if (err != 0) {
 		usbh_ep_reset(p_dev, NULL);
@@ -2862,7 +2862,7 @@ int usbh_ep_close(struct usbh_ep *p_ep)
 	       true) && /* Close EP on HC.                                      */
 	      (p_dev->HC_Ptr->IsVirRootHub == true))) {
 		LOG_DBG("close address %d",
-			((p_ep->DevAddr << 8) | p_ep->Desc.bEndpointAddress));
+			((p_ep->DevAddr << 8) | p_ep->Desc.b_endpoint_address));
 		k_mutex_lock(&p_ep->DevPtr->HC_Ptr->HCD_Mutex, K_NO_WAIT);
 		p_ep->DevPtr->HC_Ptr->HC_Drv.API_Ptr->EP_Close(&p_ep->DevPtr->HC_Ptr->HC_Drv,
 							       p_ep, &err);
@@ -3161,11 +3161,11 @@ uint32_t usbh_str_get(struct usbh_dev *p_dev, uint8_t desc_ix, uint16_t lang_id,
  *
  * Note(s)     : (1) A full-speed interrupt endpoint can specify a desired period from 1 ms to 255 ms.
  *                   Low-speed endpoints are limited to specifying only 10 ms to 255 ms. High-speed
- *                   endpoints can specify a desired period 2^(bInterval-1) x 125us, where bInterval is in
+ *                   endpoints can specify a desired period 2^(b_interval-1) x 125us, where b_interval is in
  *                   the range [1 .. 16].
  *
  *               (2) Full-/high-speed isochronous endpoints must specify a desired period as
- *                   2^(bInterval-1) x F, where bInterval is in the range [1 .. 16] and F is 125us for
+ *                   2^(b_interval-1) x F, where b_interval is in the range [1 .. 16] and F is 125us for
  *                   high-speed and 1ms for full-speed.
  *********************************************************************************************************
  */
@@ -3203,7 +3203,7 @@ static int usbh_ep_open(struct usbh_dev *p_dev, struct usbh_if *p_if,
 			p_ep->Desc.bm_attributes &
 			0x03u; /* EP type from desc.                                   */
 		ep_desc_dir =
-			p_ep->Desc.bEndpointAddress &
+			p_ep->Desc.b_endpoint_address &
 			0x80u; /* EP dir from desc.                                    */
 
 		if (ep_desc_type == ep_type) {
@@ -3223,7 +3223,7 @@ static int usbh_ep_open(struct usbh_dev *p_dev, struct usbh_if *p_if,
 	if (ep_desc_type ==
 	    USBH_EP_TYPE_INTR) { /* ------------ DETERMINE POLLING INTERVAL ------------ */
 
-		if (p_ep->Desc.bInterval >
+		if (p_ep->Desc.b_interval >
 		    0) { /* See Note #1.                                         */
 
 			if ((p_dev->DevSpd == USBH_LOW_SPEED) ||
@@ -3232,22 +3232,22 @@ static int usbh_ep_open(struct usbh_dev *p_dev, struct usbh_if *p_if,
 					p_ep->Interval =
 						8 *
 						p_ep->Desc
-						.bInterval;         /* 1 (1ms)frame = 8 (125us)microframe.                  */
+						.b_interval;         /* 1 (1ms)frame = 8 (125us)microframe.                  */
 				} else {
-					p_ep->Interval = p_ep->Desc.bInterval;
+					p_ep->Interval = p_ep->Desc.b_interval;
 				}
 			} else { /* DevSpd == USBH_DEV_SPD_HIGH                          */
 				p_ep->Interval =
 					1
-						<< (p_ep->Desc.bInterval -
-						    1); /* For HS, interval is 2 ^ (bInterval - 1).          */
+						<< (p_ep->Desc.b_interval -
+						    1); /* For HS, interval is 2 ^ (b_interval - 1).          */
 			}
 		}
 	} else if (ep_desc_type == USBH_EP_TYPE_ISOC) {
 		p_ep->Interval =
 			1
-				<< (p_ep->Desc.bInterval -
-				    1); /* Isoc interval is 2 ^ (bInterval - 1). See Note #2.   */
+				<< (p_ep->Desc.b_interval -
+				    1); /* Isoc interval is 2 ^ (b_interval - 1). See Note #2.   */
 	} else {
 		/* Empty Else Statement                                 */
 	}
@@ -3809,10 +3809,10 @@ static int usbh_dflt_ep_open(struct usbh_dev *p_dev)
 
 	p_ep->Desc.b_length = 7u;
 	p_ep->Desc.b_desc_type = USBH_DESC_TYPE_EP;
-	p_ep->Desc.bEndpointAddress = 0;
+	p_ep->Desc.b_endpoint_address = 0;
 	p_ep->Desc.bm_attributes = USBH_EP_TYPE_CTRL;
-	p_ep->Desc.wMaxPacketSize = ep_max_pkt_size;
-	p_ep->Desc.bInterval = 0;
+	p_ep->Desc.w_max_packet_size = ep_max_pkt_size;
+	p_ep->Desc.b_interval = 0;
 
 	if (!((p_dev->IsRootHub ==
 	       true) && /* Chk if RH fncts are supported before calling HCD.    */
@@ -3895,8 +3895,8 @@ static int usbh_dev_desc_rd(struct usbh_dev *p_dev)
 	if (!((p_dev->IsRootHub == true) &&
 	      (p_dev->HC_Ptr->IsVirRootHub == true))) {
 		/* Retrieve EP 0 max pkt size.                          */
-		p_dev->DfltEP.Desc.wMaxPacketSize = (uint8_t) p_dev->DevDesc[7u];
-		if (p_dev->DfltEP.Desc.wMaxPacketSize > 64u) {
+		p_dev->DfltEP.Desc.w_max_packet_size = (uint8_t) p_dev->DevDesc[7u];
+		if (p_dev->DfltEP.Desc.w_max_packet_size > 64u) {
 			return EINVAL;
 		}
 
@@ -4203,9 +4203,9 @@ static int usbh_cfg_parse(struct usbh_dev *p_dev, struct usbh_cfg *p_cfg)
 		if (p_desc->b_desc_type == USBH_DESC_TYPE_EP) {
 			usbh_parse_ep_desc(&ep_desc, p_desc);
 
-			if ((ep_desc.bEndpointAddress == 0x00u) ||
-			    (ep_desc.bEndpointAddress == 0x80u) ||
-			    (ep_desc.wMaxPacketSize == 0)) {
+			if ((ep_desc.b_endpoint_address == 0x00u) ||
+			    (ep_desc.b_endpoint_address == 0x80u) ||
+			    (ep_desc.w_max_packet_size == 0)) {
 				return EINVAL;
 			}
 		}
@@ -4670,15 +4670,15 @@ static void usbh_parse_ep_desc(struct usbh_ep_desc *p_ep_desc, void *p_buf_src)
 	p_buf_desc = (struct usbh_ep_desc *)p_buf_src;
 	p_ep_desc->b_length = p_buf_desc->b_length;
 	p_ep_desc->b_desc_type = p_buf_desc->b_desc_type;
-	p_ep_desc->bEndpointAddress = p_buf_desc->bEndpointAddress;
+	p_ep_desc->b_endpoint_address = p_buf_desc->b_endpoint_address;
 	p_ep_desc->bm_attributes = p_buf_desc->bm_attributes;
-	p_ep_desc->wMaxPacketSize =
-		sys_get_le16((uint8_t *)&p_buf_desc->wMaxPacketSize);
-	p_ep_desc->bInterval = p_buf_desc->bInterval;
+	p_ep_desc->w_max_packet_size =
+		sys_get_le16((uint8_t *)&p_buf_desc->w_max_packet_size);
+	p_ep_desc->b_interval = p_buf_desc->b_interval;
 	/* Following fields only relevant for isoc EPs.         */
 	if ((p_ep_desc->bm_attributes & 0x03) == USBH_EP_TYPE_ISOC) {
-		p_ep_desc->bRefresh = p_buf_desc->bRefresh;
-		p_ep_desc->bSynchAddress = p_buf_desc->bSynchAddress;
+		p_ep_desc->b_refresh = p_buf_desc->b_refresh;
+		p_ep_desc->b_sync_address = p_buf_desc->b_sync_address;
 	}
 }
 
