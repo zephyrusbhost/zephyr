@@ -839,18 +839,18 @@ struct  usbh_urb {
  */
 
 struct  usbh_ep {
-	enum usbh_device_speed DevSpd;                          /* USB dev spd.                                         */
-	uint8_t DevAddr;                                        /* USB dev addr.                                        */
-	struct usbh_dev      *DevPtr;                           /* Ptr to USB dev struct.                               */
-	struct usbh_ep_desc Desc;                               /* EP desc.                                             */
-	uint16_t Interval;                                      /* EP interval.                                         */
-	uint32_t HC_RefFrame;                                   /* Initial HC ref frame nbr.                            */
+	enum usbh_device_speed dev_spd;                          /* USB dev spd.                                         */
+	uint8_t dev_addr;                                        /* USB dev addr.                                        */
+	struct usbh_dev      *dev_ptr;                           /* Ptr to USB dev struct.                               */
+	struct usbh_ep_desc desc;                               /* EP desc.                                             */
+	uint16_t interval;                                      /* EP interval.                                         */
+	uint32_t hc_ref_frame;                                   /* Initial HC ref frame nbr.                            */
 	void          *arg_ptr;                                  /* HCD private data.                                    */
 	struct usbh_urb urb;                                    /* urb used for data xfer on this endpoint.             */
-	struct k_mutex Mutex;                                   /* Mutex for I/O access serialization on this EP.       */
-	bool IsOpen;                                            /* EP state.                                            */
-	uint32_t XferNbrInProgress;                             /* Nbr of urb(s) in progress. Used for async omm.       */
-	uint8_t DataPID;                                        /* EP Data Toggle PID tracker.                          */
+	struct k_mutex mutex;                                   /* mutex for I/O access serialization on this EP.       */
+	bool is_open;                                            /* EP state.                                            */
+	uint32_t xfer_nbr_in_prog;                             /* Nbr of urb(s) in progress. Used for async omm.       */
+	uint8_t data_pid;                                        /* EP Data Toggle PID tracker.                          */
 };
 
 
@@ -861,12 +861,12 @@ struct  usbh_ep {
  */
 
 struct  usbh_if {
-	struct usbh_dev            *DevPtr;                     /* Ptr to USB dev.                                      */
-	uint8_t AltIxSel;                                       /* Selected alternate setting ix.                       */
-	void                *ClassDevPtr;                       /* Ptr to class dev created by class drv.               */
-	struct usbh_class_drv_reg  *ClassDrvRegPtr;             /* Ptr to class drv registered for this IF.             */
-	uint8_t          *IF_DataPtr;                           /* Buf pointer containing IF data.                      */
-	uint16_t IF_DataLen;                                    /* Buf len.                                             */
+	struct usbh_dev            *dev_ptr;                     /* Ptr to USB dev.                                      */
+	uint8_t alt_ix_sel;                                       /* Selected alternate setting ix.                       */
+	void                *class_dev_ptr;                       /* Ptr to class dev created by class drv.               */
+	struct usbh_class_drv_reg  *class_drv_reg_ptr;             /* Ptr to class drv registered for this IF.             */
+	uint8_t          *if_data_ptr;                           /* Buf pointer containing IF data.                      */
+	uint16_t if_data_len;                                    /* Buf len.                                             */
 };
 
 
@@ -891,13 +891,13 @@ struct  usbh_cfg {
 
 struct  usbh_dev {
 	struct usbh_hc             *HC_Ptr;                     /* Ptr to HC struct.                                    */
-	uint8_t DevAddr;                                        /* USB dev addr assigned by host.                       */
-	enum usbh_device_speed DevSpd;                          /* Dev spd (low, full or high).                         */
+	uint8_t dev_addr;                                        /* USB dev addr assigned by host.                       */
+	enum usbh_device_speed dev_spd;                          /* Dev spd (low, full or high).                         */
 	struct usbh_ep DfltEP;                                  /* Dflt ctrl EP.                                        */
 	struct k_mutex DfltEP_Mutex;                            /* Dev dflt EP mutex.                                   */
 	uint16_t LangID;                                        /* Language ID used by the str desc.                    */
-	void                *ClassDevPtr;                       /* Ptr to class dev created by class drv.               */
-	struct usbh_class_drv_reg  *ClassDrvRegPtr;             /* Ptr to class drv managing this dev.                  */
+	void                *class_dev_ptr;                       /* Ptr to class dev created by class drv.               */
+	struct usbh_class_drv_reg  *class_drv_reg_ptr;             /* Ptr to class drv managing this dev.                  */
 	uint8_t DevDesc[USBH_LEN_DESC_DEV];                     /* Dev desc.                                            */
 	struct usbh_cfg CfgList[USBH_CFG_MAX_NBR_CFGS];         /* Dev cfg.                                             */
 	uint8_t SelCfg;                                         /* Selected dev cfg nbr.                                */
@@ -916,9 +916,9 @@ struct  usbh_dev {
 
 struct  usbh_hub_dev {
 	struct usbh_ep IntrEP;                                          /* Intr EP to recv events from hub.                     */
-	struct usbh_hub_desc Desc;                                      /* Hub desc.                                            */
+	struct usbh_hub_desc desc;                                      /* Hub desc.                                            */
 	struct usbh_dev       *DevPtrList[USBH_CFG_MAX_HUB_PORTS];      /* Ptrs to USB devs connected to this hub.              */
-	struct usbh_dev       *DevPtr;                                  /* USB dev ptr of the hub IF.                           */
+	struct usbh_dev       *dev_ptr;                                  /* USB dev ptr of the hub IF.                           */
 	struct usbh_if        *IF_Ptr;                                  /* HUB IF ptr.                                          */
 	uint8_t HubIntrBuf[64];                                         /* Buf to recv hub events.                              */
 	uint32_t ErrCnt;
@@ -974,7 +974,7 @@ struct usbh_hc {
 	struct usbh_hc_drv HC_Drv;                              /* Host Controller driver (HCD) info.                   */
 	struct usbh_host     *HostPtr;                          /* Host structure.                                      */
 	struct usbh_hub_dev  *RH_ClassDevPtr;                   /* Root Hub class device pointer.                       */
-	struct k_mutex HCD_Mutex;                               /* Mutex to sync access to HCD.                         */
+	struct k_mutex HCD_Mutex;                               /* mutex to sync access to HCD.                         */
 	bool IsVirRootHub;                                      /* Indicate if RH is virtual.                           */
 };
 
