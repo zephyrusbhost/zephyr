@@ -392,7 +392,7 @@ static void usbh_hub_class_init(int *p_err)
  *                   USBH_ERR_INVALID_ARG,                   Invalid argument passed to 'p_ep'.
  *                   USBH_ERR_HC_IO,                         Root hub input/output error.
  *                   USBH_ERR_EP_INVALID_TYPE                If endpoint type is not interrupt or direction is not IN.
- *                   USBH_ERR_ALLOC                          If URB cannot be allocated.
+ *                   USBH_ERR_ALLOC                          If urb cannot be allocated.
  *                   Host controller drivers error code,     Otherwise.
  *
  * Return(s)   : Pointer to hub device structure,        If probe is successful.
@@ -596,7 +596,7 @@ static void usbh_hub_disconn(void *p_class_dev)
  *               USBH_ERR_INVALID_ARG                    If invalid argument passed to 'p_ep'.
  *               USBH_ERR_EP_INVALID_TYPE                If endpoint type is not interrupt or direction is not IN.
  *               USBH_ERR_EP_INVALID_STATE               If endpoint is not opened.
- *               USBH_ERR_ALLOC                          If URB cannot be allocated.
+ *               USBH_ERR_ALLOC                          If urb cannot be allocated.
  *               USBH_ERR_UNKNOWN                        If unknown error occured.
  *               Host controller drivers error code,     Otherwise.
  *
@@ -733,7 +733,7 @@ static void usbh_hub_ep_close(struct usbh_hub_dev *p_hub_dev)
  *               USBH_ERR_INVALID_ARG                    If invalid argument passed to 'p_ep'.
  *               USBH_ERR_EP_INVALID_TYPE                If endpoint type is not interrupt or direction is not IN.
  *               USBH_ERR_EP_INVALID_STATE               If endpoint is not opened.
- *               USBH_ERR_ALLOC                          If URB cannot be allocated.
+ *               USBH_ERR_ALLOC                          If urb cannot be allocated.
  *               USBH_ERR_UNKNOWN                        If unknown error occured.
  *               Host controller drivers error code,     Otherwise.
  *
@@ -823,7 +823,7 @@ static void usbh_hub_isr_cb(struct usbh_ep *p_ep,
 					p_hub_dev->ErrCnt);
 
 				p_hub_dev->ErrCnt++;
-				usbh_hub_event_req(p_hub_dev); /* Retry URB.                                           */
+				usbh_hub_event_req(p_hub_dev); /* Retry urb.                                           */
 			}
 		}
 		return;
@@ -837,7 +837,7 @@ static void usbh_hub_isr_cb(struct usbh_ep *p_ep,
 	if (usbh_hub_head_ptr == NULL) {
 		usbh_hub_head_ptr = usbh_hub_tail_ptr = p_hub_dev;
 	} else   {
-		usbh_hub_tail_ptr->NxtPtr = p_hub_dev;
+		usbh_hub_tail_ptr->nxt_ptr = p_hub_dev;
 		usbh_hub_tail_ptr = p_hub_dev;
 	}
 	irq_unlock(key);
@@ -883,7 +883,7 @@ static void usbh_hub_event_proc(void)
 		usbh_hub_head_ptr = NULL;
 		usbh_hub_tail_ptr = NULL;
 	} else   {
-		usbh_hub_head_ptr = usbh_hub_head_ptr->NxtPtr;
+		usbh_hub_head_ptr = usbh_hub_head_ptr->nxt_ptr;
 	}
 	irq_unlock(key);
 
@@ -995,7 +995,7 @@ static void usbh_hub_event_proc(void)
 				if (p_hub_dev->DevPtr->HC_Ptr->HostPtr->dev_cnt < 0) {
 					usbh_hub_port_dis(p_hub_dev, port_nbr);
 					usbh_hub_ref_rel(p_hub_dev);
-					usbh_hub_event_req(p_hub_dev); /* Retry URB.                                           */
+					usbh_hub_event_req(p_hub_dev); /* Retry urb.                                           */
 
 					return;
 				} else   {
@@ -1054,7 +1054,7 @@ static void usbh_hub_event_proc(void)
 		}
 		port_nbr++;
 	}
-	usbh_hub_event_req(p_hub_dev); /* Retry URB.                                           */
+	usbh_hub_event_req(p_hub_dev); /* Retry urb.                                           */
 
 	usbh_hub_ref_rel(p_hub_dev);
 }
@@ -1690,7 +1690,7 @@ static void usbh_hub_clr(struct usbh_hub_dev *p_hub_dev)
 
 	p_hub_dev->RefCnt = 0;
 	p_hub_dev->state = USBH_CLASS_DEV_STATE_NONE;
-	p_hub_dev->NxtPtr = 0;
+	p_hub_dev->nxt_ptr = 0;
 }
 
 /*
@@ -2009,7 +2009,7 @@ void usbh_rh_event(struct usbh_dev *p_dev)
 		usbh_hub_head_ptr = p_hub_dev;
 		usbh_hub_tail_ptr = p_hub_dev;
 	} else   {
-		usbh_hub_tail_ptr->NxtPtr = p_hub_dev;
+		usbh_hub_tail_ptr->nxt_ptr = p_hub_dev;
 		usbh_hub_tail_ptr = p_hub_dev;
 	}
 	irq_unlock(key);

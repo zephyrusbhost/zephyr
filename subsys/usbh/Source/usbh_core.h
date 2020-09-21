@@ -400,7 +400,7 @@
 
 /*
  *********************************************************************************************************
- *                                              URB STATE
+ *                                              urb STATE
  *********************************************************************************************************
  */
 
@@ -800,35 +800,35 @@ struct  usbh_isoc_desc {
 
 /*
  *********************************************************************************************************
- *                                 USB REQUEST BLOCK (URB) INFORMATION
+ *                                 USB REQUEST BLOCK (urb) INFORMATION
  *********************************************************************************************************
  */
 
 struct  usbh_urb {
-	volatile uint8_t state;                                 /* state of URB.                                        */
+	volatile uint8_t state;                                 /* state of urb.                                        */
 	struct usbh_ep         *ep_ptr;                         /* EP the urb belongs to.                               */
-	volatile int err;                                  /* The status of URB completion.                        */
+	volatile int err;                                  /* The status of urb completion.                        */
 
 	void            *userbuf_ptr;                            /* Ptr to buf supplied by app.                          */
-	uint32_t Userbuf_len;                                    /* Buf len in bytes.                                    */
-	void            *DMA_buf_ptr;                            /* DMA buf ptr used by DMA HW.                          */
-	int32_t DMA_buf_len;                                    /* DMA buf len.                                         */
-	uint32_t XferLen;                                       /* Actual len xfer'd by ctrlr.                          */
+	uint32_t uberbuf_len;                                    /* Buf len in bytes.                                    */
+	void            *dma_buf_ptr;                            /* DMA buf ptr used by DMA HW.                          */
+	int32_t dma_buf_len;                                    /* DMA buf len.                                         */
+	uint32_t xfer_len;                                       /* Actual len xfer'd by ctrlr.                          */
 
-	struct usbh_isoc_desc  *isoc_descPtr;                    /* Isoc xfer desc.                                      */
+	struct usbh_isoc_desc  *isoc_desc_ptr;                    /* Isoc xfer desc.                                      */
 
-	void            *FnctPtr;                               /* Fnct ptr, called when I/O is completed.              */
-	void            *FnctArgPtr;                            /* Fnct context.                                        */
+	void            *fnct_ptr;                               /* Fnct ptr, called when I/O is completed.              */
+	void            *fnct_arg_ptr;                            /* Fnct context.                                        */
 
-	void            *ArgPtr;                                /* HCD private data.                                    */
+	void            *arg_ptr;                                /* HCD private data.                                    */
 
-	uint8_t Token;                                          /* Token (SETUP, IN, or OUT).                           */
+	uint8_t token;                                          /* token (SETUP, IN, or OUT).                           */
 
-	bool URB_DoneSignal;
-	struct usbh_urb        *AsyncURB_NxtPtr;                        /* Ptr to next URB (if any).                            */
-	struct usbh_urb        *NxtPtr;                                 /* Used for URB chained list in async task.             */
+	bool urb_done_signal;
+	struct usbh_urb        *async_urb_nxt_ptr;                        /* Ptr to next urb (if any).                            */
+	struct usbh_urb        *nxt_ptr;                                 /* Used for urb chained list in async task.             */
 
-	struct k_sem Sem;                                               /* Sem to wait on I/O completion.                       */
+	struct k_sem sem;                                               /* sem to wait on I/O completion.                       */
 };
 
 
@@ -845,11 +845,11 @@ struct  usbh_ep {
 	struct usbh_ep_desc Desc;                               /* EP desc.                                             */
 	uint16_t Interval;                                      /* EP interval.                                         */
 	uint32_t HC_RefFrame;                                   /* Initial HC ref frame nbr.                            */
-	void          *ArgPtr;                                  /* HCD private data.                                    */
-	struct usbh_urb URB;                                    /* URB used for data xfer on this endpoint.             */
+	void          *arg_ptr;                                  /* HCD private data.                                    */
+	struct usbh_urb urb;                                    /* urb used for data xfer on this endpoint.             */
 	struct k_mutex Mutex;                                   /* Mutex for I/O access serialization on this EP.       */
 	bool IsOpen;                                            /* EP state.                                            */
-	uint32_t XferNbrInProgress;                             /* Nbr of URB(s) in progress. Used for async omm.       */
+	uint32_t XferNbrInProgress;                             /* Nbr of urb(s) in progress. Used for async omm.       */
 	uint8_t DataPID;                                        /* EP Data Toggle PID tracker.                          */
 };
 
@@ -924,7 +924,7 @@ struct  usbh_hub_dev {
 	uint32_t ErrCnt;
 	uint8_t state;
 	uint8_t RefCnt;
-	struct usbh_hub_dev   *NxtPtr;
+	struct usbh_hub_dev   *nxt_ptr;
 	uint8_t ConnCnt;                                     /* Re-connection counter                                */
 };
 
@@ -992,7 +992,7 @@ struct  usbh_host {
 	int8_t dev_cnt;                                /* Pool for mem mgmt of USB devs.                       */
 	int8_t isoc_cnt;
 	struct usbh_isoc_desc isoc_desc[USBH_CFG_MAX_ISOC_DESC];
-	struct k_mem_pool async_urb_pool;                                /* Pool of extra URB when using async comm.             */
+	struct k_mem_pool async_urb_pool;                                /* Pool of extra urb when using async comm.             */
 
 	struct usbh_hc hc_tbl[USBH_CFG_MAX_NBR_HC];                     /* Array of HC structs.                                 */
 	uint8_t hc_nbr_next;
@@ -1050,7 +1050,7 @@ struct  usbh_hc_drv_api {
 			     int     *p_err);
 
 	void (*EP_Abort)    (struct usbh_hc_drv  *p_hc_drv,
-	                     /* Abort all pending URB on an endpoint.                */
+	                     /* Abort all pending urb on an endpoint.                */
 			     struct usbh_ep      *p_ep,
 			     int     *p_err);
 
@@ -1060,17 +1060,17 @@ struct  usbh_hc_drv_api {
 			     int     *p_err);
 
 	void (*URB_Submit)  (struct usbh_hc_drv  *p_hc_drv,
-	                     /* Submit a URB.                                        */
+	                     /* Submit a urb.                                        */
 			     struct usbh_urb     *p_urb,
 			     int     *p_err);
 
 	void (*URB_Complete)(struct usbh_hc_drv  *p_hc_drv,
-	                     /* Complete a URB.                                      */
+	                     /* Complete a urb.                                      */
 			     struct usbh_urb     *p_urb,
 			     int     *p_err);
 
 	void (*URB_Abort)   (struct usbh_hc_drv  *p_hc_drv,
-	                     /* Abort a URB.                                         */
+	                     /* Abort a urb.                                         */
 			     struct usbh_urb     *p_urb,
 			     int     *p_err);
 };

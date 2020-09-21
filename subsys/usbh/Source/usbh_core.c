@@ -1738,7 +1738,7 @@ uint16_t usbh_ctrl_rx(struct usbh_dev *p_dev, uint8_t b_req,
  *                           USBH_ERR_NONE                           Transfer successfully completed.
  *                           USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
  *                           USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
- *                           USBH_ERR_NONE,                          URB is successfully submitted to host controller.
+ *                           USBH_ERR_NONE,                          urb is successfully submitted to host controller.
  *                           Host controller drivers error code,     Otherwise.
  *
  * Return(s)   : Number of octets transmitted.
@@ -1797,11 +1797,11 @@ uint32_t usbh_bulk_tx(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
  *                                                       ----- RETURNED BY USBH_AsyncXfer() : -----
  *               USBH_ERR_NONE                           If transfer successfully submitted.
  *               USBH_ERR_EP_INVALID_STATE               If endpoint is not opened.
- *               USBH_ERR_ALLOC                          If URB cannot be allocated.
+ *               USBH_ERR_ALLOC                          If urb cannot be allocated.
  *               USBH_ERR_UNKNOWN                        If unknown error occured.
  *               Host controller drivers error code,     Otherwise.
  *
- * Note(s)     : (1) This function returns immediately. The URB completion will be invoked by the
+ * Note(s)     : (1) This function returns immediately. The urb completion will be invoked by the
  *                   asynchronous I/O task when transfer is completed.
  *********************************************************************************************************
  */
@@ -1855,7 +1855,7 @@ int usbh_bulk_tx_async(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
  *                           USBH_ERR_NONE                           Transfer successfully completed.
  *                           USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
  *                           USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
- *                           USBH_ERR_NONE,                          URB is successfully submitted to host controller.
+ *                           USBH_ERR_NONE,                          urb is successfully submitted to host controller.
  *                           Host controller drivers error code,     Otherwise.
  *
  * Return(s)   : Number of octets received.
@@ -1914,11 +1914,11 @@ uint32_t usbh_bulk_rx(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
  *                                                       ----- RETURNED BY USBH_AsyncXfer() : -----
  *               USBH_ERR_NONE                           If transfer successfully submitted.
  *               USBH_ERR_EP_INVALID_STATE               If endpoint is not opened.
- *               USBH_ERR_ALLOC                          If URB cannot be allocated.
+ *               USBH_ERR_ALLOC                          If urb cannot be allocated.
  *               USBH_ERR_UNKNOWN                        If unknown error occured.
  *               Host controller drivers error code,     Otherwise.
  *
- * Note(s)     : (1) This function returns immediately. The URB completion will be invoked by the
+ * Note(s)     : (1) This function returns immediately. The urb completion will be invoked by the
  *                   asynchronous I/O task when the transfer is completed.
  *********************************************************************************************************
  */
@@ -1972,7 +1972,7 @@ int usbh_bulk_rx_async(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
  *                           USBH_ERR_NONE                           Transfer successfully completed.
  *                           USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
  *                           USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
- *                           USBH_ERR_NONE,                          URB is successfully submitted to host controller.
+ *                           USBH_ERR_NONE,                          urb is successfully submitted to host controller.
  *                           Host controller drivers error code,     Otherwise.
  *
  * Return(s)   : Number of octets transmitted.
@@ -2029,11 +2029,11 @@ uint32_t usbh_intr_tx(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
  *                                                       ----- RETURNED BY USBH_AsyncXfer() : -----
  *               USBH_ERR_NONE                           If transfer successfully submitted.
  *               USBH_ERR_EP_INVALID_STATE               If endpoint is not opened.
- *               USBH_ERR_ALLOC                          If URB cannot be allocated.
+ *               USBH_ERR_ALLOC                          If urb cannot be allocated.
  *               USBH_ERR_UNKNOWN                        If unknown error occured.
  *               Host controller drivers error code,     Otherwise.
  *
- * Note(s)     : (1) This function returns immediately. The URB completion will be invoked by the
+ * Note(s)     : (1) This function returns immediately. The urb completion will be invoked by the
  *                   asynchronous I/O task when the transfer is completed.
  *********************************************************************************************************
  */
@@ -2087,7 +2087,7 @@ int usbh_intr_tx_async(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
  *                           USBH_ERR_NONE                           Transfer successfully completed.
  *                           USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
  *                           USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
- *                           USBH_ERR_NONE,                          URB is successfully submitted to host controller.
+ *                           USBH_ERR_NONE,                          urb is successfully submitted to host controller.
  *                           Host controller drivers error code,     Otherwise.
  *
  * Return(s)   : Number of octets received.
@@ -2144,11 +2144,11 @@ uint32_t usbh_intr_rx(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
  *                                                       ----- RETURNED BY USBH_AsyncXfer() : -----
  *               USBH_ERR_NONE                           If transfer successfully submitted.
  *               USBH_ERR_EP_INVALID_STATE               If endpoint is not opened.
- *               USBH_ERR_ALLOC                          If URB cannot be allocated.
+ *               USBH_ERR_ALLOC                          If urb cannot be allocated.
  *               USBH_ERR_UNKNOWN                        If unknown error occured.
  *               Host controller drivers error code,     Otherwise.
  *
- * Note(s)     : (1) This function returns immediately. The URB completion will be invoked by the
+ * Note(s)     : (1) This function returns immediately. The urb completion will be invoked by the
  *                   asynchronous I/O task when the transfer is completed.
  *********************************************************************************************************
  */
@@ -2215,7 +2215,7 @@ int usbh_intr_rx_async(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
  *                           USBH_ERR_NONE                           Transfer successfully completed.
  *                           USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
  *                           USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
- *                           USBH_ERR_NONE,                          URB is successfully submitted to host controller.
+ *                           USBH_ERR_NONE,                          urb is successfully submitted to host controller.
  *                           Host controller drivers error code,     Otherwise.
  *
  * Return(s)   : Number of octets transmitted.
@@ -2288,11 +2288,11 @@ uint32_t usbh_isoc_tx(struct usbh_ep *p_ep, uint8_t *p_buf, uint32_t buf_len,
  *                                                       ----- RETURNED BY USBH_AsyncXfer() : -----
  *               USBH_ERR_NONE                           If transfer successfully submitted.
  *               USBH_ERR_EP_INVALID_STATE               If endpoint is not opened.
- *               USBH_ERR_ALLOC                          If URB cannot be allocated.
+ *               USBH_ERR_ALLOC                          If urb cannot be allocated.
  *               USBH_ERR_UNKNOWN                        If unknown error occured.
  *               Host controller drivers error code,     Otherwise.
  *
- * Note(s)     : (1) This function returns immediately. The URB completion will be invoked by the
+ * Note(s)     : (1) This function returns immediately. The urb completion will be invoked by the
  *                   asynchronous I/O task when the transfer is completed.
  *********************************************************************************************************
  */
@@ -2375,7 +2375,7 @@ int usbh_isoc_tx_async(struct usbh_ep *p_ep, uint8_t *p_buf,
  *                           USBH_ERR_NONE                           Transfer successfully completed.
  *                           USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
  *                           USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
- *                           USBH_ERR_NONE,                          URB is successfully submitted to host controller.
+ *                           USBH_ERR_NONE,                          urb is successfully submitted to host controller.
  *                           Host controller drivers error code,     Otherwise.
  *
  * Return(s)   : Number of octets received.
@@ -2448,11 +2448,11 @@ uint32_t usbh_isoc_rx(struct usbh_ep *p_ep, uint8_t *p_buf, uint32_t buf_len,
  *                                                       ----- RETURNED BY USBH_AsyncXfer() : -----
  *               USBH_ERR_NONE                           If transfer successfully submitted.
  *               USBH_ERR_EP_INVALID_STATE               If endpoint is not opened.
- *               USBH_ERR_ALLOC                          If URB cannot be allocated.
+ *               USBH_ERR_ALLOC                          If urb cannot be allocated.
  *               USBH_ERR_UNKNOWN                        If unknown error occured.
  *               Host controller drivers error code,     Otherwise.
  *
- * Note(s)     : (1) This function returns immediately. The URB completion will be invoked by the
+ * Note(s)     : (1) This function returns immediately. The urb completion will be invoked by the
  *                   asynchronous I/O task when the transfer is completed.
  *********************************************************************************************************
  */
@@ -2855,7 +2855,7 @@ int usbh_ep_close(struct usbh_ep *p_ep)
 	if (!((p_dev->IsRootHub == true) &&
 	      (p_dev->HC_Ptr->IsVirRootHub == true))) {
 		usbh_urb_abort(
-			&p_ep->URB); /* Abort any pending URB.                               */
+			&p_ep->urb); /* Abort any pending urb.                               */
 	}
 
 	if (!((p_dev->IsRootHub ==
@@ -2870,12 +2870,12 @@ int usbh_ep_close(struct usbh_ep *p_ep)
 	}
 
 	if (p_ep->XferNbrInProgress > 1) {
-		p_async_urb = p_ep->URB.AsyncURB_NxtPtr;
+		p_async_urb = p_ep->urb.async_urb_nxt_ptr;
 		while (p_async_urb != 0) {
-			/* Free extra URB.                                      */
+			/* Free extra urb.                                      */
 			k_free(p_async_urb);
 
-			p_async_urb = p_async_urb->AsyncURB_NxtPtr;
+			p_async_urb = p_async_urb->async_urb_nxt_ptr;
 		}
 
 		p_ep->XferNbrInProgress = 0;
@@ -2888,9 +2888,9 @@ int usbh_ep_close(struct usbh_ep *p_ep)
  *********************************************************************************************************
  *                                           USBH_URB_Done()
  *
- * Description : Handle a USB request block (URB) that has been completed by host controller.
+ * Description : Handle a USB request block (urb) that has been completed by host controller.
  *
- * Argument(s) : p_urb       Pointer to URB.
+ * Argument(s) : p_urb       Pointer to urb.
  *
  * Return(s)   : None.
  *
@@ -2903,26 +2903,26 @@ void usbh_urb_done(struct usbh_urb *p_urb)
 	int key;
 
 	if (p_urb->state ==
-	    USBH_URB_STATE_SCHEDULED) {         /* URB must be in scheduled state.                      */
+	    USBH_URB_STATE_SCHEDULED) {         /* urb must be in scheduled state.                      */
 		p_urb->state =
-			USBH_URB_STATE_QUEUED;  /* Set URB state to done.                               */
+			USBH_URB_STATE_QUEUED;  /* Set urb state to done.                               */
 
-		if (p_urb->FnctPtr != NULL) { /* Check if req is async.                               */
+		if (p_urb->fnct_ptr != NULL) { /* Check if req is async.                               */
 			key = irq_lock();
-			p_urb->NxtPtr = NULL;
+			p_urb->nxt_ptr = NULL;
 
 			if (USBH_URB_HeadPtr == NULL) {
 				USBH_URB_HeadPtr = p_urb;
 				USBH_URB_TailPtr = p_urb;
 			} else {
-				USBH_URB_TailPtr->NxtPtr = p_urb;
+				USBH_URB_TailPtr->nxt_ptr = p_urb;
 				USBH_URB_TailPtr = p_urb;
 			}
 			irq_unlock(key);
 
 			k_sem_give(&USBH_URB_Sem);
 		} else {
-			k_sem_give(&p_urb->Sem); /* Post notification to waiting task.                   */
+			k_sem_give(&p_urb->sem); /* Post notification to waiting task.                   */
 		}
 	}
 }
@@ -2931,9 +2931,9 @@ void usbh_urb_done(struct usbh_urb *p_urb)
  *********************************************************************************************************
  *                                         USBH_URB_Complete()
  *
- * Description : Handle a URB after transfer has been completed or aborted.
+ * Description : Handle a urb after transfer has been completed or aborted.
  *
- * Argument(s) : p_urb       Pointer to URB.
+ * Argument(s) : p_urb       Pointer to urb.
  *
  * Return(s)   : USBH_ERR_NONE
  *
@@ -2966,7 +2966,7 @@ int usbh_urb_complete(struct usbh_urb *p_urb)
 		k_mutex_unlock(&p_dev->HC_Ptr->HCD_Mutex);
 
 		p_urb->err = EAGAIN;
-		p_urb->XferLen = 0;
+		p_urb->xfer_len = 0;
 	} else {
 		/* Empty Else statement                                 */
 	}
@@ -2975,27 +2975,27 @@ int usbh_urb_complete(struct usbh_urb *p_urb)
 		(void *)&urb_temp, /* Copy urb locally before freeing it.                  */
 		(void *)p_urb, sizeof(struct usbh_urb));
 
-	/* --------- FREE URB BEFORE NOTIFYING CLASS ---------- */
+	/* --------- FREE urb BEFORE NOTIFYING CLASS ---------- */
 	if ((p_urb !=
-	     &p_ep->URB) && /* Is the URB an extra URB for async function?          */
-	    (p_urb->FnctPtr != 0)) {
-		p_async_urb_to_remove = &p_ep->URB;
-		p_prev_async_urb = &p_ep->URB;
+	     &p_ep->urb) && /* Is the urb an extra urb for async function?          */
+	    (p_urb->fnct_ptr != 0)) {
+		p_async_urb_to_remove = &p_ep->urb;
+		p_prev_async_urb = &p_ep->urb;
 
-		while (p_async_urb_to_remove->AsyncURB_NxtPtr !=
-		       0) { /* Srch extra URB to remove.                            */
-			/* Extra URB found                                      */
-			if (p_async_urb_to_remove->AsyncURB_NxtPtr == p_urb) {
+		while (p_async_urb_to_remove->async_urb_nxt_ptr !=
+		       0) { /* Srch extra urb to remove.                            */
+			/* Extra urb found                                      */
+			if (p_async_urb_to_remove->async_urb_nxt_ptr == p_urb) {
 				/* Remove from Q.                                       */
-				p_prev_async_urb->AsyncURB_NxtPtr =
-					p_urb->AsyncURB_NxtPtr;
+				p_prev_async_urb->async_urb_nxt_ptr =
+					p_urb->async_urb_nxt_ptr;
 				break;
 			}
 			p_prev_async_urb = p_async_urb_to_remove;
 			p_async_urb_to_remove =
-				p_async_urb_to_remove->AsyncURB_NxtPtr;
+				p_async_urb_to_remove->async_urb_nxt_ptr;
 		}
-		/* Free extra URB.                                      */
+		/* Free extra urb.                                      */
 		k_free(p_urb);
 	}
 
@@ -3185,7 +3185,7 @@ static int usbh_ep_open(struct usbh_dev *p_dev, struct usbh_if *p_if,
 		return 0;
 	}
 
-	usbh_urb_clr(&p_ep->URB);
+	usbh_urb_clr(&p_ep->urb);
 
 	ep_found = false;
 	ep_desc_type = 0;
@@ -3267,7 +3267,7 @@ static int usbh_ep_open(struct usbh_dev *p_dev, struct usbh_if *p_if,
 		}
 	}
 
-	err = k_sem_init(&p_ep->URB.Sem, 0, USBH_OS_SEM_REQUIRED); /* Sem for I/O wait.                                    */
+	err = k_sem_init(&p_ep->urb.sem, 0, USBH_OS_SEM_REQUIRED); /* sem for I/O wait.                                    */
 	if (err != 0) {
 		return err;
 	}
@@ -3275,7 +3275,7 @@ static int usbh_ep_open(struct usbh_dev *p_dev, struct usbh_if *p_if,
 	k_mutex_init(&p_ep->Mutex);
 
 	p_ep->IsOpen = true;
-	p_ep->URB.ep_ptr = p_ep;
+	p_ep->urb.ep_ptr = p_ep;
 
 	return err;
 }
@@ -3304,7 +3304,7 @@ static int usbh_ep_open(struct usbh_dev *p_dev, struct usbh_if *p_if,
  *                           USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
  *
  *                                                                   ----- RETURNED BY USBH_URB_Submit() : -----
- *                           USBH_ERR_NONE,                          URB is successfully submitted to host controller.
+ *                           USBH_ERR_NONE,                          urb is successfully submitted to host controller.
  *                           USBH_ERR_EP_INVALID_STATE,              Endpoint is in halt state.
  *                           Host controller drivers error code,     Otherwise.
  *
@@ -3343,25 +3343,25 @@ static uint32_t usbh_sync_transfer(struct usbh_ep *p_ep, void *p_buf,
 
 	k_mutex_lock(&p_ep->Mutex, K_NO_WAIT);
 
-	p_urb = &p_ep->URB;
+	p_urb = &p_ep->urb;
 	p_urb->ep_ptr = p_ep;
-	p_urb->isoc_descPtr = p_isoc_desc;
+	p_urb->isoc_desc_ptr = p_isoc_desc;
 	p_urb->userbuf_ptr = p_buf;
-	p_urb->Userbuf_len = buf_len;
-	p_urb->DMA_buf_len = 0;
-	p_urb->DMA_buf_ptr = NULL;
-	p_urb->XferLen = 0;
-	p_urb->FnctPtr = 0;
-	p_urb->FnctArgPtr = 0;
+	p_urb->uberbuf_len = buf_len;
+	p_urb->dma_buf_len = 0;
+	p_urb->dma_buf_ptr = NULL;
+	p_urb->xfer_len = 0;
+	p_urb->fnct_ptr = 0;
+	p_urb->fnct_arg_ptr = 0;
 	p_urb->state = USBH_URB_STATE_NONE;
-	p_urb->ArgPtr = NULL;
-	p_urb->Token = token;
+	p_urb->arg_ptr = NULL;
+	p_urb->token = token;
 
 	*p_err = usbh_urb_submit(p_urb);
 
 	if (*p_err ==
-	    0) {                                                        /* Transfer URB to HC.                                  */
-		*p_err = k_sem_take(&p_urb->Sem, K_MSEC(timeout_ms));   /* Wait on URB completion notification.                 */
+	    0) {                                                        /* Transfer urb to HC.                                  */
+		*p_err = k_sem_take(&p_urb->sem, K_MSEC(timeout_ms));   /* Wait on urb completion notification.                 */
 	}
 
 	if (*p_err == 0) {
@@ -3371,7 +3371,7 @@ static uint32_t usbh_sync_transfer(struct usbh_ep *p_ep, void *p_buf,
 		usbh_urb_abort(p_urb);
 	}
 
-	len = p_urb->XferLen;
+	len = p_urb->xfer_len;
 	p_urb->state = USBH_URB_STATE_NONE;
 	k_mutex_unlock(&p_ep->Mutex);
 
@@ -3400,15 +3400,15 @@ static uint32_t usbh_sync_transfer(struct usbh_ep *p_ep, void *p_buf,
  *
  * Return(s)   : USBH_ERR_NONE                           If transfer successfully submitted.
  *               USBH_ERR_EP_INVALID_STATE               If endpoint is not opened.
- *               USBH_ERR_ALLOC                          If URB cannot be allocated.
+ *               USBH_ERR_ALLOC                          If urb cannot be allocated.
  *               USBH_ERR_UNKNOWN                        If unknown error occured.
  *
  *                                                       ----- RETURNED BY USBH_URB_Submit() : -----
- *               USBH_ERR_NONE,                          If URB is successfully submitted to host controller.
+ *               USBH_ERR_NONE,                          If urb is successfully submitted to host controller.
  *               USBH_ERR_EP_INVALID_STATE,              If endpoint is in halt state.
  *               Host controller drivers error code,     Otherwise.
  *
- * Note(s)     : (1) This function returns immediately. The URB completion will be invoked by the
+ * Note(s)     : (1) This function returns immediately. The urb completion will be invoked by the
  *                   asynchronous I/O task when the transfer is completed.
  *********************************************************************************************************
  */
@@ -3428,12 +3428,12 @@ static int usbh_async_transfer(struct usbh_ep *p_ep, void *p_buf,
 		return EAGAIN;
 	}
 
-	if ((p_ep->URB.state !=
+	if ((p_ep->urb.state !=
 	     USBH_URB_STATE_SCHEDULED) &&       /* Chk if no xfer is pending or in progress on EP.      */
 	    (p_ep->XferNbrInProgress == 0)) {
-		p_urb = &p_ep->URB;             /* Use URB struct associated to EP.                     */
+		p_urb = &p_ep->urb;             /* Use urb struct associated to EP.                     */
 	} else if (p_ep->XferNbrInProgress >= 1) {
-		/* Get a new URB struct from the URB async pool.        */
+		/* Get a new urb struct from the urb async pool.        */
 		p_async_urb_pool =
 			&p_ep->DevPtr->HC_Ptr->HostPtr->async_urb_pool;
 		p_urb = k_mem_pool_malloc(p_async_urb_pool,
@@ -3445,31 +3445,31 @@ static int usbh_async_transfer(struct usbh_ep *p_ep, void *p_buf,
 		usbh_urb_clr(p_urb);
 
 		p_async_urb =
-			&p_ep->URB; /* Get head of extra async URB Q.                       */
+			&p_ep->urb; /* Get head of extra async urb Q.                       */
 
-		while (p_async_urb->AsyncURB_NxtPtr !=
-		       0) { /* Srch tail of extra async URB Q.                      */
-			p_async_urb = p_async_urb->AsyncURB_NxtPtr;
+		while (p_async_urb->async_urb_nxt_ptr !=
+		       0) { /* Srch tail of extra async urb Q.                      */
+			p_async_urb = p_async_urb->async_urb_nxt_ptr;
 		}
 
-		p_async_urb->AsyncURB_NxtPtr =
-			p_urb; /* Insert new URB at end of extra async URB Q.          */
+		p_async_urb->async_urb_nxt_ptr =
+			p_urb; /* Insert new urb at end of extra async urb Q.          */
 	} else {
 		return EAGAIN;
 	}
 	p_ep->XferNbrInProgress++;
 
 	p_urb->ep_ptr =
-		p_ep; /* ------------------- PREPARE URB -------------------- */
-	p_urb->isoc_descPtr = p_isoc_desc;
+		p_ep; /* ------------------- PREPARE urb -------------------- */
+	p_urb->isoc_desc_ptr = p_isoc_desc;
 	p_urb->userbuf_ptr = p_buf;
-	p_urb->Userbuf_len = buf_len;
-	p_urb->XferLen = 0;
-	p_urb->FnctPtr = (void *)p_fnct;
-	p_urb->FnctArgPtr = p_fnct_arg;
+	p_urb->uberbuf_len = buf_len;
+	p_urb->xfer_len = 0;
+	p_urb->fnct_ptr = (void *)p_fnct;
+	p_urb->fnct_arg_ptr = p_fnct_arg;
 	p_urb->state = USBH_URB_STATE_NONE;
-	p_urb->ArgPtr = NULL;
-	p_urb->Token = token;
+	p_urb->arg_ptr = NULL;
+	p_urb->token = token;
 
 	err = usbh_urb_submit(
 		p_urb); /* See Note (1).                                        */
@@ -3584,9 +3584,9 @@ static uint16_t usbh_sync_ctrl_transfer(struct usbh_ep *p_ep, uint8_t b_req,
  *********************************************************************************************************
  *                                          USBH_URB_Abort()
  *
- * Description : Abort pending URB.
+ * Description : Abort pending urb.
  *
- * Argument(s) : p_urb       Pointer to URB.
+ * Argument(s) : p_urb       Pointer to urb.
  *
  * Return(s)   : None.
  *
@@ -3605,11 +3605,11 @@ static void usbh_urb_abort(struct usbh_urb *p_urb)
 
 	if (p_urb->state == USBH_URB_STATE_SCHEDULED) {
 		p_urb->state =
-			USBH_URB_STATE_ABORTED; /* Abort scheduled URB.                                 */
-		cmpl = true;                    /* Mark URB as completion pending.                      */
+			USBH_URB_STATE_ABORTED; /* Abort scheduled urb.                                 */
+		cmpl = true;                    /* Mark urb as completion pending.                      */
 	} else if (p_urb->state ==
-		   USBH_URB_STATE_QUEUED) {     /* Is URB queued in async Q?                            */
-		/* URB is in async lst.                                 */
+		   USBH_URB_STATE_QUEUED) {     /* Is urb queued in async Q?                            */
+		/* urb is in async lst.                                 */
 
 		p_urb->state = USBH_URB_STATE_ABORTED;
 	} else {
@@ -3626,9 +3626,9 @@ static void usbh_urb_abort(struct usbh_urb *p_urb)
  *********************************************************************************************************
  *                                          USBH_URB_Notify()
  *
- * Description : Notify application about state of given URB.
+ * Description : Notify application about state of given urb.
  *
- * Argument(s) : p_urb       Pointer to URB.
+ * Argument(s) : p_urb       Pointer to urb.
  *
  * Return(s)   : None.
  *
@@ -3654,31 +3654,31 @@ static void usb_urb_notify(struct usbh_urb *p_urb)
 	int key;
 
 	p_ep = p_urb->ep_ptr;
-	p_isoc_desc = p_urb->isoc_descPtr;
+	p_isoc_desc = p_urb->isoc_desc_ptr;
 
 	key = irq_lock();
 	if ((p_urb->state == USBH_URB_STATE_ABORTED) &&
-	    (p_urb->FnctPtr == NULL)) {
+	    (p_urb->fnct_ptr == NULL)) {
 		p_urb->state = USBH_URB_STATE_NONE;
-		k_sem_reset(&p_urb->Sem);
+		k_sem_reset(&p_urb->sem);
 	}
 
-	if (p_urb->FnctPtr != NULL) { /*  Save URB info.                                       */
+	if (p_urb->fnct_ptr != NULL) { /*  Save urb info.                                       */
 
 		p_buf = p_urb->userbuf_ptr;
-		buf_len = p_urb->Userbuf_len;
-		xfer_len = p_urb->XferLen;
-		p_arg = p_urb->FnctArgPtr;
+		buf_len = p_urb->uberbuf_len;
+		xfer_len = p_urb->xfer_len;
+		p_arg = p_urb->fnct_arg_ptr;
 		err = p_urb->err;
 		p_urb->state = USBH_URB_STATE_NONE;
 
 		if (p_isoc_desc == NULL) {
-			p_xfer_fnct = (usbh_xfer_cmpl_fnct)p_urb->FnctPtr;
+			p_xfer_fnct = (usbh_xfer_cmpl_fnct)p_urb->fnct_ptr;
 			irq_unlock(key);
 
 			p_xfer_fnct(p_ep, p_buf, buf_len, xfer_len, p_arg, err);
 		} else {
-			p_isoc_fnct = (usbh_isoc_cmpl_fnct)p_urb->FnctPtr;
+			p_isoc_fnct = (usbh_isoc_cmpl_fnct)p_urb->fnct_ptr;
 			start_frm = p_isoc_desc->start_frm;
 			nbr_frm = p_isoc_desc->nbr_frm;
 			p_frm_len = p_isoc_desc->frm_len;
@@ -3699,11 +3699,11 @@ static void usb_urb_notify(struct usbh_urb *p_urb)
  *********************************************************************************************************
  *                                           USBH_URB_Submit()
  *
- * Description : Submit given URB to host controller.
+ * Description : Submit given urb to host controller.
  *
- * Argument(s) : p_urb       Pointer to URB.
+ * Argument(s) : p_urb       Pointer to urb.
  *
- * Return(s)   : USBH_ERR_NONE,                          If URB is successfully submitted to host controller.
+ * Return(s)   : USBH_ERR_NONE,                          If urb is successfully submitted to host controller.
  *               USBH_ERR_EP_INVALID_STATE,              If endpoint is in halt state.
  *               Host controller drivers error code,     Otherwise.
  *
@@ -3728,7 +3728,7 @@ static int usbh_urb_submit(struct usbh_urb *p_urb)
 	}
 
 	p_urb->state =
-		USBH_URB_STATE_SCHEDULED; /* Set URB state to scheduled.                          */
+		USBH_URB_STATE_SCHEDULED; /* Set urb state to scheduled.                          */
 	p_urb->err = 0;
 
 	k_mutex_lock(&p_dev->HC_Ptr->HCD_Mutex, K_NO_WAIT);
@@ -3743,9 +3743,9 @@ static int usbh_urb_submit(struct usbh_urb *p_urb)
  *********************************************************************************************************
  *                                           USBH_URB_Clr()
  *
- * Description : Clear URB structure
+ * Description : Clear urb structure
  *
- * Argument(s) : p_urb       Pointer to URB structure to clear.
+ * Argument(s) : p_urb       Pointer to urb structure to clear.
  *
  * Return(s)   : None.
  *
@@ -3757,7 +3757,7 @@ static void usbh_urb_clr(struct usbh_urb *p_urb)
 {
 	p_urb->err = 0;
 	p_urb->state = USBH_URB_STATE_NONE;
-	p_urb->AsyncURB_NxtPtr = NULL;
+	p_urb->async_urb_nxt_ptr = NULL;
 }
 
 /*
@@ -3826,14 +3826,14 @@ static int usbh_dflt_ep_open(struct usbh_dev *p_dev)
 		}
 	}
 
-	err = k_sem_init(&p_ep->URB.Sem, 0, USBH_OS_SEM_REQUIRED); /* Create OS resources needed for EP.                   */
+	err = k_sem_init(&p_ep->urb.sem, 0, USBH_OS_SEM_REQUIRED); /* Create OS resources needed for EP.                   */
 	if (err != 0) {
 		return err;
 	}
 
 	k_mutex_init(&p_ep->Mutex);
 
-	p_ep->URB.ep_ptr = p_ep;
+	p_ep->urb.ep_ptr = p_ep;
 	p_ep->IsOpen = true;
 
 	return err;
@@ -4712,7 +4712,7 @@ static void usbh_async_task(void *p_arg, void *p_arg2, void *p_arg3)
 			USBH_URB_HeadPtr = NULL;
 			USBH_URB_TailPtr = NULL;
 		} else {
-			USBH_URB_HeadPtr = USBH_URB_HeadPtr->NxtPtr;
+			USBH_URB_HeadPtr = USBH_URB_HeadPtr->nxt_ptr;
 		}
 		irq_unlock(key);
 
