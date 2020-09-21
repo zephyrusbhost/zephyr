@@ -2593,7 +2593,7 @@ uint16_t usbh_ep_max_pkt_size_get(struct usbh_ep *p_ep)
  * Return(s)   : Type of the given endpoint
  *
  * Note(s)     : (1) USB2.0 spec, section 9.6.6 states that bits 1:0 in offset 3 of standard endpoint
- *                   descriptor (bmAttributes) gives type of the endpoint.
+ *                   descriptor (bm_attributes) gives type of the endpoint.
  *
  *                   (a) 00 = Control
  *                   (b) 01 = Isochronous
@@ -2604,7 +2604,7 @@ uint16_t usbh_ep_max_pkt_size_get(struct usbh_ep *p_ep)
 
 uint8_t usbh_ep_type_get(struct usbh_ep *p_ep)
 {
-	return ((uint8_t)p_ep->Desc.bmAttributes &
+	return ((uint8_t)p_ep->Desc.bm_attributes &
 		0x03); /* See Note (1).                                        */
 }
 
@@ -3200,7 +3200,7 @@ static int usbh_ep_open(struct usbh_dev *p_dev, struct usbh_if *p_if,
 		usbh_ep_get(p_if, p_if->AltIxSel, ep_ix, p_ep);
 
 		ep_desc_type =
-			p_ep->Desc.bmAttributes &
+			p_ep->Desc.bm_attributes &
 			0x03u; /* EP type from desc.                                   */
 		ep_desc_dir =
 			p_ep->Desc.bEndpointAddress &
@@ -3810,7 +3810,7 @@ static int usbh_dflt_ep_open(struct usbh_dev *p_dev)
 	p_ep->Desc.b_length = 7u;
 	p_ep->Desc.b_desc_type = USBH_DESC_TYPE_EP;
 	p_ep->Desc.bEndpointAddress = 0;
-	p_ep->Desc.bmAttributes = USBH_EP_TYPE_CTRL;
+	p_ep->Desc.bm_attributes = USBH_EP_TYPE_CTRL;
 	p_ep->Desc.wMaxPacketSize = ep_max_pkt_size;
 	p_ep->Desc.bInterval = 0;
 
@@ -4129,7 +4129,7 @@ static int usbh_cfg_parse(struct usbh_dev *p_dev, struct usbh_cfg *p_cfg)
 
 	/* ---------------- VALIDATE CFG DESC ----------------- */
 	usbh_parse_cfg_desc(&cfg_desc, p_desc);
-	if ((cfg_desc.bMaxPower > 250u) || (cfg_desc.bNbrInterfaces == 0)) {
+	if ((cfg_desc.b_max_pwr > 250u) || (cfg_desc.b_nbr_interfaces == 0)) {
 		return EINVAL;
 	}
 
@@ -4604,14 +4604,14 @@ static void usbh_parse_cfg_desc(struct usbh_cfg_desc *p_cfg_desc,
 
 	p_cfg_desc->b_length = p_buf_src_cfg_desc->b_length;
 	p_cfg_desc->b_desc_type = p_buf_src_cfg_desc->b_desc_type;
-	p_cfg_desc->wTotalLength =
-		sys_get_le16((uint8_t *)&p_buf_src_cfg_desc->wTotalLength);
-	p_cfg_desc->bNbrInterfaces = p_buf_src_cfg_desc->bNbrInterfaces;
-	p_cfg_desc->bConfigurationValue =
-		p_buf_src_cfg_desc->bConfigurationValue;
-	p_cfg_desc->iConfiguration = p_buf_src_cfg_desc->iConfiguration;
-	p_cfg_desc->bmAttributes = p_buf_src_cfg_desc->bmAttributes;
-	p_cfg_desc->bMaxPower = p_buf_src_cfg_desc->bMaxPower;
+	p_cfg_desc->w_total_length =
+		sys_get_le16((uint8_t *)&p_buf_src_cfg_desc->w_total_length);
+	p_cfg_desc->b_nbr_interfaces = p_buf_src_cfg_desc->b_nbr_interfaces;
+	p_cfg_desc->b_cfg_value =
+		p_buf_src_cfg_desc->b_cfg_value;
+	p_cfg_desc->i_cfg = p_buf_src_cfg_desc->i_cfg;
+	p_cfg_desc->bm_attributes = p_buf_src_cfg_desc->bm_attributes;
+	p_cfg_desc->b_max_pwr = p_buf_src_cfg_desc->b_max_pwr;
 }
 
 /*
@@ -4671,12 +4671,12 @@ static void usbh_parse_ep_desc(struct usbh_ep_desc *p_ep_desc, void *p_buf_src)
 	p_ep_desc->b_length = p_buf_desc->b_length;
 	p_ep_desc->b_desc_type = p_buf_desc->b_desc_type;
 	p_ep_desc->bEndpointAddress = p_buf_desc->bEndpointAddress;
-	p_ep_desc->bmAttributes = p_buf_desc->bmAttributes;
+	p_ep_desc->bm_attributes = p_buf_desc->bm_attributes;
 	p_ep_desc->wMaxPacketSize =
 		sys_get_le16((uint8_t *)&p_buf_desc->wMaxPacketSize);
 	p_ep_desc->bInterval = p_buf_desc->bInterval;
 	/* Following fields only relevant for isoc EPs.         */
-	if ((p_ep_desc->bmAttributes & 0x03) == USBH_EP_TYPE_ISOC) {
+	if ((p_ep_desc->bm_attributes & 0x03) == USBH_EP_TYPE_ISOC) {
 		p_ep_desc->bRefresh = p_buf_desc->bRefresh;
 		p_ep_desc->bSynchAddress = p_buf_desc->bSynchAddress;
 	}
