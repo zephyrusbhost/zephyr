@@ -212,8 +212,8 @@
 /*  ... endpoints.                                      */
 #define  USBH_CFG_MAX_ISOC_DESC                            1u
 
-/*  Maximum number of extra URB                         */
-/*  The maximum number of extra URB used for streaming. */
+/*  Maximum number of extra urb                         */
+/*  The maximum number of extra urb used for streaming. */
 #define  USBH_CFG_MAX_EXTRA_URB_PER_DEV                    1u
 
 /*  Maximum number of USB hub                           */

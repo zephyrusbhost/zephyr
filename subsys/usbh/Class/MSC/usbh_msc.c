@@ -2057,7 +2057,7 @@ static int usbh_msc_rx_csw(struct usbh_msc_dev *p_msc_dev,
 *               USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
 *               USBH_ERR_EP_INVALID_TYPE                Endpoint type is not Bulk or direction is not OUT.
 *               USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
-*               USBH_ERR_NONE,                          URB is successfully submitted to host controller.
+*               USBH_ERR_NONE,                          urb is successfully submitted to host controller.
 *               Host controller drivers error code,     Otherwise.
 *
 * Note(s)     : None.
