@@ -761,7 +761,7 @@ int usbh_msc_init(struct usbh_msc_dev *p_msc_dev,
     }
     /* See Note #1.                                         */
     if ((p_msc_dev->state == USBH_CLASS_DEV_STATE_CONN) &&
-        (p_msc_dev->RefCnt > 0))
+        (p_msc_dev->ref_cnt > 0))
     {
 
         LOG_INF("Mass Storage device (LUN %d) is initializing ...\r\n", lun);
@@ -904,10 +904,10 @@ uint8_t usbh_msc_max_lun_get(struct usbh_msc_dev *p_msc_dev,
     }
     /* --------------- GET_MAX_LUN REQUEST ---------------- */
     if ((p_msc_dev->state == USBH_CLASS_DEV_STATE_CONN) &&
-        (p_msc_dev->RefCnt > 0))
+        (p_msc_dev->ref_cnt > 0))
     {
 
-        if_nbr = usbh_if_nbr_get(p_msc_dev->IF_Ptr); /* Get IF nbr matching to MSC dev.                      */
+        if_nbr = usbh_if_nbr_get(p_msc_dev->if_ptr); /* Get IF nbr matching to MSC dev.                      */
 
         usbh_ctrl_rx(p_msc_dev->dev_ptr,        /* Send GET_MAX_LUN request via a Ctrl xfer.            */
                     USBH_MSC_REQ_GET_MAX_LUN, /* See Note #1.                                         */
@@ -998,7 +998,7 @@ bool usbh_msc_unit_rdy_test(struct usbh_msc_dev *p_msc_dev,
     }
     /* --------------- TEST_UNIT_READY REQ ---------------- */
     if ((p_msc_dev->state == USBH_CLASS_DEV_STATE_CONN) &&
-        (p_msc_dev->RefCnt > 0))
+        (p_msc_dev->ref_cnt > 0))
     {
 
         *p_err = usbh_scsi_cmd_test_unit_rdy(p_msc_dev, 0);
@@ -1080,7 +1080,7 @@ int usbh_msc_capacity_rd(struct usbh_msc_dev *p_msc_dev,
 
     /* -------------- READ_CAPACITY REQUEST --------------- */
     if ((p_msc_dev->state == USBH_CLASS_DEV_STATE_CONN) &&
-        (p_msc_dev->RefCnt > 0))
+        (p_msc_dev->ref_cnt > 0))
     {
 
         err = usbh_scsi_cmd_capacity_read(p_msc_dev, /* Issue READ_CAPACITY SCSI cmd using bulk xfers.       */
@@ -1148,7 +1148,7 @@ int usbh_msc_std_inquiry(struct usbh_msc_dev *p_msc_dev,
 
     /* ----------------- INQUIRY REQUEST ------------------ */
     if ((p_msc_dev->state == USBH_CLASS_DEV_STATE_CONN) &&
-        (p_msc_dev->RefCnt > 0))
+        (p_msc_dev->ref_cnt > 0))
     {
 
         err = usbh_scsi_cmd_std_inquiry(p_msc_dev, /* Issue INQUIRY SCSI command using Bulk xfers.         */
@@ -1209,7 +1209,7 @@ int usbh_msc_ref_add(struct usbh_msc_dev *p_msc_dev)
         return err;
     }
 
-    p_msc_dev->RefCnt++;
+    p_msc_dev->ref_cnt++;
 
     k_mutex_unlock(&p_msc_dev->HMutex);
 
@@ -1252,11 +1252,11 @@ int usbh_msc_ref_rel(struct usbh_msc_dev *p_msc_dev)
         return err;
     }
 
-    if (p_msc_dev->RefCnt > 0)
+    if (p_msc_dev->ref_cnt > 0)
     {
-        p_msc_dev->RefCnt--;
+        p_msc_dev->ref_cnt--;
 
-        if ((p_msc_dev->RefCnt == 0) &&
+        if ((p_msc_dev->ref_cnt == 0) &&
             (p_msc_dev->state == USBH_CLASS_DEV_STATE_DISCONN))
         {
             /* Release MSC dev if no more ref on it.                */
@@ -1337,7 +1337,7 @@ uint32_t usbh_msc_read(struct usbh_msc_dev *p_msc_dev,
     }
 
     if ((p_msc_dev->state == USBH_CLASS_DEV_STATE_CONN) &&
-        (p_msc_dev->RefCnt > 0))
+        (p_msc_dev->ref_cnt > 0))
     {
         xfer_len = usbh_scsi_read(p_msc_dev,
                                 lun,
@@ -1426,7 +1426,7 @@ uint32_t usbh_msc_write(struct usbh_msc_dev *p_msc_dev,
     }
 
     if ((p_msc_dev->state == USBH_CLASS_DEV_STATE_CONN) &&
-        (p_msc_dev->RefCnt > 0))
+        (p_msc_dev->ref_cnt > 0))
     {
         xfer_len = usbh_scsi_write(p_msc_dev,
                                 lun,
@@ -1551,10 +1551,10 @@ static void *usbh_msc_probe_if(struct usbh_dev *p_dev,
         }
 
         usbh_msc_dev_clr(p_msc_dev);
-        p_msc_dev->RefCnt = 0;
+        p_msc_dev->ref_cnt = 0;
         p_msc_dev->state = USBH_CLASS_DEV_STATE_CONN;
         p_msc_dev->dev_ptr = p_dev;
-        p_msc_dev->IF_Ptr = p_if;
+        p_msc_dev->if_ptr = p_if;
 
         *p_err = usbh_msc_ep_open(p_msc_dev); /* Open Bulk in/out EPs.                                */
         if (*p_err != 0)
@@ -1600,7 +1600,7 @@ static void usbh_msc_disconn(void *p_class_dev)
     p_msc_dev->state = USBH_CLASS_DEV_STATE_DISCONN;
     usbh_msc_ep_close(p_msc_dev); /* Close bulk in/out EPs.                               */
 
-    if (p_msc_dev->RefCnt == 0)
+    if (p_msc_dev->ref_cnt == 0)
     { /* Release MSC dev.                                     */
         k_mutex_unlock(&p_msc_dev->HMutex);
         USBH_MSC_DevCount++;
@@ -1680,9 +1680,9 @@ static void usbh_msc_resume(void *p_class_dev)
 static void usbh_msc_dev_clr(struct usbh_msc_dev *p_msc_dev)
 {
     p_msc_dev->dev_ptr = NULL;
-    p_msc_dev->IF_Ptr = NULL;
+    p_msc_dev->if_ptr = NULL;
     p_msc_dev->state = USBH_CLASS_DEV_STATE_NONE;
-    p_msc_dev->RefCnt = 0;
+    p_msc_dev->ref_cnt = 0;
 }
 
 /*
@@ -1716,7 +1716,7 @@ static int usbh_msc_ep_open(struct usbh_msc_dev *p_msc_dev)
     int err;
 
     err = usbh_bulk_in_open(p_msc_dev->dev_ptr,
-                          p_msc_dev->IF_Ptr,
+                          p_msc_dev->if_ptr,
                           &p_msc_dev->BulkInEP);
     if (err != 0)
     {
@@ -1724,7 +1724,7 @@ static int usbh_msc_ep_open(struct usbh_msc_dev *p_msc_dev)
     }
 
     err = usbh_bulk_out_open(p_msc_dev->dev_ptr,
-                           p_msc_dev->IF_Ptr,
+                           p_msc_dev->if_ptr,
                            &p_msc_dev->BulkOutEP);
     if (err != 0)
     {
@@ -2313,7 +2313,7 @@ static int usbh_msc_rx_bulk_only_reset(struct usbh_msc_dev *p_msc_dev)
     uint8_t if_nbr;
 
     err = 0;
-    if_nbr = usbh_if_nbr_get(p_msc_dev->IF_Ptr);
+    if_nbr = usbh_if_nbr_get(p_msc_dev->if_ptr);
 
     usbh_ctrl_tx(p_msc_dev->dev_ptr,
                 USBH_MSC_REQ_MASS_STORAGE_RESET, /*  See Note(s) #1                                      */
