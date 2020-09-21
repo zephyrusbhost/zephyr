@@ -1109,10 +1109,10 @@ static void usbh_atsamx_hcd_urb_submit(struct usbh_hc_drv *p_hc_drv,
 		return;
 	}
 	LOG_DBG("pipe %d set ep adress %d", pipe_nbr,
-		((p_urb->EP_Ptr->DevAddr << 8) | p_urb->EP_Ptr->Desc.bEndpointAddress));
+		((p_urb->EP_Ptr->DevAddr << 8) | p_urb->EP_Ptr->Desc.b_endpoint_address));
 	p_drv_data->PipeTbl[pipe_nbr].EP_Addr =
 		((p_urb->EP_Ptr->DevAddr << 8) |
-		 p_urb->EP_Ptr->Desc.bEndpointAddress);
+		 p_urb->EP_Ptr->Desc.b_endpoint_address);
 	p_drv_data->PipeTbl[pipe_nbr].AppBufLen = 0;
 	p_drv_data->PipeTbl[pipe_nbr].NextXferLen = 0;
 
@@ -2184,7 +2184,7 @@ static uint8_t usbh_atsamx_get_pipe_nbr(struct usbh_drv_data *p_drv_data,
 	uint8_t pipe_nbr;
 	uint16_t ep_addr;
 
-	ep_addr = ((p_ep->DevAddr << 8) | p_ep->Desc.bEndpointAddress);
+	ep_addr = ((p_ep->DevAddr << 8) | p_ep->Desc.b_endpoint_address);
 
 	for (pipe_nbr = 0; pipe_nbr < ATSAMX_MAX_NBR_PIPE; pipe_nbr++) {
 		if (p_drv_data->PipeTbl[pipe_nbr].EP_Addr == ep_addr) {

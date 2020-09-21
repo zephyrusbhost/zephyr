@@ -190,7 +190,7 @@
  *
  * Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 9.6.6, Table 9-13
  *
- *           (2) In an endpoint descriptor, the upper bit of 'bEndpointAddress' indicates direction.
+ *           (2) In an endpoint descriptor, the upper bit of 'b_endpoint_address' indicates direction.
  *********************************************************************************************************
  */
 
@@ -202,7 +202,7 @@
 
 /*
  *********************************************************************************************************
- *                                 MAX ENDPOINT SIZE (wMaxPacketSize)
+ *                                 MAX ENDPOINT SIZE (w_max_packet_size)
  *
  * Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 5.5 to 5.8
  *               The values come from:
@@ -212,7 +212,7 @@
  *               + BULK       : Section 5.8.3
  *
  *           (2) See 'Universal Serial Bus Specification Revision 2.0', Section 9.6.6
- *               Bits 12..11 from wMaxPacketSize indicates the number of transaction per microframe.
+ *               Bits 12..11 from w_max_packet_size indicates the number of transaction per microframe.
  *               Valid for high-speed isochronous and interrupt endpoint only.
  *********************************************************************************************************
  */
@@ -758,12 +758,12 @@ struct  usbh_if_association_desc {
 struct  usbh_ep_desc {
 	uint8_t b_length;
 	uint8_t b_desc_type;
-	uint8_t bEndpointAddress;
+	uint8_t b_endpoint_address;
 	uint8_t bm_attributes;
-	uint16_t wMaxPacketSize;
-	uint8_t bInterval;
-	uint8_t bRefresh;
-	uint8_t bSynchAddress;
+	uint16_t w_max_packet_size;
+	uint8_t b_interval;
+	uint8_t b_refresh;
+	uint8_t b_sync_address;
 };
 
 

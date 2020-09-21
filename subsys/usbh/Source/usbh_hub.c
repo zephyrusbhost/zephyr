@@ -88,10 +88,10 @@ static const uint8_t usbh_hub_rh_fs_cfg_desc[] = {
 	/* --------------- ENDPOINT DESCRIPTOR ---------------- */
 	USBH_LEN_DESC_EP,       /* b_length                                              */
 	USBH_DESC_TYPE_EP,      /* b_desc_type: Endpoint                            */
-	0x81u,                  /* bEndpointAddress: IN Endpoint 1                      */
+	0x81u,                  /* b_endpoint_address: IN Endpoint 1                      */
 	0x03u,                  /* bm_attributes Interrupt                               */
-	0x08u, 0x00u,           /* wMaxPacketSize                                       */
-	0x1u                    /* bInterval                                            */
+	0x08u, 0x00u,           /* w_max_packet_size                                       */
+	0x1u                    /* b_interval                                            */
 };
 
 /*
