@@ -30,18 +30,18 @@
 #define USBH_CLASS_DRV_TYPE_DEV_CLASS_DRV 2u
 
 struct usbh_class_drv {
-	uint8_t *name_ptr;               /* Name of the class driver.                            */
+	uint8_t *name_ptr;                      /* Name of the class driver.                            */
 
-	void (*global_init)(int *p_err); /* Global initialization function.                      */
+	void (*global_init)(int *p_err);        /* Global initialization function.                      */
 
 	void *(*probe_dev)(struct usbh_dev *p_dev,
-	                  /* Probe device descriptor.                             */
-			  int *p_err);
+	                   /* Probe device descriptor.                             */
+			   int *p_err);
 
 	void *(*probe_if)(struct usbh_dev *p_dev,
-	                 /* Probe interface descriptor.                          */
-			 struct usbh_if *p_if,
-			 int *p_err);
+	                  /* Probe interface descriptor.                          */
+			  struct usbh_if *p_if,
+			  int *p_err);
 
 	void (*suspend)(void *p_class_dev);     /* Called when bus suspends.                            */
 
@@ -56,9 +56,9 @@ typedef void (*usbh_class_notify_fnct)(void *p_class_dev,
 				       void *p_ctx);
 
 struct usbh_class_drv_reg {
-	const struct usbh_class_drv *class_drv_ptr;       /* Class driver structure                               */
-	usbh_class_notify_fnct notify_fnct_ptr;           /* Called when device connection status changes         */
-	void *notify_arg_ptr;                             /* Context of the notification funtion                  */
+	const struct usbh_class_drv *class_drv_ptr;             /* Class driver structure                               */
+	usbh_class_notify_fnct notify_fnct_ptr;                 /* Called when device connection status changes         */
+	void *notify_arg_ptr;                                   /* Context of the notification funtion                  */
 	uint8_t in_use;
 };
 
