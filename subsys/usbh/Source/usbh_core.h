@@ -953,14 +953,14 @@ struct  usbh_hc_drv {
  */
 
 struct  usbh_hc_cfg {
-	uint32_t BaseAddr;                                      /* HC reg's base addr.                                  */
-	uint32_t DedicatedMemAddr;                              /* Start addr of HC's dedicated mem.                    */
-	uint32_t DedicatedMemSize;                              /* Size of HC's dedicated mem.                          */
-	bool DataBufFromSysMemEn;                               /* Indicate if HC can access sys mem.                   */
-	uint32_t DataBufMaxLen;                                 /* Max len of data buf.                                 */
-	uint32_t MaxNbrEP_BulkOpen;                             /* Max nbr of opened bulk EP.                           */
-	uint32_t MaxNbrEP_IntrOpen;                             /* Max nbr of opened intr EP.                           */
-	uint32_t MaxNbrEP_IsocOpen;                             /* Max nbr of opened isoc EP.                           */
+	uint32_t base_addr;                                      /* HC reg's base addr.                                  */
+	uint32_t ded_mem_addr;                              /* Start addr of HC's dedicated mem.                    */
+	uint32_t ded_mem_size;                              /* Size of HC's dedicated mem.                          */
+	bool data_buf_sys_mem_en;                               /* Indicate if HC can access sys mem.                   */
+	uint32_t data_buf_max_len;                                 /* Max len of data buf.                                 */
+	uint32_t max_nbr_ep_bulk_open;                             /* Max nbr of opened bulk EP.                           */
+	uint32_t max_nbr_ep_intr_open;                             /* Max nbr of opened intr EP.                           */
+	uint32_t max_nbr_ep_isoc_open;                             /* Max nbr of opened isoc EP.                           */
 };
 
 
@@ -971,11 +971,11 @@ struct  usbh_hc_cfg {
  */
 
 struct usbh_hc {
-	struct usbh_hc_drv HC_Drv;                              /* Host Controller driver (HCD) info.                   */
-	struct usbh_host     *HostPtr;                          /* Host structure.                                      */
-	struct usbh_hub_dev  *RH_ClassDevPtr;                   /* Root Hub class device pointer.                       */
-	struct k_mutex HCD_Mutex;                               /* mutex to sync access to HCD.                         */
-	bool IsVirRootHub;                                      /* Indicate if RH is virtual.                           */
+	struct usbh_hc_drv hc_drv;                              /* Host Controller driver (HCD) info.                   */
+	struct usbh_host     *host_ptr;                          /* Host structure.                                      */
+	struct usbh_hub_dev  *rh_class_dev_ptr;                   /* Root Hub class device pointer.                       */
+	struct k_mutex hcd_mutex;                               /* mutex to sync access to HCD.                         */
+	bool is_vir_rh;                                      /* Indicate if RH is virtual.                           */
 };
 
 
