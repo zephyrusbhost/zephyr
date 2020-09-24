@@ -34,7 +34,7 @@
  */
 
 #define USBH_HCD_ATSAMX_MODULE
-#include "usbh_hcd_atsamx.h"
+#include <usbh_hcd_atsamx.h>
 #include "usbh_hub.h"
 #include <usbh_hc_cfg.h>
 #include <soc.h>
@@ -504,27 +504,6 @@ const struct usbh_hc_rh_api USBH_ATSAMX_HCD_RH_API = {
 	usbh_atsamx_rh_int_en, usbh_atsamx_rh_int_dis
 };
 
-/*
- *********************************************************************************************************
- *                                     LOCAL CONFIGURATION ERRORS
- *********************************************************************************************************
- */
-
-/*
- *********************************************************************************************************
- *********************************************************************************************************
- *                                           GLOBAL FUNCTIONS
- *********************************************************************************************************
- *********************************************************************************************************
- */
-
-/*
- *********************************************************************************************************
- *********************************************************************************************************
- *                                           LOCAL FUNCTIONS
- *********************************************************************************************************
- *********************************************************************************************************
- */
 
 /*
  *********************************************************************************************************
@@ -560,7 +539,7 @@ static void usbh_atsamx_hcd_init(struct usbh_hc_drv *p_hc_drv,
 	memset(p_drv_data, 0, sizeof(struct usbh_drv_data));
 	p_hc_drv->data_ptr = (void *)p_drv_data;
 
-	if ((p_hc_drv->hc_cfg_ptr->DataBufMaxLen %
+	if ((p_hc_drv->hc_cfg_ptr->data_buf_max_len %
 	     USBH_MAX_EP_SIZE_TYPE_BULK_FS) != 0) {
 		*p_err = ENOMEM;
 		return;
@@ -607,7 +586,7 @@ static void usbh_atsamx_hcd_start(struct usbh_hc_drv *p_hc_drv,
 	uint8_t i;
 	int key;
 
-	p_reg = (struct usbh_atsamx_reg *)p_hc_drv->hc_cfg_ptr->BaseAddr;
+	p_reg = (struct usbh_atsamx_reg *)p_hc_drv->hc_cfg_ptr->base_addr;
 	p_drv_data = (struct usbh_drv_data *)p_hc_drv->data_ptr;
 	p_bsp_api = p_hc_drv->bsp_api_ptr;
 
@@ -744,7 +723,7 @@ static void usbh_atsamx_hcd_stop(struct usbh_hc_drv *p_hc_drv,
 	struct usbh_atsamx_reg *p_reg;
 	const struct usbh_hc_bsp_api *p_bsp_api;
 
-	p_reg = (struct usbh_atsamx_reg *)p_hc_drv->hc_cfg_ptr->BaseAddr;
+	p_reg = (struct usbh_atsamx_reg *)p_hc_drv->hc_cfg_ptr->base_addr;
 	p_bsp_api = p_hc_drv->bsp_api_ptr;
 
 	p_reg->INTENCLR =
@@ -810,7 +789,7 @@ static void usbh_atsamx_hcd_suspend(struct usbh_hc_drv *p_hc_drv,
 	struct usbh_drv_data *p_drv_data;
 	uint8_t pipe_nbr;
 
-	p_reg = (struct usbh_atsamx_reg *)p_hc_drv->hc_cfg_ptr->BaseAddr;
+	p_reg = (struct usbh_atsamx_reg *)p_hc_drv->hc_cfg_ptr->base_addr;
 	p_drv_data = (struct usbh_drv_data *)p_hc_drv->data_ptr;
 
 	for (pipe_nbr = 0; pipe_nbr < ATSAMX_MAX_NBR_PIPE; pipe_nbr++) {
@@ -853,7 +832,7 @@ static void usbh_atsamx_hcd_resume(struct usbh_hc_drv *p_hc_drv,
 	struct usbh_drv_data *p_drv_data;
 	uint8_t pipe_nbr;
 
-	p_reg = (struct usbh_atsamx_reg *)p_hc_drv->hc_cfg_ptr->BaseAddr;
+	p_reg = (struct usbh_atsamx_reg *)p_hc_drv->hc_cfg_ptr->base_addr;
 	p_drv_data = (struct usbh_drv_data *)p_hc_drv->data_ptr;
 
 	p_reg->CTRLB |=
@@ -898,7 +877,7 @@ static uint32_t usbh_atsamx_hcd_frame_nbr_get(struct usbh_hc_drv *p_hc_drv,
 	struct usbh_atsamx_reg *p_reg;
 	uint32_t frm_nbr;
 
-	p_reg = (struct usbh_atsamx_reg *)p_hc_drv->hc_cfg_ptr->BaseAddr;
+	p_reg = (struct usbh_atsamx_reg *)p_hc_drv->hc_cfg_ptr->base_addr;
 	frm_nbr = (p_reg->FNUM & USBH_ATSAMX_FNUM_MSK) >> USBH_ATSAMX_FNUM_POS;
 
 	*p_err = 0;
@@ -933,7 +912,7 @@ static void usbh_atsamx_hcd_ep_open(struct usbh_hc_drv *p_hc_drv,
 	LOG_DBG("EP_Open");
 	struct usbh_atsamx_reg *p_reg;
 
-	p_reg = (struct usbh_atsamx_reg *)p_hc_drv->hc_cfg_ptr->BaseAddr;
+	p_reg = (struct usbh_atsamx_reg *)p_hc_drv->hc_cfg_ptr->base_addr;
 	p_ep->data_pid =
 		0; /* Set PID to DATA0                                     */
 	p_ep->urb.err = 0;
@@ -976,7 +955,7 @@ static void usbh_atsamx_hcd_ep_close(struct usbh_hc_drv *p_hc_drv,
 	struct usbh_drv_data *p_drv_data;
 	uint8_t pipe_nbr;
 
-	p_reg = (struct usbh_atsamx_reg *)p_hc_drv->hc_cfg_ptr->BaseAddr;
+	p_reg = (struct usbh_atsamx_reg *)p_hc_drv->hc_cfg_ptr->base_addr;
 	p_drv_data = (struct usbh_drv_data *)p_hc_drv->data_ptr;
 	pipe_nbr = usbh_atsamx_get_pipe_nbr(p_drv_data, p_ep);
 	p_ep->data_pid =
@@ -1093,7 +1072,7 @@ static void usbh_atsamx_hcd_urb_submit(struct usbh_hc_drv *p_hc_drv,
 	uint8_t ep_type;
 	uint8_t pipe_nbr;
 
-	p_reg = (struct usbh_atsamx_reg *)p_hc_drv->hc_cfg_ptr->BaseAddr;
+	p_reg = (struct usbh_atsamx_reg *)p_hc_drv->hc_cfg_ptr->base_addr;
 	p_drv_data = (struct usbh_drv_data *)p_hc_drv->data_ptr;
 	ep_type = usbh_ep_type_get(p_urb->ep_ptr);
 
@@ -1221,7 +1200,7 @@ static void usbh_atsamx_hcd_urb_complete(struct usbh_hc_drv *p_hc_drv,
 	int key;
 
 	*p_err = 0;
-	p_reg = (struct usbh_atsamx_reg *)p_hc_drv->hc_cfg_ptr->BaseAddr;
+	p_reg = (struct usbh_atsamx_reg *)p_hc_drv->hc_cfg_ptr->base_addr;
 	p_drv_data = (struct usbh_drv_data *)p_hc_drv->data_ptr;
 	pipe_nbr = usbh_atsamx_get_pipe_nbr(p_drv_data, p_urb->ep_ptr);
 
@@ -1337,7 +1316,7 @@ usbh_atsamx_rh_port_status_get(struct usbh_hc_drv *p_hc_drv, uint8_t port_nbr,
 	struct usbh_drv_data *p_drv_data;
 	uint8_t reg_val;
 
-	p_reg = (struct usbh_atsamx_reg *)p_hc_drv->hc_cfg_ptr->BaseAddr;
+	p_reg = (struct usbh_atsamx_reg *)p_hc_drv->hc_cfg_ptr->base_addr;
 	p_drv_data = (struct usbh_drv_data *)p_hc_drv->data_ptr;
 
 	if (port_nbr != 1) {
@@ -1596,7 +1575,7 @@ static bool usbh_atsamx_hcd_port_reset_set(struct usbh_hc_drv *p_hc_drv,
 	struct usbh_atsamx_reg *p_reg;
 	struct usbh_drv_data *p_drv_data;
 
-	p_reg = (struct usbh_atsamx_reg *)p_hc_drv->hc_cfg_ptr->BaseAddr;
+	p_reg = (struct usbh_atsamx_reg *)p_hc_drv->hc_cfg_ptr->base_addr;
 	p_drv_data = (struct usbh_drv_data *)p_hc_drv->data_ptr;
 
 	p_drv_data->RH_PortStat |=
@@ -1759,7 +1738,7 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 	struct usbh_urb *p_urb;
 
 	p_hc_drv = (struct usbh_hc_drv *)p_hc_drv_local;
-	p_reg = (struct usbh_atsamx_reg *)p_hc_drv->hc_cfg_ptr->BaseAddr;
+	p_reg = (struct usbh_atsamx_reg *)p_hc_drv->hc_cfg_ptr->base_addr;
 	p_drv_data = (struct usbh_drv_data *)p_hc_drv->data_ptr;
 	int_stat = p_reg->INTFLAG;
 	int_stat &= p_reg->INTENSET;
@@ -1981,7 +1960,7 @@ static void usbh_atsamx_process_urb(void *p_arg, void *p_arg2, void *p_arg3)
 
 	p_hc_drv = (struct usbh_hc_drv *)p_arg;
 	p_drv_data = (struct usbh_drv_data *)p_hc_drv->data_ptr;
-	p_reg = (struct usbh_atsamx_reg *)p_hc_drv->hc_cfg_ptr->BaseAddr;
+	p_reg = (struct usbh_atsamx_reg *)p_hc_drv->hc_cfg_ptr->base_addr;
 
 	while (true) {
 		p_err = k_msgq_get(&ATSAMX_URB_Proc_Q, (void *)p_urb,
