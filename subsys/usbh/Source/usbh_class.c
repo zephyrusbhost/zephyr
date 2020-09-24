@@ -24,7 +24,7 @@ struct usbh_class_drv_reg usbh_class_drv_list[USBH_CFG_MAX_NBR_CLASS_DRVS];
 static int usbh_class_probe_dev(struct usbh_dev *p_dev);
 
 static int usbh_class_probe_if(struct usbh_dev *p_dev,
-				    struct usbh_if *p_if);
+			       struct usbh_if *p_if);
 
 static void usbh_class_notify(struct usbh_dev *p_dev,
 			      struct usbh_if *p_if,
@@ -74,9 +74,9 @@ int usbh_reg_class_drv(const struct usbh_class_drv *p_class_drv,
 	}
 
 	key = irq_lock();
-	for (ix = 0; ix < USBH_CFG_MAX_NBR_CLASS_DRVS; ix++) { /* Find first empty element in the class drv list.      */
+	for (ix = 0; ix < USBH_CFG_MAX_NBR_CLASS_DRVS; ix++) {  /* Find first empty element in the class drv list.      */
 
-		if (usbh_class_drv_list[ix].in_use == 0) { /* Insert class drv if it is empty location.            */
+		if (usbh_class_drv_list[ix].in_use == 0) {      /* Insert class drv if it is empty location.            */
 			usbh_class_drv_list[ix].class_drv_ptr = p_class_drv;
 			usbh_class_drv_list[ix].notify_fnct_ptr = class_notify_fnct;
 			usbh_class_drv_list[ix].notify_arg_ptr = p_class_notify_ctx;
@@ -305,7 +305,7 @@ int usbh_class_drv_conn(struct usbh_dev *p_dev)
 	} else if (err != ENOTSUP) {
 
 		LOG_ERR("ERROR: Probe class driver. #%d\r\n", err);
-	} else   {
+	} else {
 		/* Empty Else statement                                 */
 	}
 
@@ -333,7 +333,7 @@ int usbh_class_drv_conn(struct usbh_dev *p_dev)
 			drv_found = true;
 		} else if (err != ENOTSUP) {
 			LOG_ERR("ERROR: Probe class driver. #%d\r\n", err);
-		} else   {
+		} else {
 			/* Empty Else statement                                 */
 		}
 	}
@@ -406,9 +406,9 @@ void usbh_class_drv_disconn(struct usbh_dev *p_dev)
 		return;
 	}
 
-	p_cfg = usbh_cfg_get(p_dev, 0); /* Get first cfg.                                       */
+	p_cfg = usbh_cfg_get(p_dev, 0);                 /* Get first cfg.                                       */
 	nbr_ifs = usbh_cfg_if_nbr_get(p_cfg);
-	for (if_ix = 0; if_ix < nbr_ifs; if_ix++) { /* For all IFs present in first cfg.                    */
+	for (if_ix = 0; if_ix < nbr_ifs; if_ix++) {     /* For all IFs present in first cfg.                    */
 		p_if = usbu_if_get(p_cfg, if_ix);
 		if (p_if == NULL) {
 			return;
@@ -507,7 +507,7 @@ static int usbh_class_probe_dev(struct usbh_dev *p_dev)
  */
 
 static int usbh_class_probe_if(struct usbh_dev *p_dev,
- 				    struct usbh_if *p_if)
+			       struct usbh_if *p_if)
 {
 	LOG_DBG("Classprobe_if");
 	uint8_t ix;
@@ -517,7 +517,7 @@ static int usbh_class_probe_if(struct usbh_dev *p_dev,
 
 	err = ENOTSUP;
 	for (ix = 0; ix < USBH_CFG_MAX_NBR_CLASS_DRVS; ix++) { /* Search drv list for matching IF class.
-		                                                 */
+		                                                */
 		if (usbh_class_drv_list[ix].in_use != 0) {
 			p_class_drv = usbh_class_drv_list[ix].class_drv_ptr;
 
@@ -572,7 +572,7 @@ static void usbh_class_notify(struct usbh_dev *p_dev,
 
 	if (p_class_drv_reg->notify_fnct_ptr != NULL) {
 		p_class_drv_reg->notify_fnct_ptr(p_class_dev, /* Call app notification callback fnct.                 */
-					       is_conn,
-					       p_class_drv_reg->notify_arg_ptr);
+						 is_conn,
+						 p_class_drv_reg->notify_arg_ptr);
 	}
 }

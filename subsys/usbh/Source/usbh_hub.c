@@ -143,11 +143,11 @@ static void usbh_hub_ep_close(struct usbh_hub_dev *p_hub_dev);
 static int usbh_hub_event_req(struct usbh_hub_dev *p_hub_dev);
 
 static void usbh_hub_isr_cb(struct usbh_ep *p_ep,
-			 void *p_buf,
-			 uint32_t buf_len,
-			 uint32_t xfer_len,
-			 void *p_arg,
-			 int err);
+			    void *p_buf,
+			    uint32_t buf_len,
+			    uint32_t xfer_len,
+			    void *p_arg,
+			    int err);
 
 static void usbh_hub_event_proc(void);
 
@@ -156,32 +156,32 @@ static int usbh_hub_desc_get(struct usbh_hub_dev *p_hub_dev);
 static int usbh_hub_ports_init(struct usbh_hub_dev *p_hub_dev);
 
 static int usbh_hub_port_status_get(struct usbh_hub_dev *p_hub_dev,
-				       uint16_t port_nbr,
-				       struct usbh_hub_port_status *p_port_status);
+				    uint16_t port_nbr,
+				    struct usbh_hub_port_status *p_port_status);
 
 static int usbh_hub_port_reset_set(struct usbh_hub_dev *p_hub_dev,
-				      uint16_t port_nbr);
+				   uint16_t port_nbr);
 
 static int usbh_hub_port_rst_chng_clr(struct usbh_hub_dev *p_hub_dev,
-					uint16_t port_nbr);
+				      uint16_t port_nbr);
 
 static int usbh_hub_port_en_chng_clr(struct usbh_hub_dev *p_hub_dev,
-				       uint16_t port_nbr);
+				     uint16_t port_nbr);
 
 static int usbh_hub_port_conn_chng_clr(struct usbh_hub_dev *p_hub_dev,
-					 uint16_t port_nbr);
+				       uint16_t port_nbr);
 
 static int usbh_hub_port_pwr_set(struct usbh_hub_dev *p_hub_dev,
-				    uint16_t port_nbr);
+				 uint16_t port_nbr);
 
 static int usbh_hub_port_susp_clr(struct usbh_hub_dev *p_hub_dev,
-					uint16_t port_nbr);
+				  uint16_t port_nbr);
 
 static int usbh_hub_port_en_clr(struct usbh_hub_dev *p_hub_dev,
-				   uint16_t port_nbr);
+				uint16_t port_nbr);
 
 static int usbh_hub_port_en_set(struct usbh_hub_dev *p_hub_dev,
-				   uint16_t port_nbr);
+				uint16_t port_nbr);
 
 static void usbh_hub_clr(struct usbh_hub_dev *p_hub_dev);
 
@@ -261,7 +261,7 @@ void usbh_hub_event_task(void *p_arg, void *p_arg2, void *p_arg3)
  */
 
 int usbh_hub_port_dis(struct usbh_hub_dev *p_hub_dev,
-			   uint16_t port_nbr)
+		      uint16_t port_nbr)
 {
 	int err;
 
@@ -300,7 +300,7 @@ int usbh_hub_port_dis(struct usbh_hub_dev *p_hub_dev,
  */
 
 int usbh_hub_port_en(struct usbh_hub_dev *p_hub_dev,
-			  uint16_t port_nbr)
+		     uint16_t port_nbr)
 {
 	int err;
 
@@ -422,7 +422,7 @@ static void *usbh_hub_if_probe(struct usbh_dev *p_dev,
 		if (hub_count < 0) {
 			*p_err = EAGAIN;
 			return NULL;
-		} else   {
+		} else {
 			p_hub_dev = &usbh_hub_arr[hub_count--];
 		}
 
@@ -443,7 +443,7 @@ static void *usbh_hub_if_probe(struct usbh_dev *p_dev,
 		if (*p_err != 0) {
 			usbh_hub_ref_rel(p_hub_dev);
 		}
-	} else   {
+	} else {
 		*p_err = EAGAIN;
 	}
 
@@ -520,14 +520,14 @@ static void usbh_hub_resume(void *p_class_dev)
 
 		if (p_dev != NULL) {
 			usbh_class_resume(p_dev);
-		} else   {/* Get port status info.                                */
+		} else {  /* Get port status info.                                */
 			usbh_hub_port_status_get(p_hub_dev,
-						     port_ix + 1,
-						     &port_status);
+						 port_ix + 1,
+						 &port_status);
 
 			if ((port_status.w_port_status & USBH_HUB_STATUS_PORT_CONN) != 0) {
 				usbh_hub_port_reset_set(p_hub_dev,
-							    port_ix + 1);
+							port_ix + 1);
 			}
 		}
 	}
@@ -760,13 +760,13 @@ static int usbh_hub_event_req(struct usbh_hub_dev *p_hub_dev)
 		valid = p_rh_api->IntEn(&p_dev->hc_ptr->hc_drv);
 		if (valid != 1) {
 			return EIO;
-		} else   {
+		} else {
 			return 0;
 		}
 	}
 
 	len = (p_hub_dev->desc.b_nbr_ports / 8) + 1;    /* See Note (1).                                        */
-	err = usbh_intr_rx_async(&p_hub_dev->intr_ep,    /* Start receiving hub events.                          */
+	err = usbh_intr_rx_async(&p_hub_dev->intr_ep,   /* Start receiving hub events.                          */
 				 (void *)p_hub_dev->hub_intr_buf,
 				 len,
 				 usbh_hub_isr_cb,
@@ -799,11 +799,11 @@ static int usbh_hub_event_req(struct usbh_hub_dev *p_hub_dev)
  */
 
 static void usbh_hub_isr_cb(struct usbh_ep *p_ep,
-			 void *p_buf,
-			 uint32_t buf_len,
-			 uint32_t xfer_len,
-			 void *p_arg,
-			 int err)
+			    void *p_buf,
+			    uint32_t buf_len,
+			    uint32_t xfer_len,
+			    void *p_arg,
+			    int err)
 {
 	struct usbh_hub_dev *p_hub_dev;
 	int key;
@@ -836,7 +836,7 @@ static void usbh_hub_isr_cb(struct usbh_ep *p_ep,
 	key = irq_lock();
 	if (usbh_hub_head_ptr == NULL) {
 		usbh_hub_head_ptr = usbh_hub_tail_ptr = p_hub_dev;
-	} else   {
+	} else {
 		usbh_hub_tail_ptr->nxt_ptr = p_hub_dev;
 		usbh_hub_tail_ptr = p_hub_dev;
 	}
@@ -882,7 +882,7 @@ static void usbh_hub_event_proc(void)
 	if (usbh_hub_head_ptr == usbh_hub_tail_ptr) {
 		usbh_hub_head_ptr = NULL;
 		usbh_hub_tail_ptr = NULL;
-	} else   {
+	} else {
 		usbh_hub_head_ptr = usbh_hub_head_ptr->nxt_ptr;
 	}
 	irq_unlock(key);
@@ -896,7 +896,7 @@ static void usbh_hub_event_proc(void)
 		err = usbh_hub_ref_rel(p_hub_dev);
 		if (err != 0) {
 			LOG_ERR("could not release reference %d", err);
-		}  
+		}
 		return;
 	}
 
@@ -906,8 +906,8 @@ static void usbh_hub_event_proc(void)
 	while (port_nbr <= nbr_ports) {
 
 		err = usbh_hub_port_status_get(p_hub_dev, /* Get port status info..                               */
-					     port_nbr,
-					     &port_status);
+					       port_nbr,
+					       &port_status);
 		if (err != 0) {
 			break;
 		}
@@ -915,7 +915,7 @@ static void usbh_hub_event_proc(void)
 		if (DEF_BIT_IS_SET(port_status.w_port_change, USBH_HUB_STATUS_C_PORT_CONN) == true) {
 			LOG_DBG("connection status change");
 			err = usbh_hub_port_conn_chng_clr(p_hub_dev, /* Clr port conn chng.                                  */
-						       port_nbr);
+							  port_nbr);
 			if (err != 0) {
 				break;
 			}
@@ -932,18 +932,18 @@ static void usbh_hub_event_proc(void)
 					p_hub_dev->dev_ptr_list[port_nbr - 1] = NULL;
 				}
 
-				k_sleep(K_MSEC(100u));                  /* See Notes #1.                                        */
-				err = usbh_hub_port_reset_set(p_hub_dev,  /* Apply port reset.                                    */
-							    port_nbr);
+				k_sleep(K_MSEC(100u));                          /* See Notes #1.                                        */
+				err = usbh_hub_port_reset_set(p_hub_dev,        /* Apply port reset.                                    */
+							      port_nbr);
 				if (err != 0) {
 					break;
 				}
 
 				k_sleep(K_MSEC(USBH_HUB_DLY_DEV_RESET));        /* See Notes #2.                                        */
-			  	continue;                                       /* Handle port reset status change.                     */
-			} else   {/* --------------- DEV HAS BEEN REMOVED --------------- */
+				continue;                                       /* Handle port reset status change.                     */
+			} else {                                                /* --------------- DEV HAS BEEN REMOVED --------------- */
 				LOG_DBG("device has been removed");
-				k_sleep(K_MSEC(10u)); /* Wait for any pending I/O xfer to rtn err.            */
+				k_sleep(K_MSEC(10u));                           /* Wait for any pending I/O xfer to rtn err.            */
 
 				p_dev = p_hub_dev->dev_ptr_list[port_nbr - 1];
 
@@ -965,8 +965,8 @@ static void usbh_hub_event_proc(void)
 			if (DEF_BIT_IS_SET(port_status.w_port_status, USBH_HUB_STATUS_PORT_CONN) == true) {
 
 				err = usbh_hub_port_status_get(p_hub_dev, /* Get port status info.                                */
-							     port_nbr,
-							     &port_status);
+							       port_nbr,
+							       &port_status);
 				if (err != 0) {
 					break;
 				}
@@ -976,7 +976,7 @@ static void usbh_hub_event_proc(void)
 					dev_spd = USBH_LOW_SPEED;
 				} else if (DEF_BIT_IS_SET(port_status.w_port_status, USBH_HUB_STATUS_PORT_HIGH_SPD) == true) {
 					dev_spd = USBH_HIGH_SPEED;
-				} else   {
+				} else {
 					dev_spd = USBH_FULL_SPEED;
 				}
 
@@ -998,7 +998,7 @@ static void usbh_hub_event_proc(void)
 					usbh_hub_event_req(p_hub_dev); /* Retry urb.                                           */
 
 					return;
-				} else   {
+				} else {
 					p_dev = &p_hub_dev->dev_ptr->hc_ptr->host_ptr->dev_list[p_hub_dev->dev_ptr->hc_ptr->host_ptr->dev_cnt--];
 				}
 
@@ -1009,10 +1009,10 @@ static void usbh_hub_event_proc(void)
 
 				if (dev_spd == USBH_HIGH_SPEED) {
 					p_dev->hub_hs_ptr = p_hub_dev;
-				} else   {
+				} else {
 					if (p_hub_dev->intr_ep.dev_spd == USBH_HIGH_SPEED) {
 						p_dev->hub_hs_ptr = p_hub_dev;
-					} else   {
+					} else {
 						p_dev->hub_hs_ptr = p_hub_dev->dev_ptr->hub_hs_ptr;
 					}
 				}
@@ -1028,7 +1028,7 @@ static void usbh_hub_event_proc(void)
 					if (p_hub_dev->conn_cnt < USBH_CFG_MAX_NUM_DEV_RECONN) {
 						/*This condition may happen due to EP_STALL return      */
 						err = usbh_hub_port_reset_set(p_hub_dev, /* Apply port reset.                                    */
-									    port_nbr);
+									      port_nbr);
 						if (err != 0) {
 							break;
 						}
@@ -1037,10 +1037,10 @@ static void usbh_hub_event_proc(void)
 						p_hub_dev->conn_cnt++;
 						;
 						continue; /* Handle port reset status change.                     */
-					} else   {
+					} else {
 						p_hub_dev->dev_ptr_list[port_nbr - 1] = NULL;
 					}
-				} else   {
+				} else {
 					p_hub_dev->dev_ptr_list[port_nbr - 1] = p_dev;
 				}
 			}
@@ -1091,9 +1091,9 @@ static int usbh_hub_desc_get(struct usbh_hub_dev *p_hub_dev)
 	uint32_t i;
 	struct usbh_desc_hdr hdr;
 
-	for (i = 0; i < USBH_CFG_STD_REQ_RETRY; i++) { /* Attempt to get desc hdr 3 times.                     */
+	for (i = 0; i < USBH_CFG_STD_REQ_RETRY; i++) {  /* Attempt to get desc hdr 3 times.                     */
 		len = usbh_ctrl_rx(p_hub_dev->dev_ptr,
-				   USBH_REQ_GET_DESC, /* See Note (1).                                        */
+				   USBH_REQ_GET_DESC,   /* See Note (1).                                        */
 				   (USBH_REQ_DIR_DEV_TO_HOST | USBH_REQ_TYPE_CLASS),
 				   (USBH_HUB_DESC_TYPE_HUB << 8),
 				   0,
@@ -1105,7 +1105,7 @@ static int usbh_hub_desc_get(struct usbh_hub_dev *p_hub_dev)
 		    (len == 0)) {
 			usbh_ep_reset(p_hub_dev->dev_ptr,
 				      NULL);
-		} else   {
+		} else {
 			break;
 		}
 	}
@@ -1134,7 +1134,7 @@ static int usbh_hub_desc_get(struct usbh_hub_dev *p_hub_dev)
 		    (len < hdr.b_length)) {
 			usbh_ep_reset(p_hub_dev->dev_ptr,
 				      NULL);
-		} else   {
+		} else {
 			break;
 		}
 	}
@@ -1221,8 +1221,8 @@ static int usbh_hub_ports_init(struct usbh_hub_dev *p_hub_dev)
  */
 
 static int usbh_hub_port_status_get(struct usbh_hub_dev *p_hub_dev,
-				       uint16_t port_nbr,
-				       struct usbh_hub_port_status *p_port_status)
+				    uint16_t port_nbr,
+				    struct usbh_hub_port_status *p_port_status)
 {
 	uint8_t *p_buf;
 	struct usbh_hub_port_status port_status;
@@ -1231,17 +1231,17 @@ static int usbh_hub_port_status_get(struct usbh_hub_dev *p_hub_dev,
 	p_buf = (uint8_t *)&port_status;
 
 	usbh_ctrl_rx(p_hub_dev->dev_ptr, /* See Note (1).                                        */
-			   USBH_REQ_GET_STATUS,
-			   (USBH_REQ_DIR_DEV_TO_HOST | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_OTHER),
-			   0,
-			   port_nbr,
-			   (void *)p_buf,
-			   USBH_HUB_LEN_HUB_PORT_STATUS,
-			   USBH_HUB_TIMEOUT,
-			   &err);
+		     USBH_REQ_GET_STATUS,
+		     (USBH_REQ_DIR_DEV_TO_HOST | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_OTHER),
+		     0,
+		     port_nbr,
+		     (void *)p_buf,
+		     USBH_HUB_LEN_HUB_PORT_STATUS,
+		     USBH_HUB_TIMEOUT,
+		     &err);
 	if (err != 0) {
 		usbh_ep_reset(p_hub_dev->dev_ptr, NULL);
-	} else   {
+	} else {
 		p_port_status->w_port_status = sys_get_le16((uint8_t *)&port_status.w_port_status);
 		p_port_status->w_port_change = sys_get_le16((uint8_t *)&port_status.w_port_change);
 	}
@@ -1275,19 +1275,19 @@ static int usbh_hub_port_status_get(struct usbh_hub_dev *p_hub_dev,
  */
 
 static int usbh_hub_port_reset_set(struct usbh_hub_dev *p_hub_dev,
-				      uint16_t port_nbr)
+				   uint16_t port_nbr)
 {
 	int err;
 
 	usbh_ctrl_tx(p_hub_dev->dev_ptr, /* See Note (1).                                        */
-			   USBH_REQ_SET_FEATURE,
-			   (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_OTHER),
-			   USBH_HUB_FEATURE_SEL_PORT_RESET,
-			   port_nbr,
-			   NULL,
-			   0,
-			   USBH_HUB_TIMEOUT,
-			   &err);
+		     USBH_REQ_SET_FEATURE,
+		     (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_OTHER),
+		     USBH_HUB_FEATURE_SEL_PORT_RESET,
+		     port_nbr,
+		     NULL,
+		     0,
+		     USBH_HUB_TIMEOUT,
+		     &err);
 	if (err != 0) {
 		usbh_ep_reset(p_hub_dev->dev_ptr, NULL);
 	}
@@ -1321,19 +1321,19 @@ static int usbh_hub_port_reset_set(struct usbh_hub_dev *p_hub_dev,
  */
 
 static int usbh_hub_port_rst_chng_clr(struct usbh_hub_dev *p_hub_dev,
-					uint16_t port_nbr)
+				      uint16_t port_nbr)
 {
 	int err;
 
 	usbh_ctrl_tx(p_hub_dev->dev_ptr, /* See Note (1).                                        */
-			   USBH_REQ_CLR_FEATURE,
-			   (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_OTHER),
-			   USBH_HUB_FEATURE_SEL_C_PORT_RESET,
-			   port_nbr,
-			   NULL,
-			   0,
-			   USBH_HUB_TIMEOUT,
-			   &err);
+		     USBH_REQ_CLR_FEATURE,
+		     (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_OTHER),
+		     USBH_HUB_FEATURE_SEL_C_PORT_RESET,
+		     port_nbr,
+		     NULL,
+		     0,
+		     USBH_HUB_TIMEOUT,
+		     &err);
 	if (err != 0) {
 		usbh_ep_reset(p_hub_dev->dev_ptr, NULL);
 	}
@@ -1367,19 +1367,19 @@ static int usbh_hub_port_rst_chng_clr(struct usbh_hub_dev *p_hub_dev,
  */
 
 static int usbh_hub_port_en_chng_clr(struct usbh_hub_dev *p_hub_dev,
-				       uint16_t port_nbr)
+				     uint16_t port_nbr)
 {
 	int err;
 
 	usbh_ctrl_tx(p_hub_dev->dev_ptr, /* See Note (1).                                        */
-			   USBH_REQ_CLR_FEATURE,
-			   (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_OTHER),
-			   USBH_HUB_FEATURE_SEL_C_PORT_EN,
-			   port_nbr,
-			   NULL,
-			   0,
-			   USBH_HUB_TIMEOUT,
-			   &err);
+		     USBH_REQ_CLR_FEATURE,
+		     (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_OTHER),
+		     USBH_HUB_FEATURE_SEL_C_PORT_EN,
+		     port_nbr,
+		     NULL,
+		     0,
+		     USBH_HUB_TIMEOUT,
+		     &err);
 	if (err != 0) {
 		usbh_ep_reset(p_hub_dev->dev_ptr, NULL);
 	}
@@ -1413,19 +1413,19 @@ static int usbh_hub_port_en_chng_clr(struct usbh_hub_dev *p_hub_dev,
  */
 
 static int usbh_hub_port_conn_chng_clr(struct usbh_hub_dev *p_hub_dev,
-					 uint16_t port_nbr)
+				       uint16_t port_nbr)
 {
 	int err;
 
 	usbh_ctrl_tx(p_hub_dev->dev_ptr, /* See Note #1.                                         */
-			   USBH_REQ_CLR_FEATURE,
-			   (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_OTHER),
-			   USBH_HUB_FEATURE_SEL_C_PORT_CONN,
-			   port_nbr,
-			   NULL,
-			   0,
-			   USBH_HUB_TIMEOUT,
-			   &err);
+		     USBH_REQ_CLR_FEATURE,
+		     (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_OTHER),
+		     USBH_HUB_FEATURE_SEL_C_PORT_CONN,
+		     port_nbr,
+		     NULL,
+		     0,
+		     USBH_HUB_TIMEOUT,
+		     &err);
 	if (err != 0) {
 		usbh_ep_reset(p_hub_dev->dev_ptr, NULL);
 	}
@@ -1459,19 +1459,19 @@ static int usbh_hub_port_conn_chng_clr(struct usbh_hub_dev *p_hub_dev,
  */
 
 static int usbh_hub_port_pwr_set(struct usbh_hub_dev *p_hub_dev,
-				    uint16_t port_nbr)
+				 uint16_t port_nbr)
 {
 	int err;
 
 	usbh_ctrl_tx(p_hub_dev->dev_ptr, /* See Note #1.                                         */
-			   USBH_REQ_SET_FEATURE,
-			   (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_OTHER),
-			   USBH_HUB_FEATURE_SEL_PORT_PWR,
-			   port_nbr,
-			   NULL,
-			   0,
-			   USBH_HUB_TIMEOUT,
-			   &err);
+		     USBH_REQ_SET_FEATURE,
+		     (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_OTHER),
+		     USBH_HUB_FEATURE_SEL_PORT_PWR,
+		     port_nbr,
+		     NULL,
+		     0,
+		     USBH_HUB_TIMEOUT,
+		     &err);
 	if (err != 0) {
 		usbh_ep_reset(p_hub_dev->dev_ptr, NULL);
 	}
@@ -1505,19 +1505,19 @@ static int usbh_hub_port_pwr_set(struct usbh_hub_dev *p_hub_dev,
  */
 
 static int usbh_hub_port_susp_clr(struct usbh_hub_dev *p_hub_dev,
-					uint16_t port_nbr)
+				  uint16_t port_nbr)
 {
 	int err;
 
 	usbh_ctrl_tx(p_hub_dev->dev_ptr, /* See Note #1.                                         */
-			   USBH_REQ_CLR_FEATURE,
-			   (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_OTHER),
-			   USBH_HUB_FEATURE_SEL_C_PORT_SUSPEND,
-			   port_nbr,
-			   NULL,
-			   0,
-			   USBH_HUB_TIMEOUT,
-			   &err);
+		     USBH_REQ_CLR_FEATURE,
+		     (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_OTHER),
+		     USBH_HUB_FEATURE_SEL_C_PORT_SUSPEND,
+		     port_nbr,
+		     NULL,
+		     0,
+		     USBH_HUB_TIMEOUT,
+		     &err);
 	if (err != 0) {
 		usbh_ep_reset(p_hub_dev->dev_ptr, NULL);
 	}
@@ -1551,19 +1551,19 @@ static int usbh_hub_port_susp_clr(struct usbh_hub_dev *p_hub_dev,
  */
 
 static int usbh_hub_port_en_clr(struct usbh_hub_dev *p_hub_dev,
-				   uint16_t port_nbr)
+				uint16_t port_nbr)
 {
 	int err;
 
 	usbh_ctrl_tx(p_hub_dev->dev_ptr, /* See Note #1.                                         */
-			   USBH_REQ_CLR_FEATURE,
-			   (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_OTHER),
-			   USBH_HUB_FEATURE_SEL_PORT_EN,
-			   port_nbr,
-			   NULL,
-			   0,
-			   USBH_HUB_TIMEOUT,
-			   &err);
+		     USBH_REQ_CLR_FEATURE,
+		     (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_OTHER),
+		     USBH_HUB_FEATURE_SEL_PORT_EN,
+		     port_nbr,
+		     NULL,
+		     0,
+		     USBH_HUB_TIMEOUT,
+		     &err);
 	if (err != 0) {
 		usbh_ep_reset(p_hub_dev->dev_ptr, NULL);
 	}
@@ -1597,19 +1597,19 @@ static int usbh_hub_port_en_clr(struct usbh_hub_dev *p_hub_dev,
  */
 
 static int usbh_hub_port_en_set(struct usbh_hub_dev *p_hub_dev,
-				   uint16_t port_nbr)
+				uint16_t port_nbr)
 {
 	int err;
 
 	usbh_ctrl_tx(p_hub_dev->dev_ptr, /* See Note #1.                                         */
-			   USBH_REQ_SET_FEATURE,
-			   (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_OTHER),
-			   USBH_HUB_FEATURE_SEL_PORT_EN,
-			   port_nbr,
-			   NULL,
-			   0,
-			   USBH_HUB_TIMEOUT,
-			   &err);
+		     USBH_REQ_SET_FEATURE,
+		     (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_OTHER),
+		     USBH_HUB_FEATURE_SEL_PORT_EN,
+		     port_nbr,
+		     NULL,
+		     0,
+		     USBH_HUB_TIMEOUT,
+		     &err);
 	if (err != 0) {
 		usbh_ep_reset(p_hub_dev->dev_ptr, NULL);
 	}
@@ -1643,19 +1643,19 @@ static int usbh_hub_port_en_set(struct usbh_hub_dev *p_hub_dev,
  */
 
 int usbh_hub_port_suspend_set(struct usbh_hub_dev *p_hub_dev,
-				   uint16_t port_nbr)
+			      uint16_t port_nbr)
 {
 	int err;
 
 	usbh_ctrl_tx(p_hub_dev->dev_ptr, /* See Note #1.                                         */
-			   USBH_REQ_SET_FEATURE,
-			   (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_OTHER),
-			   USBH_HUB_FEATURE_SEL_PORT_SUSPEND,
-			   port_nbr,
-			   NULL,
-			   0,
-			   USBH_HUB_TIMEOUT,
-			   &err);
+		     USBH_REQ_SET_FEATURE,
+		     (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_OTHER),
+		     USBH_HUB_FEATURE_SEL_PORT_SUSPEND,
+		     port_nbr,
+		     NULL,
+		     0,
+		     USBH_HUB_TIMEOUT,
+		     &err);
 	if (err != 0) {
 		usbh_ep_reset(p_hub_dev->dev_ptr, NULL);
 	}
@@ -1818,7 +1818,7 @@ uint32_t usbh_rh_ctrl_req(struct usbh_hc *p_hc,
 			valid = p_hc_rh_api->PortStatusGet(p_hc_drv,
 							   w_ix,
 							   (struct usbh_hub_port_status *)p_buf);
-		} else   {
+		} else {
 			len = buf_len;
 			memset(p_buf, 0, len); /* Return 0 for other reqs.                             */
 		}
@@ -1899,7 +1899,7 @@ uint32_t usbh_rh_ctrl_req(struct usbh_hc *p_hc,
 		case USBH_DESC_TYPE_DEV:
 			if (buf_len > sizeof(usbh_hub_rh_dev_desc)) {
 				len = sizeof(usbh_hub_rh_dev_desc);
-			} else   {
+			} else {
 				len = buf_len;
 			}
 
@@ -1911,7 +1911,7 @@ uint32_t usbh_rh_ctrl_req(struct usbh_hc *p_hc,
 		case USBH_DESC_TYPE_CFG: /* Return cfg desc.                                     */
 			if (buf_len > sizeof(usbh_hub_rh_fs_cfg_desc)) {
 				len = sizeof(usbh_hub_rh_fs_cfg_desc);
-			} else   {
+			} else {
 				len = buf_len;
 			}
 			memcpy(p_buf,
@@ -1931,13 +1931,13 @@ uint32_t usbh_rh_ctrl_req(struct usbh_hc *p_hc,
 			if ((w_val & 0x00FF) == 0) {
 				if (buf_len > sizeof(usbh_hub_rh_lang_id)) {
 					len = sizeof(usbh_hub_rh_lang_id);
-				} else   {
+				} else {
 					len = buf_len;
 				}
 				memcpy(p_buf,
 				       (void *)usbh_hub_rh_lang_id,
 				       len);
-			} else   {
+			} else {
 				*p_err = EBUSY;
 				break;
 			}
@@ -2008,7 +2008,7 @@ void usbh_rh_event(struct usbh_dev *p_dev)
 	if (usbh_hub_head_ptr == NULL) {
 		usbh_hub_head_ptr = p_hub_dev;
 		usbh_hub_tail_ptr = p_hub_dev;
-	} else   {
+	} else {
 		usbh_hub_tail_ptr->nxt_ptr = p_hub_dev;
 		usbh_hub_tail_ptr = p_hub_dev;
 	}
