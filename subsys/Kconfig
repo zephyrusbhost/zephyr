@@ -55,4 +55,6 @@ source "subsys/tracing/Kconfig"
 
 source "subsys/usbh/Kconfig"
 
+source "subsys/usbh/Kconfig"
+
 endmenu
