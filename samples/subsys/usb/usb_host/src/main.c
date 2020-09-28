@@ -43,13 +43,13 @@ LOG_MODULE_REGISTER(main);
 static void App_USBH_MSC_ClassNotify(void *p_class_dev, uint8_t is_conn,
 				     void *p_ctx)
 {
-	USBH_MSC_DEV *p_msc_dev;
+	struct usbh_msc_dev *p_msc_dev;
 	int usb_err;
 	// CPU_INT32U unit_nbr;
 
 	(void)p_ctx;
 	LOG_ERR("state %d", is_conn);
-	p_msc_dev = (USBH_MSC_DEV *)p_class_dev;
+	p_msc_dev = (struct usbh_msc_dev *)p_class_dev;
 	if (is_conn == USBH_CLASS_DEV_STATE_CONN) {
 		LOG_INF("MSC connected");
 		usb_err = usbh_msc_ref_add(p_msc_dev);
@@ -80,7 +80,7 @@ static void App_USBH_MSC_ClassNotify(void *p_class_dev, uint8_t is_conn,
 }
 void main(void)
 {
-	int err = usbh_init(NULL, NULL);
+	int err = usbh_init();
 	printk("Init return %d\n", err);
 
 	uint8_t hc_nbr =
@@ -89,7 +89,7 @@ void main(void)
 			    &err);
 
 	err = usbh_reg_class_drv(&USBH_MSC_ClassDrv, App_USBH_MSC_ClassNotify,
-				 (void *)0);
+				 NULL);
 
 	printk("HC_add return %d\n", hc_nbr);
 	err = usbh_hc_start(hc_nbr);
