@@ -14,6 +14,5 @@ if (CONFIG_USBH)
 		Source/usbh_class.c
 		Source/usbh_core.c
 		Source/usbh_hub.c
-		usbh_hc_cfg.c
 		)
 	endif()

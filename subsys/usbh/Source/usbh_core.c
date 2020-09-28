@@ -318,8 +318,7 @@ int usbh_resume(void)
  *********************************************************************************************************
  */
 
-uint8_t usbh_hc_add(const struct usbh_hc_cfg *p_hc_cfg,
-		    const struct usbh_hc_drv_api *p_drv_api,
+uint8_t usbh_hc_add(const struct usbh_hc_drv_api *p_drv_api,
 		    const struct usbh_hc_rh_api *p_hc_rh_api,
 		    const struct usbh_hc_bsp_api *p_hc_bsp_api, int *p_err)
 {
@@ -329,7 +328,7 @@ uint8_t usbh_hc_add(const struct usbh_hc_cfg *p_hc_cfg,
 	struct usbh_hc_drv *p_hc_drv;
 	int key;
 
-	if ((p_hc_cfg == NULL) || /* ------------------ VALIDATE ARGS ------------------- */
+	if (/* ------------------ VALIDATE ARGS ------------------- */
 	    (p_drv_api == NULL) ||
 	    (p_hc_rh_api == NULL) ||
 	    (p_hc_bsp_api == NULL)) {
@@ -368,7 +367,6 @@ uint8_t usbh_hc_add(const struct usbh_hc_cfg *p_hc_cfg,
 		p_hc->is_vir_rh = true;
 	}
 
-	p_hc_drv->hc_cfg_ptr = p_hc_cfg;
 	p_hc_drv->data_ptr = NULL;
 	p_hc_drv->rh_dev_ptr = p_rh_dev;
 	p_hc_drv->api_ptr = p_drv_api;

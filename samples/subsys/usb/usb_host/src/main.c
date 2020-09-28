@@ -4,9 +4,10 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+//#define DT_DRV_COMPAT atmel_sam0_usbh
+
 #include <zephyr.h>
 #include <sys/printk.h>
-#include <usbh_hc_cfg.h>
 #include <bsp_usbh_template.h>
 #include <usbh_msc.h>
 
@@ -45,7 +46,6 @@ static void App_USBH_MSC_ClassNotify(void *p_class_dev, uint8_t is_conn,
 {
 	struct usbh_msc_dev *p_msc_dev;
 	int usb_err;
-	// CPU_INT32U unit_nbr;
 
 	(void)p_ctx;
 	LOG_ERR("state %d", is_conn);
@@ -80,11 +80,13 @@ static void App_USBH_MSC_ClassNotify(void *p_class_dev, uint8_t is_conn,
 }
 void main(void)
 {
+
+	//printk("%d\n", DT_INST_PROP(0, buf_len));
 	int err = usbh_init();
 	printk("Init return %d\n", err);
 
 	uint8_t hc_nbr =
-		usbh_hc_add(&USBH_HC_TemplateCfg, &USBH_ATSAMX_HCD_DrvAPI,
+		usbh_hc_add(&USBH_ATSAMX_HCD_DrvAPI,
 			    &USBH_ATSAMX_HCD_RH_API, &USBH_DrvBSP_Template,
 			    &err);
 

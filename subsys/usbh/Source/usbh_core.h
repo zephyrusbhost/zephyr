@@ -939,29 +939,11 @@ struct  usbh_hc_drv {
 	uint8_t nbr;                                            /* HC nbr.                                              */
 	void             *data_ptr;                             /* Drv's data.                                          */
 	struct usbh_dev         *rh_dev_ptr;                    /* Ptr to RH dev struct.                                */
-	const struct usbh_hc_cfg      *hc_cfg_ptr;              /* Ptr to HC config struct.                             */
 	const struct usbh_hc_drv_api  *api_ptr;                 /* Ptr to HC drv API struct.                            */
 	const struct usbh_hc_rh_api   *rh_api_ptr;              /* Ptr to RH drv API struct.                            */
 	const struct usbh_hc_bsp_api  *bsp_api_ptr;             /* Ptr to HC BSP API struct.                            */
 };
 
-
-/*
- *********************************************************************************************************
- *                                    HOST CONTROLLER CONFIGURATION
- *********************************************************************************************************
- */
-
-struct  usbh_hc_cfg {
-	uint32_t base_addr;                                     /* HC reg's base addr.                                  */
-	uint32_t ded_mem_addr;                                  /* Start addr of HC's dedicated mem.                    */
-	uint32_t ded_mem_size;                                  /* Size of HC's dedicated mem.                          */
-	bool data_buf_sys_mem_en;                               /* Indicate if HC can access sys mem.                   */
-	uint32_t data_buf_max_len;                              /* Max len of data buf.                                 */
-	uint32_t max_nbr_ep_bulk_open;                          /* Max nbr of opened bulk EP.                           */
-	uint32_t max_nbr_ep_intr_open;                          /* Max nbr of opened intr EP.                           */
-	uint32_t max_nbr_ep_isoc_open;                          /* Max nbr of opened isoc EP.                           */
-};
 
 
 /*
@@ -1209,8 +1191,7 @@ int        usbh_suspend(void);
 int        usbh_resume(void);
 
 /* ------------ HOST CONTROLLER FUNCTIONS ------------- */
-uint8_t      usbh_hc_add(const struct usbh_hc_cfg            *p_hc_cfg,
-			 const struct usbh_hc_drv_api        *p_drv_api,
+uint8_t      usbh_hc_add(const struct usbh_hc_drv_api        *p_drv_api,
 			 const struct usbh_hc_rh_api         *p_hc_rh_api,
 			 const struct usbh_hc_bsp_api        *p_hc_bsp_api,
 			 int               *p_err);
