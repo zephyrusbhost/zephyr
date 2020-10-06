@@ -98,10 +98,10 @@ static void BSP_USBH_samr21_Init(struct usbh_hc_drv *p_drv, int *p_err)
 	while (GCLK->STATUS.bit.SYNCBUSY)
 	{
 	}
-	struct device *muxa = device_get_binding(DT_LABEL(DT_NODELABEL(pinmux_a)));
-	pinmux_pin_set(muxa, 25, PINMUX_FUNC_G);
-	pinmux_pin_set(muxa, 24, PINMUX_FUNC_G);
-	pinmux_pin_set(muxa, 23, PINMUX_FUNC_G);
+	// struct device *muxa = device_get_binding(DT_LABEL(DT_NODELABEL(pinmux_a)));
+	// pinmux_pin_set(muxa, 25, PINMUX_FUNC_G);
+	// pinmux_pin_set(muxa, 24, PINMUX_FUNC_G);
+	// pinmux_pin_set(muxa, 23, PINMUX_FUNC_G);
 
 	/* $$$$ This function performs all operations that the host controller cannot do. Typical operations are: */
 

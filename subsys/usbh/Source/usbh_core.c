@@ -239,7 +239,7 @@ int usbh_suspend(void)
 		usbh_class_suspend(
 			hc->hc_drv.rh_dev_ptr); /* Suspend RH, and all downstream dev.                  */
 		k_mutex_lock(&hc->hcd_mutex, K_NO_WAIT);
-		hc->hc_drv.api_ptr->Suspend(&hc->hc_drv, &err);
+		hc->hc_drv.api_ptr->suspend(&hc->hc_drv, &err);
 		k_mutex_unlock(&hc->hcd_mutex); /* Suspend HC.                                          */
 	}
 
@@ -274,7 +274,8 @@ int usbh_resume(void)
 		hc = &usbh_host.hc_tbl[ix];
 
 		k_mutex_lock(&hc->hcd_mutex, K_NO_WAIT);
-		hc->hc_drv.api_ptr->Resume(&hc->hc_drv, &err);
+		hc->hc_drv.api_ptr->resume(&hc->hc_drv, &err);
+
 		k_mutex_unlock(&hc->hcd_mutex);         /* Resume HC.                                           */
 		usbh_class_resume(
 			hc->hc_drv.rh_dev_ptr);         /* Resume RH, and all downstream dev.                   */
@@ -384,7 +385,7 @@ uint8_t usbh_hc_add(const struct usbh_hc_drv_api *p_drv_api,
 	}
 
 	k_mutex_lock(&p_hc->hcd_mutex, K_NO_WAIT);
-	p_rh_dev->dev_spd = p_hc->hc_drv.api_ptr->SpdGet(&p_hc->hc_drv,
+	p_rh_dev->dev_spd = p_hc->hc_drv.api_ptr->spd_get(&p_hc->hc_drv,
 							 p_err);
 	k_mutex_unlock(&p_hc->hcd_mutex);
 
@@ -445,7 +446,8 @@ int usbh_hc_start(uint8_t hc_nbr)
 		usbh_dev_disconn(p_rh_dev);
 	}
 	k_mutex_lock(&p_hc->hcd_mutex, K_NO_WAIT);
-	p_hc->hc_drv.api_ptr->Start(&p_hc->hc_drv, &err);
+	p_hc->hc_drv.api_ptr->start(&p_hc->hc_drv, &err);
+
 	k_mutex_unlock(&p_hc->hcd_mutex);
 
 	return err;
@@ -484,7 +486,8 @@ int usbh_hc_stop(uint8_t hc_nbr)
 	usbh_dev_disconn(
 		p_rh_dev); /* Disconn RH dev.                                      */
 	k_mutex_lock(&p_hc->hcd_mutex, K_NO_WAIT);
-	p_hc->hc_drv.api_ptr->Stop(&p_hc->hc_drv, &err);
+	p_hc->hc_drv.api_ptr->stop(&p_hc->hc_drv, &err);
+
 	k_mutex_unlock(&p_hc->hcd_mutex);
 
 	return err;
@@ -610,7 +613,8 @@ uint32_t usbh_hc_frame_nbr_get(uint8_t hc_nbr, int *p_err)
 	p_hc = &usbh_host.hc_tbl[hc_nbr];
 
 	k_mutex_lock(&p_hc->hcd_mutex, K_NO_WAIT);
-	frame_nbr = p_hc->hc_drv.api_ptr->FrmNbrGet(&p_hc->hc_drv, p_err);
+	frame_nbr = p_hc->hc_drv.api_ptr->frm_nbr_get(&p_hc->hc_drv, p_err);
+
 	k_mutex_unlock(&p_hc->hcd_mutex);
 
 	return frame_nbr;
@@ -2792,7 +2796,7 @@ int usbh_ep_reset(struct usbh_dev *p_dev, struct usbh_ep *p_ep)
 	}
 
 	k_mutex_lock(&p_dev->hc_ptr->hcd_mutex, K_NO_WAIT);
-	p_dev->hc_ptr->hc_drv.api_ptr->EP_Abort(&p_dev->hc_ptr->hc_drv,
+	p_dev->hc_ptr->hc_drv.api_ptr->ep_abort(&p_dev->hc_ptr->hc_drv,
 						p_ep_t, &err);
 	k_mutex_unlock(&p_dev->hc_ptr->hcd_mutex);
 	if (err != 0) {
@@ -2800,7 +2804,7 @@ int usbh_ep_reset(struct usbh_dev *p_dev, struct usbh_ep *p_ep)
 	}
 
 	k_mutex_lock(&p_dev->hc_ptr->hcd_mutex, K_NO_WAIT);
-	p_dev->hc_ptr->hc_drv.api_ptr->EP_Close(&p_dev->hc_ptr->hc_drv,
+	p_dev->hc_ptr->hc_drv.api_ptr->ep_close(&p_dev->hc_ptr->hc_drv,
 						p_ep_t, &err);
 	k_mutex_unlock(&p_dev->hc_ptr->hcd_mutex);
 	if (err != 0) {
@@ -2808,7 +2812,7 @@ int usbh_ep_reset(struct usbh_dev *p_dev, struct usbh_ep *p_ep)
 	}
 
 	k_mutex_lock(&p_dev->hc_ptr->hcd_mutex, K_NO_WAIT);
-	p_dev->hc_ptr->hc_drv.api_ptr->EP_Open(&p_dev->hc_ptr->hc_drv, p_ep_t,
+	p_dev->hc_ptr->hc_drv.api_ptr->ep_open(&p_dev->hc_ptr->hc_drv, p_ep_t,
 					       &err);
 	k_mutex_unlock(&p_dev->hc_ptr->hcd_mutex);
 	if (err != 0) {
@@ -2861,7 +2865,7 @@ int usbh_ep_close(struct usbh_ep *p_ep)
 		LOG_DBG("close address %d",
 			((p_ep->dev_addr << 8) | p_ep->desc.b_endpoint_address));
 		k_mutex_lock(&p_ep->dev_ptr->hc_ptr->hcd_mutex, K_NO_WAIT);
-		p_ep->dev_ptr->hc_ptr->hc_drv.api_ptr->EP_Close(&p_ep->dev_ptr->hc_ptr->hc_drv,
+		p_ep->dev_ptr->hc_ptr->hc_drv.api_ptr->ep_close(&p_ep->dev_ptr->hc_ptr->hc_drv,
 								p_ep, &err);
 		k_mutex_unlock(&p_ep->dev_ptr->hc_ptr->hcd_mutex);
 	}
@@ -2953,12 +2957,12 @@ int usbh_urb_complete(struct usbh_urb *p_urb)
 
 	if (p_urb->state == USBH_URB_STATE_QUEUED) {
 		k_mutex_lock(&p_dev->hc_ptr->hcd_mutex, K_NO_WAIT);
-		p_dev->hc_ptr->hc_drv.api_ptr->URB_Complete(&p_dev->hc_ptr->hc_drv,
+		p_dev->hc_ptr->hc_drv.api_ptr->urb_complete(&p_dev->hc_ptr->hc_drv,
 							    p_urb, &err);
 		k_mutex_unlock(&p_dev->hc_ptr->hcd_mutex);
 	} else if (p_urb->state == USBH_URB_STATE_ABORTED) {
 		k_mutex_lock(&p_dev->hc_ptr->hcd_mutex, K_NO_WAIT);
-		p_dev->hc_ptr->hc_drv.api_ptr->URB_Abort(&p_dev->hc_ptr->hc_drv,
+		p_dev->hc_ptr->hc_drv.api_ptr->urb_abort(&p_dev->hc_ptr->hc_drv,
 							 p_urb, &err);
 		k_mutex_unlock(&p_dev->hc_ptr->hcd_mutex);
 
@@ -3256,7 +3260,7 @@ static int usbh_ep_open(struct usbh_dev *p_dev, struct usbh_if *p_if,
 	if (!((p_dev->is_root_hub == true) &&
 	      (p_dev->hc_ptr->is_vir_rh == true))) {
 		k_mutex_lock(&p_dev->hc_ptr->hcd_mutex, K_NO_WAIT);
-		p_dev->hc_ptr->hc_drv.api_ptr->EP_Open(&p_dev->hc_ptr->hc_drv,
+		p_dev->hc_ptr->hc_drv.api_ptr->ep_open(&p_dev->hc_ptr->hc_drv,
 						       p_ep, &err);
 		k_mutex_unlock(&p_dev->hc_ptr->hcd_mutex);
 		if (err != 0) {
@@ -3716,7 +3720,7 @@ static int usbh_urb_submit(struct usbh_urb *p_urb)
 
 	p_dev = p_urb->ep_ptr->dev_ptr;
 	k_mutex_lock(&p_dev->hc_ptr->hcd_mutex, K_NO_WAIT);
-	ep_is_halt = p_dev->hc_ptr->hc_drv.api_ptr->EP_IsHalt(&p_dev->hc_ptr->hc_drv,
+	ep_is_halt = p_dev->hc_ptr->hc_drv.api_ptr->ep_halt(&p_dev->hc_ptr->hc_drv,
 							      p_urb->ep_ptr,
 							      &err);
 	k_mutex_unlock(&p_dev->hc_ptr->hcd_mutex);
@@ -3729,7 +3733,7 @@ static int usbh_urb_submit(struct usbh_urb *p_urb)
 	p_urb->err = 0;
 
 	k_mutex_lock(&p_dev->hc_ptr->hcd_mutex, K_NO_WAIT);
-	p_dev->hc_ptr->hc_drv.api_ptr->URB_Submit(&p_dev->hc_ptr->hc_drv,
+	p_dev->hc_ptr->hc_drv.api_ptr->urb_submit(&p_dev->hc_ptr->hc_drv,
 						  p_urb, &err);
 	k_mutex_unlock(&p_dev->hc_ptr->hcd_mutex);
 
@@ -3815,7 +3819,7 @@ static int usbh_dflt_ep_open(struct usbh_dev *p_dev)
 	       true) && /* Chk if RH fncts are supported before calling HCD.    */
 	      (p_dev->hc_ptr->is_vir_rh == true))) {
 		k_mutex_lock(&p_dev->hc_ptr->hcd_mutex, K_NO_WAIT);
-		p_dev->hc_ptr->hc_drv.api_ptr->EP_Open(&p_dev->hc_ptr->hc_drv,
+		p_dev->hc_ptr->hc_drv.api_ptr->ep_open(&p_dev->hc_ptr->hc_drv,
 						       p_ep, &err);
 		k_mutex_unlock(&p_dev->hc_ptr->hcd_mutex);
 		if (err != 0) {
@@ -3898,12 +3902,12 @@ static int usbh_dev_desc_rd(struct usbh_dev *p_dev)
 		}
 
 		k_mutex_lock(&p_dev->hc_ptr->hcd_mutex, K_NO_WAIT);
-		p_dev->hc_ptr->hc_drv.api_ptr->EP_Close(&p_dev->hc_ptr->hc_drv,
+		p_dev->hc_ptr->hc_drv.api_ptr->ep_close(&p_dev->hc_ptr->hc_drv,
 							&p_dev->dflt_ep, &err);
 		k_mutex_unlock(&p_dev->hc_ptr->hcd_mutex);
 
 		k_mutex_lock(&p_dev->hc_ptr->hcd_mutex, K_NO_WAIT);
-		p_dev->hc_ptr->hc_drv.api_ptr->EP_Open(&p_dev->hc_ptr->hc_drv,
+		p_dev->hc_ptr->hc_drv.api_ptr->ep_open(&p_dev->hc_ptr->hc_drv,
 						       &p_dev->dflt_ep, &err);
 		k_mutex_unlock(&p_dev->hc_ptr->hcd_mutex);
 		if (err != 0) {
@@ -4275,7 +4279,7 @@ static int usbh_dev_addr_set(struct usbh_dev *p_dev)
 	}
 
 	k_mutex_lock(&p_dev->hc_ptr->hcd_mutex, K_NO_WAIT);
-	p_dev->hc_ptr->hc_drv.api_ptr->EP_Close(&p_dev->hc_ptr->hc_drv,
+	p_dev->hc_ptr->hc_drv.api_ptr->ep_close(&p_dev->hc_ptr->hc_drv,
 						&p_dev->dflt_ep, &err);
 	k_mutex_unlock(&p_dev->hc_ptr->hcd_mutex);
 
@@ -4283,7 +4287,7 @@ static int usbh_dev_addr_set(struct usbh_dev *p_dev)
 		p_dev->dev_addr; /* Update addr.                                         */
 
 	k_mutex_lock(&p_dev->hc_ptr->hcd_mutex, K_NO_WAIT);
-	p_dev->hc_ptr->hc_drv.api_ptr->EP_Open(&p_dev->hc_ptr->hc_drv,
+	p_dev->hc_ptr->hc_drv.api_ptr->ep_open(&p_dev->hc_ptr->hc_drv,
 					       &p_dev->dflt_ep, &err);
 	k_mutex_unlock(&p_dev->hc_ptr->hcd_mutex);
 	if (err != 0) {

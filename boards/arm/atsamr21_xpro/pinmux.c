@@ -107,7 +107,14 @@ static int board_pinmux_init(const struct device *dev)
 	pinmux_pin_set(muxa, 25, PINMUX_FUNC_G);
 	pinmux_pin_set(muxa, 24, PINMUX_FUNC_G);
 #endif
+
+#ifdef CONFIG_USBH_SAM0
+	pinmux_pin_set(muxa, 25, PINMUX_FUNC_G);
+	pinmux_pin_set(muxa, 24, PINMUX_FUNC_G);
+	pinmux_pin_set(muxa, 23, PINMUX_FUNC_G);
+#endif
 	return 0;
+
 }
 
 SYS_INIT(board_pinmux_init, PRE_KERNEL_1, CONFIG_PINMUX_INIT_PRIORITY);

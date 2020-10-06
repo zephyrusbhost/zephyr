@@ -757,7 +757,8 @@ static int usbh_hub_event_req(struct usbh_hub_dev *p_hub_dev)
 	    (p_dev->hc_ptr->is_vir_rh == true)) {
 
 		p_rh_api = p_dev->hc_ptr->hc_drv.rh_api_ptr;
-		valid = p_rh_api->IntEn(&p_dev->hc_ptr->hc_drv);
+		valid = p_rh_api->int_en(&p_dev->hc_ptr->hc_drv);
+
 		if (valid != 1) {
 			return EIO;
 		} else {
@@ -1815,7 +1816,7 @@ uint32_t usbh_rh_ctrl_req(struct usbh_hc *p_hc,
 	case USBH_REQ_GET_STATUS:
 		/* Only port status is supported.                       */
 		if ((bm_req_type & USBH_REQ_RECIPIENT_OTHER) == USBH_REQ_RECIPIENT_OTHER) {
-			valid = p_hc_rh_api->PortStatusGet(p_hc_drv,
+			valid = p_hc_rh_api->status_get(p_hc_drv,
 							   w_ix,
 							   (struct usbh_hub_port_status *)p_buf);
 		} else {
@@ -1827,29 +1828,29 @@ uint32_t usbh_rh_ctrl_req(struct usbh_hc *p_hc,
 	case USBH_REQ_CLR_FEATURE:
 		switch (w_val) {
 		case USBH_HUB_FEATURE_SEL_PORT_EN:
-			valid = p_hc_rh_api->PortEnClr(p_hc_drv, w_ix);
+			valid = p_hc_rh_api->en_clr(p_hc_drv, w_ix);
 			break;
 
 		case USBH_HUB_FEATURE_SEL_PORT_PWR:
-			valid = p_hc_rh_api->PortPwrClr(p_hc_drv, w_ix);
+			valid = p_hc_rh_api->pwr_clr(p_hc_drv, w_ix);
 			break;
 
 		case USBH_HUB_FEATURE_SEL_C_PORT_CONN:
-			valid = p_hc_rh_api->PortConnChngClr(p_hc_drv, w_ix);
+			valid = p_hc_rh_api->conn_chng_clr(p_hc_drv, w_ix);
 			break;
 
 		case USBH_HUB_FEATURE_SEL_C_PORT_RESET:
-			valid = p_hc_rh_api->PortResetChngClr(p_hc_drv, w_ix);
+			valid = p_hc_rh_api->rst_chng_clr(p_hc_drv, w_ix);
 			break;
 
 		case USBH_HUB_FEATURE_SEL_C_PORT_EN:
-			valid = p_hc_rh_api->PortEnChngClr(p_hc_drv, w_ix);
+			valid = p_hc_rh_api->en_chng_clr(p_hc_drv, w_ix);
 			break;
 
 		case USBH_HUB_FEATURE_SEL_PORT_INDICATOR:
 		case USBH_HUB_FEATURE_SEL_PORT_SUSPEND:
 		case USBH_HUB_FEATURE_SEL_C_PORT_SUSPEND:
-			valid = p_hc_rh_api->PortSuspendClr(p_hc_drv, w_ix);
+			valid = p_hc_rh_api->suspend_clr(p_hc_drv, w_ix);
 			break;
 
 		case USBH_HUB_FEATURE_SEL_C_PORT_OVER_CUR:
@@ -1864,15 +1865,15 @@ uint32_t usbh_rh_ctrl_req(struct usbh_hc *p_hc,
 	case USBH_REQ_SET_FEATURE:
 		switch (w_val) {
 		case USBH_HUB_FEATURE_SEL_PORT_EN:
-			valid = p_hc_rh_api->PortEnSet(p_hc_drv, w_ix);
+			valid = p_hc_rh_api->en_set(p_hc_drv, w_ix);
 			break;
 
 		case USBH_HUB_FEATURE_SEL_PORT_RESET:
-			valid = p_hc_rh_api->PortResetSet(p_hc_drv, w_ix);
+			valid = p_hc_rh_api->rst_set(p_hc_drv, w_ix);
 			break;
 
 		case USBH_HUB_FEATURE_SEL_PORT_PWR:
-			valid = p_hc_rh_api->PortPwrSet(p_hc_drv, w_ix);
+			valid = p_hc_rh_api->pwr_set(p_hc_drv, w_ix);
 			break;
 		/* Not supported reqs.                                  */
 		case USBH_HUB_FEATURE_SEL_PORT_SUSPEND:
@@ -1921,7 +1922,7 @@ uint32_t usbh_rh_ctrl_req(struct usbh_hc *p_hc,
 
 		case USBH_HUB_DESC_TYPE_HUB: /* Return hub desc.                                     */
 			len = buf_len;
-			valid = p_hc_rh_api->HubDescGet(p_hc_drv,
+			valid = p_hc_rh_api->desc_get(p_hc_drv,
 							(struct usbh_hub_desc *)p_buf,
 							len);
 			break;
@@ -1996,11 +1997,12 @@ void usbh_rh_event(struct usbh_dev *p_dev)
 	p_hc_drv = &p_dev->hc_ptr->hc_drv;
 	p_rh_drv_api = p_hc_drv->rh_api_ptr;
 	if (p_hub_dev == NULL) {
-		p_rh_drv_api->IntDis(p_hc_drv);
+		p_rh_drv_api->int_dis(p_hc_drv);
 		return;
 	}
 
-	p_rh_drv_api->IntDis(p_hc_drv);
+	p_rh_drv_api->int_dis(p_hc_drv);
+
 	LOG_DBG("RefAdd");
 	usbh_hub_ref_add(p_hub_dev);
 
@@ -2118,9 +2120,6 @@ void usbh_hub_parse_hub_desc(struct usbh_hub_desc *p_hub_desc,
 void usbh_hub_fmt_hub_desc(struct usbh_hub_desc *p_hub_desc,
 			   void *p_buf_dest)
 {
-	static uint8_t temp;
-
-	temp++;
 	struct usbh_hub_desc *p_buf_dest_desc;
 
 	p_buf_dest_desc = (struct usbh_hub_desc *)p_buf_dest;
