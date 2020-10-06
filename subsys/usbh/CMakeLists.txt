@@ -1,18 +1,16 @@
-add_subdirectory(HCD)
+add_subdirectory(hcd)
 
 if (CONFIG_USBH)
 	zephyr_library()
-	zephyr_library_sources_ifdef(CONFIG_UC_USBH_MSC Class/MSC/usbh_msc.c)
-	zephyr_library_sources_ifdef(CONFIG_UC_USBH_CDC Class/CDC/usbh_cdc.c)
-	zephyr_library_sources_ifdef(CONFIG_UC_USBH_CDC Class/CDC/ACM/usbh_acm.c)
+	zephyr_library_sources_ifdef(CONFIG_UC_USBH_MSC class/usbh_msc.c)
 	#samr21 board support package and host controller driver
 	zephyr_library_sources_ifdef(CONFIG_BOARD_ATSAMR21_XPRO bsp/bsp_usbh_samr21.c)
 
-	zephyr_include_directories(${ZEPHYR_BASE}/subsys/usbh HCD Class/MSC Class/CDC Class/CDC/ACM bsp Source)
+	zephyr_include_directories(${ZEPHYR_BASE}/subsys/usbh hcd class bsp)
 
 	zephyr_library_sources(
-		Source/usbh_class.c
-		Source/usbh_core.c
-		Source/usbh_hub.c
+		usbh_class.c
+		usbh_core.c
+		usbh_hub.c
 		)
 	endif()

@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 #temporary should be later in drivers Kconfig
-source "subsys/usbh/HCD/Kconfig"
+source "subsys/usbh/hcd/Kconfig"
 
 config USBH
 	bool "USB Host support"

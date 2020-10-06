@@ -424,14 +424,14 @@ uint8_t usbh_hc_add(const struct usbh_hc_drv_api *p_drv_api,
 
 int usbh_hc_start(uint8_t hc_nbr)
 {
-	LOG_DBG("Start.");
+	LOG_DBG("start host controller");
 	int err;
 	struct usbh_hc *p_hc;
 	struct usbh_dev *p_rh_dev;
 
 	if (hc_nbr >= usbh_host.hc_nbr_next) { /* Chk if HC nbr is valid.
 		                                */
-		LOG_DBG("Start HC nbr invalid.");
+		LOG_DBG("host controller number invalid.");
 		return EINVAL;
 	}
 
@@ -442,7 +442,7 @@ int usbh_hc_start(uint8_t hc_nbr)
 	if (err == 0) {
 		usbh_host.state = USBH_HOST_STATE_RESUMED;
 	} else {
-		LOG_DBG("DevDisconn.");
+		LOG_DBG("dvice disconnected");
 		usbh_dev_disconn(p_rh_dev);
 	}
 	k_mutex_lock(&p_hc->hcd_mutex, K_NO_WAIT);
@@ -521,7 +521,7 @@ int usbh_hc_stop(uint8_t hc_nbr)
 
 int usbh_hc_port_en(uint8_t hc_nbr, uint8_t port_nbr)
 {
-	LOG_DBG("PortEn");
+	LOG_DBG("enable port");
 	int err;
 	struct usbh_hc *p_hc;
 
@@ -564,7 +564,7 @@ int usbh_hc_port_en(uint8_t hc_nbr, uint8_t port_nbr)
 
 int usbh_hc_port_dis(uint8_t hc_nbr, uint8_t port_nbr)
 {
-	LOG_DBG("PortDis");
+	LOG_DBG("disable port");
 	int err;
 	struct usbh_hc *p_hc;
 
@@ -693,7 +693,7 @@ uint32_t usbh_hc_frame_nbr_get(uint8_t hc_nbr, int *p_err)
 
 int usbh_dev_conn(struct usbh_dev *p_dev)
 {
-	LOG_DBG("DevConn");
+	LOG_DBG("device connected");
 	int err;
 	uint8_t nbr_cfgs;
 	uint8_t cfg_ix;
@@ -703,20 +703,20 @@ int usbh_dev_conn(struct usbh_dev *p_dev)
 	p_dev->class_drv_reg_ptr = NULL;
 	memset(p_dev->dev_desc, 0, USBH_LEN_DESC_DEV);
 
-	LOG_DBG("DftlEP_Open");
+	LOG_DBG("defaualt ep open");
 	err = usbh_dflt_ep_open(p_dev);
 	if (err != 0) {
 		return err;
 	}
 
-	LOG_DBG("DevDescRd");
+	LOG_DBG("read device descriptor");
 	err = usbh_dev_desc_rd(
 		p_dev); /* ------------------- RD DEV DESC -------------------- */
 	if (err != 0) {
 		return err;
 	}
 
-	LOG_DBG("DevAddrSet");
+	LOG_DBG("set device address");
 	err = usbh_dev_addr_set(
 		p_dev); /* -------------- ASSIGN NEW ADDR TO DEV -------------- */
 	if (err != 0) {
@@ -761,7 +761,6 @@ int usbh_dev_conn(struct usbh_dev *p_dev)
 		}
 	}
 
-	LOG_DBG("Call ClassDrvConn");
 	err = usbh_class_drv_conn(
 		p_dev); /* ------------- PROBE/LOAD CLASS DRV(S) -------------- */
 
@@ -784,7 +783,7 @@ int usbh_dev_conn(struct usbh_dev *p_dev)
 
 void usbh_dev_disconn(struct usbh_dev *p_dev)
 {
-	LOG_DBG("DevDisconn");
+	LOG_DBG("device disconnected");
 	usbh_class_drv_disconn(
 		p_dev); /* Unload class drv(s).                                 */
 
@@ -1618,7 +1617,6 @@ uint16_t usbh_ctrl_tx(struct usbh_dev *p_dev, uint8_t b_req,
 		      void *p_data, uint16_t w_len, uint32_t timeout_ms,
 		      int *p_err)
 {
-	// LOG_DBG("CtrlTx");
 	uint16_t xfer_len;
 
 	k_mutex_lock(&p_dev->dflt_ep_mutex, K_NO_WAIT);
@@ -1690,7 +1688,6 @@ uint16_t usbh_ctrl_rx(struct usbh_dev *p_dev, uint8_t b_req,
 		      void *p_data, uint16_t w_len, uint32_t timeout_ms,
 		      int *p_err)
 {
-	// LOG_DBG("CtrlRx");
 	uint16_t xfer_len;
 
 	k_mutex_lock(&p_dev->dflt_ep_mutex, K_NO_WAIT);
@@ -1698,12 +1695,10 @@ uint16_t usbh_ctrl_rx(struct usbh_dev *p_dev, uint8_t b_req,
 	if ((p_dev->is_root_hub ==
 	     true) && /* Check if RH features are supported.                  */
 	    (p_dev->hc_ptr->is_vir_rh == true)) {
-		LOG_DBG("request from roothub");
 		xfer_len = usbh_rh_ctrl_req(
 			p_dev->hc_ptr, /* Send req to virtual HUB.                             */
 			b_req, bm_req_type, w_val, w_ix, p_data, w_len, p_err);
 	} else {
-		LOG_DBG("request from non roothub");
 		xfer_len = usbh_sync_ctrl_transfer(&p_dev->dflt_ep, b_req,
 						   bm_req_type, w_val, w_ix,
 						   p_data, w_len, timeout_ms,
@@ -2840,7 +2835,7 @@ int usbh_ep_reset(struct usbh_dev *p_dev, struct usbh_ep *p_ep)
 
 int usbh_ep_close(struct usbh_ep *p_ep)
 {
-	LOG_DBG("EP_Close");
+	LOG_DBG("close endpoint");
 	int err;
 	struct usbh_dev *p_dev;
 	struct usbh_urb *p_async_urb;
@@ -3327,7 +3322,6 @@ static uint32_t usbh_sync_transfer(struct usbh_ep *p_ep, void *p_buf,
 				   uint8_t token, uint32_t timeout_ms,
 				   int *p_err)
 {
-	// LOG_DBG("SyncXfer");
 	uint32_t len;
 	struct usbh_urb *p_urb;
 
@@ -3523,7 +3517,6 @@ static uint16_t usbh_sync_ctrl_transfer(struct usbh_ep *p_ep, uint8_t b_req,
 					uint16_t w_len, uint32_t timeout_ms,
 					int *p_err)
 {
-	// LOG_DBG("SyncCtrlXfer");
 	struct usbh_setup_req setup;
 	uint8_t setup_buf[8];
 	bool is_in;
@@ -4086,13 +4079,12 @@ static int usbh_cfg_rd(struct usbh_dev *p_dev, uint8_t cfg_ix)
 
 	if (p_cfg->cfg_data[1] !=
 	    USBH_DESC_TYPE_CFG) { /* Validate config desc.                                */
-		LOG_ERR("ivalid");
+		LOG_ERR("desc type ivalid");
 		return EINVAL;
 	}
 
 	p_cfg->cfg_data_len = w_tot_len;
 	err = usbh_cfg_parse(p_dev, p_cfg);
-	LOG_ERR("%d", err);
 	return err;
 }
 
@@ -4136,9 +4128,7 @@ static int usbh_cfg_parse(struct usbh_dev *p_dev, struct usbh_cfg *p_cfg)
 
 	nbr_ifs = usbh_cfg_if_nbr_get(
 		p_cfg); /* nbr of IFs present in config.                        */
-	LOG_ERR("%d", nbr_ifs);
 	if (nbr_ifs > USBH_CFG_MAX_NBR_IFS) {
-		LOG_ERR("asdasd");
 		return ENOMEM;
 	}
 
@@ -4522,7 +4512,6 @@ static struct usbh_desc_hdr *usbh_next_desc_get(void *p_buf, uint32_t *p_offset)
 static void usbh_fmt_setup_req(struct usbh_setup_req *p_setup_req,
 			       void *p_buf_dest)
 {
-	// LOG_DBG("FmtSetupReq");
 	struct usbh_setup_req *p_buf_dest_setup_req;
 
 	p_buf_dest_setup_req = (struct usbh_setup_req *)p_buf_dest;
