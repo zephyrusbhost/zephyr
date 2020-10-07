@@ -1,6 +1,7 @@
 #ifndef ZEPHYR_USBH_STRUCTS_H_
 #define ZEPHYR_USBH_STRUCTS_H_
 
+#include <zephyr.h>
 #include <zephyr/types.h>
 #include <usbh_cfg.h>
 
@@ -413,7 +414,6 @@ struct  usbh_hc_drv {
 	struct usbh_dev         *rh_dev_ptr;                    /* Ptr to RH dev struct.                                */
 	const struct usbh_hc_drv_api  *api_ptr;                 /* Ptr to HC drv API struct.                            */
 	const struct usbh_hc_rh_api   *rh_api_ptr;              /* Ptr to RH drv API struct.                            */
-	const struct usbh_hc_bsp_api  *bsp_api_ptr;             /* Ptr to HC BSP API struct.                            */
 };
 
 

@@ -34,11 +34,11 @@
  */
 #define DT_DRV_COMPAT atmel_sam0_usbh
 
-#include <usbh_hcd_atsamx.h>
 #include <usbh_ll.h>
 #include <usbh_hub.h>
 #include <soc.h>
 #include <zephyr.h>
+#include <zephyr/types.h>
 #include <sys/math_extras.h>
 
 #include <logging/log.h>
@@ -242,12 +242,6 @@ LOG_MODULE_REGISTER(hcd);
 #ifndef ATSAMX_URB_PROC_Q_MAX
 #define ATSAMX_URB_PROC_Q_MAX 8
 #endif
-
-/*
- *********************************************************************************************************
- *                                           LOCAL CONSTANTS
- *********************************************************************************************************
- */
 
 /*
  *********************************************************************************************************
@@ -470,27 +464,7 @@ static void usbh_atsamx_pipe_cfg(struct usbh_urb *p_urb,
  *                                    INITIALIZED GLOBAL VARIABLES
  *********************************************************************************************************
  */
-
-// const struct usbh_hc_drv_api USBH_ATSAMX_HCD_DrvAPI = {
-// 	usbh_atsamx_hcd_init,
-// 	usbh_atsamx_hcd_start,
-// 	usbh_atsamx_hcd_stop,
-// 	usbh_atsamx_hcd_spd_get,
-// 	usbh_atsamx_hcd_suspend,
-// 	usbh_atsamx_hcd_resume,
-// 	usbh_atsamx_hcd_frame_nbr_get,
-
-// 	usbh_atsamx_hcd_ep_open,
-// 	usbh_atsamx_hcd_ep_close,
-// 	usbh_atsamx_hcd_ep_abort,
-// 	usbh_atsamx_hcd_ep_is_halt,
-
-// 	usbh_atsamx_hcd_urb_submit,
-// 	usbh_atsamx_hcd_urb_complete,
-// 	usbh_atsamx_hcd_urb_abort,
-// };
-
-const struct usbh_hc_drv_api USBH_ATSAMX_HCD_DrvAPI = {
+const struct usbh_hc_drv_api usbh_hcd_api = {
 	.init = usbh_atsamx_hcd_init,
 	.start = usbh_atsamx_hcd_start,
 	.stop = usbh_atsamx_hcd_stop,
@@ -509,7 +483,7 @@ const struct usbh_hc_drv_api USBH_ATSAMX_HCD_DrvAPI = {
 	.urb_abort = usbh_atsamx_hcd_urb_abort,
 };
 
-const struct usbh_hc_rh_api USBH_ATSAMX_HCD_RH_API = {
+const struct usbh_hc_rh_api usbh_hcd_rh_api = {
 	.status_get = usbh_atsamx_rh_port_status_get,
 	.desc_get = usbh_atsamx_rh_hub_desc_get,
 
@@ -603,7 +577,6 @@ static void usbh_atsamx_hcd_start(struct usbh_hc_drv *p_hc_drv,
 {
 	p_hc_drv_local = p_hc_drv;
 	struct usbh_atsamx_reg *p_reg;
-	const struct usbh_hc_bsp_api *p_bsp_api;
 	struct usbh_drv_data *p_drv_data;
 	uint32_t pad_transn;
 	uint32_t pad_transp;
@@ -613,14 +586,20 @@ static void usbh_atsamx_hcd_start(struct usbh_hc_drv *p_hc_drv,
 	int key;
 	p_reg =  (struct usbh_atsamx_reg*) DT_INST_REG_ADDR(0);
 	p_drv_data = (struct usbh_drv_data *)p_hc_drv->data_ptr;
-	p_bsp_api = p_hc_drv->bsp_api_ptr;
 
-	if (p_bsp_api->init != NULL) {
-		p_bsp_api->init(p_hc_drv, p_err);
-		if (*p_err != 0) {
-			return;
-		}
+	/* maybe not enough for all atsam boards */
+	PM->AHBMASK.bit.USB_ = 1;
+	PM->APBBMASK.bit.USB_ = 1;
+
+	/* Enable the GCLK */
+	GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID_USB | GCLK_CLKCTRL_GEN_GCLK0 |
+						GCLK_CLKCTRL_CLKEN;
+
+	while (GCLK->STATUS.bit.SYNCBUSY)
+	{
 	}
+	/* --- */
+
 	if (!(p_reg->SYNCBUSY &
 	      USBH_ATSAMX_SYNCBUSY_SWRST)) { /* Check if synchronization is completed                */
 		while (p_reg->SYNCBUSY & USBH_ATSAMX_SYNCBUSY_MSK)
@@ -746,9 +725,7 @@ static void usbh_atsamx_hcd_stop(struct usbh_hc_drv *p_hc_drv,
 	LOG_DBG("Stop");
 
 	struct usbh_atsamx_reg *p_reg;
-	const struct usbh_hc_bsp_api *p_bsp_api;
 	p_reg =  (struct usbh_atsamx_reg*) DT_INST_REG_ADDR(0);
-	p_bsp_api = p_hc_drv->bsp_api_ptr;
 
 	p_reg->INTENCLR =
 		USBH_ATSAMX_INT_MSK;    /* Disable all interrupts                               */

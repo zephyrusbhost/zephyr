@@ -32,7 +32,7 @@
 
 #ifndef USBH_MSC_MODULE_PRESENT
 #define USBH_MSC_MODULE_PRESENT
-#include "usbh_class.h"
+#include <usbh_class.h>
 
 /*
 *********************************************************************************************************

@@ -4,6 +4,9 @@
 #include <zephyr/types.h>
 #include <usbh_structs.h>
 
+extern const struct usbh_hc_drv_api usbh_hcd_api;
+extern const struct usbh_hc_rh_api usbh_hcd_rh_api;
+
 typedef void (*usbh_api_hc_init_t)(struct usbh_hc_drv *p_hc_drv, int *p_err);
 typedef void (*usbh_api_hc_start_t)(struct usbh_hc_drv *p_hc_drv, int *p_err);
 typedef void (*usbh_api_hc_stop_t)(struct usbh_hc_drv  *p_hc_drv, int *p_err);

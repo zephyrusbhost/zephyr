@@ -1064,10 +1064,7 @@ int        usbh_suspend(void);
 int        usbh_resume(void);
 
 /* ------------ HOST CONTROLLER FUNCTIONS ------------- */
-uint8_t      usbh_hc_add(const struct usbh_hc_drv_api        *p_drv_api,
-			 const struct usbh_hc_rh_api         *p_hc_rh_api,
-			 const struct usbh_hc_bsp_api        *p_hc_bsp_api,
-			 int               *p_err);
+uint8_t      usbh_hc_add( int *p_err);
 
 int        usbh_hc_start(uint8_t hc_nbr);
 

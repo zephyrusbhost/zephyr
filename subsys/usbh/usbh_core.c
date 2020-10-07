@@ -319,9 +319,7 @@ int usbh_resume(void)
  *********************************************************************************************************
  */
 
-uint8_t usbh_hc_add(const struct usbh_hc_drv_api *p_drv_api,
-		    const struct usbh_hc_rh_api *p_hc_rh_api,
-		    const struct usbh_hc_bsp_api *p_hc_bsp_api, int *p_err)
+uint8_t usbh_hc_add(int *p_err)
 {
 	struct usbh_dev *p_rh_dev;
 	uint8_t hc_nbr;
@@ -329,13 +327,13 @@ uint8_t usbh_hc_add(const struct usbh_hc_drv_api *p_drv_api,
 	struct usbh_hc_drv *p_hc_drv;
 	int key;
 
-	if (/* ------------------ VALIDATE ARGS ------------------- */
-	    (p_drv_api == NULL) ||
-	    (p_hc_rh_api == NULL) ||
-	    (p_hc_bsp_api == NULL)) {
-		*p_err = EINVAL;
-		return USBH_HC_NBR_NONE;
-	}
+	// if (/* ------------------ VALIDATE ARGS ------------------- */
+	//     (p_drv_api == NULL) ||
+	//     (p_hc_rh_api == NULL) ||
+	//     (p_hc_bsp_api == NULL)) {
+	// 	*p_err = EINVAL;
+	// 	return USBH_HC_NBR_NONE;
+	// }
 
 	key = irq_lock();
 	hc_nbr = usbh_host.hc_nbr_next;
@@ -361,18 +359,12 @@ uint8_t usbh_hc_add(const struct usbh_hc_drv_api *p_drv_api,
 	p_rh_dev->hc_ptr = p_hc;
 
 	p_hc->host_ptr = &usbh_host;
-
-	if (p_hc_rh_api == NULL) {
-		p_hc->is_vir_rh = false;
-	} else {
-		p_hc->is_vir_rh = true;
-	}
+	p_hc->is_vir_rh = true;
 
 	p_hc_drv->data_ptr = NULL;
 	p_hc_drv->rh_dev_ptr = p_rh_dev;
-	p_hc_drv->api_ptr = p_drv_api;
-	p_hc_drv->bsp_api_ptr = p_hc_bsp_api;
-	p_hc_drv->rh_api_ptr = p_hc_rh_api;
+	p_hc_drv->api_ptr = &usbh_hcd_api;
+	p_hc_drv->rh_api_ptr = &usbh_hcd_rh_api;
 	p_hc_drv->nbr = hc_nbr;
 
 	k_mutex_init(&p_hc->hcd_mutex);
@@ -442,7 +434,7 @@ int usbh_hc_start(uint8_t hc_nbr)
 	if (err == 0) {
 		usbh_host.state = USBH_HOST_STATE_RESUMED;
 	} else {
-		LOG_DBG("dvice disconnected");
+		LOG_DBG("device disconnected");
 		usbh_dev_disconn(p_rh_dev);
 	}
 	k_mutex_lock(&p_hc->hcd_mutex, K_NO_WAIT);
