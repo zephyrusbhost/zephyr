@@ -17,62 +17,79 @@
 /*
 *********************************************************************************************************
 *
-*                                    ATSAMX HOST CONTROLLER DRIVER
+*                                      MASS STORAGE CLASS (MSC)
 *
-* Filename : usbh_hcd_atsamx.h
+* Filename : usbh_msc.h
 * Version  : V3.42.00
 *********************************************************************************************************
 */
 
-#ifndef USBH_HCD_ATSAMX_H
-#define USBH_HCD_ATSAMX_H
-
 /*
 *********************************************************************************************************
-*                                              INCLUDE FILES
+*                                               MODULE
 *********************************************************************************************************
 */
 
-#include "usbh_core.h"
+#ifndef USBH_MSC_MODULE_PRESENT
+#define USBH_MSC_MODULE_PRESENT
+#include <usbh_class.h>
 
 /*
 *********************************************************************************************************
-*                                                 EXTERNS
-*********************************************************************************************************
-*/
-
-#ifdef USBH_HCD_ATSAMX_MODULE
-#define USBH_HCD_ATSAMX_EXT
-#else
-#define USBH_HCD_ATSAMX_EXT extern
-#endif
-
-/*
-*********************************************************************************************************
-*                                                 DEFINES
+*                                               EXTERNS
 *********************************************************************************************************
 */
 
 /*
 *********************************************************************************************************
-*                                               DATA TYPES
+*                                               DEFINES
 *********************************************************************************************************
 */
+
+#define USBH_MSC_TIMEOUT 10000u
+
+#define USBH_MSC_DEV_NOT_IN_USE 0u
+#define USBH_MSC_DEV_IN_USE 1u
+
+#define USBH_MSC_DATA_DIR_IN 0x80u
+#define USBH_MSC_DATA_DIR_OUT 0x00u
+#define USBH_MSC_DATA_DIR_NONE 0x01u
+
+/*
+*********************************************************************************************************
+*                                             DATA TYPES
+*********************************************************************************************************
+*/
+
+
+/* -------------------- MSC DEVICE -------------------- */
+struct usbh_msc_dev
+{
+    struct usbh_ep BulkInEP;  /* Bulk IN  endpoint.                                   */
+    struct usbh_ep BulkOutEP; /* Bulk OUT endpoint.                                   */
+    struct usbh_dev *dev_ptr;  /* Pointer to USB device.                               */
+    struct usbh_if *if_ptr;   /* Pointer to interface.                                */
+    uint8_t state;  /* state of MSC device.                                 */
+    uint8_t ref_cnt; /* Cnt of app ref on this dev.                          */
+    struct k_mutex HMutex;
+};
+
+struct msc_inquiry_info
+{
+    uint8_t DevType;
+    uint8_t IsRemovable;
+    uint8_t Vendor_ID[8];
+    uint8_t Product_ID[16];
+    uint32_t ProductRevisionLevel;
+};
 
 /*
 *********************************************************************************************************
 *                                            GLOBAL VARIABLES
-*
-* Note(s) : (1) The following MCUs are supported by USBH_ATSAMX_HCD_DrvAPI:
-*                   Microchip ATSAM D5x/E5x
-*
-*           (2) Due to hardware limitations, the ATSAM D5x/E5x host controller does not support a
-*               combination of Full-Speed HUB + Low-Speed device
 *********************************************************************************************************
 */
 
-USBH_HCD_ATSAMX_EXT const struct usbh_hc_drv_api USBH_ATSAMX_HCD_DrvAPI; /* See note 2.                                          */
-USBH_HCD_ATSAMX_EXT const struct usbh_hc_rh_api USBH_ATSAMX_HCD_RH_API;
+extern const struct usbh_class_drv USBH_MSC_ClassDrv;
 
 /*
 *********************************************************************************************************
@@ -85,6 +102,45 @@ USBH_HCD_ATSAMX_EXT const struct usbh_hc_rh_api USBH_ATSAMX_HCD_RH_API;
 *                                           FUNCTION PROTOTYPES
 *********************************************************************************************************
 */
+
+int usbh_msc_init(struct usbh_msc_dev *p_msc_dev,
+                       uint8_t lun);
+
+uint8_t usbh_msc_max_lun_get(struct usbh_msc_dev *p_msc_dev,
+                               int *p_err);
+
+bool usbh_msc_unit_rdy_test(struct usbh_msc_dev *p_msc_dev,
+                                 uint8_t lun,
+                                 int *p_err);
+
+int usbh_msc_capacity_rd(struct usbh_msc_dev *p_msc_dev,
+                             uint8_t lun,
+                             uint32_t *p_nbr_blks,
+                             uint32_t *p_blk_size);
+
+int usbh_msc_std_inquiry(struct usbh_msc_dev *p_msc_dev,
+                             struct msc_inquiry_info *p_msc_inquiry_info,
+                             uint8_t lun);
+
+int usbh_msc_ref_add(struct usbh_msc_dev *p_msc_dev);
+
+int usbh_msc_ref_rel(struct usbh_msc_dev *p_msc_dev);
+
+uint32_t usbh_msc_read(struct usbh_msc_dev *p_msc_dev,
+                       uint8_t lun,
+                       uint32_t blk_addr,
+                       uint16_t nbr_blks,
+                       uint32_t blk_size,
+                       void *p_arg,
+                       int *p_err);
+
+uint32_t usbh_msc_write(struct usbh_msc_dev *p_msc_dev,
+			uint8_t lun,
+			uint32_t blk_addr,
+			uint16_t nbr_blks,
+			uint32_t blk_size,
+			const void *p_arg,
+			int *p_err);
 
 /*
 *********************************************************************************************************

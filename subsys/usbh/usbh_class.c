@@ -292,42 +292,40 @@ int usbh_class_drv_conn(struct usbh_dev *p_dev)
 
 	LOG_DBG("probe_dev");
 	err = usbh_class_probe_dev(p_dev);
-	LOG_ERR("%d %d", err, ENOTSUP);
 	if (err == 0) {
 		p_if = NULL;
 
-		LOG_DBG("ClassNotify");
+		LOG_DBG("notify class");
 		usbh_class_notify(p_dev, /* Find a class drv matching dev desc.                  */
 				  p_if,
 				  p_dev->class_dev_ptr,
 				  USBH_CLASS_DEV_STATE_CONN);
 		return 0;
 	} else if (err != ENOTSUP) {
-
 		LOG_ERR("ERROR: Probe class driver. #%d\r\n", err);
 	} else {
 		/* Empty Else statement                                 */
 	}
 
-	LOG_DBG("CfgSet");
+	LOG_DBG("set cfg");
 	err = usbh_cfg_set(p_dev, 1); /* Select first cfg.                                    */
 	if (err != 0) {
 		return err;
 	}
 
 	drv_found = false;
-	LOG_DBG("CfgGet");
+	LOG_DBG("get cfg");
 	p_cfg = usbh_cfg_get(p_dev, (p_dev->sel_cfg - 1)); /* Get active cfg struct.                               */
-	LOG_DBG("CfgIF_NbrGet");
+	LOG_DBG("get cfg interface nbr");
 	nbr_if = usbh_cfg_if_nbr_get(p_cfg);
 
 	for (if_ix = 0; if_ix < nbr_if; if_ix++) { /* For all IFs present in cfg.                          */
-		LOG_DBG("IF_Get");
+		LOG_DBG("get interface");
 		p_if = usbu_if_get(p_cfg, if_ix);
 		if (p_if == NULL) {
 			return ENOTSUP;
 		}
-		LOG_DBG("probe_if");
+		LOG_DBG("probe interface");
 		err = usbh_class_probe_if(p_dev, p_if); /* Find class driver matching IF.                       */
 		if (err == 0) {
 			drv_found = true;
@@ -343,7 +341,7 @@ int usbh_class_drv_conn(struct usbh_dev *p_dev)
 	}
 
 	for (if_ix = 0; if_ix < nbr_if; if_ix++) { /* For all IFs present in this cfg, notify app.         */
-		LOG_DBG("IF_Get");
+		LOG_DBG("get interface");
 
 		p_if = usbu_if_get(p_cfg, if_ix);
 		if (p_if == NULL) {
@@ -351,7 +349,7 @@ int usbh_class_drv_conn(struct usbh_dev *p_dev)
 		}
 
 		if (p_if->class_dev_ptr != 0) {
-			LOG_INF("ClassNotify");
+			LOG_INF("notify class");
 
 			usbh_class_notify(p_dev,
 					  p_if,
@@ -509,7 +507,6 @@ static int usbh_class_probe_dev(struct usbh_dev *p_dev)
 static int usbh_class_probe_if(struct usbh_dev *p_dev,
 			       struct usbh_if *p_if)
 {
-	LOG_DBG("Classprobe_if");
 	uint8_t ix;
 	const struct usbh_class_drv *p_class_drv;
 	void *p_class_dev;
