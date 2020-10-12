@@ -6,10 +6,10 @@
  * SPDX-License-Identifier: APACHE-2.0
  */
 
-#ifndef  ZEPHYR_USBH_HUB_CLASS_
-#define  ZEPHYR_USBH_HUB_CLASS_
+#ifndef ZEPHYR_USBH_HUB_CLASS_
+#define ZEPHYR_USBH_HUB_CLASS_
 
-#include  <usbh_core.h>
+#include <usbh_core.h>
 
 extern const struct usbh_class_drv usbh_hub_drv;
 

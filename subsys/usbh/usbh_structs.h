@@ -10,8 +10,8 @@
 #include <zephyr/types.h>
 #include <usbh_cfg.h>
 
-#define  USBH_MAX_NBR_DEVS                          USBH_CFG_MAX_NBR_DEVS + USBH_CFG_MAX_NBR_HC
-#define  USBH_LEN_DESC_DEV                              0x12u
+#define  USBH_MAX_NBR_DEVS (USBH_CFG_MAX_NBR_DEVS + USBH_CFG_MAX_NBR_HC)
+#define  USBH_LEN_DESC_DEV 0x12u
 
 
 enum usbh_device_speed {

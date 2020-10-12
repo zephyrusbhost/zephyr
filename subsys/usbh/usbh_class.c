@@ -36,16 +36,16 @@ int usbh_reg_class_drv(const struct usbh_class_drv *p_class_drv,
 	int key;
 
 	if (p_class_drv == NULL) {
-		return EINVAL;
+		return -EINVAL;
 	}
 
 	if (p_class_drv->name_ptr == NULL) {
-		return EINVAL;
+		return -EINVAL;
 	}
 
 	if ((p_class_drv->probe_dev == 0) &&
 	    (p_class_drv->probe_if == 0)) {
-		return EINVAL;
+		return -EINVAL;
 	}
 
 	key = irq_lock();
@@ -79,7 +79,7 @@ int usbh_class_drv_unreg(const struct usbh_class_drv *p_class_drv)
 	int key;
 
 	if (p_class_drv == NULL) {
-		return EINVAL;
+		return -EINVAL;
 	}
 
 	key = irq_lock();

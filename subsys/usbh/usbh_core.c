@@ -219,7 +219,7 @@ uint8_t usbh_hc_add(int *p_err)
 	if (hc_nbr >=
 	    USBH_CFG_MAX_NBR_HC) { /* Chk if HC nbr is valid.                              */
 		irq_unlock(key);
-		*p_err = EIO;
+		*p_err = -EIO;
 		return USBH_HC_NBR_NONE;
 	}
 	usbh_host.hc_nbr_next++;
@@ -276,7 +276,7 @@ int usbh_hc_start(uint8_t hc_nbr)
 	if (hc_nbr >= usbh_host.hc_nbr_next) { /* Chk if HC nbr is valid.
 		                                */
 		LOG_DBG("host controller number invalid.");
-		return EINVAL;
+		return -EINVAL;
 	}
 
 	p_hc = &usbh_host.hc_tbl[hc_nbr];
@@ -308,7 +308,7 @@ int usbh_hc_stop(uint8_t hc_nbr)
 
 	if (hc_nbr >=
 	    usbh_host.hc_nbr_next) { /* Chk if HC nbr is valid.                              */
-		return EINVAL;
+		return -EINVAL;
 	}
 
 	p_hc = &usbh_host.hc_tbl[hc_nbr];
@@ -335,7 +335,7 @@ int usbh_hc_port_en(uint8_t hc_nbr, uint8_t port_nbr)
 
 	if (hc_nbr >=
 	    usbh_host.hc_nbr_next) { /* Chk if HC nbr is valid.                              */
-		return EINVAL;
+		return -EINVAL;
 	}
 
 	p_hc = &usbh_host.hc_tbl[hc_nbr];
@@ -355,7 +355,7 @@ int usbh_hc_port_dis(uint8_t hc_nbr, uint8_t port_nbr)
 
 	if (hc_nbr >=
 	    usbh_host.hc_nbr_next) { /* Chk if HC nbr is valid.                              */
-		return EINVAL;
+		return -EINVAL;
 	}
 
 	p_hc = &usbh_host.hc_tbl[hc_nbr];
@@ -373,7 +373,7 @@ uint32_t usbh_hc_frame_nbr_get(uint8_t hc_nbr, int *p_err)
 
 	if (hc_nbr >=
 	    usbh_host.hc_nbr_next) { /* Chk if HC nbr is valid.                              */
-		*p_err = EINVAL;
+		*p_err = -EINVAL;
 		return 0;
 	}
 
@@ -560,7 +560,7 @@ int usbh_cfg_desc_get(struct usbh_cfg *p_cfg,
 
 	if ((p_cfg == NULL) ||
 	    (p_cfg_desc == NULL)) {
-		return EINVAL;
+		return -EINVAL;
 	}
 
 	p_desc =
@@ -588,7 +588,7 @@ struct usbh_desc_hdr *usbh_cfg_extra_desc_get(struct usbh_cfg *p_cfg,
 	uint32_t cfg_off;
 
 	if (p_cfg == NULL) {
-		*p_err = EINVAL;
+		*p_err = -EINVAL;
 		return NULL;
 	}
 
@@ -627,13 +627,13 @@ int usbh_if_set(struct usbh_if *p_if, uint8_t alt_nbr)
 	int err;
 
 	if (p_if == NULL) {
-		return EINVAL;
+		return -EINVAL;
 	}
 
 	nbr_alts = usbh_if_alt_nbr_get(
 		p_if); /* Get nbr of alternate settings in IF.                 */
 	if (alt_nbr >= nbr_alts) {
-		return EINVAL;
+		return -EINVAL;
 	}
 
 	if_nbr = usbh_if_nbr_get(
@@ -753,7 +753,7 @@ int usbh_if_desc_get(struct usbh_if *p_if, uint8_t alt_ix,
 		}
 	}
 
-	return EINVAL;
+	return -EINVAL;
 }
 
 /*
@@ -968,7 +968,7 @@ uint32_t usbh_bulk_tx(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
 	uint32_t xfer_len;
 
 	if (p_ep == NULL) {
-		*p_err = EINVAL;
+		*p_err = -EINVAL;
 		return 0;
 	}
 
@@ -998,7 +998,7 @@ int usbh_bulk_tx_async(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
 	uint8_t ep_dir;
 
 	if (p_ep == NULL) {
-		return EINVAL;
+		return -EINVAL;
 	}
 
 	ep_type = usbh_ep_type_get(p_ep);
@@ -1026,7 +1026,7 @@ uint32_t usbh_bulk_rx(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
 	uint32_t xfer_len;
 
 	if (p_ep == NULL) {
-		*p_err = EINVAL;
+		*p_err = -EINVAL;
 		return 0;
 	}
 
@@ -1056,7 +1056,7 @@ int usbh_bulk_rx_async(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
 	uint8_t ep_dir;
 
 	if (p_ep == NULL) {
-		return EINVAL;
+		return -EINVAL;
 	}
 
 	ep_type = usbh_ep_type_get(p_ep);
@@ -1084,7 +1084,7 @@ uint32_t usbh_intr_tx(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
 	uint32_t xfer_len;
 
 	if (p_ep == NULL) {
-		return EINVAL;
+		return -EINVAL;
 	}
 
 	ep_type = usbh_ep_type_get(p_ep);
@@ -1112,7 +1112,7 @@ int usbh_intr_tx_async(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
 	uint8_t ep_dir;
 
 	if (p_ep == NULL) {
-		return EINVAL;
+		return -EINVAL;
 	}
 
 	ep_type = usbh_ep_type_get(p_ep);
@@ -1140,7 +1140,7 @@ uint32_t usbh_intr_rx(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
 	uint32_t xfer_len;
 
 	if (p_ep == NULL) {
-		return EINVAL;
+		return -EINVAL;
 	}
 
 	ep_type = usbh_ep_type_get(p_ep);
@@ -1169,7 +1169,7 @@ int usbh_intr_rx_async(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
 
 	/* Argument checks for valid settings                   */
 	if (p_ep == NULL) {
-		return EINVAL;
+		return -EINVAL;
 	}
 
 	if (p_ep->is_open == false) {
@@ -1203,7 +1203,7 @@ uint32_t usbh_isoc_tx(struct usbh_ep *p_ep, uint8_t *p_buf, uint32_t buf_len,
 	struct usbh_isoc_desc isoc_desc;
 
 	if (p_ep == NULL) {
-		return EINVAL;
+		return -EINVAL;
 	}
 
 	ep_type = usbh_ep_type_get(p_ep);
@@ -1241,7 +1241,7 @@ int usbh_isoc_tx_async(struct usbh_ep *p_ep, uint8_t *p_buf,
 	struct usbh_isoc_desc *p_isoc_desc;
 
 	if (p_ep == NULL) {
-		return EINVAL;
+		return -EINVAL;
 	}
 
 	ep_type = usbh_ep_type_get(p_ep);
@@ -1288,7 +1288,7 @@ uint32_t usbh_isoc_rx(struct usbh_ep *p_ep, uint8_t *p_buf, uint32_t buf_len,
 	struct usbh_isoc_desc isoc_desc;
 
 	if (p_ep == NULL) {
-		return EINVAL;
+		return -EINVAL;
 	}
 
 	ep_type = usbh_ep_type_get(p_ep);
@@ -1326,7 +1326,7 @@ int usbh_isoc_rx_async(struct usbh_ep *p_ep, uint8_t *p_buf,
 	struct usbh_isoc_desc *p_isoc_desc;
 
 	if (p_ep == NULL) {
-		return EINVAL;
+		return -EINVAL;
 	}
 
 	ep_type = usbh_ep_type_get(p_ep);
@@ -1418,7 +1418,7 @@ int usbh_ep_get(struct usbh_if *p_if, uint8_t alt_ix, uint8_t ep_ix,
 	uint8_t ix;
 
 	if ((p_if == NULL) || (p_ep == NULL)) {
-		return EINVAL;
+		return -EINVAL;
 	}
 
 	ix = 0;
@@ -1559,7 +1559,7 @@ int usbh_ep_close(struct usbh_ep *p_ep)
 	struct usbh_urb *p_async_urb;
 
 	if (p_ep == NULL) {
-		return EINVAL;
+		return -EINVAL;
 	}
 
 	p_ep->is_open = false;
@@ -1718,7 +1718,7 @@ uint32_t usbh_str_get(struct usbh_dev *p_dev, uint8_t desc_ix, uint16_t lang_id,
 
 	if (desc_ix ==
 	    0) { /* Invalid desc ix.                                     */
-		*p_err = EINVAL;
+		*p_err = -EINVAL;
 		return 0;
 	}
 
@@ -1730,14 +1730,14 @@ uint32_t usbh_str_get(struct usbh_dev *p_dev, uint8_t desc_ix, uint16_t lang_id,
 			usbh_str_desc_get(p_dev, 0, 0, p_buf, buf_len, p_err);
 		if (str_len <
 		    4u) { /* See Note #1.                                         */
-			*p_err = EINVAL;
+			*p_err = -EINVAL;
 			return 0;
 		}
 
 		lang_id = sys_get_le16((uint8_t *)&p_buf[2]); /* Rd language ID into CPU endianness.                  */
 
 		if (lang_id == 0) {
-			*p_err = EINVAL;
+			*p_err = -EINVAL;
 			return 0;
 		} else {
 			p_dev->lang_id = lang_id;
@@ -1773,7 +1773,7 @@ uint32_t usbh_str_get(struct usbh_dev *p_dev, uint8_t desc_ix, uint16_t lang_id,
 
 		return str_len;
 	} else {
-		*p_err = EINVAL;
+		*p_err = -EINVAL;
 		return 0;
 	}
 }
@@ -1905,7 +1905,7 @@ static uint32_t usbh_sync_transfer(struct usbh_ep *p_ep, void *p_buf,
 
 	/* Argument checks for valid settings                   */
 	if (p_ep == NULL) {
-		*p_err = EINVAL;
+		*p_err = -EINVAL;
 		return 0;
 	}
 
@@ -2309,7 +2309,7 @@ static int usbh_dev_desc_rd(struct usbh_dev *p_dev)
 		/* Retrieve EP 0 max pkt size.                          */
 		p_dev->dflt_ep.desc.w_max_packet_size = (uint8_t) p_dev->dev_desc[7u];
 		if (p_dev->dflt_ep.desc.w_max_packet_size > 64u) {
-			return EINVAL;
+			return -EINVAL;
 		}
 
 		k_mutex_lock(&p_dev->hc_ptr->hcd_mutex, K_NO_WAIT);
@@ -2353,7 +2353,7 @@ static int usbh_dev_desc_rd(struct usbh_dev *p_dev)
 	if ((dev_desc.b_length < USBH_LEN_DESC_DEV) ||
 	    (dev_desc.b_desc_type != USBH_DESC_TYPE_DEV) ||
 	    (dev_desc.b_nbr_configs == 0)) {
-		return EINVAL;
+		return -EINVAL;
 	}
 
 	if ((dev_desc.b_device_class != USBH_CLASS_CODE_USE_IF_DESC) &&
@@ -2376,7 +2376,7 @@ static int usbh_dev_desc_rd(struct usbh_dev *p_dev)
 	    (dev_desc.b_device_class != USBH_CLASS_CODE_APP_SPECIFIC) &&
 	    (dev_desc.b_device_class != USBH_CLASS_CODE_VENDOR_SPECIFIC)) {
 		LOG_ERR("descriptor invalid");
-		return EINVAL;
+		return -EINVAL;
 	}
 
 	return 0;
@@ -2422,12 +2422,12 @@ static int usbh_cfg_rd(struct usbh_dev *p_dev, uint8_t cfg_ix)
 
 	if (b_read < USBH_LEN_DESC_CFG) {
 		LOG_ERR("bread < %d", USBH_LEN_DESC_CFG);
-		return EINVAL;
+		return -EINVAL;
 	}
 
 	if (p_cfg->cfg_data[1] != USBH_DESC_TYPE_CFG) {
 		LOG_ERR("desc invalid");
-		return EINVAL;
+		return -EINVAL;
 	}
 
 	w_tot_len = sys_get_le16((uint8_t *)&p_cfg->cfg_data[2]); /* See Note (3).                                        */
@@ -2461,13 +2461,13 @@ static int usbh_cfg_rd(struct usbh_dev *p_dev, uint8_t cfg_ix)
 
 	if (b_read < w_tot_len) {
 		LOG_ERR("bread < w_tot_len");
-		return EINVAL;
+		return -EINVAL;
 	}
 
 	if (p_cfg->cfg_data[1] !=
 	    USBH_DESC_TYPE_CFG) { /* Validate config desc.                                */
 		LOG_ERR("desc type ivalid");
-		return EINVAL;
+		return -EINVAL;
 	}
 
 	p_cfg->cfg_data_len = w_tot_len;
@@ -2495,7 +2495,7 @@ static int usbh_cfg_parse(struct usbh_dev *p_dev, struct usbh_cfg *p_cfg)
 	/* ---------------- VALIDATE CFG DESC ----------------- */
 	usbh_parse_cfg_desc(&cfg_desc, p_desc);
 	if ((cfg_desc.b_max_pwr > 250u) || (cfg_desc.b_nbr_interfaces == 0)) {
-		return EINVAL;
+		return -EINVAL;
 	}
 
 	nbr_ifs = usbh_cfg_if_nbr_get(
@@ -2547,11 +2547,11 @@ static int usbh_cfg_parse(struct usbh_dev *p_dev, struct usbh_cfg *p_cfg)
 			     USBH_CLASS_CODE_APP_SPECIFIC) &&
 			    (if_desc.b_if_class !=
 			     USBH_CLASS_CODE_VENDOR_SPECIFIC)) {
-				return EINVAL;
+				return -EINVAL;
 			}
 
 			if ((if_desc.b_nbr_endpoints > 30u)) {
-				return EINVAL;
+				return -EINVAL;
 			}
 
 			if (if_desc.b_alt_setting == 0) {
@@ -2569,7 +2569,7 @@ static int usbh_cfg_parse(struct usbh_dev *p_dev, struct usbh_cfg *p_cfg)
 			if ((ep_desc.b_endpoint_address == 0x00u) ||
 			    (ep_desc.b_endpoint_address == 0x80u) ||
 			    (ep_desc.w_max_packet_size == 0)) {
-				return EINVAL;
+				return -EINVAL;
 			}
 		}
 
@@ -2580,7 +2580,7 @@ static int usbh_cfg_parse(struct usbh_dev *p_dev, struct usbh_cfg *p_cfg)
 
 	if (if_ix !=
 	    nbr_ifs) { /* IF count must match max nbr of IFs.                  */
-		return EINVAL;
+		return -EINVAL;
 	}
 
 	return 0;
@@ -2688,7 +2688,7 @@ static uint32_t usbh_str_desc_get(struct usbh_dev *p_dev, uint8_t desc_ix,
 			return len;
 		}
 	} else {
-		*p_err = EINVAL;
+		*p_err = -EINVAL;
 		return 0;
 	}
 
@@ -2716,7 +2716,7 @@ static uint32_t usbh_str_desc_get(struct usbh_dev *p_dev, uint8_t desc_ix,
 	}
 
 	if (len == 0) {
-		*p_err = EINVAL;
+		*p_err = -EINVAL;
 		return 0;
 	}
 
@@ -2726,36 +2726,33 @@ static uint32_t usbh_str_desc_get(struct usbh_dev *p_dev, uint8_t desc_ix,
 /*
  * Print specified string index to default output terminal.
  */
-// static void USBH_StrDescPrint(USBH_DEV *p_dev, CPU_INT08U *str_prefix,
-// 							  CPU_INT08U desc_ix)
-// {
-// 	int err;
-// 	uint32_t str_len;
-// 	uint8_t str[USBH_CFG_MAX_STR_LEN];
-// 	uint16_t ch;
-// 	uint32_t ix;
-// 	uint32_t buf_len;
+static void USBH_StrDescPrint(struct usbh_dev *p_dev, uint8_t *str_prefix,
+ 							  uint8_t desc_ix)
+{
+ 	int err;
+ 	uint32_t str_len;
+ 	uint8_t str[USBH_CFG_MAX_STR_LEN];
+ 	uint16_t ch;
+ 	uint32_t ix;
+ 	uint32_t buf_len;
 
-// 	str_len = usbh_str_get(p_dev, desc_ix, USBH_STRING_DESC_LANGID, &str[0],
-// 						  USBH_CFG_MAX_STR_LEN, &err);
+	str_len = usbh_str_get(p_dev, desc_ix, USBH_STRING_DESC_LANGID, &str[0],
+ 						  USBH_CFG_MAX_STR_LEN, &err);
 
-// 	printk("%s", str_prefix); /* Print prefix str.                                    */
+	printk("%s", str_prefix); /* Print prefix str.                                    */
 
-// 	if (str_len > 0u)
-// 	{ /* Print unicode string rd from the dev.                */
-// 		buf_len = str_len * 2u;
-// 		for (ix = 0u; (buf_len - ix) >= 2u; ix += 2u)
-// 		{
-// 			ch = sys_get_le16(&str[ix]);
-// 			if (ch == 0u)
-// 			{
-// 				break;
-// 			}
-// 			printk("%c", ch);
-// 		}
-// 	}
-// 	printk("\r\n");
-// }
+	if (str_len > 0u) { /* Print unicode string rd from the dev.                */
+		buf_len = str_len * 2u;
+		for (ix = 0u; (buf_len - ix) >= 2u; ix += 2u) {
+			ch = sys_get_le16(&str[ix]);
+			if (ch == 0u) {
+				break;
+			}
+			printk("%c", ch);
+		}
+	}
+	printk("\r\n");
+}
 
 /*
  * Description : Get pointer to next descriptor in buffer that contains configuration data.

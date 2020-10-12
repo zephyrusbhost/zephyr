@@ -23,12 +23,9 @@ LOG_MODULE_REGISTER(msc);
 #define USBH_MSC_MAX_TRANSFER_RETRY 1000u
 
 /*
-*********************************************************************************************************
-*                                           SUBCLASS CODES
-*
-* Note(s) : (1) See 'USB Mass Storage Class Specification Overview', Revision 1.2, Section 2.
-*********************************************************************************************************
-*/
+ * SUBCLASS CODES
+ * Note(s) : (1) See 'USB Mass Storage Class Specification Overview', Revision 1.2, Section 2.
+ */
 
 #define USBH_MSC_SUBCLASS_CODE_RBC 0x01u
 #define USBH_MSC_SUBCLASS_CODE_SFF_8020i 0x02u
@@ -681,7 +678,7 @@ int usbh_msc_init(struct usbh_msc_dev *p_msc_dev,
     /* ------------------- VALIDATE ARG ------------------- */
     if (p_msc_dev == NULL)
     {
-        return EINVAL;
+        return -EINVAL;
     }
 
     err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT); /* Acquire MSC dev lock to avoid multiple access.       */
@@ -707,7 +704,7 @@ int usbh_msc_init(struct usbh_msc_dev *p_msc_dev,
                 unit_ready = true;
                 break;
             }
-            else if (err == EIO)
+            else if (err == -EIO)
             { /* Bulk xfers for the BOT protocol failed.              */
                 LOG_ERR("%d", err);
                 break;
@@ -823,7 +820,7 @@ uint8_t usbh_msc_max_lun_get(struct usbh_msc_dev *p_msc_dev,
     /* ------------------ VALIDATE ARG -------------------- */
     if (p_msc_dev == NULL)
     {
-        *p_err = EINVAL;
+        *p_err = -EINVAL;
         return 0;
     }
 
@@ -917,7 +914,7 @@ bool usbh_msc_unit_rdy_test(struct usbh_msc_dev *p_msc_dev,
     /* ------------------- VALIDATE PTR ------------------- */
     if (p_msc_dev == NULL)
     {
-        *p_err = EINVAL;
+        *p_err = -EINVAL;
         return unit_rdy;
     }
 
@@ -998,7 +995,7 @@ int usbh_msc_capacity_rd(struct usbh_msc_dev *p_msc_dev,
         (p_nbr_blks == NULL) ||
         (p_blk_size == NULL))
     {
-        err = EINVAL;
+        err = -EINVAL;
         return err;
     }
 
@@ -1066,7 +1063,7 @@ int usbh_msc_std_inquiry(struct usbh_msc_dev *p_msc_dev,
     if ((p_msc_dev == NULL) ||
         (p_msc_inquiry_info == NULL))
     {
-        err = EINVAL;
+        err = -EINVAL;
         return err;
     }
 
@@ -1130,7 +1127,7 @@ int usbh_msc_ref_add(struct usbh_msc_dev *p_msc_dev)
     /* ------------------- VALIDATE ARG ------------------- */
     if (p_msc_dev == NULL)
     {
-        return EINVAL;
+        return -EINVAL;
     }
 
     err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
@@ -1173,7 +1170,7 @@ int usbh_msc_ref_rel(struct usbh_msc_dev *p_msc_dev)
     /* ------------------- VALIDATE PTR ------------------- */
     if (p_msc_dev == NULL)
     {
-        return EINVAL;
+        return -EINVAL;
     }
 
     err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
@@ -1256,7 +1253,7 @@ uint32_t usbh_msc_read(struct usbh_msc_dev *p_msc_dev,
 
     if (p_msc_dev == NULL)
     {
-        *p_err = EINVAL;
+        *p_err = -EINVAL;
         return 0;
     }
 
@@ -1345,7 +1342,7 @@ uint32_t usbh_msc_write(struct usbh_msc_dev *p_msc_dev,
 
     if (p_msc_dev == NULL)
     {
-        *p_err = EINVAL;
+        *p_err = -EINVAL;
         return 0;
     }
 
@@ -1832,7 +1829,7 @@ static uint32_t usbh_msc_xfer_cmd(struct usbh_msc_dev *p_msc_dev,
     }
     else
     {
-        *p_err = EIO;
+        *p_err = -EIO;
     }
 
     /* Actual len of data xfered to dev.                    */
@@ -2024,7 +2021,7 @@ static int usbh_msc_tx_data(struct usbh_msc_dev *p_msc_dev,
                                   &err);
         switch (err)
         {
-        case EIO :
+        case -EIO :
             retry_cnt++;
             if (retry_cnt >= USBH_MSC_MAX_TRANSFER_RETRY)
             {
@@ -2124,7 +2121,7 @@ static int usbh_msc_rx_data(struct usbh_msc_dev *p_msc_dev,
                                   &err);
         switch (err)
         {
-        case EIO :
+        case -EIO :
             retry_cnt++;
             if (retry_cnt >= USBH_MSC_MAX_TRANSFER_RETRY)
             {
@@ -2164,7 +2161,7 @@ static int usbh_msc_rx_data(struct usbh_msc_dev *p_msc_dev,
         else
         {
             usbh_msc_rx_rst_rcv(p_msc_dev);
-            err = EIO;
+            err = -EIO;
         }
     }
 

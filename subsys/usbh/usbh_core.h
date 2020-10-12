@@ -6,15 +6,15 @@
  * SPDX-License-Identifier: APACHE-2.0
  */
 
-#ifndef  ZEPHYR_USBH_CORE_
-#define  ZEPHYR_USBH_CORE_
+#ifndef ZEPHYR_USBH_CORE_
+#define ZEPHYR_USBH_CORE_
 #include <usbh_cfg.h>
 #include <zephyr.h>
 #include <drivers/usbh/usbh_ll.h>
 #include <usbh_structs.h>
 
 #define  USBH_LEN_DESC_HDR                              0x02u
-// #define  USBH_LEN_DESC_DEV                              0x12u
+/* #define  USBH_LEN_DESC_DEV                              0x12u */
 #define  USBH_LEN_DESC_DEV_QUAL                         0x0Au
 #define  USBH_LEN_DESC_CFG                              0x09u
 #define  USBH_LEN_DESC_OTHERSPD_CFG                     0x09u
@@ -324,7 +324,7 @@
  *USB DEV + RH DEV
  */
 
-// #define  USBH_MAX_NBR_DEVS                          USBH_CFG_MAX_NBR_DEVS + USBH_CFG_MAX_NBR_HC
+/* #define  USBH_MAX_NBR_DEVS                          USBH_CFG_MAX_NBR_DEVS + USBH_CFG_MAX_NBR_HC */
 
 
 /*
@@ -439,14 +439,14 @@ typedef  void (*usbh_xfer_cmpl_fnct)(struct usbh_ep     *p_ep,
 /* --------- USB HOST STACK GENERAL FUNCTIONS --------- */
 uint32_t      usbh_version_get(void);
 
-int        usbh_init();
+int        usbh_init(void);
 
 int        usbh_suspend(void);
 
 int        usbh_resume(void);
 
 /* ------------ HOST CONTROLLER FUNCTIONS ------------- */
-uint8_t      usbh_hc_add( int *p_err);
+uint8_t      usbh_hc_add(int *p_err);
 
 int        usbh_hc_start(uint8_t hc_nbr);
 
@@ -480,8 +480,10 @@ struct usbh_cfg       *usbh_cfg_get(struct usbh_dev               *p_dev,
 
 uint8_t      usbh_cfg_if_nbr_get(struct usbh_cfg               *p_cfg);
 
-// int        usbh_cfg_desc_get(struct usbh_cfg               *p_cfg,
-//				  struct usbh_cfg_desc          *p_cfg_desc);
+/*
+int        usbh_cfg_desc_get(struct usbh_cfg               *p_cfg,
+			  struct usbh_cfg_desc          *p_cfg_desc);
+ */
 
 struct usbh_desc_hdr  *usbh_cfg_extra_desc_get(struct usbh_cfg               *p_cfg,
 					       int               *p_err);
@@ -680,108 +682,108 @@ uint32_t      usbh_str_get(struct usbh_dev               *p_dev,
 
 
 
-#ifndef  USBH_CFG_MAX_NBR_DEVS
+#ifndef USBH_CFG_MAX_NBR_DEVS
 #error  "USBH_CFG_MAX_NBR_DEVS                 not #define'd in 'usbh_cfg.h'"
-#elif   (USBH_CFG_MAX_NBR_DEVS < 1u)
+#elif (USBH_CFG_MAX_NBR_DEVS < 1u)
 #error  "USBH_CFG_MAX_NBR_DEVS                 illegally #define'd in 'usbh_cfg.h'"
 #error  "                                      [MUST be >= 1]                     "
-#elif   (USBH_CFG_MAX_NBR_DEVS > 127u)
+#elif (USBH_CFG_MAX_NBR_DEVS > 127u)
 #error  "USBH_CFG_MAX_NBR_DEVS                 illegally #define'd in 'usbh_cfg.h'"
 #error  "                                      [MUST be <= 127]                   "
 #endif
 
-#ifndef  USBH_CFG_MAX_NBR_CFGS
+#ifndef USBH_CFG_MAX_NBR_CFGS
 #error  "USBH_CFG_MAX_NBR_CFGS                 not #define'd in 'usbh_cfg.h'"
-#elif   (USBH_CFG_MAX_NBR_CFGS < 1u)
+#elif (USBH_CFG_MAX_NBR_CFGS < 1u)
 #error  "USBH_CFG_MAX_NBR_CFGS                 illegally #define'd in 'usbh_cfg.h'"
 #error  "                                      [MUST be >= 1]                     "
 #endif
 
-#ifndef  USBH_CFG_MAX_NBR_IFS
+#ifndef USBH_CFG_MAX_NBR_IFS
 #error  "USBH_CFG_MAX_NBR_IFS                  not #define'd in 'usbh_cfg.h'"
-#elif   (USBH_CFG_MAX_NBR_IFS < 1u)
+#elif (USBH_CFG_MAX_NBR_IFS < 1u)
 #error  "USBH_CFG_MAX_NBR_IFS                  illegally #define'd in 'usbh_cfg.h'"
 #error  "                                      [MUST be >= 1]                     "
 #endif
 
-#ifndef  USBH_CFG_MAX_NBR_EPS
+#ifndef USBH_CFG_MAX_NBR_EPS
 #error  "USBH_CFG_MAX_NBR_EPS                  not #define'd in 'usbh_cfg.h'"
-#elif   (USBH_CFG_MAX_NBR_EPS < 1u)
+#elif (USBH_CFG_MAX_NBR_EPS < 1u)
 #error  "USBH_CFG_MAX_NBR_EPS                  illegally #define'd in 'usbh_cfg.h'"
 #error  "                                      [MUST be >= 1]                     "
 #endif
 
-#ifndef  USBH_CFG_MAX_NBR_CLASS_DRVS
+#ifndef USBH_CFG_MAX_NBR_CLASS_DRVS
 #error  "USBH_CFG_MAX_NBR_CLASS_DRVS           not #define'd in 'usbh_cfg.h'"
-#elif   (USBH_CFG_MAX_NBR_CLASS_DRVS < 2u)
+#elif (USBH_CFG_MAX_NBR_CLASS_DRVS < 2u)
 #error  "USBH_CFG_MAX_NBR_CLASS_DRVS           illegally #define'd in 'usbh_cfg.h'"
 #error  "                                      [MUST be >= 2]                     "
 #endif
 
-#ifndef  USBH_CFG_MAX_CFG_DATA_LEN
+#ifndef USBH_CFG_MAX_CFG_DATA_LEN
 #error  "USBH_CFG_MAX_CFG_DATA_LEN             not #define'd in 'usbh_cfg.h'"
-#elif   (USBH_CFG_MAX_CFG_DATA_LEN < 18u)
+#elif (USBH_CFG_MAX_CFG_DATA_LEN < 18u)
 #error  "USBH_CFG_MAX_CFG_DATA_LEN             illegally #define'd in 'usbh_cfg.h'"
 #error  "                                      [MUST be >= 18]                    "
 #endif
 
-#ifndef  USBH_CFG_MAX_HUBS
+#ifndef USBH_CFG_MAX_HUBS
 #error  "USBH_CFG_MAX_HUBS                     not #define'd in 'usbh_cfg.h'"
-#elif   (USBH_CFG_MAX_HUBS < 1u)
+#elif (USBH_CFG_MAX_HUBS < 1u)
 #error  "USBH_CFG_MAX_HUBS                     illegally #define'd in 'usbh_cfg.h'"
 #error  "                                  [MUST be >= 1 (min value = 1 root hub)}"
 #endif
 
-#ifndef  USBH_CFG_MAX_HUB_PORTS
+#ifndef USBH_CFG_MAX_HUB_PORTS
 #error  "USBH_CFG_MAX_HUB_PORTS                not #define'd in 'usbh_cfg.h'"
-#elif   (USBH_CFG_MAX_HUB_PORTS < 1u)
+#elif (USBH_CFG_MAX_HUB_PORTS < 1u)
 #error  "USBH_CFG_MAX_HUB_PORTS                illegally #define'd in 'usbh_cfg.h'"
 #error  "                                      [MUST be >= 1]                     "
-#elif   (USBH_CFG_MAX_HUB_PORTS > 7u)
+#elif (USBH_CFG_MAX_HUB_PORTS > 7u)
 #error  "USBH_CFG_MAX_HUB_PORTS                illegally #define'd in 'usbh_cfg.h'"
 #error  "USBH_CFG_MAX_HUB_PORTS cannot exceed 7 ports per external hub.           "
 #endif
 
-#ifndef  USBH_CFG_STD_REQ_RETRY
+#ifndef USBH_CFG_STD_REQ_RETRY
 #error  "USBH_CFG_STD_REQ_RETRY                not #define'd in 'usbh_cfg.h'"
-#elif   (USBH_CFG_STD_REQ_RETRY < 1u)
+#elif (USBH_CFG_STD_REQ_RETRY < 1u)
 #error  "USBH_CFG_STD_REQ_RETRY                illegally #define'd in 'usbh_cfg.h'"
 #error  "                                      [MUST be >= 1]                     "
 #endif
 
-#ifndef  USBH_CFG_STD_REQ_TIMEOUT
+#ifndef USBH_CFG_STD_REQ_TIMEOUT
 #error  "USBH_CFG_STD_REQ_TIMEOUT                  not #define'd in 'usbh_cfg.h'"
 #endif
 
-#ifndef  USBH_CFG_MAX_STR_LEN
+#ifndef USBH_CFG_MAX_STR_LEN
 #error  "USBH_CFG_MAX_STR_LEN                  not #define'd in 'usbh_cfg.h'"
-#elif   (USBH_CFG_MAX_STR_LEN > 256u)
+#elif (USBH_CFG_MAX_STR_LEN > 256u)
 #error  "USBH_CFG_MAX_STR_LEN                  illegally #define'd in 'usbh_cfg.h'"
 #error  "                                      [MUST be <= 256]                   "
 #endif
 
-#ifndef  USBH_CFG_MAX_NBR_HC
+#ifndef USBH_CFG_MAX_NBR_HC
 #error  "USBH_CFG_MAX_NBR_HC                   not #define'd in 'usbh_cfg.h'"
-#elif   (USBH_CFG_MAX_NBR_HC < 1u)
+#elif (USBH_CFG_MAX_NBR_HC < 1u)
 #error  "USBH_CFG_MAX_NBR_HC                   illegally #define'd in 'usbh_cfg.h'"
 #error  "                                      [MUST be >= 1]                     "
 #endif
 
-#ifndef  USBH_CFG_MAX_ISOC_DESC
+#ifndef USBH_CFG_MAX_ISOC_DESC
 #error  "USBH_CFG_MAX_ISOC_DESC                not #define'd in 'usbh_cfg.h'"
-#elif   (USBH_CFG_MAX_ISOC_DESC < 1u)
+#elif (USBH_CFG_MAX_ISOC_DESC < 1u)
 #error  "USBH_CFG_MAX_ISOC_DESC                illegally #define'd in 'usbh_cfg.h'"
 #error  "                                      [MUST be >= 1]                     "
 #endif
 
-#ifndef  USBH_CFG_MAX_EXTRA_URB_PER_DEV
+#ifndef USBH_CFG_MAX_EXTRA_URB_PER_DEV
 #error  "USBH_CFG_MAX_EXTRA_URB_PER_DEV        not #define'd in 'usbh_cfg.h'"
-#elif   (USBH_CFG_MAX_EXTRA_URB_PER_DEV < 1u)
+#elif (USBH_CFG_MAX_EXTRA_URB_PER_DEV < 1u)
 #error  "USBH_CFG_MAX_EXTRA_URB_PER_DEV        illegally #define'd in 'usbh_cfg.h'"
 #error  "                                      [MUST be >= 1]                     "
 #endif
 
-#ifndef  USBH_CFG_MAX_NUM_DEV_RECONN
+#ifndef USBH_CFG_MAX_NUM_DEV_RECONN
 #error  "USBH_CFG_MAX_NUM_DEV_RECONN           not #define'd in 'usbh_cfg.h'"
 #endif
 

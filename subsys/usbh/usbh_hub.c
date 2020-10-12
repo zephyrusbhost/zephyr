@@ -194,7 +194,7 @@ int usbh_hub_port_dis(struct usbh_hub_dev *p_hub_dev,
 	int err;
 
 	if (p_hub_dev == NULL) {
-		return EINVAL;
+		return -EINVAL;
 	}
 
 	err = usbh_hub_port_en_clr(p_hub_dev, port_nbr);
@@ -212,7 +212,7 @@ int usbh_hub_port_en(struct usbh_hub_dev *p_hub_dev,
 	int err;
 
 	if (p_hub_dev == NULL) {
-		return EINVAL;
+		return -EINVAL;
 	}
 
 	err = usbh_hub_port_en_set(p_hub_dev, port_nbr);
@@ -266,9 +266,10 @@ static void *usbh_hub_if_probe(struct usbh_dev *p_dev,
 		if (hub_count < 0) {
 			*p_err = EAGAIN;
 			return NULL;
-		} else {
-			p_hub_dev = &usbh_hub_arr[hub_count--];
 		}
+
+		p_hub_dev = &usbh_hub_arr[hub_count--];
+
 
 		usbh_hub_clr(p_hub_dev);
 		usbh_hub_ref_add(p_hub_dev);
@@ -475,7 +476,7 @@ static int usbh_hub_event_req(struct usbh_hub_dev *p_hub_dev)
 		valid = p_rh_api->int_en(&p_dev->hc_ptr->hc_drv);
 
 		if (valid != 1) {
-			return EIO;
+			return -EIO;
 		} else {
 			return 0;
 		}
@@ -514,7 +515,8 @@ static void usbh_hub_isr_cb(struct usbh_ep *p_ep,
 	if (err != 0) {
 		if (p_hub_dev->state == USBH_CLASS_DEV_STATE_CONN) {
 			if (p_hub_dev->err_cnt < 3u) {
-				LOG_ERR("usbh_hub_isr_cb() fails. err=%d errcnt=%d\r\n",
+				LOG_ERR("%s fails. err=%d errcnt=%d\r\n",
+					__func__,
 					err,
 					p_hub_dev->err_cnt);
 
@@ -679,9 +681,8 @@ static void usbh_hub_event_proc(void)
 					usbh_hub_event_req(p_hub_dev); /* Retry urb.                                           */
 
 					return;
-				} else {
-					p_dev = &p_hub_dev->dev_ptr->hc_ptr->host_ptr->dev_list[p_hub_dev->dev_ptr->hc_ptr->host_ptr->dev_cnt--];
 				}
+				p_dev = &p_hub_dev->dev_ptr->hc_ptr->host_ptr->dev_list[p_hub_dev->dev_ptr->hc_ptr->host_ptr->dev_cnt--];
 
 				p_dev->dev_spd = dev_spd;
 				p_dev->hub_dev_ptr = p_hub_dev->dev_ptr;
@@ -771,13 +772,13 @@ static int usbh_hub_desc_get(struct usbh_hub_dev *p_hub_dev)
 	}
 
 	if (len != USBH_LEN_DESC_HDR) {
-		return EINVAL;
+		return -EINVAL;
 	}
 
 	if ((hdr.b_length == 0) ||
 	    (hdr.b_length > USBH_HUB_MAX_DESC_LEN) ||
 	    (hdr.b_desc_type != USBH_HUB_DESC_TYPE_HUB)) {
-		return EINVAL;
+		return -EINVAL;
 	}
 
 	for (i = 0; i < USBH_CFG_STD_REQ_RETRY; i++) { /* Attempt to get full desc 3 times.                    */
@@ -1120,7 +1121,7 @@ static int usbh_hub_ref_add(struct usbh_hub_dev *p_hub_dev)
 	int key;
 
 	if (p_hub_dev == NULL) {
-		return EINVAL;
+		return -EINVAL;
 	}
 
 	key = irq_lock();
@@ -1139,7 +1140,7 @@ static int usbh_hub_ref_rel(struct usbh_hub_dev *p_hub_dev)
 	int key;
 
 	if (p_hub_dev == NULL) {
-		return EINVAL;
+		return -EINVAL;
 	}
 
 	key = irq_lock();
@@ -1333,7 +1334,7 @@ uint32_t usbh_rh_ctrl_req(struct usbh_hc *p_hc,
 
 	if ((valid != 1) &&
 	    (*p_err == 0)) {
-		*p_err = EIO;
+		*p_err = -EIO;
 	}
 
 	return len;
