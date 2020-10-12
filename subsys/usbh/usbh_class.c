@@ -1,17 +1,9 @@
 /*
- *********************************************************************************************************
- *                                             uC/USB-Host
- *                                     The Embedded USB Host Stack
+ * Copyright 2004-2020 Silicon Laboratories Inc. www.silabs.com
  *
- *                    Copyright 2004-2020 Silicon Laboratories Inc. www.silabs.com
+ * Copyright (c) 2020 PHYTEC Messtechnik GmbH
  *
- *                                 SPDX-License-Identifier: APACHE-2.0
- *
- *               This software is subject to an open source license and is distributed by
- *                Silicon Laboratories Inc. pursuant to the terms of the Apache License,
- *                    Version 2.0 available at www.apache.org/licenses/LICENSE-2.0.
- *
- *********************************************************************************************************
+ * SPDX-License-Identifier: APACHE-2.0
  */
 
 #include <usbh_class.h>
@@ -33,25 +25,8 @@ static void usbh_class_notify(struct usbh_dev *p_dev,
 
 
 /*
- *********************************************************************************************************
- *                                         USBH_ClassDrvReg()
- *
- * Description : Registers a class driver to the USB host stack.
- *
- * Argument(s) : p_class_drv          Pointer to the class driver.
- *
- *               class_notify_fnct    Class notification function pointer.
- *
- *               p_class_notify_ctx   Class notification function context pointer.
- *
- * Return(s)   : USBH_ERR_NONE               If the class driver is registered.
- *               USBH_ERR_INVALID_ARG        If invalid argument(s) passed to 'p_host'/ 'p_class_drv'.
- *               USBH_ERR_CLASS_DRV_ALLOC    If maximum class driver limit reached.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Registers a class driver to the USB host stack.
  */
-
 int usbh_reg_class_drv(const struct usbh_class_drv *p_class_drv,
 		       usbh_class_notify_fnct class_notify_fnct,
 		       void *p_class_notify_ctx)
@@ -96,21 +71,8 @@ int usbh_reg_class_drv(const struct usbh_class_drv *p_class_drv,
 }
 
 /*
- *********************************************************************************************************
- *                                        USBH_ClassDrvUnreg()
- *
- * Description : Unregisters a class driver from the USB host stack.
- *
- * Argument(s) : p_class_drv     Pointer to the class driver.
- *
- * Return(s)   : USBH_ERR_NONE                   If the class driver is unregistered.
- *               USBH_ERR_INVALID_ARG            If invalid argument(s) passed to 'p_host'/ 'p_class_drv'.
- *               USBH_ERR_CLASS_DRV_NOT_FOUND    If no class driver found.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Unregisters a class driver from the USB host stack.
  */
-
 int usbh_class_drv_unreg(const struct usbh_class_drv *p_class_drv)
 {
 	uint8_t ix;
@@ -143,19 +105,8 @@ int usbh_class_drv_unreg(const struct usbh_class_drv *p_class_drv)
 }
 
 /*
- *********************************************************************************************************
- *                                         USBH_Classsuspend()
- *
- * Description : suspend all class drivers associated to the device.
- *
- * Argument(s) : p_dev       Pointer to USB device.
- *
- * Return(s)   : None.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * suspend all class drivers associated to the device.
  */
-
 void usbh_class_suspend(struct usbh_dev *p_dev)
 {
 	uint8_t if_ix;
@@ -198,19 +149,8 @@ void usbh_class_suspend(struct usbh_dev *p_dev)
 }
 
 /*
- *********************************************************************************************************
- *                                          USBH_Classresume()
- *
- * Description : resume all class drivers associated to the device.
- *
- * Argument(s) : p_dev   Pointer to USB device.
- *
- * Return(s)   : None
- *
- * Note(s)     : None
- *********************************************************************************************************
+ * resume all class drivers associated to the device.
  */
-
 void usbh_class_resume(struct usbh_dev *p_dev)
 {
 	uint8_t if_ix;
@@ -253,34 +193,10 @@ void usbh_class_resume(struct usbh_dev *p_dev)
 }
 
 /*
- *********************************************************************************************************
- *                                         USBH_ClassDrvConn()
- *
- * Description : Once a device is connected, attempts to find a class driver matching the device descriptor.
- *               If no class driver matches the device descriptor, it will attempt to find a class driver
- *               for each interface present in the active configuration.
- *
- * Argument(s) : p_dev   Pointer to USB device.
- *
- * Return(s)   : USBH_ERR_NONE                           If a class driver was found.
- *               USBH_ERR_DRIVER_NOT_FOUND               If no class driver was found.
- *
- *                                                       ----- RETURNED BY USBH_CfgSet() : -----
- *               USBH_ERR_UNKNOWN                        Unknown error occurred.
- *               USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
- *               USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
- *               USBH_ERR_HC_IO,                         Root hub input/output error.
- *               USBH_ERR_EP_STALL,                      Root hub does not support request.
- *               Host controller drivers error code,     Otherwise.
- *
- *                                                       ----- RETURNED BY USBH_IF_Get() : -----
- *               USBH_ERR_NULL_PTR                       If a null pointer was set for 'p_if'.
- *               Host controller drivers error code,     Otherwise.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Once a device is connected, attempts to find a class driver matching the device descriptor.
+ * If no class driver matches the device descriptor, it will attempt to find a class driver
+ * for each interface present in the active configuration.
  */
-
 int usbh_class_drv_conn(struct usbh_dev *p_dev)
 {
 	uint8_t if_ix;
@@ -362,19 +278,8 @@ int usbh_class_drv_conn(struct usbh_dev *p_dev)
 }
 
 /*
- *********************************************************************************************************
- *                                       USBH_ClassDrvdisconn()
- *
- * Description : disconnect all the class drivers associated to the specified USB device.
- *
- * Argument(s) : p_dev   Pointer to USB device.
- *
- * Return(s)   : None.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * disconnect all the class drivers associated to the specified USB device.
  */
-
 void usbh_class_drv_disconn(struct usbh_dev *p_dev)
 {
 	LOG_DBG("disconnect class driver");
@@ -435,28 +340,8 @@ void usbh_class_drv_disconn(struct usbh_dev *p_dev)
 }
 
 /*
- *********************************************************************************************************
- *********************************************************************************************************
- *                                            LOCAL FUNCTIONS
- *********************************************************************************************************
- *********************************************************************************************************
+ * Find a class driver matching device descriptor of the USB device.
  */
-
-/*
- *********************************************************************************************************
- *                                         USBH_Classprobe_dev()
- *
- * Description : Find a class driver matching device descriptor of the USB device.
- *
- * Argument(s) : p_dev   Pointer to USB device.
- *
- * Return(s)   : USBH_ERR_NONE                   If class driver for this device was found.
- *               USBH_ERR_CLASS_DRV_NOT_FOUND    If class driver for this device was not found.
- *
- * Note(s)     : None.
- *********************************************************************************************************
- */
-
 static int usbh_class_probe_dev(struct usbh_dev *p_dev)
 {
 	uint8_t ix;
@@ -488,22 +373,8 @@ static int usbh_class_probe_dev(struct usbh_dev *p_dev)
 }
 
 /*
- *********************************************************************************************************
- *                                         USBH_Classprobe_if()
- *
- * Description : Finds a class driver matching interface descriptor of an interface.
- *
- * Argument(s) : p_dev   Pointer to USB device.
- *
- *               p_if    Pointer to USB interface.
- *
- * Return(s)   : USBH_ERR_NONE                   If class driver for this interface was found.
- *               USBH_ERR_CLASS_DRV_NOT_FOUND    If class driver for this interface was not found.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Finds a class driver matching interface descriptor of an interface.
  */
-
 static int usbh_class_probe_if(struct usbh_dev *p_dev,
 			       struct usbh_if *p_if)
 {
@@ -535,25 +406,8 @@ static int usbh_class_probe_if(struct usbh_dev *p_dev,
 }
 
 /*
- *********************************************************************************************************
- *                                          USBH_ClassNotify()
- *
  * Description : Notifies application about connection and disconnection events.
- *
- * Argument(s) : p_dev           Pointer to USB device.
- *
- *               p_if            Pointer to USB interface.
- *
- *               p_class_dev     Pointer to class device structure.
- *
- *               is_conn         Flag indicating connection or disconnection.
- *
- * Return(s)   : None.
- *
- * Note(s)     : None
- *********************************************************************************************************
  */
-
 static void usbh_class_notify(struct usbh_dev *p_dev,
 			      struct usbh_if *p_if,
 			      void *p_class_dev,

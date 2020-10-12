@@ -1,49 +1,17 @@
 /*
- *********************************************************************************************************
- *                                             uC/USB-Host
- *                                     The Embedded USB Host Stack
+ * Copyright 2004-2020 Silicon Laboratories Inc. www.silabs.com
  *
- *                    Copyright 2004-2020 Silicon Laboratories Inc. www.silabs.com
+ * Copyright (c) 2020 PHYTEC Messtechnik GmbH
  *
- *                                 SPDX-License-Identifier: APACHE-2.0
- *
- *               This software is subject to an open source license and is distributed by
- *                Silicon Laboratories Inc. pursuant to the terms of the Apache License,
- *                    Version 2.0 available at www.apache.org/licenses/LICENSE-2.0.
- *
- *********************************************************************************************************
+ * SPDX-License-Identifier: APACHE-2.0
  */
 
-/*
- *********************************************************************************************************
- *
- *                                      USB HOST CORE OPERATIONS
- *
- * Filename : usbh_core.h
- * Version  : V3.42.00
- *********************************************************************************************************
- */
-
-/*
- *********************************************************************************************************
- *                                               MODULE
- *********************************************************************************************************
- */
-
-#ifndef  USBH_CORE_MODULE_PRESENT
-#define  USBH_CORE_MODULE_PRESENT
-#include  <usbh_cfg.h>
+#ifndef  ZEPHYR_USBH_CORE_
+#define  ZEPHYR_USBH_CORE_
+#include <usbh_cfg.h>
 #include <zephyr.h>
-#include <usbh_ll.h>
+#include <drivers/usbh/usbh_ll.h>
 #include <usbh_structs.h>
-
-
-/*
- *********************************************************************************************************
- *                                               DEFINES
- *********************************************************************************************************
- */
-
 
 #define  USBH_LEN_DESC_HDR                              0x02u
 // #define  USBH_LEN_DESC_DEV                              0x12u
@@ -68,9 +36,6 @@
 
 
 /*
- *********************************************************************************************************
- *                                       REQUEST CHARACTERISTICS
- *
  * Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 9.3, Table 9-2.
  *
  *           (2) The 'bm_request_type' field of a setup request is a bit-mapped datum with three subfields :
@@ -78,9 +43,7 @@
  *               (a) Bit  7  : Data transfer direction.
  *               (b) Bits 6-5: Type.
  *               (c) Bits 4-0: Recipient.
- *********************************************************************************************************
  */
-
 #define  USBH_REQ_DIR_MASK                              0x80u
 #define  USBH_REQ_DIR_HOST_TO_DEV                       0x00u
 #define  USBH_REQ_DIR_DEV_TO_HOST                       0x80u
@@ -97,13 +60,9 @@
 
 
 /*
- *********************************************************************************************************
- *                                          STANDARD REQUESTS
- *
  * Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 9.4, Table 9-4.
  *
  *           (2) The 'b_request' field of a standard setup request may contain one of these values.
- *********************************************************************************************************
  */
 
 #define  USBH_REQ_GET_STATUS                            0x00u
@@ -120,15 +79,11 @@
 
 
 /*
- *********************************************************************************************************
- *                                          DESCRIPTOR TYPES
- *
  * Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 9.4, Table 9-5, and
  *               Section 9.4.3.
  *
  *           (2) For a 'get descriptor' setup request, the low byte of the 'w_value' field may contain
  *               one of these values.
- *********************************************************************************************************
  */
 
 #define  USBH_DESC_TYPE_DEV                                1u
@@ -144,14 +99,10 @@
 
 
 /*
- *********************************************************************************************************
- *                                          FEATURE SELECTORS
- *
  * Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 9.4, Table 9-6, and
  *               Section 9.4.1.
  *
  *           (2) For a 'clear feature' setup request, the 'w_value' field may contain one of these values.
- *********************************************************************************************************
  */
 
 #define  USBH_FEATURE_SEL_EP_HALT                          0u
@@ -161,13 +112,9 @@
 
 
 /*
- *********************************************************************************************************
- *                                    ENDPOINT TYPES (bm_attributes)
- *
  * Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 9.6.6, Table 9-13
  *
  *           (2) In an endpoint descriptor, the 'bm_attributes' value is one of these values.
- *********************************************************************************************************
  */
 
 #define  USBH_EP_TYPE_MASK                              0x03u
@@ -187,13 +134,9 @@
 
 
 /*
- *********************************************************************************************************
- *                                         ENDPOINT DIRECTION
- *
  * Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 9.6.6, Table 9-13
  *
  *           (2) In an endpoint descriptor, the upper bit of 'b_endpoint_address' indicates direction.
- *********************************************************************************************************
  */
 
 #define  USBH_EP_DIR_MASK                               0x80u
@@ -203,9 +146,6 @@
 
 
 /*
- *********************************************************************************************************
- *                                 MAX ENDPOINT SIZE (w_max_packet_size)
- *
  * Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 5.5 to 5.8
  *               The values come from:
  *               + CONTROL    : Section 5.5.3
@@ -216,7 +156,6 @@
  *           (2) See 'Universal Serial Bus Specification Revision 2.0', Section 9.6.6
  *               Bits 12..11 from w_max_packet_size indicates the number of transaction per microframe.
  *               Valid for high-speed isochronous and interrupt endpoint only.
- *********************************************************************************************************
  */
 /* See Note #1                                          */
 #define  USBH_MAX_EP_SIZE_TYPE_CTRL_LS                     8u
@@ -237,13 +176,9 @@
 
 
 /*
- *********************************************************************************************************
- *                                      CONFIGURATION ATTRIBUTES
- *
  * Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 9.6.3, Table 9-10
  *
  *           (2) In a configuration descriptor, the 'bm_attributes' value is a bitmap composed of these values.
- *********************************************************************************************************
  */
 
 #define  USBH_CFG_DESC_SELF_POWERED                     0xC0u
@@ -252,11 +187,7 @@
 
 
 /*
- *********************************************************************************************************
- *                                        LANGUAGE IDENTIFIERS
- *
  * Note(s) : (1) See http://www.usb.org/developers/docs/USB_LANGIDs.pdf
- *********************************************************************************************************
  */
 
 #define  USBH_LANG_ID_ARABIC_SAUDIARABIA              0x0401u
@@ -272,9 +203,6 @@
 
 
 /*
- *********************************************************************************************************
- *                                             CLASS CODES
- *
  * Note(s) : (1) See 'Universal Class Codes', www.usb.org/developers/defined_class.
  *
  *           (2) Except as noted, these should be used ONLY in interface descriptors.
@@ -284,7 +212,6 @@
  *               (b) Can be used in either device or interface descriptor.
  *
  *           (4) Subclass & protocol codes are defined in the relevant class drivers.
- *********************************************************************************************************
  */
 
 #define  USBH_CLASS_CODE_USE_IF_DESC                    0x00u           /* See Notes #2a.                                      */
@@ -309,9 +236,6 @@
 
 
 /*
- *********************************************************************************************************
- *                                           SUBCLASS CODES
- *
  * Note(s) : (1) See 'Universal Class Codes', www.usb.org/developers/defined_class.
  *
  *           (2) Except as noted, these should be used ONLY in interface descriptors.
@@ -321,7 +245,6 @@
  *               (b) Can be used in either device or interface descriptor.
  *
  *           (4) Subclass & protocol codes are defined in the relevant class drivers.
- *********************************************************************************************************
  */
 
 #define  USBH_SUBCLASS_CODE_USE_IF_DESC                 0x00u           /* See Notes #2a.                                       */
@@ -330,9 +253,6 @@
 
 
 /*
- *********************************************************************************************************
- *                                           PROTOCOL CODES
- *
  * Note(s) : (1) See 'Universal Class Codes', www.usb.org/developers/defined_class.
  *
  *           (2) Except as noted, these should be used ONLY in interface descriptors.
@@ -345,7 +265,6 @@
  *               (c) Can be used in either device or interface descriptor.
  *
  *           (4) Subclass & protocol codes are defined in the relevant class drivers.
- *********************************************************************************************************
  */
 
 #define  USBH_PROTOCOL_CODE_USE_IF_DESC                 0x00u           /* See Notes #2a.                                        */
@@ -354,14 +273,10 @@
 
 
 /*
- *********************************************************************************************************
- *                                  USB SPECIFICATION RELEASE NUMBER
- *
  * Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 9.6.1, Table 9-8.
  *
  *           (2) The field "bcd_usb" is part of the device descriptor and indicates the release number of the
  *               USB specification to which the device complies.
- *********************************************************************************************************
  */
 
 #define  USBH_SPEC_RELEASE_NBR_1_0                      0x0100u
@@ -369,31 +284,19 @@
 #define  USBH_SPEC_RELEASE_NBR_2_0                      0x0200u
 
 
-/*
- ********************************************************************************************************
- *                                           OTG HNP AND SRP
- ********************************************************************************************************
- */
-
 #define  USBO_OTG_DESC_HNP                              0x01u   /* Device is HNP capable                                 */
 #define  USBO_OTG_DESC_SRP                              0x02u   /* Device is SRP capable                                 */
 
 
 /*
- *********************************************************************************************************
- *                                         DEFAULT LANGUAGE ID
- *********************************************************************************************************
+ * DEFAULT LANGUAGE ID
  */
-
 #define  USBH_STRING_DESC_LANGID                        0x00u
 
 
 /*
- *********************************************************************************************************
- *                                             HOST STATE
- *********************************************************************************************************
+ * HOST STATE
  */
-
 #define  USBH_HOST_STATE_NONE                              0u
 #define  USBH_HOST_STATE_READY                             1u
 #define  USBH_HOST_STATE_SUSPENDED                         2u
@@ -401,11 +304,8 @@
 
 
 /*
- *********************************************************************************************************
- *                                              urb STATE
- *********************************************************************************************************
+ * urb STATE
  */
-
 #define  USBH_URB_STATE_NONE                               0u
 #define  USBH_URB_STATE_SCHEDULED                          1u
 #define  USBH_URB_STATE_QUEUED                             2u
@@ -413,33 +313,24 @@
 
 
 /*
- *********************************************************************************************************
- *                                              USB TOKEN
- *********************************************************************************************************
+ * USB TOKEN
  */
-
 #define  USBH_TOKEN_SETUP                                  0u
 #define  USBH_TOKEN_OUT                                    1u
 #define  USBH_TOKEN_IN                                     2u
 
 
 /*
- *********************************************************************************************************
- *                                          USB DEV + RH DEV
- *********************************************************************************************************
+ *USB DEV + RH DEV
  */
 
 // #define  USBH_MAX_NBR_DEVS                          USBH_CFG_MAX_NBR_DEVS + USBH_CFG_MAX_NBR_HC
 
 
 /*
- *********************************************************************************************************
- *                                        HUB STANDARD REQUESTS
- *
  * Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 11.24.2, Table 11-16.
  *
  *           (2) The 'b_request' field of a class-specific setup request may contain one of these values.
- *********************************************************************************************************
  */
 
 #define  USBH_HUB_REQ_GET_STATUS                        0x00u
@@ -454,27 +345,19 @@
 
 
 /*
- *********************************************************************************************************
- *                                        HUB DESCRIPTOR TYPES
- *
  * Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 11.23.2, Table 11-13.
  *
  *           (2) For a 'get descriptor' setup request, the low byte of the 'w_value' field may contain
  *               one of these values.
- *********************************************************************************************************
  */
 
 #define  USBH_HUB_DESC_TYPE_HUB                         0x29u
 
 
 /*
- *********************************************************************************************************
- *                                        HUB FEATURE SELECTORS
- *
  * Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 11.24.2, Table 11-17.
  *
  *           (2) For a 'clear feature' setup request, the 'w_value' field may contain one of these values.
- *********************************************************************************************************
  */
 
 #define  USBH_HUB_FEATURE_SEL_C_HUB_LOCAL_PWR              0u
@@ -497,11 +380,7 @@
 
 
 /*
- *********************************************************************************************************
- *                                        HUB PORT STATUS BITS
- *
  * Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 11.24.2.7.1, Table 11-21.
- *********************************************************************************************************
  */
 
 #define  USBH_HUB_STATUS_PORT_CONN                    0x0001u
@@ -518,11 +397,8 @@
 
 
 /*
- *********************************************************************************************************
- *                                     HUB PORT STATUS CHANGE BITS
- *
+ * HUB PORT STATUS CHANGE BITS
  * Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 11.24.2.7.2, Table 11-22.
- *********************************************************************************************************
  */
 
 #define  USBH_HUB_STATUS_C_PORT_CONN                  0x0001u
@@ -531,484 +407,8 @@
 #define  USBH_HUB_STATUS_C_PORT_OVER_CUR              0x0008u
 #define  USBH_HUB_STATUS_C_PORT_RESET                 0x0010u
 
-
 /*
- *********************************************************************************************************
- *                                             DEVICE SPEED
- *********************************************************************************************************
- */
-
-// enum usbh_device_speed {
-// 	USBH_UNKNOWN_SPEED = 0,                 /* enumerating */
-// 	USBH_LOW_SPEED, USBH_FULL_SPEED,        /* usb 1.1 */
-// 	USBH_HIGH_SPEED,                        /* usb 2.0 */
-// };
-
-
-// /*
-//  *********************************************************************************************************
-//  *                                      HUB PORT STATUS DATA TYPE
-//  *
-//  * Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 11.24.2.7.
-//  *********************************************************************************************************
-//  */
-
-// struct  usbh_hub_port_status {
-// 	uint16_t w_port_status;
-// 	uint16_t w_port_change;
-// };
-
-
-// /*
-//  *********************************************************************************************************
-//  *                                           HUB DESCRIPTOR
-//  *
-//  * Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 11.23.2.1.
-//  *********************************************************************************************************
-//  */
-// struct  usbh_hub_desc {
-// 	uint8_t b_desc_length;
-// 	uint8_t b_desc_type;
-// 	uint8_t b_nbr_ports;
-// 	uint16_t w_hub_characteristics;
-// 	uint8_t b_pwr_on_to_pwr_good;
-// 	uint8_t b_hub_contr_current;
-// 	uint8_t device_removable;
-// 	uint32_t port_pwr_ctrl_mask[USBH_CFG_MAX_HUB_PORTS];
-// };
-
-
-// /*
-//  *********************************************************************************************************
-//  *                                             HUB STATUS
-//  *
-//  * Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 11.24.2.6.
-//  *********************************************************************************************************
-//  */
-
-// struct  usbh_hub_status {
-// 	uint16_t w_hub_status;
-// 	uint16_t w_hub_change;
-// };
-
-
-// /*
-//  *********************************************************************************************************
-//    -                                            SETUP REQUEST
-//    -
-//    - Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 9.3, Table 9-2.
-//  *********************************************************************************************************
-//  */
-
-// struct  usbh_setup_req {
-// 	uint8_t bm_request_type;
-// 	uint8_t b_request;
-// 	uint16_t w_value;
-// 	uint16_t w_index;
-// 	uint16_t w_length;
-// };
-
-
-// /*
-//  *********************************************************************************************************
-//  *                                          DESCRIPTOR HEADER
-//  *********************************************************************************************************
-//  */
-
-// struct  usbh_desc_hdr {
-// 	uint8_t b_length;
-// 	uint8_t b_desc_type;
-// };
-
-
-// /*
-//  *********************************************************************************************************
-//  *                                          DEVICE DESCRIPTOR
-//  *
-//  * Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 9.6.1, Table 9-8.
-//  *********************************************************************************************************
-//  */
-
-// struct  usbh_dev_desc {
-// 	uint8_t b_length;
-// 	uint8_t b_desc_type;
-// 	uint16_t bcd_usb;
-// 	uint8_t b_device_class;
-// 	uint8_t b_device_sub_class;
-// 	uint8_t b_device_protocol;
-// 	uint8_t b_max_packet_size_zero;
-// 	uint16_t id_vendor;
-// 	uint16_t id_product;
-// 	uint16_t bcd_device;
-// 	uint8_t i_manufacturer;
-// 	uint8_t i_product;
-// 	uint8_t i_serial_number;
-// 	uint8_t b_nbr_configs;
-// };
-
-
-// /*
-//  *********************************************************************************************************
-//  *                                     DEVICE QUALIFIER DESCRIPTOR
-//  *
-//  * Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 9.6.2, Table 9-9.
-//  *********************************************************************************************************
-//  */
-
-// struct  usbh_dev_qualifier_desc {
-// 	uint8_t b_length;
-// 	uint8_t b_desc_type;
-// 	uint16_t bcd_usb;
-// 	uint8_t b_device_class;
-// 	uint8_t b_device_sub_class;
-// 	uint8_t b_device_protocol;
-// 	uint8_t b_max_packet_size_zero;
-// 	uint8_t b_nbr_configs;
-// 	uint8_t b_reserved;
-// };
-
-
-// /*
-//  *********************************************************************************************************
-//  *                                      CONFIGURATION DESCRIPTOR
-//  *
-//  * Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 9.6.3, Table 9-10.
-//  *********************************************************************************************************
-//  */
-
-// struct  usbh_cfg_desc {
-// 	uint8_t b_length;
-// 	uint8_t b_desc_type;
-// 	uint16_t w_total_length;
-// 	uint8_t b_nbr_interfaces;
-// 	uint8_t b_cfg_value;
-// 	uint8_t i_cfg;
-// 	uint8_t bm_attributes;
-// 	uint8_t b_max_pwr;
-// };
-
-
-// /*
-//  *********************************************************************************************************
-//  *                                OTHER SPEED CONFIGURATION DESCRIPTOR
-//  *
-//  * Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 9.6.4, Table 9-11.
-//  *********************************************************************************************************
-//  */
-
-// struct  usbh_other_spd_cfg_desc {
-// 	uint8_t b_length;
-// 	uint8_t b_desc_type;
-// 	uint16_t w_total_length;
-// 	uint8_t b_nbr_interfaces;
-// 	uint8_t b_cfg_value;
-// 	uint8_t i_cfg;
-// 	uint8_t bm_attributes;
-// 	uint8_t b_max_pwr;
-// };
-
-
-// /*
-//  *********************************************************************************************************
-//  *                                        INTERFACE DESCRIPTOR
-//  *
-//  * Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 9.6.5, Table 9-12.
-//  *********************************************************************************************************
-//  */
-
-// struct  usbh_if_desc {
-// 	uint8_t b_length;
-// 	uint8_t b_desc_type;
-// 	uint8_t b_if_nbr;
-// 	uint8_t b_alt_setting;
-// 	uint8_t b_nbr_endpoints;
-// 	uint8_t b_if_class;
-// 	uint8_t b_if_sub_class;
-// 	uint8_t b_if_protocol;
-// 	uint8_t i_interface;
-// };
-
-
-// /*
-//  *********************************************************************************************************
-//  *                                  INTERFACE ASSOCIATION DESCRIPTOR
-//  *
-//  * Note(s) : (1) See 'www.usb.org/developers/doc/InterfaceAssociationDescriptor_ecn.pdf', Section 9.X.Y, Table 9-Z.
-//  *********************************************************************************************************
-//  */
-
-// struct  usbh_if_association_desc {
-// 	uint8_t b_length;
-// 	uint8_t b_desc_type;
-// 	uint8_t b_first_if;
-// 	uint8_t b_if_cnt;
-// 	uint8_t b_fnct_class;
-// 	uint8_t b_fnct_sub_class;
-// 	uint8_t b_fnct_protocol;
-// 	uint8_t i_function;
-// };
-
-
-// /*
-//  *********************************************************************************************************
-//  *                                         ENDPOINT DESCRIPTOR
-//  *
-//  * Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 9.6.6, Table 9-14.
-//  *********************************************************************************************************
-//  */
-
-// struct  usbh_ep_desc {
-// 	uint8_t b_length;
-// 	uint8_t b_desc_type;
-// 	uint8_t b_endpoint_address;
-// 	uint8_t bm_attributes;
-// 	uint16_t w_max_packet_size;
-// 	uint8_t b_interval;
-// 	uint8_t b_refresh;
-// 	uint8_t b_sync_address;
-// };
-
-
-// /*
-//  *********************************************************************************************************
-//  *                                           OTG DESCRIPTOR
-//  *
-//  * Note(s) : (1) See 'On-The-Go Specification Revision 1.3', Section 6.4, Table 6-1.
-//  *********************************************************************************************************
-//  */
-
-// struct  usbh_otg_desc {
-// 	uint8_t b_length;
-// 	uint8_t b_desc_type;
-// 	uint8_t bm_attributes;
-// };
-
-
-// /*
-//  *********************************************************************************************************
-//  *                                       ISOCHRONOUS DESCRIPTOR
-//  *********************************************************************************************************
-//  */
-
-// struct  usbh_isoc_desc {
-// 	uint8_t  *buf_ptr;
-// 	uint32_t buf_len;
-// 	uint32_t start_frm;
-// 	uint32_t nbr_frm;
-// 	uint16_t  *frm_len;
-// 	int    *frm_err;
-// };
-
-
-// /*
-//  *********************************************************************************************************
-//  *                                 USB REQUEST BLOCK (urb) INFORMATION
-//  *********************************************************************************************************
-//  */
-
-// struct  usbh_urb {
-// 	volatile uint8_t state;                                 /* state of urb.                                        */
-// 	struct usbh_ep         *ep_ptr;                         /* EP the urb belongs to.                               */
-// 	volatile int err;                                       /* The status of urb completion.                        */
-
-// 	void            *userbuf_ptr;                           /* Ptr to buf supplied by app.                          */
-// 	uint32_t uberbuf_len;                                   /* Buf len in bytes.                                    */
-// 	void            *dma_buf_ptr;                           /* DMA buf ptr used by DMA HW.                          */
-// 	int32_t dma_buf_len;                                    /* DMA buf len.                                         */
-// 	uint32_t xfer_len;                                      /* Actual len xfer'd by ctrlr.                          */
-
-// 	struct usbh_isoc_desc  *isoc_desc_ptr;                  /* Isoc xfer desc.                                      */
-
-// 	void            *fnct_ptr;                              /* Fnct ptr, called when I/O is completed.              */
-// 	void            *fnct_arg_ptr;                          /* Fnct context.                                        */
-
-// 	void            *arg_ptr;                               /* HCD private data.                                    */
-
-// 	uint8_t token;                                          /* token (SETUP, IN, or OUT).                           */
-
-// 	bool urb_done_signal;
-// 	struct usbh_urb        *async_urb_nxt_ptr;                      /* Ptr to next urb (if any).                            */
-// 	struct usbh_urb        *nxt_ptr;                                /* Used for urb chained list in async task.             */
-
-// 	struct k_sem sem;                                               /* sem to wait on I/O completion.                       */
-// };
-
-
-// /*
-//  *********************************************************************************************************
-//  *                                        ENDPOINT INFORMATION
-//  *********************************************************************************************************
-//  */
-
-// struct  usbh_ep {
-// 	enum usbh_device_speed dev_spd;                         /* USB dev spd.                                         */
-// 	uint8_t dev_addr;                                       /* USB dev addr.                                        */
-// 	struct usbh_dev      *dev_ptr;                          /* Ptr to USB dev struct.                               */
-// 	struct usbh_ep_desc desc;                               /* EP desc.                                             */
-// 	uint16_t interval;                                      /* EP interval.                                         */
-// 	uint32_t hc_ref_frame;                                  /* Initial HC ref frame nbr.                            */
-// 	void          *arg_ptr;                                 /* HCD private data.                                    */
-// 	struct usbh_urb urb;                                    /* urb used for data xfer on this endpoint.             */
-// 	struct k_mutex mutex;                                   /* mutex for I/O access serialization on this EP.       */
-// 	bool is_open;                                           /* EP state.                                            */
-// 	uint32_t xfer_nbr_in_prog;                              /* nbr of urb(s) in progress. Used for async omm.       */
-// 	uint8_t data_pid;                                       /* EP Data Toggle PID tracker.                          */
-// };
-
-
-// /*
-//  *********************************************************************************************************
-//  *                                        INTERFACE INFORMATION
-//  *********************************************************************************************************
-//  */
-
-// struct  usbh_if {
-// 	struct usbh_dev            *dev_ptr;                            /* Ptr to USB dev.                                      */
-// 	uint8_t alt_ix_sel;                                             /* Selected alternate setting ix.                       */
-// 	void                *class_dev_ptr;                             /* Ptr to class dev created by class drv.               */
-// 	struct usbh_class_drv_reg  *class_drv_reg_ptr;                  /* Ptr to class drv registered for this IF.             */
-// 	uint8_t          *if_data_ptr;                                  /* Buf pointer containing IF data.                      */
-// 	uint16_t if_data_len;                                           /* Buf len.                                             */
-// };
-
-
-// /*
-//  *********************************************************************************************************
-//  *                                      CONFIGURATION INFORMATION
-//  *********************************************************************************************************
-//  */
-
-// struct  usbh_cfg {
-// 	uint8_t cfg_data[USBH_CFG_MAX_CFG_DATA_LEN];            /* Buf containing cfg desc data.                        */
-// 	uint16_t cfg_data_len;                                  /* Cfg desc data len.                                   */
-// 	struct usbh_if if_list[USBH_CFG_MAX_NBR_IFS];           /* Device IFs.                                          */
-// };
-
-
-// /*
-//  *********************************************************************************************************
-//  *                                         DEVICE INFORMATION
-//  *********************************************************************************************************
-//  */
-
-// struct  usbh_dev {
-// 	struct usbh_hc             *hc_ptr;                     /* Ptr to HC struct.                                    */
-// 	uint8_t dev_addr;                                       /* USB dev addr assigned by host.                       */
-// 	enum usbh_device_speed dev_spd;                         /* Dev spd (low, full or high).                         */
-// 	struct usbh_ep dflt_ep;                                 /* Dflt ctrl EP.                                        */
-// 	struct k_mutex dflt_ep_mutex;                           /* Dev dflt EP mutex.                                   */
-// 	uint16_t lang_id;                                       /* Language ID used by the str desc.                    */
-// 	void                *class_dev_ptr;                     /* Ptr to class dev created by class drv.               */
-// 	struct usbh_class_drv_reg  *class_drv_reg_ptr;          /* Ptr to class drv managing this dev.                  */
-// 	uint8_t dev_desc[USBH_LEN_DESC_DEV];                    /* Dev desc.                                            */
-// 	struct usbh_cfg cfg_list[USBH_CFG_MAX_NBR_CFGS];        /* Dev cfg.                                             */
-// 	uint8_t sel_cfg;                                        /* Selected dev cfg nbr.                                */
-// 	struct usbh_dev            *hub_dev_ptr;                /* Ptr to up stream hub dev struct.                     */
-// 	uint32_t port_nbr;                                      /* Port nbr to which this dev is connected.             */
-// 	bool is_root_hub;                                       /* Indicate if this is a RH dev.                        */
-// 	struct usbh_hub_dev        *hub_hs_ptr;                 /* Ptr to prev HS Hub.                                  */
-// };
-
-
-// /*
-//  *********************************************************************************************************
-//  *                                             HUB DEVICE
-//  *********************************************************************************************************
-//  */
-
-// struct  usbh_hub_dev {
-// 	struct usbh_ep intr_ep;                                         /* Intr EP to recv events from hub.                     */
-// 	struct usbh_hub_desc desc;                                      /* Hub desc.                                            */
-// 	struct usbh_dev       *dev_ptr_list[USBH_CFG_MAX_HUB_PORTS];    /* Ptrs to USB devs connected to this hub.              */
-// 	struct usbh_dev       *dev_ptr;                                 /* USB dev ptr of the hub IF.                           */
-// 	struct usbh_if        *if_ptr;                                  /* HUB IF ptr.                                          */
-// 	uint8_t hub_intr_buf[64];                                       /* Buf to recv hub events.                              */
-// 	uint32_t err_cnt;
-// 	uint8_t state;
-// 	uint8_t ref_cnt;
-// 	struct usbh_hub_dev   *nxt_ptr;
-// 	uint8_t conn_cnt;                                     /* Re-connection counter                                */
-// };
-
-
-// /*
-//  *********************************************************************************************************
-//  *                                 HOST CONTROLLER DRIVER INFORMATION
-//  *********************************************************************************************************
-//  */
-
-// struct  usbh_hc_drv {
-// 	uint8_t nbr;                                            /* HC nbr.                                              */
-// 	void             *data_ptr;                             /* Drv's data.                                          */
-// 	struct usbh_dev         *rh_dev_ptr;                    /* Ptr to RH dev struct.                                */
-// 	const struct usbh_hc_drv_api  *api_ptr;                 /* Ptr to HC drv API struct.                            */
-// 	const struct usbh_hc_rh_api   *rh_api_ptr;              /* Ptr to RH drv API struct.                            */
-// 	const struct usbh_hc_bsp_api  *bsp_api_ptr;             /* Ptr to HC BSP API struct.                            */
-// };
-
-
-
-// /*
-//  *********************************************************************************************************
-//  *                                HOST CONTROLLER INFORMATION DATA TYPE
-//  *********************************************************************************************************
-//  */
-
-// struct usbh_hc {
-// 	struct usbh_hc_drv hc_drv;                              /* Host Controller driver (HCD) info.                   */
-// 	struct usbh_host     *host_ptr;                         /* Host structure.                                      */
-// 	struct usbh_hub_dev  *rh_class_dev_ptr;                 /* Root Hub class device pointer.                       */
-// 	struct k_mutex hcd_mutex;                               /* mutex to sync access to HCD.                         */
-// 	bool is_vir_rh;                                         /* Indicate if RH is virtual.                           */
-// };
-
-
-// /*
-//  *********************************************************************************************************
-//  *                                     HOST INFORMATION DATA TYPE
-//  *********************************************************************************************************
-//  */
-
-// struct  usbh_host {
-// 	uint8_t state;                                  /* state of USB host stack.                             */
-
-// 	struct usbh_dev dev_list[USBH_MAX_NBR_DEVS];    /* List of USB dev connected.                           */
-// 	int8_t dev_cnt;                                 /* Pool for mem mgmt of USB devs.                       */
-// 	int8_t isoc_cnt;
-// 	struct usbh_isoc_desc isoc_desc[USBH_CFG_MAX_ISOC_DESC];
-// 	struct k_mem_pool async_urb_pool;                               /* Pool of extra urb when using async comm.             */
-
-// 	struct usbh_hc hc_tbl[USBH_CFG_MAX_NBR_HC];                     /* Array of HC structs.                                 */
-// 	uint8_t hc_nbr_next;
-
-// 	struct k_thread h_async_task;                                           /* Async task handle.                                   */
-// 	struct k_thread h_hub_task;                                             /* Hub event task handle.                               */
-// };
-
-
-/*
- *********************************************************************************************************
- *                                       KERNEL TASK INFORMATION
- *********************************************************************************************************
- */
-
-/*
- *********************************************************************************************************
- *                                     USB HOST CONTROLLER BSP API
- *********************************************************************************************************
- */
-
-struct  usbh_hc_bsp_api {
-	void (*init)       (struct usbh_hc_drv   *p_hc_drv,
-	                    /* Init BSP.                                            */
-			    int      *p_err);
-
-};
-
-/*
- *********************************************************************************************************
- *                                   XFER COMPLETE NOTIFICATION FNCT
- *********************************************************************************************************
+ * XFER COMPLETE NOTIFICATION FNCT
  */
 
 typedef  void (*usbh_isoc_cmpl_fnct)(struct usbh_ep     *p_ep,
@@ -1030,29 +430,11 @@ typedef  void (*usbh_xfer_cmpl_fnct)(struct usbh_ep     *p_ep,
 				     int err);
 
 
-/*
- *********************************************************************************************************
- *                                          GLOBAL VARIABLES
- *********************************************************************************************************
- */
-
-
-/*
- *********************************************************************************************************
- *                                               MACROS
- *********************************************************************************************************
- */
 #define USBH_OS_SEM_REQUIRED					      \
 	(3u + (((USBH_CFG_MAX_NBR_EPS * USBH_CFG_MAX_NBR_IFS) + 1u) * \
 	       USBH_CFG_MAX_NBR_DEVS))
 #define DEF_BIT_IS_SET(val, mask) (((val & mask) == mask) ? true : false)
 #define DEF_BIT_IS_CLR(val, bit) !DEF_BIT_IS_SET(val, bit)
-
-/*
- *********************************************************************************************************
- *                                         FUNCTION PROTOTYPES
- *********************************************************************************************************
- */
 
 /* --------- USB HOST STACK GENERAL FUNCTIONS --------- */
 uint32_t      usbh_version_get(void);
@@ -1297,11 +679,6 @@ uint32_t      usbh_str_get(struct usbh_dev               *p_dev,
 			   int               *p_err);
 
 
-/*
- *********************************************************************************************************
- *                                         CONFIGURATION ERRORS
- *********************************************************************************************************
- */
 
 #ifndef  USBH_CFG_MAX_NBR_DEVS
 #error  "USBH_CFG_MAX_NBR_DEVS                 not #define'd in 'usbh_cfg.h'"
@@ -1407,12 +784,5 @@ uint32_t      usbh_str_get(struct usbh_dev               *p_dev,
 #ifndef  USBH_CFG_MAX_NUM_DEV_RECONN
 #error  "USBH_CFG_MAX_NUM_DEV_RECONN           not #define'd in 'usbh_cfg.h'"
 #endif
-
-
-/*
- *********************************************************************************************************
- *                                             MODULE END
- *********************************************************************************************************
- */
 
 #endif

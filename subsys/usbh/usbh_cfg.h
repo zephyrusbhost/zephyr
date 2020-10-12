@@ -342,28 +342,6 @@
 #define  USBH_FTDI_CFG_ID_PRODUCT_CUSTOM              0x0000u
 
 
-/*
- *********************************************************************************************************
- *                                    TRACE / DEBUG CONFIGURATION
- *********************************************************************************************************
- */
-
-#define  USBH_CFG_PRINT_LOG                      0
-#define  USBH_CFG_PRINT_ERR                      0
-#define  USBH_CFG_PRINT_FNAME                    0
-
-#include <stdio.h>
-#define  USBH_PRINTF                             printf
-
-#if  (USBH_CFG_PRINT_LOG == DEF_ENABLED)
-#define  USBH_PRINT_LOG(...)         USBH_PRINTF(__VA_ARGS__)
-#endif
-
-#if  (USBH_CFG_PRINT_ERR == DEF_ENABLED)
-#define  USBH_PRINT_ERR(err)         USBH_PRINTF("ERR:%s:%d:err=%d\n", __FUNCTION__, __LINE__, err);
-#else
-#define  USBH_PRINT_ERR(err)
-#endif
 
 
 /*

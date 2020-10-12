@@ -1,40 +1,19 @@
 /*
- *********************************************************************************************************
- *                                             uC/USB-Host
- *                                     The Embedded USB Host Stack
+ * Copyright 2004-2020 Silicon Laboratories Inc. www.silabs.com
  *
- *                    Copyright 2004-2020 Silicon Laboratories Inc. www.silabs.com
+ * Copyright (c) 2020 PHYTEC Messtechnik GmbH
  *
- *                                 SPDX-License-Identifier: APACHE-2.0
- *
- *               This software is subject to an open source license and is distributed by
- *                Silicon Laboratories Inc. pursuant to the terms of the Apache License,
- *                    Version 2.0 available at www.apache.org/licenses/LICENSE-2.0.
- *
- *********************************************************************************************************
+ * SPDX-License-Identifier: APACHE-2.0
  */
 
 /*
- *********************************************************************************************************
- *
- *                                    ATSAMX HOST CONTROLLER DRIVER
- *
- * Filename : usbh_hcd_atsamx.c
- * Version  : V3.42.00
- *********************************************************************************************************
  * Note(s)  : (1) Due to hardware limitations, the ATSAM D5x/E5x host controller does not support a
  *                combination of Full-Speed HUB + Low-Speed device
- *********************************************************************************************************
  */
 
-/*
- *********************************************************************************************************
- *                                            INCLUDE FILES
- *********************************************************************************************************
- */
 #define DT_DRV_COMPAT atmel_sam0_usbh
 
-#include <usbh_ll.h>
+#include <drivers/usbh/usbh_ll.h>
 #include <usbh_hub.h>
 #include <soc.h>
 #include <zephyr.h>
@@ -43,12 +22,6 @@
 
 #include <logging/log.h>
 LOG_MODULE_REGISTER(hcd);
-
-/*
- *********************************************************************************************************
- *                                            LOCAL DEFINES
- *********************************************************************************************************
- */
 
 #define USBH_ATSAMX_CTRLA_HOST_MODE \
 	BIT(7)  /* HOST Operation mode                                  */
@@ -178,12 +151,6 @@ LOG_MODULE_REGISTER(hcd);
 #define USBH_ATSAMX_PDESC_BYTE_COUNT_MSK 0x3FFFu
 #define USBH_ATSAMX_PDESC_PCKSIZE_BYTE_COUNT_MSK 0x0FFFFFFFu
 
-/*
- *********************************************************************************************************
- *                                               MACROS
- *********************************************************************************************************
- */
-
 #define USBH_ATSAMX_GET_BYTE_CNT(reg) \
 	((reg & USBH_ATSAMX_PDESC_BYTE_COUNT_MSK) >> 0)
 #define USBH_ATSAMX_GET_DPID(reg) ((reg & USBH_ATSAMX_PSTATUS_DTGL) >> 0)
@@ -192,9 +159,7 @@ LOG_MODULE_REGISTER(hcd);
 
 
 /*
- *********************************************************************************************************
- *                                   ATSAMD5X/ATSAME5X DEFINES
- *********************************************************************************************************
+ * ATSAMD5X/ATSAME5X DEFINES
  */
 /* NVM software calibration area address                */
 #define ATSAMX_NVM_SW_CAL_AREA ((volatile uint32_t *)0x00800080u)
@@ -242,12 +207,6 @@ LOG_MODULE_REGISTER(hcd);
 #ifndef ATSAMX_URB_PROC_Q_MAX
 #define ATSAMX_URB_PROC_Q_MAX 8
 #endif
-
-/*
- *********************************************************************************************************
- *                                           LOCAL DATA TYPES
- *********************************************************************************************************
- */
 
 struct usbh_atsamx_desc_bank {
 	/* ----------- USB HOST PIPE DESCRIPTOR BANK ---------- */
@@ -343,12 +302,6 @@ K_THREAD_STACK_DEFINE(ATSAMX_URB_ProcTaskStk, ATSAMX_URB_PROC_TASK_STK_SIZE);
 K_MEM_POOL_DEFINE(ATSAMX_DrvMemPool, DT_INST_PROP(0, buf_len), DT_INST_PROP(0, buf_len), (DT_INST_PROP(0, nbr_ep_bulk) + DT_INST_PROP(0, nbr_ep_intr) + 1),
 		  sizeof(uint32_t));
 
-/*
- *********************************************************************************************************
- *                                       DRIVER FUNCTION PROTOTYPES
- *********************************************************************************************************
- */
-
 /* --------------- DRIVER API FUNCTIONS --------------- */
 static void usbh_atsamx_hcd_init(struct usbh_hc_drv *p_hc_drv,
 				 int *p_err);
@@ -440,9 +393,7 @@ static bool usbh_atsamx_rh_int_en(struct usbh_hc_drv *p_hc_drv);
 static bool usbh_atsamx_rh_int_dis(struct usbh_hc_drv *p_hc_drv);
 
 /*
- *********************************************************************************************************
- *                                       LOCAL FUNCTION PROTOTYPES
- *********************************************************************************************************
+ * LOCAL FUNCTION PROTOTYPES
  */
 
 static void usbh_atsamx_isr_callback(void *p_drv);
@@ -459,11 +410,6 @@ static void usbh_atsamx_pipe_cfg(struct usbh_urb *p_urb,
 				 struct usbh_atsamx_pinfo *p_pipe_info,
 				 struct usbh_atsamx_desc_bank *p_desc_bank);
 
-/*
- *********************************************************************************************************
- *                                    INITIALIZED GLOBAL VARIABLES
- *********************************************************************************************************
- */
 const struct usbh_hc_drv_api usbh_hcd_api = {
 	.init = usbh_atsamx_hcd_init,
 	.start = usbh_atsamx_hcd_start,
@@ -506,24 +452,8 @@ const struct usbh_hc_rh_api usbh_hcd_rh_api = {
 
 
 /*
- *********************************************************************************************************
- *                                       USBH_ATSAMX_HCD_init()
- *
- * Description : initialize host controller and allocate driver's internal memory/variables.
- *
- * Argument(s) : p_hc_drv     Pointer to host controller driver structure.
- *
- *               p_err        Pointer to variable that will receive the return error code from this function
- *                                USBH_ERR_NONE           HCD init successful.
- *                                Specific error code     otherwise.
- *
- * Return(s)   : None.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Initialize host controller and allocate driver's internal memory/variables.
  */
-
-
 static void usbh_atsamx_hcd_init(struct usbh_hc_drv *p_hc_drv,
 				 int *p_err)
 {
@@ -556,21 +486,7 @@ static void usbh_atsamx_hcd_init(struct usbh_hc_drv *p_hc_drv,
 }
 
 /*
- *********************************************************************************************************
- *                                       USBH_ATSAMX_HCD_Start()
- *
- * Description : Start Host Controller.
- *
- * Argument(s) : p_hc_drv     Pointer to host controller driver structure.
- *
- *               p_err        Pointer to variable that will receive the return error code from this function
- *                                USBH_ERR_NONE           HCD start successful.
- *                                Specific error code     otherwise.
- *
- * Return(s)   : None.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Start Host Controller.
  */
 static void usbh_atsamx_hcd_start(struct usbh_hc_drv *p_hc_drv,
 				  int *p_err)
@@ -666,11 +582,9 @@ static void usbh_atsamx_hcd_start(struct usbh_hc_drv *p_hc_drv,
 	p_reg->CTRLB |=
 		(USBH_ATSAMX_CTRLB_SPDCONF_LSFS |       /* Set USB LS/FS speed configuration                    */
 		 USBH_ATSAMX_CTRLB_VBUSOK);
-	/*if (p_bsp_api->ISR_Reg != (void *)0)
-	   { */
+
 	IRQ_CONNECT(DT_INST_IRQN(0), 0, usbh_atsamx_isr_callback, 0, 0);
 	irq_enable(DT_INST_IRQN(0));
-	// }
 
 	while (p_reg->SYNCBUSY & USBH_ATSAMX_SYNCBUSY_MSK)
 		;
@@ -702,23 +616,8 @@ static void usbh_atsamx_hcd_start(struct usbh_hc_drv *p_hc_drv,
 }
 
 /*
- *********************************************************************************************************
- *                                       usbh_atsamx_hcd_stop()
- *
- * Description : Stop Host Controller.
- *
- * Argument(s) : p_hc_drv     Pointer to host controller driver structure.
- *
- *               p_err        Pointer to variable that will receive the return error code from this function
- *                                USBH_ERR_NONE           HCD stop successful.
- *                                Specific error code     otherwise.
- *
- * Return(s)   : None.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Stop Host Controller.
  */
-
 static void usbh_atsamx_hcd_stop(struct usbh_hc_drv *p_hc_drv,
 				 int *p_err)
 {
@@ -740,22 +639,8 @@ static void usbh_atsamx_hcd_stop(struct usbh_hc_drv *p_hc_drv,
 }
 
 /*
- *********************************************************************************************************
- *                                      usbh_atsamx_hcd_spd_get()
- *
- * Description : Returns Host Controller speed.
- *
- * Argument(s) : p_hc_drv     Pointer to host controller driver structure.
- *
- *               p_err        Pointer to variable that will receive the return error code from this function
- *                                USBH_ERR_NONE           Host controller speed retrieved successfuly.
- *
- * Return(s)   : Host controller speed.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Returns Host Controller speed.
  */
-
 static enum usbh_device_speed usbh_atsamx_hcd_spd_get(struct usbh_hc_drv *p_hc_drv,
 						      int *p_err)
 {
@@ -766,22 +651,8 @@ static enum usbh_device_speed usbh_atsamx_hcd_spd_get(struct usbh_hc_drv *p_hc_d
 }
 
 /*
- *********************************************************************************************************
- *                                      usbh_atsamx_hcd_suspend()
- *
- * Description : Suspend Host Controller.
- *
- * Argument(s) : p_hc_drv     Pointer to host controller driver structure.
- *
- *               p_err        Pointer to variable that will receive the return error code from this function
- *                                USBH_ERR_NONE           HCD suspend successful.
- *
- * Return(s)   : None.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Suspend Host Controller.
  */
-
 static void usbh_atsamx_hcd_suspend(struct usbh_hc_drv *p_hc_drv,
 				    int *p_err)
 {
@@ -809,22 +680,8 @@ static void usbh_atsamx_hcd_suspend(struct usbh_hc_drv *p_hc_drv,
 }
 
 /*
- *********************************************************************************************************
- *                                      usbh_atsamx_hcd_resume()
- *
- * Description : Resume Host Controller.
- *
- * Argument(s) : p_hc_drv     Pointer to host controller driver structure.
- *
- *               p_err        Pointer to variable that will receive the return error code from this function
- *                                USBH_ERR_NONE           HCD resume successful.
- *
- * Return(s)   : None.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Resume Host Controller.
  */
-
 static void usbh_atsamx_hcd_resume(struct usbh_hc_drv *p_hc_drv,
 				   int *p_err)
 {
@@ -856,22 +713,8 @@ static void usbh_atsamx_hcd_resume(struct usbh_hc_drv *p_hc_drv,
 }
 
 /*
- *********************************************************************************************************
- *                                    usbh_atsamx_hcd_frame_nbr_get()
- *
- * Description : Retrieve current frame number.
- *
- * Argument(s) : p_hc_drv     Pointer to host controller driver structure.
- *
- *               p_err        Pointer to variable that will receive the return error code from this function
- *                                USBH_ERR_NONE           HC frame number retrieved successfuly.
- *
- * Return(s)   : Frame number.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Retrieve current frame number.
  */
-
 static uint32_t usbh_atsamx_hcd_frame_nbr_get(struct usbh_hc_drv *p_hc_drv,
 					      int *p_err)
 {
@@ -886,25 +729,8 @@ static uint32_t usbh_atsamx_hcd_frame_nbr_get(struct usbh_hc_drv *p_hc_drv,
 }
 
 /*
- *********************************************************************************************************
- *                                      usbh_atsamx_hcd_ep_open()
- *
- * Description : Allocate/open endpoint of given type.
- *
- * Argument(s) : p_hc_drv     Pointer to host controller driver structure.
- *
- *               p_ep         Pointer to endpoint structure.
- *
- *               p_err        Pointer to variable that will receive the return error code from this function
- *                                USBH_ERR_NONE           Endpoint opened successfuly.
- *                                Specific error code     otherwise.
- *
- * Return(s)   : None.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Allocate/open endpoint of given type.
  */
-
 static void usbh_atsamx_hcd_ep_open(struct usbh_hc_drv *p_hc_drv,
 				    struct usbh_ep *p_ep,
 				    int *p_err)
@@ -927,25 +753,8 @@ static void usbh_atsamx_hcd_ep_open(struct usbh_hc_drv *p_hc_drv,
 }
 
 /*
- *********************************************************************************************************
- *                                     usbh_atsamx_hcd_ep_close()
- *
- * Description : Close specified endpoint.
- *
- * Argument(s) : p_hc_drv     Pointer to host controller driver structure.
- *
- *               p_ep         Pointer to endpoint structure.
- *
- *               p_err        Pointer to variable that will receive the return error code from this function
- *                                USBH_ERR_NONE           Endpoint closed successfully.
- *                                Specific error code     otherwise.
- *
- * Return(s)   : None.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Close specified endpoint.
  */
-
 static void usbh_atsamx_hcd_ep_close(struct usbh_hc_drv *p_hc_drv,
 				     struct usbh_ep *p_ep,
 				     int *p_err)
@@ -983,22 +792,7 @@ static void usbh_atsamx_hcd_ep_close(struct usbh_hc_drv *p_hc_drv,
 }
 
 /*
- *********************************************************************************************************
- *                                     usbh_atsamx_hcd_ep_abort()
- *
- * Description : Abort all pending URBs on endpoint.
- *
- * Argument(s) : p_hc_drv     Pointer to host controller driver structure.
- *
- *               p_ep         Pointer to endpoint structure.
- *
- *               p_err        Pointer to variable that will receive the return error code from this function
- *                                USBH_ERR_NONE           Endpoint aborted successfuly.
- *
- * Return(s)   : None.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Abort all pending URBs on endpoint.
  */
 
 static void usbh_atsamx_hcd_ep_abort(struct usbh_hc_drv *p_hc_drv,
@@ -1009,24 +803,7 @@ static void usbh_atsamx_hcd_ep_abort(struct usbh_hc_drv *p_hc_drv,
 }
 
 /*
- *********************************************************************************************************
- *                                    usbh_atsamx_hcd_ep_is_halt()
- *
- * Description : Retrieve endpoint halt state.
- *
- * Argument(s) : p_hc_drv     Pointer to host controller driver structure.
- *
- *               p_ep         Pointer to endpoint structure.
- *
- *               p_err        Pointer to variable that will receive the return error code from this function
- *                                USBH_ERR_NONE           Endpoint halt status retrieved successfuly.
- *
- * Return(s)   : DEF_TRUE,       If endpoint halted.
- *
- *               DEF_FALSE,      Otherwise.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Retrieve endpoint halt state.
  */
 
 static bool usbh_atsamx_hcd_ep_is_halt(struct usbh_hc_drv *p_hc_drv,
@@ -1042,24 +819,7 @@ static bool usbh_atsamx_hcd_ep_is_halt(struct usbh_hc_drv *p_hc_drv,
 }
 
 /*
- *********************************************************************************************************
- *                                    usbh_atsamx_hcd_urb_submit()
- *
- * Description : Submit specified urb.
- *
- * Argument(s) : p_hc_drv     Pointer to host controller driver structure.
- *
- *               p_urb        Pointer to urb structure.
- *
- *               p_err        Pointer to variable that will receive the return error code from this function
- *                                USBH_ERR_NONE           urb submitted successfuly.
- *                                Specific error code     otherwise.
- *
- * Return(s)   : None.
- *
- * Note(s)     : (1) If Device is disconnected & some remaining URBs processed by AsyncThread, ignore it
- *               (2) Set minimum BULK interval to 1ms to avoid taking all bandwidth.
- *********************************************************************************************************
+ * Submit specified urb.
  */
 
 static void usbh_atsamx_hcd_urb_submit(struct usbh_hc_drv *p_hc_drv,
@@ -1168,23 +928,7 @@ static void usbh_atsamx_hcd_urb_submit(struct usbh_hc_drv *p_hc_drv,
 }
 
 /*
- *********************************************************************************************************
- *                                   usbh_atsamx_hcd_urb_complete()
- *
- * Description : Complete specified urb.
- *
- * Argument(s) : p_hc_drv     Pointer to host controller driver structure.
- *
- *               p_urb        Pointer to urb structure.
- *
- *               p_err        Pointer to variable that will receive the return error code from this function
- *                                USBH_ERR_NONE           urb completed successfuly.
- *                                Specific error code     otherwise.
- *
- * Return(s)   : None.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Complete specified urb.
  */
 
 static void usbh_atsamx_hcd_urb_complete(struct usbh_hc_drv *p_hc_drv,
@@ -1251,22 +995,7 @@ static void usbh_atsamx_hcd_urb_complete(struct usbh_hc_drv *p_hc_drv,
 }
 
 /*
- *********************************************************************************************************
- *                                     usbh_atsamx_hcd_urb_abort()
- *
- * Description : Abort specified urb.
- *
- * Argument(s) : p_hc_drv     Pointer to host controller driver structure.
- *
- *               p_urb        Pointer to urb structure.
- *
- *               p_err        Pointer to variable that will receive the return error code from this function
- *                                USBH_ERR_NONE           urb aborted successfuly.
- *
- * Return(s)   : None.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Abort specified urb.
  */
 
 static void usbh_atsamx_hcd_urb_abort(struct usbh_hc_drv *p_hc_drv,
@@ -1280,30 +1009,7 @@ static void usbh_atsamx_hcd_urb_abort(struct usbh_hc_drv *p_hc_drv,
 }
 
 /*
- *********************************************************************************************************
- *********************************************************************************************************
- *                                         ROOT HUB FUNCTIONS
- *********************************************************************************************************
- *********************************************************************************************************
- */
-
-/*
- *********************************************************************************************************
- *                                   usbh_atsamx_rh_port_status_get()
- *
- * Description : Retrieve port status changes and port status.
- *
- * Argument(s) : p_hc_drv          Pointer to host controller driver structure.
- *
- *               port_nbr          Port Number.
- *
- *               p_port_status     Pointer to structure that will receive port status.
- *
- * Return(s)   : DEF_OK,           If successful.
- *               DEF_FAIL,         otherwise.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Retrieve port status changes and port status.
  */
 
 static bool
@@ -1348,49 +1054,8 @@ usbh_atsamx_rh_port_status_get(struct usbh_hc_drv *p_hc_drv, uint8_t port_nbr,
 }
 
 /*
- *********************************************************************************************************
- *                                    usbh_atsamx_rh_hub_desc_get()
- *
- * Description : Retrieve root hub descriptor.
- *
- * Argument(s) : p_hc_drv    Pointer to host controller driver structure.
- *
- *               p_buf       Pointer to buffer that will receive hub descriptor.
- *
- *               buf_len     Buffer length in octets.
- *
- * Return(s)   : DEF_OK,         If successful.
- *               DEF_FAIL,       otherwise.
- *
- * Note(s)     : (1) For more information about the hub descriptor, see 'Universal Serial Bus Specification
- *                   Revision 2.0', Chapter 11.23.2.
- *
- *               (2) (a) 'b_nbr_ports' is assigned the "number of downstream facing ports that this hub
- *                       supports".
- *
- *                   (b) 'w_hub_characteristics' is a bit-mapped variables as follows :
- *
- *                       (1) Bits 0-1 (Logical Power Switching Mode) :
- *                                       00b = All ports' power at once.
- *                                       01b = Individual port power switching.
- *                                       1xb = No power switching.
- *
- *                       (2) Bit 2 (Compound Device Identifier).
- *
- *                       (3) Bits 3-4 (Over-current Protection Mode).
- *
- *                       (4) Bits 5-6 (TT Think Time).
- *
- *                       (5) Bit  7 (Port Indicators Support).
- *
- *                   (c) 'b_pwr_on_to_pwr_good' is assigned the "time (in 2 ms intervals) from the time the
- *                       power-on sequence begins on a port until power is good on that port.
- *
- *                   (d) 'b_hub_contr_current' is assigned the "maximum current requirements of the Hub
- *                       Controller electronics in mA."
- *********************************************************************************************************
+ * Retrieve root hub descriptor.
  */
-
 static bool usbh_atsamx_rh_hub_desc_get(struct usbh_hc_drv *p_hc_drv,
 					void *p_buf,
 					uint8_t buf_len)
@@ -1420,21 +1085,8 @@ static bool usbh_atsamx_rh_hub_desc_get(struct usbh_hc_drv *p_hc_drv,
 }
 
 /*
- *********************************************************************************************************
- *                                     usbh_atsamx_rh_port_en_set()
- *
- * Description : Enable given port.
- *
- * Argument(s) : p_hc_drv     Pointer to host controller driver structure.
- *
- *               port_nbr     Port Number.
- *
- * Return(s)   : DEF_OK,      If successful.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Enable given port.
  */
-
 static bool usbh_atsamx_rh_port_en_set(struct usbh_hc_drv *p_hc_drv,
 				       uint8_t port_nbr)
 {
@@ -1442,21 +1094,8 @@ static bool usbh_atsamx_rh_port_en_set(struct usbh_hc_drv *p_hc_drv,
 }
 
 /*
- *********************************************************************************************************
- *                                     usbh_atsamx_rh_port_en_clr()
- *
- * Description : Clear port enable status.
- *
- * Argument(s) : p_hc_drv     Pointer to host controller driver structure.
- *
- *               port_nbr     Port Number.
- *
- * Return(s)   : DEF_OK,      If successful.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Clear port enable status.
  */
-
 static bool usbh_atsamx_rh_port_en_clr(struct usbh_hc_drv *p_hc_drv,
 				       uint8_t port_nbr)
 {
@@ -1471,21 +1110,8 @@ static bool usbh_atsamx_rh_port_en_clr(struct usbh_hc_drv *p_hc_drv,
 }
 
 /*
- *********************************************************************************************************
- *                                   usbh_atsamx_rh_port_en_chng_clr()
- *
- * Description : Clear port enable status change.
- *
- * Argument(s) : p_hc_drv     Pointer to host controller driver structure.
- *
- *               port_nbr     Port Number.
- *
- * Return(s)   : DEF_OK,      If successful.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Clear port enable status change.
  */
-
 static bool usbh_atsamx_rh_port_en_chng_clr(struct usbh_hc_drv *p_hc_drv,
 					    uint8_t port_nbr)
 {
@@ -1500,21 +1126,8 @@ static bool usbh_atsamx_rh_port_en_chng_clr(struct usbh_hc_drv *p_hc_drv,
 }
 
 /*
- *********************************************************************************************************
- *                                    usbh_atsamx_rh_port_pwr_set()
- *
- * Description : Set port power based on port power mode.
- *
- * Argument(s) : p_hc_drv     Pointer to host controller driver structure.
- *
- *               port_nbr     Port Number.
- *
- * Return(s)   : DEF_OK,      If successful.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Set port power based on port power mode.
  */
-
 static bool usbh_atsamx_rh_port_pwr_set(struct usbh_hc_drv *p_hc_drv,
 					uint8_t port_nbr)
 {
@@ -1529,21 +1142,8 @@ static bool usbh_atsamx_rh_port_pwr_set(struct usbh_hc_drv *p_hc_drv,
 }
 
 /*
- *********************************************************************************************************
- *                                    usbh_atsamx_rh_port_pwr_clr()
- *
- * Description : Clear port power.
- *
- * Argument(s) : p_hc_drv     Pointer to host controller driver structure.
- *
- *               port_nbr     Port Number.
- *
- * Return(s)   : DEF_OK,      If successful.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Clear port power.
  */
-
 static bool usbh_atsamx_rh_port_pwr_clr(struct usbh_hc_drv *p_hc_drv,
 					uint8_t port_nbr)
 {
@@ -1551,21 +1151,8 @@ static bool usbh_atsamx_rh_port_pwr_clr(struct usbh_hc_drv *p_hc_drv,
 }
 
 /*
- *********************************************************************************************************
- *                                   usbh_atsamx_hcd_port_reset_set()
- *
- * Description : Reset given port.
- *
- * Argument(s) : p_hc_drv     Pointer to host controller driver structure.
- *
- *               port_nbr     Port Number.
- *
- * Return(s)   : DEF_OK,      If successful.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Reset given port.
  */
-
 static bool usbh_atsamx_hcd_port_reset_set(struct usbh_hc_drv *p_hc_drv,
 					   uint8_t port_nbr)
 {
@@ -1583,21 +1170,8 @@ static bool usbh_atsamx_hcd_port_reset_set(struct usbh_hc_drv *p_hc_drv,
 }
 
 /*
- *********************************************************************************************************
- *                                 usbh_atsamx_hcd_port_reset_chng_clr()
- *
- * Description : Clear port reset status change.
- *
- * Argument(s) : p_hc_drv     Pointer to host controller driver structure.
- *
- *               port_nbr     Port Number.
- *
- * Return(s)   : DEF_OK,      If successful.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Clear port reset status change.
  */
-
 static bool usbh_atsamx_hcd_port_reset_chng_clr(struct usbh_hc_drv *p_hc_drv,
 						uint8_t port_nbr)
 {
@@ -1612,19 +1186,7 @@ static bool usbh_atsamx_hcd_port_reset_chng_clr(struct usbh_hc_drv *p_hc_drv,
 }
 
 /*
- *********************************************************************************************************
- *                                  usbh_atsamx_hcd_port_suspend_clr()
- *
- * Description : Resume given port if port is suspended.
- *
- * Argument(s) : p_hc_drv     Pointer to host controller driver structure.
- *
- *               port_nbr     Port Number.
- *
- * Return(s)   : DEF_OK,      If successful.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Resume given port if port is suspended.
  */
 
 static bool usbh_atsamx_hcd_port_suspend_clr(struct usbh_hc_drv *p_hc_drv,
@@ -1634,21 +1196,8 @@ static bool usbh_atsamx_hcd_port_suspend_clr(struct usbh_hc_drv *p_hc_drv,
 }
 
 /*
- *********************************************************************************************************
- *                                  usbh_atsamx_hcd_port_conn_chng_clr()
- *
- * Description : Clear port connect status change.
- *
- * Argument(s) : p_hc_drv     Pointer to host controller driver structure.
- *
- *               port_nbr     Port Number.
- *
- * Return(s)   : DEF_OK,      If successful.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Clear port connect status change.
  */
-
 static bool usbh_atsamx_hcd_port_conn_chng_clr(struct usbh_hc_drv *p_hc_drv,
 					       uint8_t port_nbr)
 {
@@ -1661,38 +1210,16 @@ static bool usbh_atsamx_hcd_port_conn_chng_clr(struct usbh_hc_drv *p_hc_drv,
 }
 
 /*
- *********************************************************************************************************
- *                                    usbh_atsamx_rh_int_en()
- *
- * Description : Enable root hub interrupt.
- *
- * Argument(s) : p_hc_drv     Pointer to host controller driver structure.
- *
- * Return(s)   : DEF_OK,      If successful.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Enable root hub interrupt.
  */
-
 static bool usbh_atsamx_rh_int_en(struct usbh_hc_drv *p_hc_drv)
 {
 	return 1;
 }
 
 /*
- *********************************************************************************************************
- *                                    usbh_atsamx_rh_int_dis()
- *
- * Description : Disable root hub interrupt.
- *
- * Argument(s) : p_hc_drv     Pointer to host controller driver structure.
- *
- * Return(s)   : DEF_OK,      If successful.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Disable root hub interrupt.
  */
-
 static bool usbh_atsamx_rh_int_dis(struct usbh_hc_drv *p_hc_drv)
 {
 
@@ -1700,27 +1227,8 @@ static bool usbh_atsamx_rh_int_dis(struct usbh_hc_drv *p_hc_drv)
 }
 
 /*
- *********************************************************************************************************
- *********************************************************************************************************
- *                                           LOCAL FUNCTIONS
- *********************************************************************************************************
- *********************************************************************************************************
+ * ISR handler.
  */
-
-/*
- *********************************************************************************************************
- *                                      usbh_atsamx_isr_callback()
- *
- * Description : ISR handler.
- *
- * Arguments   : p_drv     Pointer to host controller driver structure.
- *
- * Return(s)   : None.
- *
- * Note(s)     : None.
- *********************************************************************************************************
- */
-
 static void usbh_atsamx_isr_callback(void *p_drv)
 {
 	struct usbh_atsamx_reg *p_reg;
@@ -1929,20 +1437,8 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 }
 
 /*
- *********************************************************************************************************
- *                                     usbh_atsamx_process_urb()
- *
- * Description : The task handles additional EP IN/OUT transactions when needed.
- *
- * Argument(s) : p_arg     Pointer to the argument passed to 'usbh_atsamx_process_urb()' by
- *                         'USBH_OS_TaskCreate()'.
- *
- * Return(s)   : None.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * The task handles additional EP IN/OUT transactions when needed.
  */
-
 static void usbh_atsamx_process_urb(void *p_arg, void *p_arg2, void *p_arg3)
 {
 	struct usbh_hc_drv *p_hc_drv;
@@ -2029,25 +1525,8 @@ static void usbh_atsamx_process_urb(void *p_arg, void *p_arg2, void *p_arg3)
 }
 
 /*
- *********************************************************************************************************
- *                                        usbh_atsamx_pipe_cfg()
- *
- * Description : initialize pipe configurations based on the endpoint direction and characteristics.
- *
- * Argument(s) : p_reg           Pointer to ATSAMX Pipe register structure.
- *
- *               p_urb           Pointer to urb structure.
- *
- *               p_pipe_info     Pointer to pipe information.
- *
- *               p_desc_bank     Pointer to Host pipe descriptor ban.
- *
- * Return(s)   : None.
- *
- * Note(s)     : None
- *********************************************************************************************************
+ * initialize pipe configurations based on the endpoint direction and characteristics.
  */
-
 static void usbh_atsamx_pipe_cfg(struct usbh_urb *p_urb,
 				 struct usbh_atsamx_pipe_reg *p_reg_hpipe,
 				 struct usbh_atsamx_pinfo *p_pipe_info,
@@ -2110,17 +1589,7 @@ static void usbh_atsamx_pipe_cfg(struct usbh_urb *p_urb,
 }
 
 /*
- *********************************************************************************************************
- *                                      usbh_atsamx_get_free_pipe()
- *
- * Description : Allocate a free host pipe number for the newly opened pipe.
- *
- * Argument(s) : p_drv_data     Pointer to host driver data structure.
- *
- * Return(s)   : Free pipe number or 0xFF if no host pipe is found
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Allocate a free host pipe number for the newly opened pipe.
  */
 
 static uint8_t usbh_atsamx_get_free_pipe(struct usbh_drv_data *p_drv_data)
@@ -2137,22 +1606,9 @@ static uint8_t usbh_atsamx_get_free_pipe(struct usbh_drv_data *p_drv_data)
 }
 
 /*
- *********************************************************************************************************
- *                                      usbh_atsamx_get_pipe_nbr()
- *
- * Description : Get the host pipe number corresponding to a given device address, endpoint number
- *               and direction.
- *
- * Argument(s) : p_drv_data     Pointer to host driver data structure.
- *
- *               p_ep           Pointer to endpoint structure.
- *
- * Return(s)   : Host pipe number or 0xFF if no host pipe is found
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Get the host pipe number corresponding to a given device address, endpoint number
+ * and direction.
  */
-
 static uint8_t usbh_atsamx_get_pipe_nbr(struct usbh_drv_data *p_drv_data,
 					struct usbh_ep *p_ep)
 {

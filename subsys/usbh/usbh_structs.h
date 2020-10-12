@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2020 PHYTEC Messtechnik GmbH
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 #ifndef ZEPHYR_USBH_STRUCTS_H_
 #define ZEPHYR_USBH_STRUCTS_H_
 
@@ -17,11 +22,7 @@ enum usbh_device_speed {
 
 
 /*
- *********************************************************************************************************
- *                                      HUB PORT STATUS DATA TYPE
- *
  * Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 11.24.2.7.
- *********************************************************************************************************
  */
 
 struct  usbh_hub_port_status {
@@ -31,11 +32,7 @@ struct  usbh_hub_port_status {
 
 
 /*
- *********************************************************************************************************
- *                                           HUB DESCRIPTOR
- *
  * Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 11.23.2.1.
- *********************************************************************************************************
  */
 struct  usbh_hub_desc {
 	uint8_t b_desc_length;
@@ -50,11 +47,7 @@ struct  usbh_hub_desc {
 
 
 /*
- *********************************************************************************************************
- *                                             HUB STATUS
- *
  * Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 11.24.2.6.
- *********************************************************************************************************
  */
 
 struct  usbh_hub_status {
@@ -64,11 +57,7 @@ struct  usbh_hub_status {
 
 
 /*
- *********************************************************************************************************
-   -                                            SETUP REQUEST
-   -
-   - Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 9.3, Table 9-2.
- *********************************************************************************************************
+ * Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 9.3, Table 9-2.
  */
 
 struct  usbh_setup_req {
@@ -79,13 +68,6 @@ struct  usbh_setup_req {
 	uint16_t w_length;
 };
 
-
-/*
- *********************************************************************************************************
- *                                          DESCRIPTOR HEADER
- *********************************************************************************************************
- */
-
 struct  usbh_desc_hdr {
 	uint8_t b_length;
 	uint8_t b_desc_type;
@@ -93,11 +75,7 @@ struct  usbh_desc_hdr {
 
 
 /*
- *********************************************************************************************************
- *                                          DEVICE DESCRIPTOR
- *
  * Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 9.6.1, Table 9-8.
- *********************************************************************************************************
  */
 
 struct  usbh_dev_desc {
@@ -119,11 +97,7 @@ struct  usbh_dev_desc {
 
 
 /*
- *********************************************************************************************************
- *                                     DEVICE QUALIFIER DESCRIPTOR
- *
  * Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 9.6.2, Table 9-9.
- *********************************************************************************************************
  */
 
 struct  usbh_dev_qualifier_desc {
@@ -140,11 +114,7 @@ struct  usbh_dev_qualifier_desc {
 
 
 /*
- *********************************************************************************************************
- *                                      CONFIGURATION DESCRIPTOR
- *
  * Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 9.6.3, Table 9-10.
- *********************************************************************************************************
  */
 
 struct  usbh_cfg_desc {
@@ -160,11 +130,7 @@ struct  usbh_cfg_desc {
 
 
 /*
- *********************************************************************************************************
- *                                OTHER SPEED CONFIGURATION DESCRIPTOR
- *
  * Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 9.6.4, Table 9-11.
- *********************************************************************************************************
  */
 
 struct  usbh_other_spd_cfg_desc {
@@ -180,11 +146,7 @@ struct  usbh_other_spd_cfg_desc {
 
 
 /*
- *********************************************************************************************************
- *                                        INTERFACE DESCRIPTOR
- *
  * Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 9.6.5, Table 9-12.
- *********************************************************************************************************
  */
 
 struct  usbh_if_desc {
@@ -201,11 +163,7 @@ struct  usbh_if_desc {
 
 
 /*
- *********************************************************************************************************
- *                                  INTERFACE ASSOCIATION DESCRIPTOR
- *
  * Note(s) : (1) See 'www.usb.org/developers/doc/InterfaceAssociationDescriptor_ecn.pdf', Section 9.X.Y, Table 9-Z.
- *********************************************************************************************************
  */
 
 struct  usbh_if_association_desc {
@@ -221,11 +179,7 @@ struct  usbh_if_association_desc {
 
 
 /*
- *********************************************************************************************************
- *                                         ENDPOINT DESCRIPTOR
- *
  * Note(s) : (1) See 'Universal Serial Bus Specification Revision 2.0', Section 9.6.6, Table 9-14.
- *********************************************************************************************************
  */
 
 struct  usbh_ep_desc {
@@ -241,11 +195,7 @@ struct  usbh_ep_desc {
 
 
 /*
- *********************************************************************************************************
- *                                           OTG DESCRIPTOR
- *
  * Note(s) : (1) See 'On-The-Go Specification Revision 1.3', Section 6.4, Table 6-1.
- *********************************************************************************************************
  */
 
 struct  usbh_otg_desc {
@@ -253,13 +203,6 @@ struct  usbh_otg_desc {
 	uint8_t b_desc_type;
 	uint8_t bm_attributes;
 };
-
-
-/*
- *********************************************************************************************************
- *                                       ISOCHRONOUS DESCRIPTOR
- *********************************************************************************************************
- */
 
 struct  usbh_isoc_desc {
 	uint8_t  *buf_ptr;
@@ -269,13 +212,6 @@ struct  usbh_isoc_desc {
 	uint16_t  *frm_len;
 	int    *frm_err;
 };
-
-
-/*
- *********************************************************************************************************
- *                                 USB REQUEST BLOCK (urb) INFORMATION
- *********************************************************************************************************
- */
 
 struct  usbh_urb {
 	volatile uint8_t state;                                 /* state of urb.                                        */
@@ -304,13 +240,6 @@ struct  usbh_urb {
 	struct k_sem sem;                                               /* sem to wait on I/O completion.                       */
 };
 
-
-/*
- *********************************************************************************************************
- *                                        ENDPOINT INFORMATION
- *********************************************************************************************************
- */
-
 struct  usbh_ep {
 	enum usbh_device_speed dev_spd;                         /* USB dev spd.                                         */
 	uint8_t dev_addr;                                       /* USB dev addr.                                        */
@@ -326,13 +255,6 @@ struct  usbh_ep {
 	uint8_t data_pid;                                       /* EP Data Toggle PID tracker.                          */
 };
 
-
-/*
- *********************************************************************************************************
- *                                        INTERFACE INFORMATION
- *********************************************************************************************************
- */
-
 struct  usbh_if {
 	struct usbh_dev            *dev_ptr;                            /* Ptr to USB dev.                                      */
 	uint8_t alt_ix_sel;                                             /* Selected alternate setting ix.                       */
@@ -342,25 +264,11 @@ struct  usbh_if {
 	uint16_t if_data_len;                                           /* Buf len.                                             */
 };
 
-
-/*
- *********************************************************************************************************
- *                                      CONFIGURATION INFORMATION
- *********************************************************************************************************
- */
-
 struct  usbh_cfg {
 	uint8_t cfg_data[USBH_CFG_MAX_CFG_DATA_LEN];            /* Buf containing cfg desc data.                        */
 	uint16_t cfg_data_len;                                  /* Cfg desc data len.                                   */
 	struct usbh_if if_list[USBH_CFG_MAX_NBR_IFS];           /* Device IFs.                                          */
 };
-
-
-/*
- *********************************************************************************************************
- *                                         DEVICE INFORMATION
- *********************************************************************************************************
- */
 
 struct  usbh_dev {
 	struct usbh_hc             *hc_ptr;                     /* Ptr to HC struct.                                    */
@@ -380,13 +288,6 @@ struct  usbh_dev {
 	struct usbh_hub_dev        *hub_hs_ptr;                 /* Ptr to prev HS Hub.                                  */
 };
 
-
-/*
- *********************************************************************************************************
- *                                             HUB DEVICE
- *********************************************************************************************************
- */
-
 struct  usbh_hub_dev {
 	struct usbh_ep intr_ep;                                         /* Intr EP to recv events from hub.                     */
 	struct usbh_hub_desc desc;                                      /* Hub desc.                                            */
@@ -401,13 +302,6 @@ struct  usbh_hub_dev {
 	uint8_t conn_cnt;                                     /* Re-connection counter                                */
 };
 
-
-/*
- *********************************************************************************************************
- *                                 HOST CONTROLLER DRIVER INFORMATION
- *********************************************************************************************************
- */
-
 struct  usbh_hc_drv {
 	uint8_t nbr;                                            /* HC nbr.                                              */
 	void             *data_ptr;                             /* Drv's data.                                          */
@@ -416,14 +310,6 @@ struct  usbh_hc_drv {
 	const struct usbh_hc_rh_api   *rh_api_ptr;              /* Ptr to RH drv API struct.                            */
 };
 
-
-
-/*
- *********************************************************************************************************
- *                                HOST CONTROLLER INFORMATION DATA TYPE
- *********************************************************************************************************
- */
-
 struct usbh_hc {
 	struct usbh_hc_drv hc_drv;                              /* Host Controller driver (HCD) info.                   */
 	struct usbh_host     *host_ptr;                         /* Host structure.                                      */
@@ -431,13 +317,6 @@ struct usbh_hc {
 	struct k_mutex hcd_mutex;                               /* mutex to sync access to HCD.                         */
 	bool is_vir_rh;                                         /* Indicate if RH is virtual.                           */
 };
-
-
-/*
- *********************************************************************************************************
- *                                     HOST INFORMATION DATA TYPE
- *********************************************************************************************************
- */
 
 struct  usbh_host {
 	uint8_t state;                                  /* state of USB host stack.                             */

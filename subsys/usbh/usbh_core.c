@@ -1,28 +1,11 @@
 /*
- *********************************************************************************************************
- *                                             uC/USB-Host
- *                                     The Embedded USB Host Stack
+ * Copyright 2004-2020 Silicon Laboratories Inc. www.silabs.com
  *
- *                    Copyright 2004-2020 Silicon Laboratories Inc. www.silabs.com
+ * Copyright (c) 2020 PHYTEC Messtechnik GmbH
  *
- *                                 SPDX-License-Identifier: APACHE-2.0
- *
- *               This software is subject to an open source license and is distributed by
- *                Silicon Laboratories Inc. pursuant to the terms of the Apache License,
- *                    Version 2.0 available at www.apache.org/licenses/LICENSE-2.0.
- *
- *********************************************************************************************************
+ * SPDX-License-Identifier: APACHE-2.0
  */
 
-/*
- *********************************************************************************************************
- *
- *                                      USB HOST CORE OPERATIONS
- *
- * Filename : usbh_core.c
- * Version  : V3.42.00
- *********************************************************************************************************
- */
 #include <usbh_core.h>
 #include <usbh_class.h>
 #include <usbh_hub.h>
@@ -43,19 +26,7 @@ static volatile struct usbh_urb *usbh_urb_head_ptr;
 static volatile struct usbh_urb *usbh_urb_tail_ptr;
 static struct k_sem usbh_urb_sem;
 
-/*
- *********************************************************************************************************
- *                                         HOST MAIN STRUCTURE
- *********************************************************************************************************
- */
-
 static struct usbh_host usbh_host;
-
-/*
- *********************************************************************************************************
- *                                      LOCAL FUNCTION PROTOTYPES
- *********************************************************************************************************
- */
 
 static int usbh_ep_open(struct usbh_dev *p_dev, struct usbh_if *p_if,
 			uint8_t ep_type, uint8_t ep_dir,
@@ -123,38 +94,8 @@ static void usbh_parse_ep_desc(struct usbh_ep_desc *p_ep_desc, void *p_buf_src);
 static void usbh_async_task(void *p_arg, void *p_arg2, void *p_arg3);
 
 /*
- *********************************************************************************************************
- *                                             USBH_init()
- *
- * Description : Allocates and initializes resources required by USB Host stack.
- *
- * Argument(s) : async_task_info     Information on asynchronous task.
- *
- *               hub_task_info       Information on hub task.
- *
- * Return(s)   : USBH_ERR_NONE,                  If host stack initialization succeed.
- *               USBH_ERR_ALLOC,                 If memory pool allocation failed.
- *
- *                                               ----- RETURNED BY USBH_ClassDrvReg() : -----
- *               USBH_ERR_NONE,                  If the class driver is registered.
- *               USBH_ERR_INVALID_ARG,           If invalid argument(s) passed to 'p_host'/ 'p_class_drv'.
- *               USBH_ERR_CLASS_DRV_ALLOC,       If maximum class driver limit reached.
- *
- *                                               ----- RETURNED BY USBH_OS_MutexCreate() : -----
- *               USBH_ERR_OS_SIGNAL_CREATE,      if mutex creation failed.
- *
- *                                               ----- RETURNED BY USBH_OS_SemCreate() : -----
- *               USBH_ERR_OS_SIGNAL_CREATE,      If semaphore creation failed.
- *
- *                                               ----- RETURNED BY USBH_OS_TaskCreate() : -----
- *               USBH_ERR_OS_TASK_CREATE,        Task failed to be created.
- *
- * Note(s)     : USBH_init() must be called:
- *               (1) Only once from a product s application.
- *               (2) After product s OS has been initialized.
- *********************************************************************************************************
+ * Allocates and initializes resources required by USB Host stack.
  */
-
 int usbh_init()
 {
 	int err;
@@ -212,21 +153,9 @@ int usbh_init()
 }
 
 /*
- *********************************************************************************************************
- *                                           USBH_Suspend()
- *
- * Description : Suspends USB Host Stack by calling suspend for every class driver loaded
- *               and then calling the host controller suspend.
- *
- * Argument(s) : None.
- *
- * Return(s)   : int_NONE                       If host is suspended.
- *               Host controller driver error,       Otherwise.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Suspends USB Host Stack by calling suspend for every class driver loaded
+ * and then calling the host controller suspend.
  */
-
 int usbh_suspend(void)
 {
 	uint8_t ix;
@@ -249,21 +178,9 @@ int usbh_suspend(void)
 }
 
 /*
- *********************************************************************************************************
- *                                            USBH_Resume()
- *
- * Description : Resumes USB Host Stack by calling host controller resume and then
- *               calling resume for every class driver loaded.
- *
- * Argument(s) : None.
- *
- * Return(s)   : USBH_ERR_NONE,                      If host is resumed.
- *               Host controller driver error,       Otherwise.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Resumes USB Host Stack by calling host controller resume and then
+ * calling resume for every class driver loaded.
  */
-
 int usbh_resume(void)
 {
 	uint8_t ix;
@@ -287,38 +204,8 @@ int usbh_resume(void)
 }
 
 /*
- *********************************************************************************************************
- *                                            USBH_HC_Add()
- *
- * Description : Add a host controller.
- *
- * Argument(s) : p_hc_cfg        Pointer to specific USB host controller configuration.
- *
- *               p_drv_api       Pointer to specific USB host controller driver API.
- *
- *               p_hc_rh_api     Pointer to specific USB host controller root hub driver API.
- *
- *               p_hc_bsp_api    Pointer to specific USB host controller board-specific API.
- *
- *               p_err   Pointer to variable that will receive the return error code from this function :
- *
- *                           int_NONE                       Host controller successfully added.
- *                           USBH_ERR_INVALID_ARG                Invalid argument passed to 'p_hc_cfg' / 'p_drv_api' /
- *                                                               'p_hc_rh_api' / 'p_hc_bsp_api'.
- *                           USBH_ERR_HC_ALLOC                   Maximum number of host controller reached.
- *                           USBH_ERR_DEV_ALLOC                  Cannot allocate device structure for root hub.
- *                           Host controller driver error,       Otherwise.
- *
- *                                                               ----- RETURNED BY USBH_OS_MutexCreate() : -----
- *                           USBH_ERR_OS_SIGNAL_CREATE,          if mutex creation failed.
- *
- * Return(s)   : Host Controller index,   if host controller successfully added.
- *               USBH_HC_NBR_NONE,        Otherwise.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Add a host controller.
  */
-
 uint8_t usbh_hc_add(int *p_err)
 {
 	struct usbh_dev *p_rh_dev;
@@ -326,14 +213,6 @@ uint8_t usbh_hc_add(int *p_err)
 	struct usbh_hc *p_hc;
 	struct usbh_hc_drv *p_hc_drv;
 	int key;
-
-	// if (/* ------------------ VALIDATE ARGS ------------------- */
-	//     (p_drv_api == NULL) ||
-	//     (p_hc_rh_api == NULL) ||
-	//     (p_hc_bsp_api == NULL)) {
-	// 	*p_err = EINVAL;
-	// 	return USBH_HC_NBR_NONE;
-	// }
 
 	key = irq_lock();
 	hc_nbr = usbh_host.hc_nbr_next;
@@ -385,35 +264,8 @@ uint8_t usbh_hc_add(int *p_err)
 }
 
 /*
- *********************************************************************************************************
- *                                           USBH_HC_Start()
- *
- * Description : Start given host controller.
- *
- * Argument(s) : hc_nbr      Host controller number.
- *
- * Return(s)   : USBH_ERR_NONE                       If host controller successfully started.
- *               USBH_ERR_INVALID_ARG                If invalid argument passed to 'hc_nbr'.
- *               Host controller driver error,       Otherwise.
- *
- *                                                   ----- RETURNED BY USBH_DevConn() : -----
- *               USBH_ERR_DESC_INVALID               If device contains 0 configurations
- *               USBH_ERR_CFG_ALLOC                  If maximum number of configurations reached.
- *               USBH_ERR_DESC_INVALID,              If invalid descriptor was fetched.
- *               USBH_ERR_CFG_MAX_CFG_LEN,           If cannot allocate descriptor
- *               USBH_ERR_UNKNOWN,                   Unknown error occurred.
- *               USBH_ERR_INVALID_ARG,               Invalid argument passed to 'p_ep'.
- *               USBH_ERR_EP_INVALID_STATE,          Endpoint is not opened.
- *               USBH_ERR_HC_IO,                     Root hub input/output error.
- *               USBH_ERR_EP_STALL,                  Root hub does not support request.
- *               USBH_ERR_DRIVER_NOT_FOUND           If no class driver was found.
- *               USBH_ERR_OS_SIGNAL_CREATE,          If semaphore or mutex creation failed.
- *               Host controller driver error,       Otherwise.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Start given host controller.
  */
-
 int usbh_hc_start(uint8_t hc_nbr)
 {
 	LOG_DBG("start host controller");
@@ -446,21 +298,8 @@ int usbh_hc_start(uint8_t hc_nbr)
 }
 
 /*
- *********************************************************************************************************
- *                                           USBH_HC_Stop()
- *
- * Description : Stop the given host controller.
- *
- * Argument(s) : hc_nbr      Host controller number.
- *
- * Return(s)   : USBH_ERR_NONE,                      If host controller successfully stoped.
- *               USBH_ERR_INVALID_ARG,               If invalid argument passed to 'hc_nbr'.
- *               Host controller driver error,       Otherwise.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Stop the given host controller.
  */
-
 int usbh_hc_stop(uint8_t hc_nbr)
 {
 	int err;
@@ -486,31 +325,8 @@ int usbh_hc_stop(uint8_t hc_nbr)
 }
 
 /*
- *********************************************************************************************************
- *                                          USBH_HC_PortEn()
- *
- * Description : Enable given port of given host controller's root hub.
- *
- * Argument(s) : hc_nbr    Host controller number.
- *
- *               port_nbr  Port number.
- *
- * Return(s)   : USBH_ERR_NONE,                          If port successfully enabled.
- *               USBH_ERR_INVALID_ARG,                   If invalid argument passed to 'hc_nbr'.
- *
- *                                                       ----- RETURNED BY USBH_HUB_PortEn() : -----
- *               USBH_ERR_INVALID_ARG,                   If invalid parameter passed to 'p_hub_dev'.
- *               USBH_ERR_UNKNOWN,                       Unknown error occurred.
- *               USBH_ERR_INVALID_ARG,                   Invalid argument passed to 'p_ep'.
- *               USBH_ERR_EP_INVALID_STATE,              Endpoint is not opened.
- *               USBH_ERR_HC_IO,                         Root hub input/output error.
- *               USBH_ERR_EP_STALL,                      Root hub does not support request.
- *               Host controller drivers error code,     Otherwise.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Enable given port of given host controller's root hub.
  */
-
 int usbh_hc_port_en(uint8_t hc_nbr, uint8_t port_nbr)
 {
 	LOG_DBG("enable port");
@@ -529,31 +345,8 @@ int usbh_hc_port_en(uint8_t hc_nbr, uint8_t port_nbr)
 }
 
 /*
- *********************************************************************************************************
- *                                          USBH_HC_PortDis()
- *
- * Description : Disable given port of given host controller's root hub.
- *
- * Argument(s) : hc_nbr    Host controller number.
- *
- *               port_nbr  Port number.
- *
- * Return(s)   : USBH_ERR_NONE,                          If port successfully disabled.
- *               USBH_ERR_INVALID_ARG,                   If invalid argument passed to 'hc_nbr'.
- *
- *                                                       ----- RETURNED BY USBH_HUB_PortDis() : -----
- *               USBH_ERR_INVALID_ARG,                   If invalid parameter passed to 'p_hub_dev'.
- *               USBH_ERR_UNKNOWN,                       Unknown error occurred.
- *               USBH_ERR_INVALID_ARG,                   Invalid argument passed to 'p_ep'.
- *               USBH_ERR_EP_INVALID_STATE,              Endpoint is not opened.
- *               USBH_ERR_HC_IO,                         Root hub input/output error.
- *               USBH_ERR_EP_STALL,                      Root hub does not support request.
- *               Host controller drivers error code,     Otherwise.
- *
- * Note(s)     : None
- *********************************************************************************************************
+ * Disable given port of given host controller's root hub.
  */
-
 int usbh_hc_port_dis(uint8_t hc_nbr, uint8_t port_nbr)
 {
 	LOG_DBG("disable port");
@@ -571,26 +364,8 @@ int usbh_hc_port_dis(uint8_t hc_nbr, uint8_t port_nbr)
 }
 
 /*
- *********************************************************************************************************
- *                                         USBH_HC_FrameNbrGet()
- *
- * Description : Get current frame number.
- *
- * Argument(s) : hc_nbr  Index of Host Controller.
- *
- *               p_err   Pointer to variable that will receive the return error code from this function :
- *
- *                           USBH_ERR_NONE                           Frame number successfully fetched.
- *                           USBH_ERR_INVALID_ARG                    Invalid argument passed to hc_nbr.
- *                           Host controller drivers error code,     Otherwise.
- *
- * Return(s)   : Curent frame number processed by Host Controller, If success.
- *               0,                                                Otherwise.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Get current frame number.
  */
-
 uint32_t usbh_hc_frame_nbr_get(uint8_t hc_nbr, int *p_err)
 {
 	uint32_t frame_nbr;
@@ -613,76 +388,9 @@ uint32_t usbh_hc_frame_nbr_get(uint8_t hc_nbr, int *p_err)
 }
 
 /*
- *********************************************************************************************************
- *********************************************************************************************************
- *                                    DEVICE ENUMERATION FUNCTIONS
- *********************************************************************************************************
- *********************************************************************************************************
+ * Enumerates newly connected USB device. Reads device and configuration descriptor from
+ * device and loads appropriate class driver(s).
  */
-
-/*
- *********************************************************************************************************
- *                                           USBH_DevConn()
- *
- * Description : Enumerates newly connected USB device. Reads device and configuration descriptor from
- *               device and loads appropriate class driver(s).
- *
- * Argument(s) : p_dev       Pointer to USB device structure.
- *
- * Return(s)   : USBH_ERR_NONE                           If device connection is successful.
- *               USBH_ERR_DESC_INVALID                   If device contains 0 configurations
- *               USBH_ERR_CFG_ALLOC                      If maximum number of configurations reached.
- *
- *                                                       ----- RETURNED BY USBH_CfgRd() : -----
- *               USBH_ERR_DESC_INVALID,                  If invalid configuration descriptor was fetched.
- *               USBH_ERR_CFG_MAX_CFG_LEN,               If configuration descriptor length > USBH_CFG_MAX_CFG_DATA_LEN
- *               USBH_ERR_UNKNOWN,                       Unknown error occurred.
- *               USBH_ERR_INVALID_ARG,                   Invalid argument passed to 'p_ep'.
- *               USBH_ERR_EP_INVALID_STATE,              Endpoint is not opened.
- *               USBH_ERR_HC_IO,                         Root hub input/output error.
- *               USBH_ERR_EP_STALL,                      Root hub does not support request.
- *               Host controller drivers error code,     Otherwise.
- *
- *                                                       ----- RETURNED BY USBH_CDC_RespRx() : -----
- *               USBH_ERR_DESC_INVALID,                  If an invalid device descriptor was fetched.
- *               USBH_ERR_DEV_NOT_RESPONDING,            If device is not responding.
- *               USBH_ERR_UNKNOWN,                       Unknown error occurred.
- *               USBH_ERR_INVALID_ARG,                   Invalid argument passed to 'p_ep'.
- *               USBH_ERR_EP_INVALID_STATE,              Endpoint is not opened.
- *               USBH_ERR_HC_IO,                         Root hub input/output error.
- *               USBH_ERR_EP_STALL,                      Root hub does not support request.
- *               Host controller drivers error code,     Otherwise.
- *
- *                                                       ----- RETURNED BY USBH_DevAddrSet() : -----
- *               USBH_ERR_UNKNOWN,                       Unknown error occurred.
- *               USBH_ERR_INVALID_ARG,                   Invalid argument passed to 'p_ep'.
- *               USBH_ERR_EP_INVALID_STATE,              Endpoint is not opened.
- *               USBH_ERR_HC_IO,                         Root hub input/output error.
- *               USBH_ERR_EP_STALL,                      Root hub does not support request.
- *               Host controller drivers error code,     Otherwise.
- *
- *
- *                                                       ----- RETURNED BY USBH_ClassDrvConn() : -----
- *               USBH_ERR_DRIVER_NOT_FOUND               If no class driver was found.
- *               USBH_ERR_UNKNOWN                        Unknown error occurred.
- *               USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
- *               USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
- *               USBH_ERR_HC_IO,                         Root hub input/output error.
- *               USBH_ERR_EP_STALL,                      Root hub does not support request.
- *               Host controller drivers error code,     Otherwise.
- *
- *                                                       ----- RETURNED BY USBH_DfltEP_Open() : -----
- *               USBH_ERR_OS_SIGNAL_CREATE,              If semaphore or mutex creation failed.
- *               Host controller driver error,           Otherwise.
- *
- *                                                       -------- RETURNED BY USBH_CfgRd() : --------
- *               USBH_ERR_NULL_PTR                       If configuration read returns a null pointer.
- *               Host controller driver error,           Otherwise.
- *
- * Note(s)     : None.
- *********************************************************************************************************
- */
-
 int usbh_dev_conn(struct usbh_dev *p_dev)
 {
 	LOG_DBG("device connected");
@@ -760,19 +468,8 @@ int usbh_dev_conn(struct usbh_dev *p_dev)
 }
 
 /*
- *********************************************************************************************************
- *                                          USBH_DevDisconn()
- *
- * Description : Unload class drivers & close default endpoint.
- *
- * Argument(s) : p_dev       Pointer to USB device structure.
- *
- * Return(s)   : None.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Unload class drivers & close default endpoint.
  */
-
 void usbh_dev_disconn(struct usbh_dev *p_dev)
 {
 	LOG_DBG("device disconnected");
@@ -784,20 +481,8 @@ void usbh_dev_disconn(struct usbh_dev *p_dev)
 }
 
 /*
- *********************************************************************************************************
- *                                          USBH_DevCfgNbrGet()
- *
- * Description : Get number of configurations supported by specified device.
- *
- * Argument(s) : p_dev       Pointer to USB device.
- *
- * Return(s)   : Number of configurations.
- *
- * Note(s)     : (1) USB2.0 spec, section 9.6.1 states that offset 17 of standard device descriptor
- *                   contains number of configurations.
- *********************************************************************************************************
+ * Get number of configurations supported by specified device.
  */
-
 uint8_t usbh_dev_cfg_nbr_get(struct usbh_dev *p_dev)
 {
 	return (p_dev->dev_desc
@@ -805,72 +490,16 @@ uint8_t usbh_dev_cfg_nbr_get(struct usbh_dev *p_dev)
 }
 
 /*
- *********************************************************************************************************
- *                                          USBH_DevDescGet()
- *
- * Description : Get device descriptor of specified USB device.
- *
- * Argument(s) : p_dev            Pointer to USB device.
- *
- *               p_dev_desc       Pointer to device descriptor.
- *
- * Return(s)   : None.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Get device descriptor of specified USB device.
  */
-
 void usbh_dev_desc_get(struct usbh_dev *p_dev, struct usbh_dev_desc *p_dev_desc)
 {
 	usbh_parse_dev_desc(p_dev_desc, (void *)p_dev->dev_desc);
 }
 
 /*
- *********************************************************************************************************
- *                                             USBH_CfgSet()
- *
- * Description : Select a configration in specified device.
- *
- * Argument(s) : p_dev       Pointer to USB device
- *
- *               cfg_nbr     Configuration number to be selected
- *
- * Return(s)   : USBH_ERR_NONE,                          If given configuration was successfully selected.
- *
- *                                                       ----- RETURNED BY USBH_SET_CFG() : -----
- *               USBH_ERR_UNKNOWN                        Unknown error occurred.
- *               USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
- *               USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
- *               USBH_ERR_HC_IO,                         Root hub input/output error.
- *               USBH_ERR_EP_STALL,                      Root hub does not support request.
- *               Host controller drivers error code,     Otherwise.
- *
- * Note(s)     : (1) (a) The SET_CONFIGURATION request is described in "Universal Serial Bus Specification
- *                       Revision 2.0", section 9.4.6.
- *
- *                   (b) If the device is in the default state, the behaviour of the device is not
- *                       specified. Implementations stall such request.
- *
- *                   (c) If the device is in the addressed state &
- *
- *                       (1) ... the configuration number is zero, then the device remains in the address state.
- *                       (2) ... the configuration number is non-zero & matches a valid configuration
- *                               number, then that configuration is selected & the device enters the
- *                               configured state.
- *                       (3) ... the configuration number is non-zero & does NOT match a valid configuration
- *                               number, then the device responds with a request error.
- *
- *                   (d) If the device is in the configured state &
- *
- *                       (1) ... the configuration number is zero, then the device enters the address state.
- *                       (2) ... the configuration number is non-zero & matches a valid configuration
- *                               number, then that configuration is selected & the device remains in the
- *                               configured state.
- *                       (3) ... the configuration number is non-zero & does NOT match a valid configuration
- *                               number, then the device responds with a request error.
- *********************************************************************************************************
+ * Select a configration in specified device.
  */
-
 int usbh_cfg_set(struct usbh_dev *p_dev, uint8_t cfg_nbr)
 {
 	int err;
@@ -888,22 +517,8 @@ int usbh_cfg_set(struct usbh_dev *p_dev, uint8_t cfg_nbr)
 }
 
 /*
- *********************************************************************************************************
- *                                            USBH_CfgGet()
- *
- * Description : Get a pointer to specified configuration data of specified device.
- *
- * Argument(s) : p_dev       Pointer to USB device.
- *
- *               cfg_ix      Zero based index of configuration.
- *
- * Return(s)   : Pointer to configuration,  If configuration number is valid.
- *               0,                         Otherwise.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Get a pointer to specified configuration data of specified device.
  */
-
 struct usbh_cfg *usbh_cfg_get(struct usbh_dev *p_dev, uint8_t cfg_ix)
 {
 	uint8_t nbr_cfgs;
@@ -923,20 +538,8 @@ struct usbh_cfg *usbh_cfg_get(struct usbh_dev *p_dev, uint8_t cfg_ix)
 }
 
 /*
- *********************************************************************************************************
- *                                          USBH_CfgIF_NbrGet()
- *
- * Description : Get number of interfaces in given configuration.
- *
- * Argument(s) : p_cfg       Pointer to configuration
- *
- * Return(s)   : Number of interfaces.
- *
- * Note(s)     : (1) USB2.0 spec, section 9.6.1 states that offset 4 of standard configuration descriptor
- *                   represents number of interfaces in the configuration.
- *********************************************************************************************************
+ * Get number of interfaces in given configuration.
  */
-
 uint8_t usbh_cfg_if_nbr_get(struct usbh_cfg *p_cfg)
 {
 	if (p_cfg != NULL) {
@@ -948,23 +551,8 @@ uint8_t usbh_cfg_if_nbr_get(struct usbh_cfg *p_cfg)
 }
 
 /*
- *********************************************************************************************************
- *                                          USBH_CfgDescGet()
- *
- * Description : Get configuration descriptor data.
- *
- * Argument(s) : p_cfg           Pointer to USB configuration
- *
- *               p_cfg_desc      Pointer to a variable that will contain configuration descriptor.
- *
- * Return(s)   : USBH_ERR_NONE            If a valid configuration descriptor is found.
- *               USBH_ERR_INVALID_ARG     If invalid argument passed to 'p_cfg' / 'p_cfg_desc'.
- *               USBH_ERR_DESC_INVALID    If an invalid configuration descriptor was found.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Get configuration descriptor data.
  */
-
 int usbh_cfg_desc_get(struct usbh_cfg *p_cfg,
 		      struct usbh_cfg_desc *p_cfg_desc)
 {
@@ -990,26 +578,8 @@ int usbh_cfg_desc_get(struct usbh_cfg *p_cfg,
 }
 
 /*
- *********************************************************************************************************
- *                                       USBH_CfgExtraDescGet()
- *
- * Description : Get extra descriptor immediately following configuration descriptor.
- *
- * Argument(s) : p_cfg       Pointer to USB configuration.
- *
- *               p_err       Pointer to variable that will receive the return error code from this function :
- *
- *                       USBH_ERR_NONE,                   If a valid extra descriptor is present.
- *                       USBH_ERR_INVALID_ARG,            If invalid argument passed to 'p_cfg'.
- *                       USBH_ERR_DESC_EXTRA_NOT_FOUND,   If extra descriptor is not present.
- *
- * Return(s)   : Pointer to extra descriptor,  If a valid extra descriptor is present.
- *               0,                            Otherwise.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Get extra descriptor immediately following configuration descriptor.
  */
-
 struct usbh_desc_hdr *usbh_cfg_extra_desc_get(struct usbh_cfg *p_cfg,
 					      int *p_err)
 {
@@ -1047,31 +617,8 @@ struct usbh_desc_hdr *usbh_cfg_extra_desc_get(struct usbh_cfg *p_cfg,
 }
 
 /*
- *********************************************************************************************************
- *                                            USBH_IF_Set()
- *
- * Description : Select specified alternate setting of interface.
- *
- * Argument(s) : p_if        Pointer to interface.
- *
- *               alt_nbr     Alternate setting number to select.
- *
- * Return(s)   : USBH_ERR_NONE,                          If specified alternate setting was successfully selected.
- *               USBH_ERR_INVALID_ARG,                   If invalid argument passed to 'p_if' / 'alt_nbr'.
- *
- *                                                       ----- RETURNED BY USBH_CtrlTx() : -----
- *               USBH_ERR_UNKNOWN,                       Unknown error occurred.
- *               USBH_ERR_INVALID_ARG,                   Invalid argument passed to 'p_ep'.
- *               USBH_ERR_EP_INVALID_STATE,              Endpoint is not opened.
- *               USBH_ERR_HC_IO,                         Root hub input/output error.
- *               USBH_ERR_EP_STALL,                      Root hub does not support request.
- *               Host controller drivers error code,     Otherwise.
- *
- * Note(s)     : (1) The standard SET_INTERFACE request is defined in the Universal Serial Bus
- *                   specification revision 2.0, section 9.4.10
- *********************************************************************************************************
+ * Select specified alternate setting of interface.
  */
-
 int usbh_if_set(struct usbh_if *p_if, uint8_t alt_nbr)
 {
 	uint8_t nbr_alts;
@@ -1105,22 +652,8 @@ int usbh_if_set(struct usbh_if *p_if, uint8_t alt_nbr)
 }
 
 /*
- *********************************************************************************************************
- *                                             USBH_IF_Get()
- *
- * Description : Get specified interface from given configuration.
- *
- * Argument(s) : p_cfg       Pointer to configuration.
- *
- *               if_ix       Zero based index of the Interface.
- *
- * Return(s)   : Pointer to interface data,  If interface number is valid.
- *               0,                          Otherwise.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Get specified interface from given configuration.
  */
-
 struct usbh_if *usbu_if_get(struct usbh_cfg *p_cfg, uint8_t if_ix)
 {
 	uint8_t nbr_ifs;
@@ -1137,19 +670,8 @@ struct usbh_if *usbu_if_get(struct usbh_cfg *p_cfg, uint8_t if_ix)
 }
 
 /*
- *********************************************************************************************************
- *                                         USBH_IF_AltNbrGet()
- *
- * Description : Get number of alternate settings supported by the given interface.
- *
- * Argument(s) : p_if        Pointer to interface.
- *
- * Return(s)   : Number of alternate settings.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Get number of alternate settings supported by the given interface.
  */
-
 uint8_t usbh_if_alt_nbr_get(struct usbh_if *p_if)
 {
 	struct usbh_desc_hdr *p_desc;
@@ -1173,20 +695,8 @@ uint8_t usbh_if_alt_nbr_get(struct usbh_if *p_if)
 }
 
 /*
- *********************************************************************************************************
- *                                           USBH_IF_NbrGet()
- *
- * Description : Get number of given interface.
- *
- * Argument(s) : p_if        Pointer to interface.
- *
- * Return(s)   : Interface number.
- *
- * Note(s)     : (1) USB2.0 spec, section 9.6.5 states that offset 2 (b_if_nbr) of standard
- *                   interface descriptor contains the interface number of this interface.
- *********************************************************************************************************
+ * Get number of given interface.
  */
-
 uint8_t usbh_if_nbr_get(struct usbh_if *p_if)
 {
 	return (p_if->if_data_ptr
@@ -1194,22 +704,8 @@ uint8_t usbh_if_nbr_get(struct usbh_if *p_if)
 }
 
 /*
- *********************************************************************************************************
- *                                         USBH_IF_EP_NbrGet()
- *
- * Description : Determine number of endpoints in given alternate setting of interface.
- *
- * Argument(s) : p_if      Pointer to interface.
- *
- *               alt_ix    Alternate setting index.
- *
- * Return(s)   : Number of endpoints.
- *
- * Note(s)     : (1) USB2.0 spec, section 9.6.5 states that offset 4 of standard interface descriptor
- *                   (bNumEndpoints) contains the number of endpoints in this interface descriptor.
- *********************************************************************************************************
+ * Determine number of endpoints in given alternate setting of interface.
  */
-
 uint8_t usbh_if_ep_nbr_get(struct usbh_if *p_if, uint8_t alt_ix)
 {
 	struct usbh_desc_hdr *p_desc;
@@ -1235,24 +731,8 @@ uint8_t usbh_if_ep_nbr_get(struct usbh_if *p_if, uint8_t alt_ix)
 }
 
 /*
- *********************************************************************************************************
- *                                          USBH_IF_DescGet()
- *
- * Description : Get descriptor of interface at specified alternate setting index.
- *
- * Argument(s) : p_if        Pointer to USB interface.
- *
- *               alt_ix      Alternate setting index.
- *
- *               p_if_desc   Pointer to a variable to hold the interface descriptor data.
- *
- * Return(s)   : USBH_ERR_NONE          If interface descritor was found.
- *               USBH_ERR_INVALID_ARG   Invalid argument passed to 'alt_ix'.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Get descriptor of interface at specified alternate setting index.
  */
-
 int usbh_if_desc_get(struct usbh_if *p_if, uint8_t alt_ix,
 		     struct usbh_if_desc *p_if_desc)
 {
@@ -1277,24 +757,8 @@ int usbh_if_desc_get(struct usbh_if *p_if, uint8_t alt_ix,
 }
 
 /*
- *********************************************************************************************************
- *                                       USBH_IF_ExtraDescGet()
- *
- * Description : Get the descriptor immediately following the interface descriptor.
- *
- * Argument(s) : p_if            Pointer to USB interface.
- *
- *               alt_ix          Alternate setting number.
- *
- *               p_data_len      Length of extra interface descriptor.
- *
- * Return(s)   : Pointer to extra descriptor,  If success.
- *               0,                            Otherwise.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Get the descriptor immediately following the interface descriptor.
  */
-
 uint8_t *usbh_if_extra_desc_get(struct usbh_if *p_if, uint8_t alt_ix,
 				uint16_t *p_data_len)
 {
@@ -1351,29 +815,8 @@ uint8_t *usbh_if_extra_desc_get(struct usbh_if *p_if, uint8_t alt_ix,
 }
 
 /*
- *********************************************************************************************************
- *                                          USBH_BulkInOpen()
- *
- * Description : Open a bulk IN endpoint.
- *
- * Argument(s) : p_dev       Pointer to USB device.
- *
- *               p_if        Pointer to USB interface.
- *
- *               p_ep        Pointer to endpoint.
- *
- * Return(s)   : USBH_ERR_NONE                       If the bulk IN endpoint is opened successfully.
- *
- *                                                   ----- RETURNED BY USBH_EP_Open() : -----
- *               USBH_ERR_EP_ALLOC,                  If USBH_CFG_MAX_NBR_EPS reached.
- *               USBH_ERR_EP_NOT_FOUND,              If endpoint with given type and direction not found.
- *               USBH_ERR_OS_SIGNAL_CREATE,          if mutex or semaphore creation failed.
- *               Host controller drivers error,      Otherwise.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Open a bulk IN endpoint.
  */
-
 int usbh_bulk_in_open(struct usbh_dev *p_dev, struct usbh_if *p_if,
 		      struct usbh_ep *p_ep)
 {
@@ -1386,29 +829,8 @@ int usbh_bulk_in_open(struct usbh_dev *p_dev, struct usbh_if *p_if,
 }
 
 /*
- *********************************************************************************************************
- *                                         USBH_BulkOutOpen()
- *
- * Description : Open a bulk OUT endpoint.
- *
- * Argument(s) : p_dev       Pointer to USB device.
- *
- *               p_if        Pointer to USB interface.
- *
- *               p_ep        Pointer to endpoint.
- *
- * Return(s)   : USBH_ERR_NONE                       If the bulk OUT endpoint is opened successfully.
- *
- *                                                   ----- RETURNED BY USBH_EP_Open() : -----
- *               USBH_ERR_EP_ALLOC,                  If USBH_CFG_MAX_NBR_EPS reached.
- *               USBH_ERR_EP_NOT_FOUND,              If endpoint with given type and direction not found.
- *               USBH_ERR_OS_SIGNAL_CREATE,          if mutex or semaphore creation failed.
- *               Host controller drivers error,      Otherwise.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Open a bulk OUT endpoint.
  */
-
 int usbh_bulk_out_open(struct usbh_dev *p_dev, struct usbh_if *p_if,
 		       struct usbh_ep *p_ep)
 {
@@ -1421,29 +843,8 @@ int usbh_bulk_out_open(struct usbh_dev *p_dev, struct usbh_if *p_if,
 }
 
 /*
- *********************************************************************************************************
- *                                          USBH_IntrInOpen()
- *
- * Description : Open an interrupt IN endpoint.
- *
- * Argument(s) : p_dev       Pointer to USB device.
- *
- *               p_if        Pointer to USB interface.
- *
- *               p_ep        Pointer to endpoint.
- *
- * Return(s)   : USBH_ERR_NONE                       If the interrupt IN endpoint is opened successfully.
- *
- *                                                   ----- RETURNED BY USBH_EP_Open() : -----
- *               USBH_ERR_EP_ALLOC,                  If USBH_CFG_MAX_NBR_EPS reached.
- *               USBH_ERR_EP_NOT_FOUND,              If endpoint with given type and direction not found.
- *               USBH_ERR_OS_SIGNAL_CREATE,          if mutex or semaphore creation failed.
- *               Host controller drivers error,      Otherwise.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Open an interrupt IN endpoint.
  */
-
 int usbh_intr_in_open(struct usbh_dev *p_dev, struct usbh_if *p_if,
 		      struct usbh_ep *p_ep)
 {
@@ -1456,29 +857,8 @@ int usbh_intr_in_open(struct usbh_dev *p_dev, struct usbh_if *p_if,
 }
 
 /*
- *********************************************************************************************************
- *                                         USBH_IntrOutOpen()
- *
- * Description : Open and interrupt OUT endpoint.
- *
- * Argument(s) : p_dev       Pointer to USB device.
- *
- *               p_if        Pointer to USB interface.
- *
- *               p_ep        Pointer to endpoint.
- *
- * Return(s)   : USBH_ERR_NONE                       If the interrupt OUT endpoint is opened successfully.
- *
- *                                                   ----- RETURNED BY USBH_EP_Open() : -----
- *               USBH_ERR_EP_ALLOC,                  If USBH_CFG_MAX_NBR_EPS reached.
- *               USBH_ERR_EP_NOT_FOUND,              If endpoint with given type and direction not found.
- *               USBH_ERR_OS_SIGNAL_CREATE,          if mutex or semaphore creation failed.
- *               Host controller drivers error,      Otherwise.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Open and interrupt OUT endpoint.
  */
-
 int usbh_intr_out_open(struct usbh_dev *p_dev, struct usbh_if *p_if,
 		       struct usbh_ep *p_ep)
 {
@@ -1491,29 +871,8 @@ int usbh_intr_out_open(struct usbh_dev *p_dev, struct usbh_if *p_if,
 }
 
 /*
- *********************************************************************************************************
- *                                          USBH_IsocInOpen()
- *
- * Description : Open an isochronous IN endpoint.
- *
- * Argument(s) : p_dev       Pointer to USB device.
- *
- *               p_if        Pointer to USB interface.
- *
- *               p_ep        Pointer to endpoint.
- *
- * Return(s)   : USBH_ERR_NONE                       If the isochronous IN endpoint is opened successfully.
- *
- *                                                   ----- RETURNED BY USBH_EP_Open() : -----
- *               USBH_ERR_EP_ALLOC,                  If USBH_CFG_MAX_NBR_EPS reached.
- *               USBH_ERR_EP_NOT_FOUND,              If endpoint with given type and direction not found.
- *               USBH_ERR_OS_SIGNAL_CREATE,          if mutex or semaphore creation failed.
- *               Host controller drivers error,      Otherwise.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Open an isochronous IN endpoint.
  */
-
 int usbh_isoc_in_open(struct usbh_dev *p_dev, struct usbh_if *p_if,
 		      struct usbh_ep *p_ep)
 {
@@ -1526,29 +885,8 @@ int usbh_isoc_in_open(struct usbh_dev *p_dev, struct usbh_if *p_if,
 }
 
 /*
- *********************************************************************************************************
- *                                         USBH_IsocOutOpen()
- *
- * Description : Open an isochronous OUT endpoint.
- *
- * Argument(s) : p_dev       Pointer to USB device.
- *
- *               p_if        Pointer to USB interface.
- *
- *               p_ep        Pointer to endpoint.
- *
- * Return(s)   : USBH_ERR_NONE                       If the isochronous OUT endpoint is opened successfully.
- *
- *                                                   ----- RETURNED BY USBH_EP_Open() : -----
- *               USBH_ERR_EP_ALLOC,                  If USBH_CFG_MAX_NBR_EPS reached.
- *               USBH_ERR_EP_NOT_FOUND,              If endpoint with given type and direction not found.
- *               USBH_ERR_OS_SIGNAL_CREATE,          if mutex or semaphore creation failed.
- *               Host controller drivers error,      Otherwise.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Open an isochronous OUT endpoint.
  */
-
 int usbh_isoc_out_open(struct usbh_dev *p_dev, struct usbh_if *p_if,
 		       struct usbh_ep *p_ep)
 {
@@ -1561,49 +899,8 @@ int usbh_isoc_out_open(struct usbh_dev *p_dev, struct usbh_if *p_if,
 }
 
 /*
- *********************************************************************************************************
- *                                            USBH_CtrlTx()
- *
- * Description : Issue control request to device and send data to it.
- *
- * Argument(s) : p_dev            Pointer to USB device.
- *
- *               b_req            One-byte value that specifies request.
- *
- *               bm_req_type      One-byte value that specifies direction, type and the recipient of
- *                                request.
- *
- *               w_val            Two-byte value used to pass information to device.
- *
- *               w_ix             Two-byte value used to pass an index or offset (such as interface or
- *                                endpoint number) to device.
- *
- *               p_data           Pointer to data buffer to transmit.
- *
- *               w_len            Two-byte value containing buffer length in octets.
- *
- *               timeout_ms       Timeout, in milliseconds.
- *
- *               p_err   Pointer to variable that will receive the return error code from this function :
- *                           USBH_ERR_NONE                           Control transfer successfully transmitted.
- *
- *                                                                   ----- RETURNED BY USBH_SyncCtrlXfer() : -----
- *                           USBH_ERR_NONE                           Control transfer successfully completed.
- *                           USBH_ERR_UNKNOWN                        Unknown error occurred.
- *                           USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
- *                           USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
- *                           Host controller drivers error code,     Otherwise.
- *
- *                                                                   ----- RETURNED BY USBH_HUB_RHCtrlReq() : -----
- *                           USBH_ERR_HC_IO,                         Root hub input/output error.
- *                           USBH_ERR_EP_STALL,                      Root hub does not support request.
- *
- * Return(s)   : Number of octets transmitted.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Issue control request to device and send data to it.
  */
-
 uint16_t usbh_ctrl_tx(struct usbh_dev *p_dev, uint8_t b_req,
 		      uint8_t bm_req_type, uint16_t w_val, uint16_t w_ix,
 		      void *p_data, uint16_t w_len, uint32_t timeout_ms,
@@ -1631,50 +928,8 @@ uint16_t usbh_ctrl_tx(struct usbh_dev *p_dev, uint8_t b_req,
 }
 
 /*
- *********************************************************************************************************
- *                                            USBH_CtrlRx()
- *
- * Description : Issue control request to device and receive data from it.
- *
- * Argument(s) : p_dev            Pointer to USB device.
- *
- *               b_req            One-byte value that specifies request.
- *
- *               bm_req_type      One-byte value that specifies direction, type and the recipient of
- *                                request.
- *
- *               w_val            Two-byte value used to pass information to device.
- *
- *               w_ix             Two-byte value used to pass an index or offset (such as interface or
- *                                endpoint number) to device.
- *
- *               p_data           Pointer to destination buffer to receive data.
- *
- *               w_len            Two-byte value containing buffer length in octets.
- *
- *               timeout_ms       Timeout, in milliseconds.
- *
- *               p_err   Pointer to variable that will receive the return error code from this function :
- *
- *                           USBH_ERR_NONE                           Control transfer successfully received.
- *
- *                                                                   ----- RETURNED BY USBH_SyncCtrlXfer() : -----
- *                           int_NONE                           Control transfer successfully completed.
- *                           USBH_ERR_UNKNOWN                        Unknown error occurred.
- *                           USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
- *                           USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
- *                           Host controller drivers error code,     Otherwise.
- *
- *                                                                   ----- RETURNED BY USBH_HUB_RHCtrlReq() : -----
- *                           USBH_ERR_HC_IO,                         Root hub input/output error.
- *                           USBH_ERR_EP_STALL,                      Root hub does not support request.
- *
- * Return(s)   : Number of octets received.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Issue control request to device and receive data from it.
  */
-
 uint16_t usbh_ctrl_rx(struct usbh_dev *p_dev, uint8_t b_req,
 		      uint8_t bm_req_type, uint16_t w_val, uint16_t w_ix,
 		      void *p_data, uint16_t w_len, uint32_t timeout_ms,
@@ -1703,38 +958,8 @@ uint16_t usbh_ctrl_rx(struct usbh_dev *p_dev, uint8_t b_req,
 }
 
 /*
- *********************************************************************************************************
- *                                             USBH_BulkTx()
- *
- * Description : Issue bulk request to transmit data to device.
- *
- * Argument(s) : p_ep            Pointer to endpoint.
- *
- *               p_buf           Pointer to data buffer to transmit.
- *
- *               buf_len         Buffer length in octets.
- *
- *               timeout_ms      Timeout, in milliseconds.
- *
- *               p_err   Pointer to variable that will receive the return error code from this function :
- *
- *                           USBH_ERR_NONE                           Bulk transfer successfully transmitted.
- *                           USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
- *                           USBH_ERR_EP_INVALID_TYPE                Endpoint type is not Bulk or direction is not OUT.
- *
- *                                                                   ----- RETURNED BY USBH_SyncXfer() : -----
- *                           USBH_ERR_NONE                           Transfer successfully completed.
- *                           USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
- *                           USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
- *                           USBH_ERR_NONE,                          urb is successfully submitted to host controller.
- *                           Host controller drivers error code,     Otherwise.
- *
- * Return(s)   : Number of octets transmitted.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Issue bulk request to transmit data to device.
  */
-
 uint32_t usbh_bulk_tx(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
 		      uint32_t timeout_ms, int *p_err)
 {
@@ -1763,37 +988,8 @@ uint32_t usbh_bulk_tx(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
 }
 
 /*
- *********************************************************************************************************
- *                                          USBH_BulkTxAsync()
- *
- * Description : Issue asynchronous bulk request to transmit data to device.
- *
- * Argument(s) : p_ep            Pointer to endpoint.
- *
- *               buf             Pointer to data buffer to transmit.
- *
- *               buf_len         Buffer length in octets.
- *
- *               p_fnct          Function that will be invoked upon completion of transmit operation.
- *
- *               p_fnct_arg      Pointer to argument that will be passed as parameter of 'p_fnct'.
- *
- * Return(s)   : USBH_ERR_NONE                           If request is successfully submitted.
- *               USBH_ERR_INVALID_ARG                    If invalid argument passed to 'p_ep'.
- *               USBH_ERR_EP_INVALID_TYPE                If endpoint type is not bulk or direction is not OUT.
- *
- *                                                       ----- RETURNED BY USBH_AsyncXfer() : -----
- *               USBH_ERR_NONE                           If transfer successfully submitted.
- *               USBH_ERR_EP_INVALID_STATE               If endpoint is not opened.
- *               USBH_ERR_ALLOC                          If urb cannot be allocated.
- *               USBH_ERR_UNKNOWN                        If unknown error occured.
- *               Host controller drivers error code,     Otherwise.
- *
- * Note(s)     : (1) This function returns immediately. The urb completion will be invoked by the
- *                   asynchronous I/O task when transfer is completed.
- *********************************************************************************************************
+ * Issue asynchronous bulk request to transmit data to device.
  */
-
 int usbh_bulk_tx_async(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
 		       usbh_xfer_cmpl_fnct fnct, void *p_fnct_arg)
 {
@@ -1820,38 +1016,8 @@ int usbh_bulk_tx_async(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
 }
 
 /*
- *********************************************************************************************************
- *                                             USBH_BulkRx()
- *
- * Description : Issue bulk request to receive data from device.
- *
- * Argument(s) : p_ep            Pointer to endpoint.
- *
- *               p_buf           Pointer to destination buffer to receive data.
- *
- *               buf_len         Buffer length in octets.
- *
- *               timeout_ms      Timeout, in milliseconds.
- *
- *               p_err   Pointer to variable that will receive the return error code from this function :
- *
- *                           USBH_ERR_NONE                           Bulk transfer successfully received.
- *                           USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
- *                           USBH_ERR_EP_INVALID_TYPE                Endpoint type is not Bulk or direction is not IN.
- *
- *                                                                   ----- RETURNED BY USBH_SyncXfer() : -----
- *                           USBH_ERR_NONE                           Transfer successfully completed.
- *                           USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
- *                           USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
- *                           USBH_ERR_NONE,                          urb is successfully submitted to host controller.
- *                           Host controller drivers error code,     Otherwise.
- *
- * Return(s)   : Number of octets received.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Issue bulk request to receive data from device.
  */
-
 uint32_t usbh_bulk_rx(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
 		      uint32_t timeout_ms, int *p_err)
 {
@@ -1880,37 +1046,8 @@ uint32_t usbh_bulk_rx(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
 }
 
 /*
- *********************************************************************************************************
- *                                          USBH_BulkRxAsync()
- *
- * Description : Issue asynchronous bulk request to receive data from device.
- *
- * Argument(s) : p_ep            Pointer to endpoint.
- *
- *               p_buf           Pointer to destination buffer to receive data.
- *
- *               buf_len         Buffer length in octets.
- *
- *               fnct            Function that will be invoked upon completion of receive operation.
- *
- *               p_fnct_arg      Pointer to argument that will be passed as parameter of 'p_fnct'.
- *
- * Return(s)   : USBH_ERR_NONE                           If request is successfully submitted.
- *               USBH_ERR_INVALID_ARG                    If invalid argument passed to 'p_ep'.
- *               USBH_ERR_EP_INVALID_TYPE                If endpoint type is not Bulk or direction is not IN.
- *
- *                                                       ----- RETURNED BY USBH_AsyncXfer() : -----
- *               USBH_ERR_NONE                           If transfer successfully submitted.
- *               USBH_ERR_EP_INVALID_STATE               If endpoint is not opened.
- *               USBH_ERR_ALLOC                          If urb cannot be allocated.
- *               USBH_ERR_UNKNOWN                        If unknown error occured.
- *               Host controller drivers error code,     Otherwise.
- *
- * Note(s)     : (1) This function returns immediately. The urb completion will be invoked by the
- *                   asynchronous I/O task when the transfer is completed.
- *********************************************************************************************************
+ * Issue asynchronous bulk request to receive data from device.
  */
-
 int usbh_bulk_rx_async(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
 		       usbh_xfer_cmpl_fnct fnct, void *p_fnct_arg)
 {
@@ -1937,38 +1074,8 @@ int usbh_bulk_rx_async(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
 }
 
 /*
- *********************************************************************************************************
- *                                             USBH_IntrTx()
- *
- * Description : Issue interrupt request to transmit data to device
- *
- * Argument(s) : p_ep            Pointer to endpoint.
- *
- *               p_buf           Pointer to data buffer to transmit.
- *
- *               buf_len         Buffer length in octets.
- *
- *               timeout_ms      Timeout, in milliseconds.
- *
- *               p_err   Pointer to variable that will receive the return error code from this function :
- *
- *                           int_NONE                           Interrupt transfer successfully transmitted.
- *                           USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
- *                           USBH_ERR_EP_INVALID_TYPE                Endpoint type is not interrupt or direction is not OUT.
- *
- *                                                                   ----- RETURNED BY USBH_SyncXfer() : -----
- *                           USBH_ERR_NONE                           Transfer successfully completed.
- *                           USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
- *                           USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
- *                           USBH_ERR_NONE,                          urb is successfully submitted to host controller.
- *                           Host controller drivers error code,     Otherwise.
- *
- * Return(s)   : Number of octets transmitted.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Issue interrupt request to transmit data to device
  */
-
 uint32_t usbh_intr_tx(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
 		      uint32_t timeout_ms, int *p_err)
 {
@@ -1995,37 +1102,8 @@ uint32_t usbh_intr_tx(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
 }
 
 /*
- *********************************************************************************************************
- *                                          USBH_IntrTxAsync()
- *
- * Description : Issue asynchronous interrupt request to transmit data to device.
- *
- * Argument(s) : p_ep            Pointer to endpoint.
- *
- *               p_buf           Pointer to data buffer to transmit.
- *
- *               buf_len         Buffer length in octets.
- *
- *               fnct            Function that will be invoked upon completion of transmit operation.
- *
- *               p_fnct_arg      Pointer to argument that will be passed as parameter of 'p_fnct'.
- *
- * Return(s)   : USBH_ERR_NONE                           If request is successfully submitted.
- *               USBH_ERR_INVALID_ARG                    If invalid argument passed to 'p_ep'.
- *               USBH_ERR_EP_INVALID_TYPE                If endpoint type is not interrupt or direction is not OUT.
- *
- *                                                       ----- RETURNED BY USBH_AsyncXfer() : -----
- *               USBH_ERR_NONE                           If transfer successfully submitted.
- *               USBH_ERR_EP_INVALID_STATE               If endpoint is not opened.
- *               USBH_ERR_ALLOC                          If urb cannot be allocated.
- *               USBH_ERR_UNKNOWN                        If unknown error occured.
- *               Host controller drivers error code,     Otherwise.
- *
- * Note(s)     : (1) This function returns immediately. The urb completion will be invoked by the
- *                   asynchronous I/O task when the transfer is completed.
- *********************************************************************************************************
+ * Issue asynchronous interrupt request to transmit data to device.
  */
-
 int usbh_intr_tx_async(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
 		       usbh_xfer_cmpl_fnct fnct, void *p_fnct_arg)
 {
@@ -2052,38 +1130,8 @@ int usbh_intr_tx_async(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
 }
 
 /*
- *********************************************************************************************************
- *                                             USBH_IntrRx()
- *
- * Description : Issue interrupt request to receive data from device.
- *
- * Argument(s) : p_ep            Pointer to endpoint.
- *
- *               p_buf           Pointer to destination buffer to receive data.
- *
- *               buf_len         Buffer length in octets.
- *
- *               timeout_ms      Timeout, in milliseconds.
- *
- *               p_err   Pointer to variable that will receive the return error code from this function :
- *
- *                           USBH_ERR_NONE                           Interrupt transfer successfully received.
- *                           USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
- *                           USBH_ERR_EP_INVALID_TYPE                Endpoint type is not interrupt or direction is not IN.
- *
- *                                                                   ----- RETURNED BY USBH_SyncXfer() : -----
- *                           USBH_ERR_NONE                           Transfer successfully completed.
- *                           USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
- *                           USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
- *                           USBH_ERR_NONE,                          urb is successfully submitted to host controller.
- *                           Host controller drivers error code,     Otherwise.
- *
- * Return(s)   : Number of octets received.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Issue interrupt request to receive data from device.
  */
-
 uint32_t usbh_intr_rx(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
 		      uint32_t timeout_ms, int *p_err)
 {
@@ -2110,37 +1158,8 @@ uint32_t usbh_intr_rx(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
 }
 
 /*
- *********************************************************************************************************
- *                                          USBH_IntrRxAsync()
- *
- * Description : Issue asynchronous interrupt request to receive data from device.
- *
- * Argument(s) : p_ep            Pointer to endpoint.
- *
- *               p_buf           Pointer to data buffer to transmit.
- *
- *               buf_len         Buffer length in octets.
- *
- *               fnct            Function that will be invoked upon completion of receive operation.
- *
- *               p_fnct_arg      Pointer to argument that will be passed as parameter of 'p_fnct'.
- *
- * Return(s)   : USBH_ERR_NONE                           If request is successfully submitted.
- *               USBH_ERR_INVALID_ARG                    If invalid argument passed to 'p_ep'.
- *               USBH_ERR_EP_INVALID_TYPE                If endpoint type is not interrupt or direction is not IN.
- *
- *                                                       ----- RETURNED BY USBH_AsyncXfer() : -----
- *               USBH_ERR_NONE                           If transfer successfully submitted.
- *               USBH_ERR_EP_INVALID_STATE               If endpoint is not opened.
- *               USBH_ERR_ALLOC                          If urb cannot be allocated.
- *               USBH_ERR_UNKNOWN                        If unknown error occured.
- *               Host controller drivers error code,     Otherwise.
- *
- * Note(s)     : (1) This function returns immediately. The urb completion will be invoked by the
- *                   asynchronous I/O task when the transfer is completed.
- *********************************************************************************************************
+ * Issue asynchronous interrupt request to receive data from device.
  */
-
 int usbh_intr_rx_async(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
 		       usbh_xfer_cmpl_fnct fnct, void *p_fnct_arg)
 {
@@ -2172,46 +1191,8 @@ int usbh_intr_rx_async(struct usbh_ep *p_ep, void *p_buf, uint32_t buf_len,
 }
 
 /*
- *********************************************************************************************************
- *                                             USBH_IsocTx()
- *
- * Description : Issue isochronous request to transmit data to device.
- *
- * Argument(s) : p_ep            Pointer to endpoint.
- *
- *               p_buf           Pointer to data buffer to transmit.
- *
- *               buf_len         Buffer length in octets.
- *
- *               start_frm       Transfer start frame number.
- *
- *               nbr_frm         Number of frames.
- *
- *               p_frm_len
- *
- *               p_frm_err
- *
- *               timeout_ms      Timeout, in milliseconds.
- *
- *               p_err   Pointer to variable that will receive the return error code from this function :
- *
- *                           USBH_ERR_NONE                           Isochronous transfer successfully transmitted.
- *                           USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
- *                           USBH_ERR_EP_INVALID_TYPE                Endpoint type is not isochronous or direction is not OUT.
- *
- *                                                                   ----- RETURNED BY USBH_SyncXfer() : -----
- *                           USBH_ERR_NONE                           Transfer successfully completed.
- *                           USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
- *                           USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
- *                           USBH_ERR_NONE,                          urb is successfully submitted to host controller.
- *                           Host controller drivers error code,     Otherwise.
- *
- * Return(s)   : Number of octets transmitted.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Issue isochronous request to transmit data to device.
  */
-
 uint32_t usbh_isoc_tx(struct usbh_ep *p_ep, uint8_t *p_buf, uint32_t buf_len,
 		      uint32_t start_frm, uint32_t nbr_frm, uint16_t *p_frm_len,
 		      int *p_frm_err, uint32_t timeout_ms, int *p_err)
@@ -2246,45 +1227,8 @@ uint32_t usbh_isoc_tx(struct usbh_ep *p_ep, uint8_t *p_buf, uint32_t buf_len,
 }
 
 /*
- *********************************************************************************************************
- *                                          USBH_IsocTxAsync()
- *
- * Description : Issue asynchronous isochronous request to transmit data to device.
- *
- * Argument(s) : p_ep            Pointer to endpoint.
- *
- *               p_buf           Pointer to data buffer to transmit.
- *
- *               buf_len         Buffer length in octets.
- *
- *               start_frm
- *
- *               nbr_frm
- *
- *               p_frm_len
- *
- *               p_frm_err
- *
- *               fnct            Function that will be invoked upon completion of transmit operation.
- *
- *               p_fnct_arg      Pointer to argument that will be passed as parameter of 'p_fnct'.
- *
- * Return(s)   : USBH_ERR_NONE                           If request is successfully submitted.
- *               USBH_ERR_INVALID_ARG                    If invalid argument passed to 'p_ep'.
- *               USBH_ERR_EP_INVALID_TYPE                If endpoint type is not isochronous or direction is not OUT.
- *
- *                                                       ----- RETURNED BY USBH_AsyncXfer() : -----
- *               USBH_ERR_NONE                           If transfer successfully submitted.
- *               USBH_ERR_EP_INVALID_STATE               If endpoint is not opened.
- *               USBH_ERR_ALLOC                          If urb cannot be allocated.
- *               USBH_ERR_UNKNOWN                        If unknown error occured.
- *               Host controller drivers error code,     Otherwise.
- *
- * Note(s)     : (1) This function returns immediately. The urb completion will be invoked by the
- *                   asynchronous I/O task when the transfer is completed.
- *********************************************************************************************************
+ * Issue asynchronous isochronous request to transmit data to device.
  */
-
 int usbh_isoc_tx_async(struct usbh_ep *p_ep, uint8_t *p_buf,
 		       uint32_t buf_len, uint32_t start_frm,
 		       uint32_t nbr_frm, uint16_t *p_frm_len,
@@ -2332,46 +1276,8 @@ int usbh_isoc_tx_async(struct usbh_ep *p_ep, uint8_t *p_buf,
 }
 
 /*
- *********************************************************************************************************
- *                                             USBH_IsocRx()
- *
- * Description : Issue isochronous request to receive data from device.
- *
- * Argument(s) : p_ep            Pointer to endpoint.
- *
- *               p_buf           Pointer to destination buffer to receive data.
- *
- *               buf_len         Buffer length in octets.
- *
- *               start_frm
- *
- *               nbr_frm
- *
- *               p_frm_len
- *
- *               p_frm_err
- *
- *               timeout_ms      Timeout, in milliseconds.
- *
- *               p_err   Pointer to variable that will receive the return error code from this function :
- *
- *                           USBH_ERR_NONE                           Isochronous transfer successfully received.
- *                           USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
- *                           USBH_ERR_EP_INVALID_TYPE                Endpoint type is not isochronous or direction is not IN.
- *
- *                                                                   ----- RETURNED BY USBH_SyncXfer() : -----
- *                           USBH_ERR_NONE                           Transfer successfully completed.
- *                           USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
- *                           USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
- *                           USBH_ERR_NONE,                          urb is successfully submitted to host controller.
- *                           Host controller drivers error code,     Otherwise.
- *
- * Return(s)   : Number of octets received.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Issue isochronous request to receive data from device.
  */
-
 uint32_t usbh_isoc_rx(struct usbh_ep *p_ep, uint8_t *p_buf, uint32_t buf_len,
 		      uint32_t start_frm, uint32_t nbr_frm, uint16_t *p_frm_len,
 		      int *p_frm_err, uint32_t timeout_ms, int *p_err)
@@ -2406,45 +1312,8 @@ uint32_t usbh_isoc_rx(struct usbh_ep *p_ep, uint8_t *p_buf, uint32_t buf_len,
 }
 
 /*
- *********************************************************************************************************
- *                                          USBH_IsocRxAsync()
- *
- * Description : Issue asynchronous isochronous request to receive data from device.
- *
- * Argument(s) : p_ep            Pointer to endpoint.
- *
- *               p_buf           Pointer to destination buffer to receive data.
- *
- *               buf_len         Buffer length in octets.
- *
- *               start_frm
- *
- *               nbr_frm
- *
- *               p_frm_len
- *
- *               p_frm_err
- *
- *               fnct            Function that will be invoked upon completion of receive operation.
- *
- *               p_fnct_arg      Pointer to argument that will be passed as parameter of 'p_fnct'.
- *
- * Return(s)   : USBH_ERR_NONE                           If request is successfully submitted.
- *               USBH_ERR_INVALID_ARG                    If invalid argument passed to 'p_ep'.
- *               USBH_ERR_EP_INVALID_TYPE                If endpoint type is not isochronous or direction is not IN.
- *
- *                                                       ----- RETURNED BY USBH_AsyncXfer() : -----
- *               USBH_ERR_NONE                           If transfer successfully submitted.
- *               USBH_ERR_EP_INVALID_STATE               If endpoint is not opened.
- *               USBH_ERR_ALLOC                          If urb cannot be allocated.
- *               USBH_ERR_UNKNOWN                        If unknown error occured.
- *               Host controller drivers error code,     Otherwise.
- *
- * Note(s)     : (1) This function returns immediately. The urb completion will be invoked by the
- *                   asynchronous I/O task when the transfer is completed.
- *********************************************************************************************************
+ * Issue asynchronous isochronous request to receive data from device.
  */
-
 int usbh_isoc_rx_async(struct usbh_ep *p_ep, uint8_t *p_buf,
 		       uint32_t buf_len, uint32_t start_frm,
 		       uint32_t nbr_frm, uint16_t *p_frm_len,
@@ -2492,20 +1361,8 @@ int usbh_isoc_rx_async(struct usbh_ep *p_ep, uint8_t *p_buf,
 }
 
 /*
- *********************************************************************************************************
- *                                         USBH_EP_LogNbrGet()
- *
- * Description : Get logical number of given endpoint.
- *
- * Argument(s) : p_ep        Pointer to endpoint
- *
- * Return(s)   : Logical number of given endpoint,
- *
- * Note(s)     : (1) USB2.0 spec, section 9.6.6 states that bits 3...0 in offset 2 of standard endpoint
- *                   descriptor (b_endpoint_address) contains the endpoint logical number.
- *********************************************************************************************************
+ * Get logical number of given endpoint.
  */
-
 uint8_t usbh_ep_log_nbr_get(struct usbh_ep *p_ep)
 {
 	return ((uint8_t)p_ep->desc.b_endpoint_address &
@@ -2513,25 +1370,8 @@ uint8_t usbh_ep_log_nbr_get(struct usbh_ep *p_ep)
 }
 
 /*
- *********************************************************************************************************
- *                                          USBH_EP_DirGet()
- *
- * Description : Get the direction of given endpoint.
- *
- * Argument(s) : p_ep        Pointer to endpoint structure.
- *
- * Return(s)   : USBH_EP_DIR_NONE,   If endpoint is of type control.
- *               USBH_EP_DIR_OUT,    If endpoint direction is OUT.
- *               USBH_EP_DIR_IN,     If endpoint direction is IN.
- *
- * Note(s)     : (1) USB2.0 spec, section 9.6.6 states that bit 7 in offset 2 of standard endpoint
- *                   descriptor (b_endpoint_address) gives the direction of that endpoint.
- *
- *                   (a) 0 = OUT endpoint
- *                   (b) 1 = IN  endpoint
- *********************************************************************************************************
+ * Get the direction of given endpoint.
  */
-
 uint8_t usbh_ep_dir_get(struct usbh_ep *p_ep)
 {
 	uint8_t ep_type;
@@ -2550,20 +1390,8 @@ uint8_t usbh_ep_dir_get(struct usbh_ep *p_ep)
 }
 
 /*
- *********************************************************************************************************
- *                                            USBH_EP_MaxPktSizeGet()
- *
- * Description : Get the maximum packet size of the given endpoint
- *
- * Argument(s) : p_ep        Pointer to endpoint structure
- *
- * Return(s)   : Maximum Packet Size of the given endpoint
- *
- * Note(s)     : (1) USB2.0 spec, section 9.6.6 states that offset 4 of standard endpoint descriptor
- *                   (w_max_packet_size) gives the maximum packet size supported by this endpoint.
- *********************************************************************************************************
+ * Get the maximum packet size of the given endpoint
  */
-
 uint16_t usbh_ep_max_pkt_size_get(struct usbh_ep *p_ep)
 {
 	return ((uint16_t)p_ep->desc.w_max_packet_size &
@@ -2571,25 +1399,8 @@ uint16_t usbh_ep_max_pkt_size_get(struct usbh_ep *p_ep)
 }
 
 /*
- *********************************************************************************************************
- *                                            USBH_EP_TypeGet()
- *
- * Description : Get type of the given endpoint
- *
- * Argument(s) : p_ep          Pointer to endpoint
- *
- * Return(s)   : Type of the given endpoint
- *
- * Note(s)     : (1) USB2.0 spec, section 9.6.6 states that bits 1:0 in offset 3 of standard endpoint
- *                   descriptor (bm_attributes) gives type of the endpoint.
- *
- *                   (a) 00 = Control
- *                   (b) 01 = Isochronous
- *                   (c) 10 = Bulk
- *                   (d) 11 = Interrupt
- *********************************************************************************************************
+ * Get type of the given endpoint
  */
-
 uint8_t usbh_ep_type_get(struct usbh_ep *p_ep)
 {
 	return ((uint8_t)p_ep->desc.bm_attributes &
@@ -2597,27 +1408,8 @@ uint8_t usbh_ep_type_get(struct usbh_ep *p_ep)
 }
 
 /*
- *********************************************************************************************************
- *                                            USBH_EP_Get()
- *
- * Description : Get endpoint specified by given index / alternate setting / interface.
- *
- * Argument(s) : p_if    Pointer to interface.
- *
- *               alt_ix  Alternate setting index.
- *
- *               ep_ix   Endpoint index.
- *
- *               p_ep    Pointer to endpoint structure.
- *
- * Return(s)   : USBH_ERR_NONE,           If endpoint was found.
- *               USBH_ERR_INVALID_ARG,    If invalid argument passed to 'p_if' / 'p_ep'.
- *               USBH_ERR_EP_NOT_FOUND,   If endpoint was not found.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Get endpoint specified by given index / alternate setting / interface.
  */
-
 int usbh_ep_get(struct usbh_if *p_if, uint8_t alt_ix, uint8_t ep_ix,
 		struct usbh_ep *p_ep)
 {
@@ -2664,27 +1456,8 @@ int usbh_ep_get(struct usbh_if *p_if, uint8_t alt_ix, uint8_t ep_ix,
 }
 
 /*
- *********************************************************************************************************
- *                                         USBH_EP_StallSet()
- *
- * Description : Set the STALL condition on endpoint.
- *
- * Argument(s) : p_ep        Pointer to endpoint.
- *
- * Return(s)   : USBH_ERR_NONE,                          If endpoint STALL state is set.
- *
- *                                                       ----- RETURNED BY USBH_CtrlTx() : -----
- *               USBH_ERR_UNKNOWN                        Unknown error occurred.
- *               USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
- *               USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
- *               USBH_ERR_HC_IO,                         Root hub input/output error.
- *               USBH_ERR_EP_STALL,                      Root hub does not support request.
- *               Host controller drivers error code,     Otherwise.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Set the STALL condition on endpoint.
  */
-
 int usbh_ep_stall_set(struct usbh_ep *p_ep)
 {
 	int err;
@@ -2706,28 +1479,8 @@ int usbh_ep_stall_set(struct usbh_ep *p_ep)
 }
 
 /*
- *********************************************************************************************************
- *                                         USBH_EP_StallClr()
- *
- * Description : Clear the STALL condition on endpoint.
- *
- * Argument(s) : p_ep        Pointer to endpoint.
- *
- * Return(s)   : USBH_ERR_NONE,                          If endpoint STALL state is cleared.
- *
- *                                                       ----- RETURNED BY USBH_CtrlTx() : -----
- *               USBH_ERR_UNKNOWN                        Unknown error occurred.
- *               USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
- *               USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
- *               USBH_ERR_HC_IO,                         Root hub input/output error.
- *               USBH_ERR_EP_STALL,                      Root hub does not support request.
- *               Host controller drivers error code,     Otherwise.
- *
- * Note(s)     : (1) The standard CLEAR_FEATURE request is defined in the Universal Serial Bus
- *                   specification revision 2.0, section 9.4.1.
- *********************************************************************************************************
+ * Clear the STALL condition on endpoint.
  */
-
 int usbh_ep_stall_clr(struct usbh_ep *p_ep)
 {
 	int err;
@@ -2749,22 +1502,8 @@ int usbh_ep_stall_clr(struct usbh_ep *p_ep)
 }
 
 /*
- *********************************************************************************************************
- *                                            USBH_EP_Reset()
- *
- * Description : This function is used to reset the opened endpoint
- *
- * Argument(s) : p_dev       Pointer to USB device.
- *
- *               p_ep        Pointer to endpoint. Default endpoint if null is passed.
- *
- * Return(s)   : USBH_ERR_NONE,                  If endpoint successfully reseted.
- *               Host controller driver error,   otherwise.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * This function is used to reset the opened endpoint
  */
-
 int usbh_ep_reset(struct usbh_dev *p_dev, struct usbh_ep *p_ep)
 {
 	struct usbh_ep *p_ep_t;
@@ -2810,21 +1549,8 @@ int usbh_ep_reset(struct usbh_dev *p_dev, struct usbh_ep *p_ep)
 }
 
 /*
- *********************************************************************************************************
- *                                            USBH_EP_Close()
- *
  * Description : Closes given endpoint and makes it unavailable for I/O transfers.
- *
- * Argument(s) : p_ep        Pointer to endpoint.
- *
- * Return(s)   : USBH_ERR_NONE,                  If endpoint successfully closed.
- *               USBH_ERR_INVALID_ARG,           If invalid argument passed to 'p_ep'.
- *               Host controller driver error,   Otherwise.
- *
- * Note(s)     : None.
- *********************************************************************************************************
  */
-
 int usbh_ep_close(struct usbh_ep *p_ep)
 {
 	LOG_DBG("close endpoint");
@@ -2873,19 +1599,8 @@ int usbh_ep_close(struct usbh_ep *p_ep)
 }
 
 /*
- *********************************************************************************************************
- *                                           USBH_URB_Done()
- *
- * Description : Handle a USB request block (urb) that has been completed by host controller.
- *
- * Argument(s) : p_urb       Pointer to urb.
- *
- * Return(s)   : None.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Handle a USB request block (urb) that has been completed by host controller.
  */
-
 void usbh_urb_done(struct usbh_urb *p_urb)
 {
 	int key;
@@ -2916,19 +1631,8 @@ void usbh_urb_done(struct usbh_urb *p_urb)
 }
 
 /*
- *********************************************************************************************************
- *                                         USBH_URB_Complete()
- *
- * Description : Handle a urb after transfer has been completed or aborted.
- *
- * Argument(s) : p_urb       Pointer to urb.
- *
- * Return(s)   : USBH_ERR_NONE
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Handle a urb after transfer has been completed or aborted.
  */
-
 int usbh_urb_complete(struct usbh_urb *p_urb)
 {
 	struct usbh_dev *p_dev;
@@ -3002,46 +1706,8 @@ int usbh_urb_complete(struct usbh_urb *p_urb)
 }
 
 /*
- *********************************************************************************************************
- *                                            USBH_StrGet()
- *
- * Description : Read specified string descriptor, remove header and extract string data.
- *
- * Argument(s) : p_dev            Pointer to USB device.
- *
- *               desc_ix          Index of string descriptor.
- *
- *               lang_id          Language identifier.
- *
- *               p_buf            Buffer in which the string descriptor will be stored.
- *
- *               buf_len          Buffer length in octets.
- *
- *               p_err   Pointer to variable that will receive the return error code from this function :
- *
- *                       USBH_ERR_NONE                           String descriptor successfully fetched.
- *                       USBH_ERR_INVALID_ARG                    Invalid argument passed to 'desc_ix'.
- *                       USBH_ERR_DESC_INVALID                   Invalid string / lang id descriptor.
- *
- *                                                               ----- RETURNED BY USBH_StrDescGet() : -----
- *                       USBH_ERR_DESC_INVALID,                  Invalid string descriptor fetched.
- *                       USBH_ERR_UNKNOWN,                       Unknown error occurred.
- *                       USBH_ERR_INVALID_ARG,                   Invalid argument passed to 'p_ep'.
- *                       USBH_ERR_EP_INVALID_STATE,              Endpoint is not opened.
- *                       USBH_ERR_HC_IO,                         Root hub input/output error.
- *                       USBH_ERR_EP_STALL,                      Root hub does not support request.
- *                       Host controller drivers error code,     Otherwise.
- *
- * Return(s)   : Length of string received.
- *
- * Note(s)     : (1) The string descriptor MUST be at least four bytes :
- *
- *                   (a) Byte  0   = Length
- *                   (b) Byte  1   = Type
- *                   (c) Bytes 2-3 = Default language ID
- *********************************************************************************************************
+ * Read specified string descriptor, remove header and extract string data.
  */
-
 uint32_t usbh_str_get(struct usbh_dev *p_dev, uint8_t desc_ix, uint16_t lang_id,
 		      uint8_t *p_buf, uint32_t buf_len, int *p_err)
 {
@@ -3113,51 +1779,8 @@ uint32_t usbh_str_get(struct usbh_dev *p_dev, uint8_t desc_ix, uint16_t lang_id,
 }
 
 /*
- *********************************************************************************************************
- *********************************************************************************************************
- *                                           LOCAL FUNCTIONS
- *********************************************************************************************************
- *********************************************************************************************************
+ * Open an endpoint.
  */
-
-/*
- *********************************************************************************************************
- *                                           USBH_EP_Open()
- *
- * Description : Open an endpoint.
- *
- * Argument(s) : p_dev       Pointer to USB device.
- *
- *               p_if        Pointer to interface containing endpoint.
- *
- *               ep_type     Endpoint type.
- *
- *               ep_dir      Endpoint direction.
- *
- *               p_ep        Pointer to endpoint passed by class.
- *
- * Return(s)   : USBH_ERR_NONE                       If endpoint is successfully opened.
- *               USBH_ERR_EP_ALLOC                   If USBH_CFG_MAX_NBR_EPS reached.
- *               USBH_ERR_EP_NOT_FOUND               If endpoint with given type and direction not found.
- *               Host controller drivers error,      Otherwise.
- *
- *                                                   ----- RETURNED BY USBH_OS_MutexCreate() : -----
- *               USBH_ERR_OS_SIGNAL_CREATE,          if mutex creation failed.
- *
- *                                                   ----- RETURNED BY USBH_OS_SemCreate() : -----
- *               USBH_ERR_OS_SIGNAL_CREATE,          If semaphore creation failed.
- *
- * Note(s)     : (1) A full-speed interrupt endpoint can specify a desired period from 1 ms to 255 ms.
- *                   Low-speed endpoints are limited to specifying only 10 ms to 255 ms. High-speed
- *                   endpoints can specify a desired period 2^(b_interval-1) x 125us, where b_interval is in
- *                   the range [1 .. 16].
- *
- *               (2) Full-/high-speed isochronous endpoints must specify a desired period as
- *                   2^(b_interval-1) x F, where b_interval is in the range [1 .. 16] and F is 125us for
- *                   high-speed and 1ms for full-speed.
- *********************************************************************************************************
- */
-
 static int usbh_ep_open(struct usbh_dev *p_dev, struct usbh_if *p_if,
 			uint8_t ep_type, uint8_t ep_dir,
 			struct usbh_ep *p_ep)
@@ -3269,45 +1892,8 @@ static int usbh_ep_open(struct usbh_dev *p_dev, struct usbh_if *p_if,
 }
 
 /*
- *********************************************************************************************************
- *                                           USBH_SyncTransfer()
- *
- * Description : Perform synchronous transfer on endpoint.
- *
- * Argument(s) : p_ep                 Pointer to endpoint.
- *
- *               p_buf                Pointer to data buffer.
- *
- *               buf_len              Number of data bytes in buffer.
- *
- *               p_isoc_desc          Pointer to isochronous descriptor.
- *
- *               token                USB token to issue.
- *
- *               timeout_ms           Timeout, in milliseconds.
- *
- *               p_err                Variable that will receive the return error code from this function.
- *                           USBH_ERR_NONE                           Transfer successfully completed.
- *                           USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
- *                           USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
- *
- *                                                                   ----- RETURNED BY USBH_URB_Submit() : -----
- *                           USBH_ERR_NONE,                          urb is successfully submitted to host controller.
- *                           USBH_ERR_EP_INVALID_STATE,              Endpoint is in halt state.
- *                           Host controller drivers error code,     Otherwise.
- *
- *                                                                   ----- RETURNED BY USBH_OS_SemWait() : -----
- *                           USBH_ERR_INVALID_ARG                    If invalid argument passed to 'sem'.
- *                           USBH_ERR_OS_TIMEOUT                     If semaphore pend reached specified timeout.
- *                           USBH_ERR_OS_ABORT                       If pend on semaphore was aborted.
- *                           USBH_ERR_OS_FAIL                        Otherwise.
- *
- * Return(s)   : Number of bytes transmitted or received.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Perform synchronous transfer on endpoint.
  */
-
 static uint32_t usbh_sync_transfer(struct usbh_ep *p_ep, void *p_buf,
 				   uint32_t buf_len,
 				   struct usbh_isoc_desc *p_isoc_desc,
@@ -3366,40 +1952,8 @@ static uint32_t usbh_sync_transfer(struct usbh_ep *p_ep, void *p_buf,
 }
 
 /*
- *********************************************************************************************************
- *                                           USBH_AsyncXfer()
- *
- * Description : Perform asynchronous transfer on endpoint.
- *
- * Argument(s) : p_ep            Pointer to endpoint.
- *
- *               p_buf           Pointer to data buffer.
- *
- *               buf_len         Number of data bytes in buffer.
- *
- *               p_isoc_desc     Pointer to isochronous descriptor.
- *
- *               token           USB token to issue.
- *
- *               p_fnct          Function that will be invoked upon completion of receive operation.
- *
- *               p_fnct_arg      Pointer to argument that will be passed as parameter of 'p_fnct'.
- *
- * Return(s)   : USBH_ERR_NONE                           If transfer successfully submitted.
- *               USBH_ERR_EP_INVALID_STATE               If endpoint is not opened.
- *               USBH_ERR_ALLOC                          If urb cannot be allocated.
- *               USBH_ERR_UNKNOWN                        If unknown error occured.
- *
- *                                                       ----- RETURNED BY USBH_URB_Submit() : -----
- *               USBH_ERR_NONE,                          If urb is successfully submitted to host controller.
- *               USBH_ERR_EP_INVALID_STATE,              If endpoint is in halt state.
- *               Host controller drivers error code,     Otherwise.
- *
- * Note(s)     : (1) This function returns immediately. The urb completion will be invoked by the
- *                   asynchronous I/O task when the transfer is completed.
- *********************************************************************************************************
+ * Perform asynchronous transfer on endpoint.
  */
-
 static int usbh_async_transfer(struct usbh_ep *p_ep, void *p_buf,
 			       uint32_t buf_len,
 			       struct usbh_isoc_desc *p_isoc_desc,
@@ -3465,44 +2019,8 @@ static int usbh_async_transfer(struct usbh_ep *p_ep, void *p_buf,
 }
 
 /*
- *********************************************************************************************************
- *                                         USBH_SyncCtrlXfer()
- *
- * Description : Perform synchronous control transfer on endpoint.
- *
- * Argument(s) : p_ep              Pointer to endpoint.
- *
- *               b_req             One-byte value that specifies request.
- *
- *               bm_req_type       One-byte value that specifies direction, type and recipient of request.
- *
- *               w_value           Two-byte value used to pass information to device.
- *
- *               w_ix              Two-byte value used to pass an index or offset (such as an interface or
- *                                 endpoint number) to device.
- *
- *               p_arg             Pointer to data buffer.
- *
- *               w_len             Two-byte value containing number of data bytes in data stage.
- *
- *               timeout_ms        Timeout, in milliseconds.
- *
- *               p_err             Variable that will receive the return error code from this function.
- *
- *                           USBH_ERR_NONE                           Control transfer successfully completed.
- *                           USBH_ERR_UNKNOWN                        Unknown error occurred.
- *
- *                                                                   ----- RETURNED BY USBH_SyncXfer() : -----
- *                           USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
- *                           USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
- *                           Host controller drivers error code,     Otherwise.
- *
- * Return(s)   : Number of bytes transfered.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Perform synchronous control transfer on endpoint.
  */
-
 static uint16_t usbh_sync_ctrl_transfer(struct usbh_ep *p_ep, uint8_t b_req,
 					uint8_t bm_req_type, uint16_t w_val,
 					uint16_t w_ix, void *p_arg,
@@ -3567,19 +2085,8 @@ static uint16_t usbh_sync_ctrl_transfer(struct usbh_ep *p_ep, uint8_t b_req,
 }
 
 /*
- *********************************************************************************************************
- *                                          USBH_URB_Abort()
- *
- * Description : Abort pending urb.
- *
- * Argument(s) : p_urb       Pointer to urb.
- *
- * Return(s)   : None.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Abort pending urb.
  */
-
 static void usbh_urb_abort(struct usbh_urb *p_urb)
 {
 	bool cmpl;
@@ -3609,19 +2116,8 @@ static void usbh_urb_abort(struct usbh_urb *p_urb)
 }
 
 /*
- *********************************************************************************************************
- *                                          USBH_URB_Notify()
- *
- * Description : Notify application about state of given urb.
- *
- * Argument(s) : p_urb       Pointer to urb.
- *
- * Return(s)   : None.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Notify application about state of given urb.
  */
-
 static void usb_urb_notify(struct usbh_urb *p_urb)
 {
 	uint16_t nbr_frm;
@@ -3682,21 +2178,8 @@ static void usb_urb_notify(struct usbh_urb *p_urb)
 }
 
 /*
- *********************************************************************************************************
- *                                           USBH_URB_Submit()
- *
- * Description : Submit given urb to host controller.
- *
- * Argument(s) : p_urb       Pointer to urb.
- *
- * Return(s)   : USBH_ERR_NONE,                          If urb is successfully submitted to host controller.
- *               USBH_ERR_EP_INVALID_STATE,              If endpoint is in halt state.
- *               Host controller drivers error code,     Otherwise.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Submit given urb to host controller.
  */
-
 static int usbh_urb_submit(struct usbh_urb *p_urb)
 {
 	int err;
@@ -3726,19 +2209,8 @@ static int usbh_urb_submit(struct usbh_urb *p_urb)
 }
 
 /*
- *********************************************************************************************************
- *                                           USBH_URB_Clr()
- *
- * Description : Clear urb structure
- *
- * Argument(s) : p_urb       Pointer to urb structure to clear.
- *
- * Return(s)   : None.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Clear urb structure
  */
-
 static void usbh_urb_clr(struct usbh_urb *p_urb)
 {
 	p_urb->err = 0;
@@ -3747,29 +2219,8 @@ static void usbh_urb_clr(struct usbh_urb *p_urb)
 }
 
 /*
- *********************************************************************************************************
- *                                          USBH_DfltEP_Open()
- *
- * Description : Open default control endpoint of given USB device.
- *
- * Argument(s) : p_dev       Pointer to USB device
- *
- * Return(s)   : int_NONE,                      If control endpoint was successfully opened.
- *               Host controller driver error,       otherwise.
- *
- *                                                   ----- RETURNED BY USBH_OS_SemCreate() : -----
- *               USBH_ERR_OS_SIGNAL_CREATE,          If semaphore creation failed.
- *
- *                                                   ----- RETURNED BY USBH_OS_MutexCreate() : -----
- *               USBH_ERR_OS_SIGNAL_CREATE,          If mutex creation failed.
- *
- * Note(s)     : (1) The maximum packet size is unknown until device descriptor is read. For initial
- *                   transfer, the "Universal Serial Bus Specification Revision 2.0", Section 5.5.3 states
- *                   that a maximum packet size of 8 should be used for low speed devices and
- *                   a maximum packet size of 64 should be used for high speed devices.
- *********************************************************************************************************
+ * Open default control endpoint of given USB device.
  */
-
 static int usbh_dflt_ep_open(struct usbh_dev *p_dev)
 {
 	uint16_t ep_max_pkt_size;
@@ -3826,33 +2277,8 @@ static int usbh_dflt_ep_open(struct usbh_dev *p_dev)
 }
 
 /*
- *********************************************************************************************************
- *                                          USBH_DevDescRd()
- *
- * Description : Read device descriptor from device.
- *
- * Argument(s) : p_dev       Pointer to USB device
- *
- * Return(s)   : USBH_ERR_NONE,                          If a valid device descriptor was fetched.
- *               USBH_ERR_DESC_INVALID,                  If an invalid device descriptor was fetched.
- *               USBH_ERR_DEV_NOT_RESPONDING,            If device is not responding.
- *
- *                                                       ----- RETURNED BY USBH_CtrlTx() : -----
- *               USBH_ERR_UNKNOWN,                       Unknown error occurred.
- *               USBH_ERR_INVALID_ARG,                   Invalid argument passed to 'p_ep'.
- *               USBH_ERR_EP_INVALID_STATE,              Endpoint is not opened.
- *               USBH_ERR_HC_IO,                         Root hub input/output error.
- *               USBH_ERR_EP_STALL,                      Root hub does not support request.
- *               Host controller drivers error code,     Otherwise.
- *
- * Note(s)     : (1) (a) The GET_DESCRIPTOR request is described in "Universal Serial Bus Specification
- *                       Revision 2.0", section 9.4.3.
- *
- *                   (b) According the USB Spec, when host doesn't know the control max packet size, it
- *                       should assume 8 byte pkt size and request only 8 bytes from device descriptor.
- *********************************************************************************************************
+ * Read device descriptor from device.
  */
-
 static int usbh_dev_desc_rd(struct usbh_dev *p_dev)
 {
 	int err;
@@ -3957,39 +2383,8 @@ static int usbh_dev_desc_rd(struct usbh_dev *p_dev)
 }
 
 /*
- *********************************************************************************************************
- *                                             USBH_CfgRd()
- *
- * Description : Read configuration descriptor for a given configuration number.
- *
- * Argument(s) : p_dev       Pointer to USB device.
- *
- *               cfg_ix      Configuration number.
- *
- * Return(s)   : USBH_ERR_NONE,                          If valid configuration descriptor was fetched.
- *               USBH_ERR_DESC_INVALID,                  If invalid configuration descriptor was fetched.
- *               USBH_ERR_CFG_MAX_CFG_LEN,               If configuration descriptor length > USBH_CFG_MAX_CFG_DATA_LEN
- *               USBH_ERR_NULL_PTR                       If an invalid null pointer was obtain for 'p_cfg'.
- *
- *                                                       ----- RETURNED BY USBH_GET_DESC() : -----
- *               USBH_ERR_UNKNOWN,                       Unknown error occurred.
- *               USBH_ERR_INVALID_ARG,                   Invalid argument passed to 'p_ep'.
- *               USBH_ERR_EP_INVALID_STATE,              Endpoint is not opened.
- *               USBH_ERR_HC_IO,                         Root hub input/output error.
- *               USBH_ERR_EP_STALL,                      Root hub does not support request.
- *               Host controller drivers error code,     Otherwise.
- *
- * Note(s)     : (1) The standard GET_DESCRIPTOR request is described in "Universal Serial Bus
- *                   Specification Revision 2.0", section 9.4.3.
- *
- *               (2) According to "Universal Serial Bus Specification Revision 2.0",  the standard
- *                   configuration descriptor is of length 9 bytes.
- *
- *               (3) Offset 2 of standard configuration descriptor contains the total length of that
- *                   configuration which includes all interfaces and endpoint descriptors.
- *********************************************************************************************************
+ * Read configuration descriptor for a given configuration number.
  */
-
 static int usbh_cfg_rd(struct usbh_dev *p_dev, uint8_t cfg_ix)
 {
 	uint16_t w_tot_len;
@@ -4081,23 +2476,8 @@ static int usbh_cfg_rd(struct usbh_dev *p_dev, uint8_t cfg_ix)
 }
 
 /*
- *********************************************************************************************************
- *                                           USBH_CfgParse()
- *
- * Description : Parse given configuration descriptor.
- *
- * Argument(s) : p_dev       Pointer to USB Device.
- *
- *               p_cfg       Pointer to USB configuration.
- *
- * Return(s)   : USBH_ERR_NONE           If configuration descriptor successfully parsed.
- *               USBH_ERR_IF_ALLOC       If number of interfaces > USBH_CFG_MAX_NBR_IFS.
- *               USBH_ERR_DESC_INVALID   If any descriptor in this configuration is invalid.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Parse given configuration descriptor.
  */
-
 static int usbh_cfg_parse(struct usbh_dev *p_dev, struct usbh_cfg *p_cfg)
 {
 	int8_t if_ix;
@@ -4207,32 +2587,8 @@ static int usbh_cfg_parse(struct usbh_dev *p_dev, struct usbh_cfg *p_cfg)
 }
 
 /*
- *********************************************************************************************************
- *                                          USBH_DevAddrSet()
- *
- * Description : Assign address to given USB device.
- *
- * Argument(s) : p_dev       Pointer to USB device.
- *
- * Return(s)   : USBH_ERR_NONE,                          If device address was successfully set.
- *               Host controller driver error,           Otherwise.
- *
- *                                                       ----- RETURNED BY USBH_SET_ADDR() : -----
- *               USBH_ERR_UNKNOWN,                       Unknown error occurred.
- *               USBH_ERR_INVALID_ARG,                   Invalid argument passed to 'p_ep'.
- *               USBH_ERR_EP_INVALID_STATE,              Endpoint is not opened.
- *               USBH_ERR_HC_IO,                         Root hub input/output error.
- *               USBH_ERR_EP_STALL,                      Root hub does not support request.
- *               Host controller drivers error code,     Otherwise.
- *
- * Note(s)     : (1) The SET_ADDRESS request is described in "Universal Serial Bus Specification
- *                   Revision 2.0", section 9.4.6.
- *
- *               (2) USB 2.0 spec states that after issuing SET_ADDRESS request, the host must wait
- *                   at least 2 millisecs. During this time the device will go into the addressed state.
- *********************************************************************************************************
+ * Assign address to given USB device.
  */
-
 static int usbh_dev_addr_set(struct usbh_dev *p_dev)
 {
 	LOG_DBG("set device address");
@@ -4282,40 +2638,8 @@ static int usbh_dev_addr_set(struct usbh_dev *p_dev)
 }
 
 /*
- *********************************************************************************************************
- *                                          USBH_StrDescGet()
- *
- * Description : Read specified string descriptor from USB device.
- *
- * Argument(s) : p_dev            Pointer to USB device.
- *
- *               desc_ix          Index of the string descriptor.
- *
- *               lang_id          Language identifier.
- *
- *               p_buf            Buffer in which the string descriptor will be stored.
- *
- *               buf_len          Buffer length, in octets.
- *
- *               p_err   Pointer to variable that will receive the return error code from this function :
- *
- *                       USBH_ERR_NONE,                          String descriptor successfully fetched.
- *                       USBH_ERR_DESC_INVALID,                  Invalid string descriptor fetched.
- *
- *                                                               ----- RETURNED BY USBH_CtrlRx() : -----
- *                       USBH_ERR_UNKNOWN,                       Unknown error occurred.
- *                       USBH_ERR_INVALID_ARG,                   Invalid argument passed to 'p_ep'.
- *                       USBH_ERR_EP_INVALID_STATE,              Endpoint is not opened.
- *                       USBH_ERR_HC_IO,                         Root hub input/output error.
- *                       USBH_ERR_EP_STALL,                      Root hub does not support request.
- *                       Host controller drivers error code,     Otherwise.
- *
- * Return(s)   : Length of string descriptor.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Read specified string descriptor from USB device.
  */
-
 static uint32_t usbh_str_desc_get(struct usbh_dev *p_dev, uint8_t desc_ix,
 				  uint16_t lang_id, void *p_buf,
 				  uint32_t buf_len, int *p_err)
@@ -4400,33 +2724,19 @@ static uint32_t usbh_str_desc_get(struct usbh_dev *p_dev, uint8_t desc_ix,
 }
 
 /*
- *********************************************************************************************************
- *                                            USBH_StrDescPrint()
- *
- * Description : Print specified string index to default output terminal.
- *
- * Argument(s) : p_dev           Pointer to USB device.
- *
- *               str_prefix      Caller's specific prefix string to add.
- *
- *               desc_ix         String descriptor index.
- *
- * Return(s)   : None.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Print specified string index to default output terminal.
  */
 // static void USBH_StrDescPrint(USBH_DEV *p_dev, CPU_INT08U *str_prefix,
 // 							  CPU_INT08U desc_ix)
 // {
-// 	USBH_ERR err;
-// 	CPU_INT32U str_len;
-// 	CPU_INT08U str[USBH_CFG_MAX_STR_LEN];
-// 	CPU_INT16U ch;
-// 	CPU_INT32U ix;
-// 	CPU_INT32U buf_len;
+// 	int err;
+// 	uint32_t str_len;
+// 	uint8_t str[USBH_CFG_MAX_STR_LEN];
+// 	uint16_t ch;
+// 	uint32_t ix;
+// 	uint32_t buf_len;
 
-// 	str_len = USBH_StrGet(p_dev, desc_ix, USBH_STRING_DESC_LANGID, &str[0],
+// 	str_len = usbh_str_get(p_dev, desc_ix, USBH_STRING_DESC_LANGID, &str[0],
 // 						  USBH_CFG_MAX_STR_LEN, &err);
 
 // 	printk("%s", str_prefix); /* Print prefix str.                                    */
@@ -4448,21 +2758,8 @@ static uint32_t usbh_str_desc_get(struct usbh_dev *p_dev, uint8_t desc_ix,
 // }
 
 /*
- *********************************************************************************************************
- *                                         USBH_NextDescGet()
- *
  * Description : Get pointer to next descriptor in buffer that contains configuration data.
- *
- * Argument(s) : p_buf       Pointer to current header in buffer.
- *
- *               p_off       Pointer to buffer offset.
- *
- * Return(s)   : Pointer to next descriptor header.
- *
- * Note(s)     : None.
- *********************************************************************************************************
  */
-
 static struct usbh_desc_hdr *usbh_next_desc_get(void *p_buf, uint32_t *p_offset)
 {
 	struct usbh_desc_hdr *p_next_hdr;
@@ -4486,21 +2783,8 @@ static struct usbh_desc_hdr *usbh_next_desc_get(void *p_buf, uint32_t *p_offset)
 }
 
 /*
- *********************************************************************************************************
- *                                          USBH_FmtSetupReq()
- *
- * Description : Format setup request from setup request structure.
- *
- * Argument(s) : p_setup_req      Variable that holds setup request information.
- *
- *               p_buf_dest       Pointer to buffer that will receive setup request.
- *
- * Return(s)   : None.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Format setup request from setup request structure.
  */
-
 static void usbh_fmt_setup_req(struct usbh_setup_req *p_setup_req,
 			       void *p_buf_dest)
 {
@@ -4519,21 +2803,8 @@ static void usbh_fmt_setup_req(struct usbh_setup_req *p_setup_req,
 }
 
 /*
- *********************************************************************************************************
- *                                          USBH_ParseDevDesc()
- *
- * Description : Parse device descriptor into device descriptor structure.
- *
- * Argument(s) : p_dev_desc       Variable that will hold parsed device descriptor.
- *
- *               p_buf_src        Pointer to buffer that holds device descriptor.
- *
- * Return(s)   : None.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Parse device descriptor into device descriptor structure.
  */
-
 static void usbh_parse_dev_desc(struct usbh_dev_desc *p_dev_desc,
 				void *p_buf_src)
 {
@@ -4562,21 +2833,8 @@ static void usbh_parse_dev_desc(struct usbh_dev_desc *p_dev_desc,
 }
 
 /*
- *********************************************************************************************************
- *                                          USBH_ParseCfgDesc()
- *
- * Description : Parse configuration descriptor into configuration descriptor structure.
- *
- * Argument(s) : p_cfg_desc       Variable that will hold parsed configuration descriptor.
- *
- *               p_buf_src        Pointer to buffer that holds configuration descriptor.
- *
- * Return(s)   : None.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Parse configuration descriptor into configuration descriptor structure.
  */
-
 static void usbh_parse_cfg_desc(struct usbh_cfg_desc *p_cfg_desc,
 				void *p_buf_src)
 {
@@ -4597,21 +2855,8 @@ static void usbh_parse_cfg_desc(struct usbh_cfg_desc *p_cfg_desc,
 }
 
 /*
- *********************************************************************************************************
- *                                         USBH_ParseIF_Desc()
- *
- * Description : Parse interface descriptor into interface descriptor structure.
- *
- * Argument(s) : p_if_desc        Variable that will hold parsed interface descriptor.
- *
- *               p_buf_src        Pointer to buffer that holds interface descriptor.
- *
- * Return(s)   : None.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Parse interface descriptor into interface descriptor structure.
  */
-
 static void usbh_parse_if_desc(struct usbh_if_desc *p_if_desc, void *p_buf_src)
 {
 	struct usbh_if_desc *p_buf_src_if_desc;
@@ -4630,21 +2875,8 @@ static void usbh_parse_if_desc(struct usbh_if_desc *p_if_desc, void *p_buf_src)
 }
 
 /*
- *********************************************************************************************************
- *                                          USBH_ParseEP_Desc()
- *
- * Description : Parse endpoint descriptor into endpoint descriptor structure.
- *
- * Argument(s) : p_ep_desc        Variable that will hold the parsed endpoint descriptor.
- *
- *               p_buf_src        Pointer to buffer that holds endpoint descriptor.
- *
- * Return(s)   : None.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Parse endpoint descriptor into endpoint descriptor structure.
  */
-
 static void usbh_parse_ep_desc(struct usbh_ep_desc *p_ep_desc, void *p_buf_src)
 {
 	struct usbh_ep_desc *p_buf_desc;
@@ -4665,19 +2897,8 @@ static void usbh_parse_ep_desc(struct usbh_ep_desc *p_ep_desc, void *p_buf_src)
 }
 
 /*
- *********************************************************************************************************
- *                                          USBH_AsyncTask()
- *
- * Description : Task that process asynchronous URBs
- *
- * Argument(s) : p_arg       Pointer to a variable (Here it is 0)
- *
- * Return(s)   : None.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Task that process asynchronous URBs
  */
-
 static void usbh_async_task(void *p_arg, void *p_arg2, void *p_arg3)
 {
 	struct usbh_urb *p_urb;

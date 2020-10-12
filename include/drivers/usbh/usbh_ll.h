@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2020 PHYTEC Messtechnik GmbH
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 #ifndef ZEPHYR_INCLUDE_DRIVERS_USBH_LL_H_
 #define ZEPHYR_INCLUDE_DRIVERS_USBH_LL_H_
 

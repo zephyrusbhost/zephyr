@@ -1,29 +1,10 @@
 /*
- *********************************************************************************************************
- *                                             uC/USB-Host
- *                                     The Embedded USB Host Stack
+ * Copyright 2004-2020 Silicon Laboratories Inc. www.silabs.com
  *
- *                    Copyright 2004-2020 Silicon Laboratories Inc. www.silabs.com
+ * Copyright (c) 2020 PHYTEC Messtechnik GmbH
  *
- *                                 SPDX-License-Identifier: APACHE-2.0
- *
- *               This software is subject to an open source license and is distributed by
- *                Silicon Laboratories Inc. pursuant to the terms of the Apache License,
- *                    Version 2.0 available at www.apache.org/licenses/LICENSE-2.0.
- *
- *********************************************************************************************************
+ * SPDX-License-Identifier: APACHE-2.0
  */
-
-/*
- *********************************************************************************************************
- *
- *                                       USB HOST HUB OPERATIONS
- *
- * Filename : usbh_hub.c
- * Version  : V3.42.00
- *********************************************************************************************************
- */
-
 
 #include <usbh_hub.h>
 #include <usbh_core.h>
@@ -35,9 +16,7 @@ LOG_MODULE_REGISTER(hub);
 
 
 /*
- ********************************************************************************************************
- *                                     ROOT HUB DEVICE DESCRIPTOR
- ********************************************************************************************************
+ * ROOT HUB DEVICE DESCRIPTOR
  */
 
 static const uint8_t usbh_hub_rh_dev_desc[18] = {
@@ -58,9 +37,7 @@ static const uint8_t usbh_hub_rh_dev_desc[18] = {
 };
 
 /*
- ********************************************************************************************************
- *                                  ROOT HUB CONFIGURATION DESCRIPTOR
- ********************************************************************************************************
+ * ROOT HUB CONFIGURATION DESCRIPTOR
  */
 
 static const uint8_t usbh_hub_rh_fs_cfg_desc[] = {
@@ -95,15 +72,7 @@ static const uint8_t usbh_hub_rh_fs_cfg_desc[] = {
 };
 
 /*
- ********************************************************************************************************
- *                                     ROOT HUB STRING DESCRIPTOR
- *
- * Note(s):  (1) A USB device can store strings in multiple languages. i.e. the string index defines which
- *               word or phrase should be communicated to the user and the LANGID code identifies to a
- *               device, which language to retrieve that word or phase for. The LANGIDs are defined in the
- *               document called "Language Identifiers (LANGIDs), 3/29/00, Version 1.0" available at
- *               http://www.usb.org/developers/docs/USB_LANGIDs.pdf.
- ********************************************************************************************************
+ * ROOT HUB STRING DESCRIPTOR
  */
 
 static const uint8_t usbh_hub_rh_lang_id[] = {
@@ -190,9 +159,7 @@ static int usbh_hub_ref_add(struct usbh_hub_dev *p_hub_dev);
 static int usbh_hub_ref_rel(struct usbh_hub_dev *p_hub_dev);
 
 /*
- *********************************************************************************************************
- *                                          HUB CLASS DRIVER
- *********************************************************************************************************
+ * HUB CLASS DRIVER
  */
 
 const struct usbh_class_drv usbh_hub_drv = {
@@ -206,25 +173,7 @@ const struct usbh_class_drv usbh_hub_drv = {
 };
 
 /*
- *********************************************************************************************************
- *********************************************************************************************************
- *                                           GLOBAL FUNCTION
- *********************************************************************************************************
- *********************************************************************************************************
- */
-
-/*
- *********************************************************************************************************
- *                                        USBH_HUB_EventTask()
- *
- * Description : Task that process HUB Events.
- *
- * Argument(s) : None.
- *
- * Return(s)   : None.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Task that process HUB Events.
  */
 
 void usbh_hub_event_task(void *p_arg, void *p_arg2, void *p_arg3)
@@ -236,28 +185,7 @@ void usbh_hub_event_task(void *p_arg, void *p_arg2, void *p_arg3)
 }
 
 /*
- *********************************************************************************************************
- *                                         USBH_HUB_PortDis()
- *
- * Description : Disable given port on hub.
- *
- * Argument(s) : p_hub_dev       Pointer to hub.
- *
- *               port_nbr        Port number.
- *
- * Return(s)   : int_NONE,                          If port is successfully disabled.
- *               USBH_ERR_INVALID_ARG,                   If invalid parameter passed to 'p_hub_dev'.
- *
- *                                                       ----- RETURNED BY usbh_hub_port_en_clr() : -----
- *               USBH_ERR_UNKNOWN,                       Unknown error occurred.
- *               USBH_ERR_INVALID_ARG,                   Invalid argument passed to 'p_ep'.
- *               USBH_ERR_EP_INVALID_STATE,              Endpoint is not opened.
- *               USBH_ERR_HC_IO,                         Root hub input/output error.
- *               USBH_ERR_EP_STALL,                      Root hub does not support request.
- *               Host controller drivers error code,     Otherwise.
- *
- * Note(s)     : None
- *********************************************************************************************************
+ * Disable given port on hub.
  */
 
 int usbh_hub_port_dis(struct usbh_hub_dev *p_hub_dev,
@@ -275,28 +203,7 @@ int usbh_hub_port_dis(struct usbh_hub_dev *p_hub_dev,
 }
 
 /*
- *********************************************************************************************************
- *                                          USBH_HUB_PortEn()
- *
- * Description : Enable given port on hub.
- *
- * Argument(s) : p_hub_dev       Pointer to hub.
- *
- *               port_nbr        Port number.
- *
- * Return(s)   : USBH_ERR_NONE,                          If port is successfully enabled.
- *               USBH_ERR_INVALID_ARG,                   If invalid parameter passed to 'p_hub_dev'.
- *
- *                                                       ----- RETURNED BY usbh_hub_port_en_set() : -----
- *               USBH_ERR_UNKNOWN,                       Unknown error occurred.
- *               USBH_ERR_INVALID_ARG,                   Invalid argument passed to 'p_ep'.
- *               USBH_ERR_EP_INVALID_STATE,              Endpoint is not opened.
- *               USBH_ERR_HC_IO,                         Root hub input/output error.
- *               USBH_ERR_EP_STALL,                      Root hub does not support request.
- *               Host controller drivers error code,     Otherwise.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Enable given port on hub.
  */
 
 int usbh_hub_port_en(struct usbh_hub_dev *p_hub_dev,
@@ -314,31 +221,7 @@ int usbh_hub_port_en(struct usbh_hub_dev *p_hub_dev,
 }
 
 /*
- *********************************************************************************************************
- *********************************************************************************************************
- *                                           LOCAL FUNCTIONS
- *********************************************************************************************************
- *********************************************************************************************************
- */
-
-/*
- *********************************************************************************************************
- *                                        usbh_hub_class_init()
- *
- * Description : Initializes all USBH_HUB_DEV structures, device lists and HUB pool.
- *
- * Argument(s) : p_err   Pointer to variable that will receive the return error code from this function :
- *
- *                   USBH_ERR_NONE                   If initialization is successful.
- *                   USBH_ERR_ALLOC                  If failed to create hub memory pool.
- *
- *                                                   ----- RETURNED BY USBH_OS_SemCreate() : -----
- *                   USBH_ERR_OS_SIGNAL_CREATE,      If semaphore creation failed.
- *
- * Return(s)   : None.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Initializes all USBH_HUB_DEV structures, device lists and HUB pool.
  */
 
 static void usbh_hub_class_init(int *p_err)
@@ -359,47 +242,8 @@ static void usbh_hub_class_init(int *p_err)
 }
 
 /*
- *********************************************************************************************************
- *                                         usbh_hub_if_probe()
- *
- * Description : Determine whether connected device implements hub class by examining it's interface
- *               descriptor.
- *
- * Argument(s) : p_dev   Pointer to device.
- *
- *               p_if    Pointer to interface.
- *
- *               p_err   Pointer to variable that will receive the return error code from this function :
- *
- *                   USBH_ERR_NONE                           Device implements hub class.
- *                   USBH_ERR_DEV_ALLOC                      No more space in hub memory pool.
- *                   USBH_ERR_CLASS_DRV_NOT_FOUND            Device does not implement hub class.
- *
- *                                                           ----- RETURNED BY USBH_IF_DescGet() : -----
- *                   USBH_ERR_INVALID_ARG,                   Invalid argument passed to 'alt_ix'.
- *
- *                                                           ----- RETURNED BY usbh_hub_init() : -----
- *                   USBH_ERR_DESC_INVALID,                  if hub descriptor is invalid.
- *                   USBH_ERR_UNKNOWN,                       Unknown error occurred.
- *                   USBH_ERR_INVALID_ARG,                   Invalid argument passed to 'p_ep'.
- *                   USBH_ERR_EP_INVALID_STATE,              Endpoint is not opened.
- *                   USBH_ERR_HC_IO,                         Root hub input/output error.
- *                   USBH_ERR_EP_STALL,                      Root hub does not support request.
- *                   USBH_ERR_EP_ALLOC,                      If USBH_CFG_MAX_NBR_EPS reached.
- *                   USBH_ERR_EP_NOT_FOUND,                  If endpoint with given type and direction not found.
- *                   USBH_ERR_OS_SIGNAL_CREATE,              if mutex or semaphore creation failed.
- *                   USBH_ERR_UNKNOWN,                       Unknown error occurred.
- *                   USBH_ERR_INVALID_ARG,                   Invalid argument passed to 'p_ep'.
- *                   USBH_ERR_HC_IO,                         Root hub input/output error.
- *                   USBH_ERR_EP_INVALID_TYPE                If endpoint type is not interrupt or direction is not IN.
- *                   USBH_ERR_ALLOC                          If urb cannot be allocated.
- *                   Host controller drivers error code,     Otherwise.
- *
- * Return(s)   : Pointer to hub device structure,        If probe is successful.
- *               0,                                      Otherwise.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Determine whether connected device implements hub class by examining it's interface
+ * descriptor.
  */
 
 static void *usbh_hub_if_probe(struct usbh_dev *p_dev,
@@ -451,17 +295,7 @@ static void *usbh_hub_if_probe(struct usbh_dev *p_dev,
 }
 
 /*
- *********************************************************************************************************
- *                                         usbh_hub_suspend()
- *
- * Description : Suspend given hub and all devices connected to it.
- *
- * Argument(s) : p_class_dev     Pointer to hub structure.
- *
- * Return(s)   : None.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Suspend given hub and all devices connected to it.
  */
 
 static void usbh_hub_suspend(void *p_class_dev)
@@ -484,18 +318,7 @@ static void usbh_hub_suspend(void *p_class_dev)
 }
 
 /*
- *********************************************************************************************************
- *                                          usbh_hub_resume()
- *
- * Description : Resume given hub and all devices connected to it.
- *
- * Argument(s) : p_class_dev     Pointer to hub device.
- *
- * Return(s)   : None.
- *
- * Note(s)     : (1) According to 'Universal Serial Bus Specification Revision 2.0', Section 11.5.1.10,
- *                   "[the resuming state] is a timed state with a nominal duration of 20ms"
- *********************************************************************************************************
+ * Resume given hub and all devices connected to it.
  */
 
 static void usbh_hub_resume(void *p_class_dev)
@@ -534,17 +357,7 @@ static void usbh_hub_resume(void *p_class_dev)
 }
 
 /*
- *********************************************************************************************************
- *                                         usbh_hub_disconn()
- *
- * Description : Disconnect given hub.
- *
- * Argument(s) : p_class_dev      Pointer to hub device.
- *
- * Return(s)   : None.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Disconnect given hub.
  */
 
 static void usbh_hub_disconn(void *p_class_dev)
@@ -559,49 +372,8 @@ static void usbh_hub_disconn(void *p_class_dev)
 }
 
 /*
- *********************************************************************************************************
- *                                           usbh_hub_init()
- *
- * Description : Opens the endpoints, reads hub descriptor, initializes ports and submits request to
- *               start receiving hub events.
- *
- * Argument(s) : p_hub_dev       Pointer to hub structure.
- *
- * Return(s)   : USBH_ERR_NONE,                          If hub is successfully initialized.
- *
- *                                                       ----- RETURNED BY usbh_hub_desc_get() : -----
- *               USBH_ERR_DESC_INVALID,                  if hub descriptor is invalid.
- *               USBH_ERR_UNKNOWN,                       Unknown error occurred.
- *               USBH_ERR_INVALID_ARG,                   Invalid argument passed to 'p_ep'.
- *               USBH_ERR_EP_INVALID_STATE,              Endpoint is not opened.
- *               USBH_ERR_HC_IO,                         Root hub input/output error.
- *               USBH_ERR_EP_STALL,                      Root hub does not support request.
- *               Host controller drivers error code,     Otherwise.
- *
- *                                                       ----- RETURNED BY usbh_hub_ep_open() : -----
- *               USBH_ERR_EP_ALLOC,                      If USBH_CFG_MAX_NBR_EPS reached.
- *               USBH_ERR_EP_NOT_FOUND,                  If endpoint with given type and direction not found.
- *               USBH_ERR_OS_SIGNAL_CREATE,              if mutex or semaphore creation failed.
- *               Host controller drivers error,          Otherwise.
- *
- *                                                       ----- RETURNED BY usbh_hub_ports_init() : -----
- *               USBH_ERR_UNKNOWN,                       Unknown error occurred.
- *               USBH_ERR_INVALID_ARG,                   Invalid argument passed to 'p_ep'.
- *               USBH_ERR_EP_INVALID_STATE,              Endpoint is not opened.
- *               USBH_ERR_HC_IO,                         Root hub input/output error.
- *               USBH_ERR_EP_STALL,                      Root hub does not support request.
- *               Host controller drivers error code,     Otherwise.
- *
- *                                                       ----- RETURNED BY usbh_hub_event_req() : -----
- *               USBH_ERR_INVALID_ARG                    If invalid argument passed to 'p_ep'.
- *               USBH_ERR_EP_INVALID_TYPE                If endpoint type is not interrupt or direction is not IN.
- *               USBH_ERR_EP_INVALID_STATE               If endpoint is not opened.
- *               USBH_ERR_ALLOC                          If urb cannot be allocated.
- *               USBH_ERR_UNKNOWN                        If unknown error occured.
- *               Host controller drivers error code,     Otherwise.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Opens the endpoints, reads hub descriptor, initializes ports and submits request to
+ * start receiving hub events.
  */
 
 static int usbh_hub_init(struct usbh_hub_dev *p_hub_dev)
@@ -629,17 +401,7 @@ static int usbh_hub_init(struct usbh_hub_dev *p_hub_dev)
 }
 
 /*
- *********************************************************************************************************
- *                                          usbh_hub_uninit()
- *
- * Description : Uninitialize given hub.
- *
- * Argument(s) : p_hub_dev       Pointer to hub device.
- *
- * Return(s)   : None.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Uninitialize given hub.
  */
 
 static void usbh_hub_uninit(struct usbh_hub_dev *p_hub_dev)
@@ -664,23 +426,7 @@ static void usbh_hub_uninit(struct usbh_hub_dev *p_hub_dev)
 }
 
 /*
- *********************************************************************************************************
- *                                         usbh_hub_ep_open()
- *
- * Description : Open interrupt endpoint required to receive hub events.
- *
- * Argument(s) : p_hub_dev       Pointer to hub device.
- *
- * Return(s)   : USBH_ERR_NONE,                      if the endpoints are opened.
- *
- *                                                   ----- RETURNED BY USBH_IntrInOpen() : -----
- *               USBH_ERR_EP_ALLOC,                  If USBH_CFG_MAX_NBR_EPS reached.
- *               USBH_ERR_EP_NOT_FOUND,              If endpoint with given type and direction not found.
- *               USBH_ERR_OS_SIGNAL_CREATE,          if mutex or semaphore creation failed.
- *               Host controller drivers error,      Otherwise.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Open interrupt endpoint required to receive hub events.
  */
 
 static int usbh_hub_ep_open(struct usbh_hub_dev *p_hub_dev)
@@ -700,17 +446,7 @@ static int usbh_hub_ep_open(struct usbh_hub_dev *p_hub_dev)
 }
 
 /*
- *********************************************************************************************************
- *                                         usbh_hub_ep_close()
- *
- * Description : Close interrupt endpoint.
- *
- * Argument(s) : p_hub_dev       Pointer to hub device.
- *
- * Return(s)   : None.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Close interrupt endpoint.
  */
 
 static void usbh_hub_ep_close(struct usbh_hub_dev *p_hub_dev)
@@ -719,28 +455,7 @@ static void usbh_hub_ep_close(struct usbh_hub_dev *p_hub_dev)
 }
 
 /*
- *********************************************************************************************************
- *                                         usbh_hub_event_req()
- *
- * Description : Issue an asynchronous interrupt request to receive hub events.
- *
- * Argument(s) : p_hub_dev            Pointer to the hub device structure.
- *
- * Return(s)   : USBH_ERR_NONE                           If hub events are started
- *
- *                                                       ----- RETURNED BY USBH_IntrRxAsync() : -----
- *               USBH_ERR_NONE                           If request is successfully submitted.
- *               USBH_ERR_INVALID_ARG                    If invalid argument passed to 'p_ep'.
- *               USBH_ERR_EP_INVALID_TYPE                If endpoint type is not interrupt or direction is not IN.
- *               USBH_ERR_EP_INVALID_STATE               If endpoint is not opened.
- *               USBH_ERR_ALLOC                          If urb cannot be allocated.
- *               USBH_ERR_UNKNOWN                        If unknown error occured.
- *               Host controller drivers error code,     Otherwise.
- *
- * Note(s)     : (1) Hub reports only as many bits as there are ports on the hub,
- *                   subject to the byte-granularity requirement (i.e., round up to the nearest byte)
- *                  (See section 11.12.4, USB 2.0 spec)
- *********************************************************************************************************
+ * Issue an asynchronous interrupt request to receive hub events.
  */
 
 static int usbh_hub_event_req(struct usbh_hub_dev *p_hub_dev)
@@ -776,27 +491,7 @@ static int usbh_hub_event_req(struct usbh_hub_dev *p_hub_dev)
 }
 
 /*
- *********************************************************************************************************
- *                                           usbh_hub_isr_cb()
- *
- * Description : Handles hub interrupt.
- *
- * Argument(s) : p_ep            Pointer to endpoint.
- *
- *               p_buf           Pointer to data buffer.
- *
- *               buf_len         Buffer length in octets.
- *
- *               xfer_len        Transfered length.
- *
- *               p_arg           Context Pointer.
- *
- *               err             Error code.
- *
- * Return(s)   : None.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Handles hub interrupt.
  */
 
 static void usbh_hub_isr_cb(struct usbh_ep *p_ep,
@@ -847,23 +542,8 @@ static void usbh_hub_isr_cb(struct usbh_ep *p_ep,
 }
 
 /*
- *********************************************************************************************************
- *                                       usbh_hub_event_proc()
- *
- * Description : Determine status of each of hub ports. Newly connected device will be reset & configured.
- *               Appropriate notifications & cleanup will be performed if a device has been disconnected.
- *
- * Argument(s) : None.
- *
- * Return(s)   : None.
- *
- * Note(s)     : (1) Some device require a delay following connection detection. This is related to the
- *                   debounce interval which ensures that power is stable at the device for at least 100 ms
- *                   before any requests will be sent to the device (See section 11.8.2, USB 2.0 spec).
- *
- *               (2) Open Host Controller Interface specification Release 1.0a states that Port Reset Status
- *                   Change bit is set at the end of 10 ms port reset signal. See section 7.4.4, PRSC field.
- *********************************************************************************************************
+ * Determine status of each of hub ports. Newly connected device will be reset & configured.
+ * Appropriate notifications & cleanup will be performed if a device has been disconnected.
  */
 
 static void usbh_hub_event_proc(void)
@@ -1061,28 +741,7 @@ static void usbh_hub_event_proc(void)
 }
 
 /*
- *********************************************************************************************************
- *                                         usbh_hub_desc_get()
- *
- * Description : Retrieve hub descriptor.
- *
- * Argument(s) : p_hub_dev       Pointer to hub device.
- *
- * Return(s)   : USBH_ERR_NONE,                          if descriptor is successfully obtained.
- *               USBH_ERR_DESC_INVALID,                  if hub descriptor is invalid.
- *
- *                                                       ----- RETURNED BY USBH_CtrlRx() : -----
- *               USBH_ERR_UNKNOWN,                       Unknown error occurred.
- *               USBH_ERR_INVALID_ARG,                   Invalid argument passed to 'p_ep'.
- *               USBH_ERR_EP_INVALID_STATE,              Endpoint is not opened.
- *               USBH_ERR_HC_IO,                         Root hub input/output error.
- *               USBH_ERR_EP_STALL,                      Root hub does not support request.
- *               Host controller drivers error code,     Otherwise.
- *
- * Note(s)     : (1) GET HUB DESCRIPTOR standard request is defined in USB2.0 specification,
- *                   section 11.24.2.5. Read 2 bytes of hub descriptor. Offset 0 of Hub Descriptor
- *                   contains total length of descriptor and offset 1 represents descriptor type.
- *********************************************************************************************************
+ * Retrieve hub descriptor.
  */
 
 static int usbh_hub_desc_get(struct usbh_hub_dev *p_hub_dev)
@@ -1151,27 +810,7 @@ static int usbh_hub_desc_get(struct usbh_hub_dev *p_hub_dev)
 }
 
 /*
- *********************************************************************************************************
- *                                        usbh_hub_ports_init()
- *
- * Description : Enable power on each hub port & initialize device on each port.
- *
- * Argument(s) : p_hub_dev       Pointer to the hub.
- *
- * Return(s)   : USBH_ERR_NONE,                          if ports were successfully initialized.
- *
- *                                                       ----- RETURNED BY usbh_hub_port_pwr_set() : -----
- *               USBH_ERR_UNKNOWN,                       Unknown error occurred.
- *               USBH_ERR_INVALID_ARG,                   Invalid argument passed to 'p_ep'.
- *               USBH_ERR_EP_INVALID_STATE,              Endpoint is not opened.
- *               USBH_ERR_HC_IO,                         Root hub input/output error.
- *               USBH_ERR_EP_STALL,                      Root hub does not support request.
- *               Host controller drivers error code,     Otherwise.
- *
- * Note(s)     : (1) USB2.0 specification states that the host must wait for (b_pwr_on_to_pwr_good * 2) ms
- *                   before accessing a powered port. See section 11.23.2.1, b_pwr_on_to_pwr_good field in hub
- *                   descriptor.
- *********************************************************************************************************
+ * Enable power on each hub port & initialize device on each port.
  */
 
 static int usbh_hub_ports_init(struct usbh_hub_dev *p_hub_dev)
@@ -1195,30 +834,7 @@ static int usbh_hub_ports_init(struct usbh_hub_dev *p_hub_dev)
 }
 
 /*
- *********************************************************************************************************
- *                                      usbh_hub_port_status_get()
- *
- * Description : Get port status on given hub.
- *
- * Argument(s) : p_ep             Pointer to hub device.
- *
- *               port_nbr         Port number.
- *
- *               p_port_status    Variable that will receive port status.
- *
- * Return(s)   : USBH_ERR_NONE,                          if request was successfully sent.
- *
- *                                                       ----- RETURNED BY USBH_CtrlRx() : -----
- *               USBH_ERR_UNKNOWN,                       Unknown error occurred.
- *               USBH_ERR_INVALID_ARG,                   Invalid argument passed to 'p_ep'.
- *               USBH_ERR_EP_INVALID_STATE,              Endpoint is not opened.
- *               USBH_ERR_HC_IO,                         Root hub input/output error.
- *               USBH_ERR_EP_STALL,                      Root hub does not support request.
- *               Host controller drivers error code,     Otherwise.
- *
- * Note(s)     : (1) HUB class specific request GET PORT STATUS is defined in USB2.0 specification in
- *                   section 11.24.2.7.
- *********************************************************************************************************
+ * Get port status on given hub.
  */
 
 static int usbh_hub_port_status_get(struct usbh_hub_dev *p_hub_dev,
@@ -1251,28 +867,7 @@ static int usbh_hub_port_status_get(struct usbh_hub_dev *p_hub_dev,
 }
 
 /*
- *********************************************************************************************************
- *                                       usbh_hub_port_reset_set()
- *
- * Description : Set port reset on given hub.
- *
- * Argument(s) : p_hub_dev       Pointer to hub device.
- *
- *               port_nbr        Port number.
- *
- * Return(s)   : USBH_ERR_NONE,                          if the request was successfully sent.
- *
- *                                                       ----- RETURNED BY USBH_CtrlTx() : -----
- *               USBH_ERR_UNKNOWN,                       Unknown error occurred.
- *               USBH_ERR_INVALID_ARG,                   Invalid argument passed to 'p_ep'.
- *               USBH_ERR_EP_INVALID_STATE,              Endpoint is not opened.
- *               USBH_ERR_HC_IO,                         Root hub input/output error.
- *               USBH_ERR_EP_STALL,                      Root hub does not support request.
- *               Host controller drivers error code,     Otherwise.
- *
- * Note(s)     : (1) The HUB class specific request SET PORT FEATURE is defined in USB2.0 specification in
- *                   section 11.24.2.13
- *********************************************************************************************************
+ * Set port reset on given hub.
  */
 
 static int usbh_hub_port_reset_set(struct usbh_hub_dev *p_hub_dev,
@@ -1297,28 +892,7 @@ static int usbh_hub_port_reset_set(struct usbh_hub_dev *p_hub_dev,
 }
 
 /*
- *********************************************************************************************************
- *                                      usbh_hub_port_rst_chng_clr()
- *
- * Description : Clear port reset change on given hub.
- *
- * Argument(s) : p_hub_dev       Pointer to hub device.
- *
- *               port_nbr        Port number.
- *
- * Return(s)   : USBH_ERR_NONE,                          If request was successfully sent.
- *
- *                                                       ----- RETURNED BY USBH_CtrlTx() : -----
- *               USBH_ERR_UNKNOWN,                       Unknown error occurred.
- *               USBH_ERR_INVALID_ARG,                   Invalid argument passed to 'p_ep'.
- *               USBH_ERR_EP_INVALID_STATE,              Endpoint is not opened.
- *               USBH_ERR_HC_IO,                         Root hub input/output error.
- *               USBH_ERR_EP_STALL,                      Root hub does not support request.
- *               Host controller drivers error code,     Otherwise.
- *
- * Note(s)     : (1) HUB class specific request CLEAR PORT FEATURE is defined in USB2.0 specification in
- *                   section 11.24.2.2.
- *********************************************************************************************************
+ * Clear port reset change on given hub.
  */
 
 static int usbh_hub_port_rst_chng_clr(struct usbh_hub_dev *p_hub_dev,
@@ -1343,28 +917,7 @@ static int usbh_hub_port_rst_chng_clr(struct usbh_hub_dev *p_hub_dev,
 }
 
 /*
- *********************************************************************************************************
- *                                      usbh_hub_port_en_chng_clr()
- *
- * Description : Clear port enable change on given hub.
- *
- * Argument(s) : p_hub_dev        Pointer to hub device.
- *
- *               port_nbr         Port number.
- *
- * Return(s)   : USBH_ERR_NONE,                          if the request was successfully sent.
- *
- *                                                       ----- RETURNED BY USBH_CtrlTx() : -----
- *               USBH_ERR_UNKNOWN                        Unknown error occurred.
- *               USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
- *               USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
- *               USBH_ERR_HC_IO,                         Root hub input/output error.
- *               USBH_ERR_EP_STALL,                      Root hub does not support request.
- *               Host controller drivers error code,     Otherwise.
- *
- * Note(s)     : (1) HUB class specific request CLEAR PORT FEATURE is defined in USB2.0 specification in
- *                   section 11.24.2.2.
- *********************************************************************************************************
+ * Clear port enable change on given hub.
  */
 
 static int usbh_hub_port_en_chng_clr(struct usbh_hub_dev *p_hub_dev,
@@ -1389,28 +942,7 @@ static int usbh_hub_port_en_chng_clr(struct usbh_hub_dev *p_hub_dev,
 }
 
 /*
- *********************************************************************************************************
- *                                     usbh_hub_port_conn_chng_clr()
- *
- * Description : Clear port connection change on given hub.
- *
- * Argument(s) : p_hub_dev        Pointer to hub device.
- *
- *               port_nbr         Port number.
- *
- * Return(s)   : USBH_ERR_NONE,                          if the request was successfully sent.
- *
- *                                                       ----- RETURNED BY USBH_CtrlTx() : -----
- *               USBH_ERR_UNKNOWN                        Unknown error occurred.
- *               USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
- *               USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
- *               USBH_ERR_HC_IO,                         Root hub input/output error.
- *               USBH_ERR_EP_STALL,                      Root hub does not support request.
- *               Host controller drivers error code,     Otherwise.
- *
- * Note(s)     : (1) The HUB class specific request CLEAR PORT FEATURE is defined in USB2.0 specification in
- *                   section 11.24.2.2.
- *********************************************************************************************************
+ * Clear port connection change on given hub.
  */
 
 static int usbh_hub_port_conn_chng_clr(struct usbh_hub_dev *p_hub_dev,
@@ -1435,28 +967,7 @@ static int usbh_hub_port_conn_chng_clr(struct usbh_hub_dev *p_hub_dev,
 }
 
 /*
- *********************************************************************************************************
- *                                         usbh_hub_port_pwr_set()
- *
- * Description : Set power on given hub and port.
- *
- * Argument(s) : p_hub_dev       Pointer to hub device.
- *
- *               port_nbr        Port number.
- *
- * Return(s)   : USBH_ERR_NONE,                          if the request was successfully sent.
- *
- *                                                       ----- RETURNED BY USBH_CtrlTx() : -----
- *               USBH_ERR_UNKNOWN,                       Unknown error occurred.
- *               USBH_ERR_INVALID_ARG,                   Invalid argument passed to 'p_ep'.
- *               USBH_ERR_EP_INVALID_STATE,              Endpoint is not opened.
- *               USBH_ERR_HC_IO,                         Root hub input/output error.
- *               USBH_ERR_EP_STALL,                      Root hub does not support request.
- *               Host controller drivers error code,     Otherwise.
- *
- * Note(s)     : (1) The HUB class specific request SET PORT FEATURE is defined in USB2.0 specification in
- *                   section 11.24.2.13.
- *********************************************************************************************************
+ * Set power on given hub and port.
  */
 
 static int usbh_hub_port_pwr_set(struct usbh_hub_dev *p_hub_dev,
@@ -1481,28 +992,7 @@ static int usbh_hub_port_pwr_set(struct usbh_hub_dev *p_hub_dev,
 }
 
 /*
- *********************************************************************************************************
- *                                      usbh_hub_port_susp_clr()
- *
- * Description : Clear port suspend on given hub.
- *
- * Argument(s) : p_hub_dev       Pointer to hub device.
- *
- *               port_nbr        Port number.
- *
- * Return(s)   : USBH_ERR_NONE,                          if the request was successfully sent.
- *
- *                                                       ----- RETURNED BY USBH_CtrlTx() : -----
- *               USBH_ERR_UNKNOWN,                       Unknown error occurred.
- *               USBH_ERR_INVALID_ARG,                   Invalid argument passed to 'p_ep'.
- *               USBH_ERR_EP_INVALID_STATE,              Endpoint is not opened.
- *               USBH_ERR_HC_IO,                         Root hub input/output error.
- *               USBH_ERR_EP_STALL,                      Root hub does not support request.
- *               Host controller drivers error code,     Otherwise.
- *
- * Note(s)     : (1) The HUB class specific request CLEAR PORT FEATURE is defined in USB2.0 specification in
- *                   section 11.24.2.2.
- *********************************************************************************************************
+ * Clear port suspend on given hub.
  */
 
 static int usbh_hub_port_susp_clr(struct usbh_hub_dev *p_hub_dev,
@@ -1527,28 +1017,7 @@ static int usbh_hub_port_susp_clr(struct usbh_hub_dev *p_hub_dev,
 }
 
 /*
- *********************************************************************************************************
- *                                        usbh_hub_port_en_clr()
- *
- * Description : Clear port enable on given hub.
- *
- * Argument(s) : p_hub_dev       Pointer to hub device.
- *
- *               port_nbr        Port number.
- *
- * Return(s)   : USBH_ERR_NONE,                          if the request was successfully sent.
- *
- *                                                       ----- RETURNED BY USBH_CtrlTx() : -----
- *               USBH_ERR_UNKNOWN                        Unknown error occurred.
- *               USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
- *               USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
- *               USBH_ERR_HC_IO,                         Root hub input/output error.
- *               USBH_ERR_EP_STALL,                      Root hub does not support request.
- *               Host controller drivers error code,     Otherwise.
- *
- * Note(s)     : (1) The HUB class specific request CLEAR PORT FEATURE is defined in USB2.0 specification in
- *                   section 11.24.2.2
- *********************************************************************************************************
+ * Clear port enable on given hub.
  */
 
 static int usbh_hub_port_en_clr(struct usbh_hub_dev *p_hub_dev,
@@ -1573,28 +1042,7 @@ static int usbh_hub_port_en_clr(struct usbh_hub_dev *p_hub_dev,
 }
 
 /*
- *********************************************************************************************************
- *                                        usbh_hub_port_en_set()
- *
- * Description : Set port enable on given hub.
- *
- * Argument(s) : p_hub_dev       Pointer to hub device.
- *
- *               port_nbr        Port number.
- *
- * Return(s)   : USBH_ERR_NONE,       if the request was successfully sent.
- *
- *                                                       ----- RETURNED BY USBH_CtrlTx() : -----
- *               USBH_ERR_UNKNOWN,                       Unknown error occurred.
- *               USBH_ERR_INVALID_ARG,                   Invalid argument passed to 'p_ep'.
- *               USBH_ERR_EP_INVALID_STATE,              Endpoint is not opened.
- *               USBH_ERR_HC_IO,                         Root hub input/output error.
- *               USBH_ERR_EP_STALL,                      Root hub does not support request.
- *               Host controller drivers error code,     Otherwise.
- *
- * Note(s)     : (1) The HUB class specific request SET PORT FEATURE is defined in USB2.0 specification in
- *                   section 11.24.2.13.
- *********************************************************************************************************
+ * Set port enable on given hub.
  */
 
 static int usbh_hub_port_en_set(struct usbh_hub_dev *p_hub_dev,
@@ -1619,28 +1067,7 @@ static int usbh_hub_port_en_set(struct usbh_hub_dev *p_hub_dev,
 }
 
 /*
- *********************************************************************************************************
- *                                      USBH_HUB_PortSuspendSet()
- *
- * Description : Set port suspend on given hub.
- *
- * Argument(s) : p_hub_dev       Pointer to hub device.
- *
- *               port_nbr        Port number.
- *
- * Return(s)   : USBH_ERR_NONE,                          if the request was successfully sent.
- *
- *                                                       ----- RETURNED BY USBH_CtrlTx() : -----
- *               USBH_ERR_UNKNOWN,                       Unknown error occurred.
- *               USBH_ERR_INVALID_ARG,                   Invalid argument passed to 'p_ep'.
- *               USBH_ERR_EP_INVALID_STATE,              Endpoint is not opened.
- *               USBH_ERR_HC_IO,                         Root hub input/output error.
- *               USBH_ERR_EP_STALL,                      Root hub does not support request.
- *               Host controller drivers error code,     Otherwise.
- *
- * Note(s)     : (1) The HUB class specific request SET PORT FEATURE is defined in USB2.0 specification in
- *                   section 11.24.2.13.
- *********************************************************************************************************
+ * Set port suspend on given hub.
  */
 
 int usbh_hub_port_suspend_set(struct usbh_hub_dev *p_hub_dev,
@@ -1665,17 +1092,7 @@ int usbh_hub_port_suspend_set(struct usbh_hub_dev *p_hub_dev,
 }
 
 /*
- *********************************************************************************************************
- *                                           usbh_hub_clr()
- *
- * Description : Initializes USBH_HUB_DEV structure.
- *
- * Argument(s) : p_hub_dev       Pointer to hub device.
- *
- * Return(s)   : None
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Initializes USBH_HUB_DEV structure.
  */
 
 static void usbh_hub_clr(struct usbh_hub_dev *p_hub_dev)
@@ -1695,18 +1112,7 @@ static void usbh_hub_clr(struct usbh_hub_dev *p_hub_dev)
 }
 
 /*
- *********************************************************************************************************
- *                                          usbh_hub_ref_add()
- *
- * Description : Increment access reference count to a hub device.
- *
- * Argument(s) : p_hub_dev       Pointer to hub device.
- *
- * Return(s)   : USBH_ERR_NONE,          if access is successful.
- *               USBH_ERR_INVALID_ARG,   if invalid argument passed to 'p_hub_dev'.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Increment access reference count to a hub device.
  */
 
 static int usbh_hub_ref_add(struct usbh_hub_dev *p_hub_dev)
@@ -1725,18 +1131,7 @@ static int usbh_hub_ref_add(struct usbh_hub_dev *p_hub_dev)
 }
 
 /*
- *********************************************************************************************************
- *                                          usbh_hub_ref_rel()
- *
- * Description : Increment the access reference count to a hub device.
- *
- * Argument(s) : p_hub_dev       Pointer to hub device.
- *
- * Return(s)   : USBH_ERR_NONE,          if access is successful.
- *               USBH_ERR_INVALID_ARG,   if invalid argument passed to 'p_hub_dev'.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Increment the access reference count to a hub device.
  */
 
 static int usbh_hub_ref_rel(struct usbh_hub_dev *p_hub_dev)
@@ -1761,35 +1156,7 @@ static int usbh_hub_ref_rel(struct usbh_hub_dev *p_hub_dev)
 }
 
 /*
- *********************************************************************************************************
- *                                        USBH_HUB_RH_CtrlReq()
- *
- * Description : Process hub request from core layer.
- *
- * Argument(s) : p_hc            Pointer to host controller.
- *
- *               b_req           Setup packet b_request.
- *
- *               bm_req_type     Setup packet bm_request_type.
- *
- *               w_val           Setup packet w_value.
- *
- *               w_ix            Setup packet w_index.
- *
- *               p_buf           Data buffer pointer.
- *
- *               buf_len         Size of data buffer in bytes.
- *
- *               p_err   Pointer to variable that will receive the return error code from this function :
- *
- *                           USBH_ERR_NONE,          Root hub control request completed successfully.
- *                           USBH_ERR_HC_IO,         Root hub input/output error.
- *                           USBH_ERR_EP_STALL,      Root hub does not support request.
- *
- * Return(s)   : Buffer length in octets.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Process hub request from core layer.
  */
 
 uint32_t usbh_rh_ctrl_req(struct usbh_hc *p_hc,
@@ -1973,17 +1340,7 @@ uint32_t usbh_rh_ctrl_req(struct usbh_hc *p_hc,
 }
 
 /*
- *********************************************************************************************************
- *                                         USBH_HUB_RH_Event()
- *
- * Description : Queue a root hub event.
- *
- * Argument(s) : p_dev       Pointer to hub device.
- *
- * Return(s)   : None.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Queue a root hub event.
  */
 
 void usbh_rh_event(struct usbh_dev *p_dev)
@@ -2019,21 +1376,7 @@ void usbh_rh_event(struct usbh_dev *p_dev)
 }
 
 /*
- **************************************************************************************************************
- *                                       USBH_HUB_ClassNotify()
- *
- * Description : Handle device state change notification for hub class devices.
- *
- * Argument(s) : p_class_dev     Pointer to class device.
- *
- *               state           state of device.
- *
- *               p_ctx           Pointer to context.
- *
- * Return(s)   : None.
- *
- * Note(s)     : None.
- **************************************************************************************************************
+ * Handle device state change notification for hub class devices.
  */
 
 void usbh_hub_class_notify(void *p_class_dev,
@@ -2065,19 +1408,7 @@ void usbh_hub_class_notify(void *p_class_dev,
 }
 
 /*
- *********************************************************************************************************
- *                                        USBH_HUB_ParseHubDesc()
- *
- * Description : Parse hub descriptor into hub descriptor structure.
- *
- * Argument(s) : p_hub_desc      Variable that will hold the parsed hub descriptor.
- *
- *               p_buf_src       Pointer to buffer that holds hub descriptor.
- *
- * Return(s)   : None.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Parse hub descriptor into hub descriptor structure.
  */
 
 void usbh_hub_parse_hub_desc(struct usbh_hub_desc *p_hub_desc,
@@ -2102,19 +1433,7 @@ void usbh_hub_parse_hub_desc(struct usbh_hub_desc *p_hub_desc,
 }
 
 /*
- *********************************************************************************************************
- *                                        USBH_HUB_FmtHubDesc()
- *
- * Description : Format hub descriptor from hub descriptor structure.
- *
- * Argument(s) : p_hub_desc       Variable that holds hub descriptor information.
- *
- *               p_buf_dest       Pointer to buffer that will contain hub descriptor.
- *
- * Return(s)   : None.
- *
- * Note(s)     : None.
- *********************************************************************************************************
+ * Format hub descriptor from hub descriptor structure.
  */
 
 void usbh_hub_fmt_hub_desc(struct usbh_hub_desc *p_hub_desc,

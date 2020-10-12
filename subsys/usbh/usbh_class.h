@@ -1,22 +1,13 @@
 /*
- *********************************************************************************************************
- *                                             uC/USB-Host
- *                                     The Embedded USB Host Stack
+ * Copyright 2004-2020 Silicon Laboratories Inc. www.silabs.com
  *
- *                    Copyright 2004-2020 Silicon Laboratories Inc. www.silabs.com
+ * Copyright (c) 2020 PHYTEC Messtechnik GmbH
  *
- *                                 SPDX-License-Identifier: APACHE-2.0
- *
- *               This software is subject to an open source license and is distributed by
- *                Silicon Laboratories Inc. pursuant to the terms of the Apache License,
- *                    Version 2.0 available at www.apache.org/licenses/LICENSE-2.0.
- *
- *********************************************************************************************************
+ * SPDX-License-Identifier: APACHE-2.0
  */
 
-#ifndef USBH_CLASS_H_
-#define USBH_CLASS_H_
-
+#ifndef ZEPHYR_USBH_CLASS_H_
+#define ZEPHYR_USBH_CLASS_H_
 
 #include <usbh_core.h>
 
@@ -80,4 +71,4 @@ int usbh_class_drv_conn(struct usbh_dev *p_dev);
 
 void usbh_class_drv_disconn(struct usbh_dev *p_dev);
 
-#endif /* USBH_CLASS_H_ */
+#endif /* ZEPHYR_USBH_CLASS_H_ */
