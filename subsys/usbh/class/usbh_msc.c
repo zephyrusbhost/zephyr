@@ -36,70 +36,66 @@ LOG_MODULE_REGISTER(msc);
 #define USBH_MSC_SUBCLASS_CODE_SCSI 0x06u
 
 /*
-*********************************************************************************************************
-*                                           PROTOCOL CODES
-*
-* Note(s) : (1) See 'USB Mass Storage Class Specification Overview', Revision 1.2, Section 3.
-*********************************************************************************************************
-*/
+ * Note(s) : (1) See 'USB Mass Storage Class Specification Overview', Revision 1.2, Section 3.
+ */
 
 #define USBH_MSC_PROTOCOL_CODE_CTRL_BULK_INTR_CMD_INTR 0x00u
 #define USBH_MSC_PROTOCOL_CODE_CTRL_BULK_INTR 0x01u
 #define USBH_MSC_PROTOCOL_CODE_BULK_ONLY 0x50u
 
 /*
-*********************************************************************************************************
-*                                       CLASS-SPECIFIC REQUESTS
-*
-* Note(s) : (1) See 'USB Mass Storage Class - Bulk Only Transport', Section 3.
-*
-*           (2) The 'b_request' field of a class-specific setup request may contain one of these values.
-*
-*           (3) The mass storage reset request is "used to reset the mass storage device and its
-*               associated interface".  The setup request packet will consist of :
-*
-*               (a) bm_request_type = 00100001b (class, interface, host-to-device)
-*               (b) b_request      =     0xFF
-*               (c) w_value        =   0x0000
-*               (d) w_index        = Interface number
-*               (e) w_length       =   0x0000
-*
-*           (4) The get max LUN is used to determine the number of LUN's supported by the device.  The
-*               setup request packet will consist of :
-*
-*               (a) bm_request_type = 10100001b (class, interface, device-to-host)
-*               (b) b_request      =     0xFE
-*               (c) w_value        =   0x0000
-*               (d) w_index        = Interface number
-*               (e) w_length       =   0x0001
-*********************************************************************************************************
-*/
+ *********************************************************************************************************
+ *                                       CLASS-SPECIFIC REQUESTS
+ *
+ * Note(s) : (1) See 'USB Mass Storage Class - Bulk Only Transport', Section 3.
+ *
+ *           (2) The 'b_request' field of a class-specific setup request may contain one of these values.
+ *
+ *           (3) The mass storage reset request is "used to reset the mass storage device and its
+ *               associated interface".  The setup request packet will consist of :
+ *
+ *               (a) bm_request_type = 00100001b (class, interface, host-to-device)
+ *               (b) b_request      =     0xFF
+ *               (c) w_value        =   0x0000
+ *               (d) w_index        = Interface number
+ *               (e) w_length       =   0x0000
+ *
+ *           (4) The get max LUN is used to determine the number of LUN's supported by the device.  The
+ *               setup request packet will consist of :
+ *
+ *               (a) bm_request_type = 10100001b (class, interface, device-to-host)
+ *               (b) b_request      =     0xFE
+ *               (c) w_value        =   0x0000
+ *               (d) w_index        = Interface number
+ *               (e) w_length       =   0x0001
+ *********************************************************************************************************
+ */
 
-#define USBH_MSC_REQ_MASS_STORAGE_RESET 0xFFu /* See Note #3.                                        */
-#define USBH_MSC_REQ_GET_MAX_LUN 0xFEu        /* See Note #4.                                        */
+#define USBH_MSC_REQ_MASS_STORAGE_RESET 0xFFu   /* See Note #3.                                        */
+#define USBH_MSC_REQ_GET_MAX_LUN 0xFEu          /* See Note #4.                                        */
 
 /*
-*********************************************************************************************************
-*                                      COMMAND BLOCK FLAG VALUES
-*
-* Note(s) : (1) See 'USB Mass Storage Class - Bulk Only Transport', Section 5.1.
-*
-*           (2) The 'bmCBWFlags' field of a command block wrapper may contain one of these values.
-*********************************************************************************************************
-*/
+ *********************************************************************************************************
+ *                                      COMMAND BLOCK FLAG VALUES
+ *
+ * Note(s) : (1) See 'USB Mass Storage Class - Bulk Only Transport', Section 5.1.
+ *
+ *           (2) The 'bmCBWFlags' field of a command block wrapper may contain one of these values.
+ *********************************************************************************************************
+ */
 
 #define USBH_MSC_BMCBWFLAGS_DIR_HOST_TO_DEVICE 0x00u
 #define USBH_MSC_BMCBWFLAGS_DIR_DEVICE_TO_HOST 0x80u
 
 /*
-*********************************************************************************************************
-*                                     COMMAND BLOCK STATUS VALUES
-*
-* Note(s) : (1) See 'USB Mass Storage Class - Bulk Only Transport', Section 5.3, Table 5.3.
-*
-*           (2) The 'bCSWStatus' field of a command status wrapper may contain one of these values.
-*********************************************************************************************************
-*/
+ *********************************************************************************************************
+ *                                     COMMAND BLOCK STATUS VALUES
+ *
+ * Note(s) : (1) See 'USB Mass Storage Class - Bulk Only Transport', Section 5.3, Table 5.3.
+ *
+ *           (2) The 'bCSWStatus' field of a command status wrapper may contain one of these values.
+ *********************************************************************************************************
+ */
 
 #define USBH_MSC_BCSWSTATUS_CMD_PASSED 0x00u
 #define USBH_MSC_BCSWSTATUS_CMD_FAILED 0x01u
@@ -464,48 +460,46 @@ LOG_MODULE_REGISTER(msc);
 #define USBH_SCSI_PAGE_LENGTH_FORMAT_DEVICE 0x16u
 
 /*
-*********************************************************************************************************
-*                                   COMMAND BLOCK WRAPPER DATA TYPE
-*
-* Note(s) : (1) See 'USB Mass Storage Class - Bulk Only Transport', Section 5.1.
-*
-*           (2) The 'bmCBWFlags' field is a bit-mapped datum with three subfields :
-*
-*               (a) Bit  7  : Data transfer direction :
-*
-*                   (1) 0 = Data-out from host   to device.
-*                   (2) 1 = Data-in  from device to host.
-*
-*               (b) Bit  6  : Obsolete.  Should be set to zero.
-*               (c) Bits 5-0: Reserved.  Should be set to zero.
-*********************************************************************************************************
-*/
+ *********************************************************************************************************
+ *                                   COMMAND BLOCK WRAPPER DATA TYPE
+ *
+ * Note(s) : (1) See 'USB Mass Storage Class - Bulk Only Transport', Section 5.1.
+ *
+ *           (2) The 'bmCBWFlags' field is a bit-mapped datum with three subfields :
+ *
+ *               (a) Bit  7  : Data transfer direction :
+ *
+ *                   (1) 0 = Data-out from host   to device.
+ *                   (2) 1 = Data-in  from device to host.
+ *
+ *               (b) Bit  6  : Obsolete.  Should be set to zero.
+ *               (c) Bits 5-0: Reserved.  Should be set to zero.
+ *********************************************************************************************************
+ */
 
-struct usbh_msc_cbw
-{
-    uint32_t dCBWSignature;          /* Signature to identify this data pkt as CBW.          */
-    uint32_t dCBWTag;                /* Command block tag sent by host.                      */
-    uint32_t dCBWDataTransferLength; /* Number of bytes of data that host expects to xfer.   */
-    uint8_t bmCBWFlags;             /* Flags (see Notes #2).                                */
-    uint8_t bCBWLUN;                /* LUN to which the command block is being sent.        */
-    uint8_t bCBWCBLength;           /* Length of CBWCB in bytes.                            */
-    uint8_t CBWCB[16];              /* Command block to be executed by device.              */
+struct usbh_msc_cbw {
+	uint32_t dCBWSignature;                 /* Signature to identify this data pkt as CBW.          */
+	uint32_t dCBWTag;                       /* Command block tag sent by host.                      */
+	uint32_t dCBWDataTransferLength;        /* Number of bytes of data that host expects to xfer.   */
+	uint8_t bmCBWFlags;                     /* Flags (see Notes #2).                                */
+	uint8_t bCBWLUN;                        /* LUN to which the command block is being sent.        */
+	uint8_t bCBWCBLength;                   /* Length of CBWCB in bytes.                            */
+	uint8_t CBWCB[16];                      /* Command block to be executed by device.              */
 };
 
 /*
-*********************************************************************************************************
-*                                  COMMAND STATUS WRAPPER DATA TYPE
-*
-* Note(s) : (1) See 'USB Mass Storage Class - Bulk Only Transport', Section 5.2.
-*********************************************************************************************************
-*/
+ *********************************************************************************************************
+ *                                  COMMAND STATUS WRAPPER DATA TYPE
+ *
+ * Note(s) : (1) See 'USB Mass Storage Class - Bulk Only Transport', Section 5.2.
+ *********************************************************************************************************
+ */
 
-struct usbh_msc_csw
-{
-    uint32_t dCSWSignature;   /* Signature to identify this data pkt as CSW.          */
-    uint32_t dCSWTag;         /* Device shall set this to value in CBW's dCBWTag.     */
-    uint32_t dCSWDataResidue; /* Difference between expected & actual nbr data bytes. */
-    uint8_t bCSWStatus;      /* Indicates success or failure of command.             */
+struct usbh_msc_csw {
+	uint32_t dCSWSignature;         /* Signature to identify this data pkt as CSW.          */
+	uint32_t dCSWTag;               /* Device shall set this to value in CBW's dCBWTag.     */
+	uint32_t dCSWDataResidue;       /* Difference between expected & actual nbr data bytes. */
+	uint8_t bCSWStatus;             /* Indicates success or failure of command.             */
 };
 
 
@@ -515,8 +509,8 @@ static int8_t usbh_msc_dev_cnt;
 static void usbh_msc_global_init(int *p_err);
 
 static void *usbh_msc_probe_if(struct usbh_dev *p_dev,
-                              struct usbh_if *p_if,
-                              int *p_err);
+			       struct usbh_if *p_if,
+			       int *p_err);
 
 static void usbh_msc_disconn(void *p_class_dev);
 
@@ -531,27 +525,27 @@ static int usbh_msc_ep_open(struct usbh_msc_dev *p_msc_dev);
 static void usbh_msc_ep_close(struct usbh_msc_dev *p_msc_dev);
 
 static uint32_t usbh_msc_xfer_cmd(struct usbh_msc_dev *p_msc_dev,
-                                   uint8_t lun,
-                                   uint8_t dir,
-                                   void *p_cb,
-                                   uint8_t cb_len,
-                                   void *p_arg,
-                                   uint32_t data_len,
-                                   int *p_err);
+				  uint8_t lun,
+				  uint8_t dir,
+				  void *p_cb,
+				  uint8_t cb_len,
+				  void *p_arg,
+				  uint32_t data_len,
+				  int *p_err);
 
 static int usbh_msc_tx_cbw(struct usbh_msc_dev *p_msc_dev,
-                               struct usbh_msc_cbw *p_msc_cbw);
+			   struct usbh_msc_cbw *p_msc_cbw);
 
 static int usbh_msc_rx_csw(struct usbh_msc_dev *p_msc_dev,
-                               struct usbh_msc_csw *p_msc_csw);
+			   struct usbh_msc_csw *p_msc_csw);
 
 static int usbh_msc_tx_data(struct usbh_msc_dev *p_msc_dev,
-                                void *p_arg,
-                                uint32_t data_len);
+			    void *p_arg,
+			    uint32_t data_len);
 
 static int usbh_msc_rx_data(struct usbh_msc_dev *p_msc_dev,
-                                void *p_arg,
-                                uint32_t data_len);
+			    void *p_arg,
+			    uint32_t data_len);
 
 static int usbh_msc_rx_rst_rcv(struct usbh_msc_dev *p_msc_dev);
 
@@ -564,36 +558,36 @@ static void usbh_msc_parse_csw(struct usbh_msc_csw *p_csw,
 			       void *p_buf_src);
 
 static int usbh_scsi_cmd_test_unit_rdy(struct usbh_msc_dev *p_msc_dev,
-                                            uint8_t lun);
+				       uint8_t lun);
 
 static int usbh_scsi_cmd_std_inquiry(struct usbh_msc_dev *p_msc_dev,
-                                         struct msc_inquiry_info *p_msc_inquiry_info,
-                                         uint8_t lun);
+				     struct msc_inquiry_info *p_msc_inquiry_info,
+				     uint8_t lun);
 
 static uint32_t usbh_scsi_cmd_req_sense(struct usbh_msc_dev *p_msc_dev,
-                                         uint8_t lun,
-                                         uint8_t *p_arg,
-                                         uint32_t data_len,
-                                         int *p_err);
+					uint8_t lun,
+					uint8_t *p_arg,
+					uint32_t data_len,
+					int *p_err);
 
 static int usbh_scsi_get_sense_info(struct usbh_msc_dev *p_msc_dev,
-                                       uint8_t lun,
-                                       uint8_t *p_sense_key,
-                                       uint8_t *p_asc,
-                                       uint8_t *p_ascq);
+				    uint8_t lun,
+				    uint8_t *p_sense_key,
+				    uint8_t *p_asc,
+				    uint8_t *p_ascq);
 
 static int usbh_scsi_cmd_capacity_read(struct usbh_msc_dev *p_msc_dev,
-                                         uint8_t lun,
-                                         uint32_t *p_nbr_blks,
-                                         uint32_t *p_blk_size);
+				       uint8_t lun,
+				       uint32_t *p_nbr_blks,
+				       uint32_t *p_blk_size);
 
 static uint32_t usbh_scsi_read(struct usbh_msc_dev *p_msc_dev,
-                               uint8_t lun,
-                               uint32_t blk_addr,
-                               uint16_t nbr_blks,
-                               uint32_t blk_size,
-                               void *p_arg,
-                               int *p_err);
+			       uint8_t lun,
+			       uint32_t blk_addr,
+			       uint16_t nbr_blks,
+			       uint32_t blk_size,
+			       void *p_arg,
+			       int *p_err);
 
 static uint32_t usbh_scsi_write(struct usbh_msc_dev *p_msc_dev,
 				uint8_t lun,
@@ -605,2221 +599,1305 @@ static uint32_t usbh_scsi_write(struct usbh_msc_dev *p_msc_dev,
 
 
 const struct usbh_class_drv usbh_msc_class_drv = {
-    (uint8_t *)"MASS STORAGE",
-    usbh_msc_global_init,
-    0,
-    usbh_msc_probe_if,
-    usbh_msc_supsend,
-    usbh_msc_resume,
-    usbh_msc_disconn};
+	(uint8_t *)"MASS STORAGE",
+	usbh_msc_global_init,
+	0,
+	usbh_msc_probe_if,
+	usbh_msc_supsend,
+	usbh_msc_resume,
+	usbh_msc_disconn
+};
 
 
 /*
-*********************************************************************************************************
-*                                           USBH_MSC_Init()
-*
-* Description : Initialize a mass storage device instance.
-*
-* Argument(s) : p_msc_dev       Pointer to MSC device.
-*
-*               lun             Device logical unit number to initialize.
-*
-* Return(s)   : USBH_ERR_NONE,                          if MSC device initialization is successful.
-*               USBH_ERR_INVALID_ARG,                   if invalid argument passed to 'p_msc_dev'.
-*               USBH_ERR_DEV_NOT_READY,                 if MSC device not ready for communication.
-*
-*                                                       ----- RETURNED BY USBH_OS_MutexLock() : -----
-*               USBH_ERR_INVALID_ARG,                   If invalid argument passed to 'mutex'.
-*               USBH_ERR_OS_ABORT,                      If mutex wait aborted.
-*               USBH_ERR_OS_FAIL,                       Otherwise.
-*
-*                                                       ----- RETURNED BY usbh_scsi_cmd_test_unit_rdy -----
-*               USBH_ERR_MSC_CMD_FAILED                 Device reports command failed.
-*               USBH_ERR_MSC_CMD_PHASE                  Device reports command phase error.
-*               USBH_ERR_MSC_IO                         Unable to receive CSW.
-*               USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
-*               USBH_ERR_EP_INVALID_TYPE                Endpoint type or direction is incorrect.
-*               USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
-*               Host controller drivers error code,     Otherwise.
-*
-*                                                       ----- RETURNED BY USBH_SCSI_GetSenseInfo -----
-*               USBH_ERR_UNKNOWN,                       if unknown error occured.
-*               USBH_ERR_MSC_CMD_FAILED                 Device reports command failed.
-*               USBH_ERR_MSC_CMD_PHASE                  Device reports command phase error.
-*               USBH_ERR_MSC_IO                         Unable to receive CSW.
-*               USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
-*               USBH_ERR_EP_INVALID_TYPE                Endpoint type or direction is incorrect.
-*               USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
-*               Host controller drivers error code,     Otherwise.
-*
-* Note(s)     : (1) This block of code will send TEST_UNIT_READY SCSI command to know if MSC device is
-*                   ready for communication. Host will try up to 20 times in case of MSC device not ready.
-*                   If MSC device is not ready, host sends REQUEST_SENSE SCSI command to know
-*                   exactly why device is not ready.
-*
-*               (2) SENSE KEY, ADDITIONAL SENSE CODE (ASC) and ADDITIONAL SENSE CODE QUALIFIER (ASCQ)
-*                   fields provide a hierarchy of information.
-*                   See "SCSI Primary Commands - 4 (SPC-4)", section "4.5.2.1 Descriptor format sense
-*                   data overview" for more details about REQUEST_SENSE response. Document is
-*                   available at http://www.t10.org/drafts.htm#SPC_Family.
-*********************************************************************************************************
-*/
+ * Initialize a mass storage device instance.
+ */
 
 int usbh_msc_init(struct usbh_msc_dev *p_msc_dev,
-                       uint8_t lun)
+		  uint8_t lun)
 {
-    uint8_t retry;
-    uint8_t sense_key;
-    uint8_t asc;
-    uint8_t ascq;
-    bool unit_ready;
-    int err;
+	uint8_t retry;
+	uint8_t sense_key;
+	uint8_t asc;
+	uint8_t ascq;
+	bool unit_ready;
+	int err;
 
-    /* ------------------- VALIDATE ARG ------------------- */
-    if (p_msc_dev == NULL)
-    {
-        return -EINVAL;
-    }
+	/* ------------------- VALIDATE ARG ------------------- */
+	if (p_msc_dev == NULL) {
+		return -EINVAL;
+	}
 
-    err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT); /* Acquire MSC dev lock to avoid multiple access.       */
-    if (err != 0)
-    {
-        return err;
-    }
-    /* See Note #1.                                         */
-    if ((p_msc_dev->state == USBH_CLASS_DEV_STATE_CONN) &&
-        (p_msc_dev->ref_cnt > 0))
-    {
+	err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT); /* Acquire MSC dev lock to avoid multiple access.       */
+	if (err != 0) {
+		return err;
+	}
+	/* See Note #1.                                         */
+	if ((p_msc_dev->state == USBH_CLASS_DEV_STATE_CONN) &&
+	    (p_msc_dev->ref_cnt > 0)) {
 
-        LOG_INF("Mass Storage device (LUN %d) is initializing ...\r\n", lun);
-        retry = 40u; /* Host attempts 20 times to know if MSC dev ready.     */
-        unit_ready = false;
+		LOG_INF("Mass Storage device (LUN %d) is initializing ...\r\n", lun);
+		retry = 40u; /* Host attempts 20 times to know if MSC dev ready.     */
+		unit_ready = false;
 
-        while (retry > 0)
-        {
-            /* --------------- TEST_UNIT_READY CMD ---------------- */
-            err = usbh_scsi_cmd_test_unit_rdy(p_msc_dev, lun);
-            if (err == 0)
-            { /* MSC dev ready for comm.                              */
-                unit_ready = true;
-                break;
-            }
-            else if (err == -EIO)
-            { /* Bulk xfers for the BOT protocol failed.              */
-                LOG_ERR("%d", err);
-                break;
-            }
-            else
-            {
-                if (err != EAGAIN)
-                { /* MSC dev not ready ...                                */
-                    LOG_ERR("%d", err);
-                }
+		while (retry > 0) {
+			/* --------------- TEST_UNIT_READY CMD ---------------- */
+			err = usbh_scsi_cmd_test_unit_rdy(p_msc_dev, lun);
+			if (err == 0) { /* MSC dev ready for comm.                              */
+				unit_ready = true;
+				break;
+			} else if (err == -EIO) { /* Bulk xfers for the BOT protocol failed.              */
+				LOG_ERR("%d", err);
+				break;
+			}
+			if (err != EAGAIN) { /* MSC dev not ready ...                                */
+				LOG_ERR("%d", err);
+			}
 
-                err = usbh_scsi_get_sense_info(p_msc_dev, /* ...determine reason of failure.                      */
-                                             lun,
-                                             &sense_key,
-                                             &asc,
-                                             &ascq);
-                if (err == 0)
-                {
-                    switch (sense_key)
-                    {                                        /* See Note #2.                                         */
-                    case USBH_SCSI_SENSE_KEY_UNIT_ATTENTION: /* MSC dev is initializing internally but not rdy.      */
-                        switch (asc)
-                        {
-                        case USBH_SCSI_ASC_MEDIUM_NOT_PRESENT:
-                            k_sleep(K_MSEC(500u));
-                            break;
-                            /* MSC dev changed its internal state to ready.         */
-                        case USBH_SCSI_ASC_NOT_RDY_TO_RDY_CHANGE:
-                            k_sleep(K_MSEC(500u));
-                            break;
+			err = usbh_scsi_get_sense_info(p_msc_dev, /* ...determine reason of failure.                      */
+							lun,
+							&sense_key,
+							&asc,
+							&ascq);
+			if (err == 0) {
+				switch (sense_key) {                            /* See Note #2.                                         */
+				case USBH_SCSI_SENSE_KEY_UNIT_ATTENTION:        /* MSC dev is initializing internally but not rdy.      */
+					switch (asc) {
+					case USBH_SCSI_ASC_MEDIUM_NOT_PRESENT:
+						k_sleep(K_MSEC(500u));
+						break;
+					/* MSC dev changed its internal state to ready.         */
+					case USBH_SCSI_ASC_NOT_RDY_TO_RDY_CHANGE:
+						k_sleep(K_MSEC(500u));
+						break;
 
-                        default: /* Other Additional Sense Code values not supported.    */
-                            LOG_INF("SENSE KEY1 : %02X, ASC : %02X, ASCQ : %02X\r\n", sense_key, asc, ascq);
-                            break;
-                        }
-                        break;
+					default: /* Other Additional Sense Code values not supported.    */
+						LOG_INF("SENSE KEY1 : %02X, ASC : %02X, ASCQ : %02X\r\n", sense_key, asc, ascq);
+						break;
+					}
+					break;
 
-                    case USBH_SCSI_SENSE_KEY_NOT_RDY: /* MSC dev not ready.                                   */
-                        k_sleep(K_MSEC(500u));
-                        break;
+				case USBH_SCSI_SENSE_KEY_NOT_RDY: /* MSC dev not ready.                                   */
+					k_sleep(K_MSEC(500u));
+					break;
 
-                    default: /* Other Sense Key values not supported.                */
-                        LOG_INF("SENSE KEY2 : %02X, ASC : %02X, ASCQ : %02X\r\n", sense_key, asc, ascq);
-                        break;
-                    }
+				default: /* Other Sense Key values not supported.                */
+					LOG_INF("SENSE KEY2 : %02X, ASC : %02X, ASCQ : %02X\r\n", sense_key, asc, ascq);
+					break;
+				}
 
-                    retry--;
-                }
-                else
-                {
-                    LOG_ERR("%d", err);
-                    break;
-                }
-            }
-        }
+				retry--;
+			} else   {
+				LOG_ERR("%d", err);
+				break;
+			}
+		}
 
-        if (unit_ready == false)
-        {
-            LOG_ERR("Device is not ready\r\n");
-            err = ENODEV;
-        }
-    }
-    else
-    {
-        err = ENODEV; /* MSC dev enum not completed by host.                  */
-    }
+		if (unit_ready == false) {
+			LOG_ERR("Device is not ready\r\n");
+			err = ENODEV;
+		}
+	} else   {
+		err = ENODEV; /* MSC dev enum not completed by host.                  */
+	}
 
-    k_mutex_unlock(&p_msc_dev->HMutex); /* Unlock access to MSC dev.                            */
+	k_mutex_unlock(&p_msc_dev->HMutex); /* Unlock access to MSC dev.                            */
 
-    return err;
+	return err;
 }
 
 /*
-*********************************************************************************************************
-*                                        USBH_MSC_MaxLUN_Get()
-*
-* Description : Get maximum logical unit number (LUN) supported by MSC device.
-*
-* Argument(s) : p_msc_dev       Pointer to MSC device.
-*
-*               p_err   Pointer to variable that will receive the return error code from this function :
-*
-*                       USBH_ERR_NONE                           Maximum LUN successfully retrieved.
-*                       USBH_ERR_INVALID_ARG                    If invalid argument passed to 'p_msc_dev'.
-*                       USBH_ERR_DEV_NOT_READY                  If device enumeration not completed.
-*
-*                                                               ----- RETURNED BY USBH_CtrlRx() : -----
-*                       USBH_ERR_UNKNOWN,                       Unknown error occurred.
-*                       USBH_ERR_INVALID_ARG,                   Invalid argument passed to 'p_ep'.
-*                       USBH_ERR_EP_INVALID_STATE,              Endpoint is not opened.
-*                       USBH_ERR_HC_IO,                         Root hub input/output error.
-*                       USBH_ERR_EP_STALL,                      Root hub does not support request.
-*                       Host controller drivers error code,     Otherwise.
-*
-*                                                               ----- RETURNED BY USBH_OS_MutexLock() : -----
-*                       USBH_ERR_INVALID_ARG,                   If invalid argument passed to 'mutex'.
-*                       USBH_ERR_OS_ABORT,                      If mutex wait aborted.
-*                       USBH_ERR_OS_FAIL,                       Otherwise.
-*
-* Return(s)   : Maximum number of logical unit.
-*
-* Note(s)     : (1) The "GET MAX LUN" is an MSC specific command and is documented in "USB MSC Bulk Only
-*                   Transport specification", Section 3.2.
-*********************************************************************************************************
-*/
+ * Get maximum logical unit number (LUN) supported by MSC device.
+ */
 
 uint8_t usbh_msc_max_lun_get(struct usbh_msc_dev *p_msc_dev,
-                               int *p_err)
+			     int *p_err)
 {
-    uint8_t if_nbr;
-    uint8_t lun_nbr = 0;
+	uint8_t if_nbr;
+	uint8_t lun_nbr = 0;
 
-    /* ------------------ VALIDATE ARG -------------------- */
-    if (p_msc_dev == NULL)
-    {
-        *p_err = -EINVAL;
-        return 0;
-    }
+	/* ------------------ VALIDATE ARG -------------------- */
+	if (p_msc_dev == NULL) {
+		*p_err = -EINVAL;
+		return 0;
+	}
 
-    *p_err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
-    if (*p_err != 0)
-    {
-        return 0;
-    }
-    /* --------------- GET_MAX_LUN REQUEST ---------------- */
-    if ((p_msc_dev->state == USBH_CLASS_DEV_STATE_CONN) &&
-        (p_msc_dev->ref_cnt > 0))
-    {
+	*p_err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
+	if (*p_err != 0) {
+		return 0;
+	}
+	/* --------------- GET_MAX_LUN REQUEST ---------------- */
+	if ((p_msc_dev->state == USBH_CLASS_DEV_STATE_CONN) &&
+	    (p_msc_dev->ref_cnt > 0)) {
 
-        if_nbr = usbh_if_nbr_get(p_msc_dev->if_ptr); /* Get IF nbr matching to MSC dev.                      */
+		if_nbr = usbh_if_nbr_get(p_msc_dev->if_ptr);    /* Get IF nbr matching to MSC dev.                      */
 
-        usbh_ctrl_rx(p_msc_dev->dev_ptr,        /* Send GET_MAX_LUN request via a Ctrl xfer.            */
-                    USBH_MSC_REQ_GET_MAX_LUN, /* See Note #1.                                         */
-                    (USBH_REQ_DIR_DEV_TO_HOST | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_IF),
-                    0,
-                    if_nbr,
-                    (void *)&lun_nbr,
-                    1,
-                    USBH_MSC_TIMEOUT,
-                    p_err);
-        if (*p_err != 0)
-        {
-            (void)usbh_ep_reset(p_msc_dev->dev_ptr, /* Reset dflt EP if ctrl xfer failed.                   */
-                                NULL);
+		usbh_ctrl_rx(p_msc_dev->dev_ptr,                /* Send GET_MAX_LUN request via a Ctrl xfer.            */
+			     USBH_MSC_REQ_GET_MAX_LUN,          /* See Note #1.                                         */
+			     (USBH_REQ_DIR_DEV_TO_HOST | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_IF),
+			     0,
+			     if_nbr,
+			     (void *)&lun_nbr,
+			     1,
+			     USBH_MSC_TIMEOUT,
+			     p_err);
+		if (*p_err != 0) {
+			(void)usbh_ep_reset(p_msc_dev->dev_ptr, /* Reset dflt EP if ctrl xfer failed.                   */
+					    NULL);
 
-            if (*p_err == EBUSY)
-            { /* Device may stall if no multiple LUNs support.        */
-                lun_nbr = 0;
-                *p_err = 0;
-            }
-        }
-    }
-    else
-    { /* MSC dev enumeration not completed by host.           */
-        *p_err = ENODEV;
-    }
+			if (*p_err == EBUSY) { /* Device may stall if no multiple LUNs support.        */
+				lun_nbr = 0;
+				*p_err = 0;
+			}
+		}
+	} else   {/* MSC dev enumeration not completed by host.           */
+		*p_err = ENODEV;
+	}
 
-    k_mutex_unlock(&p_msc_dev->HMutex);
+	k_mutex_unlock(&p_msc_dev->HMutex);
 
-    return lun_nbr;
+	return lun_nbr;
 }
 
 /*
-*********************************************************************************************************
-*                                        USBH_MSC_UnitRdyTest()
-*
-* Description : Test if a certain logical unit within the MSC device is ready for communication.
-*
-* Argument(s) : p_msc_dev       Pointer to MSC device.
-*
-*               lun             Logical unit number.
-*
-*               p_err   Pointer to variable that will receive the return error code from this function :
-*
-*                       USBH_ERR_NONE                           Maximum LUN successfully retrieved.
-*                       USBH_ERR_INVALID_ARG                    If invalid argument passed to 'p_msc_dev'.
-*                       USBH_ERR_DEV_NOT_READY                  If device enumeration not completed.
-*
-*                                                               ----- RETURNED BY USBH_OS_MutexLock() : -----
-*                       USBH_ERR_INVALID_ARG,                   If invalid argument passed to 'mutex'.
-*                       USBH_ERR_OS_ABORT,                      If mutex wait aborted.
-*                       USBH_ERR_OS_FAIL,                       Otherwise.
-*
-*                                                               ---- RETURNED BY usbh_scsi_cmd_test_unit_rdy() ----
-*                       USBH_ERR_MSC_CMD_FAILED                 Device reports command failed.
-*                       USBH_ERR_MSC_CMD_PHASE                  Device reports command phase error.
-*                       USBH_ERR_MSC_IO                         Unable to receive CSW.
-*                       USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
-*                       USBH_ERR_EP_INVALID_TYPE                Endpoint type or direction is incorrect.
-*                       USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
-*                       Host controller drivers error code,     Otherwise.
-*
-* Return(s)   : DEF_YES, if logical unit ready.
-*
-*               DEF_NO,  otherwise.
-*
-* Note(s)     : none.
-*********************************************************************************************************
-*/
+ * Test if a certain logical unit within the MSC device is ready for communication.
+ */
 
 bool usbh_msc_unit_rdy_test(struct usbh_msc_dev *p_msc_dev,
-                                 uint8_t lun,
-                                 int *p_err)
+			    uint8_t lun,
+			    int *p_err)
 {
-    bool unit_rdy = 1;
+	bool unit_rdy = 1;
 
-    /* ------------------- VALIDATE PTR ------------------- */
-    if (p_msc_dev == NULL)
-    {
-        *p_err = -EINVAL;
-        return unit_rdy;
-    }
+	/* ------------------- VALIDATE PTR ------------------- */
+	if (p_msc_dev == NULL) {
+		*p_err = -EINVAL;
+		return unit_rdy;
+	}
 
-    *p_err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
-    if (*p_err != 0)
-    {
-        return unit_rdy;
-    }
-    /* --------------- TEST_UNIT_READY REQ ---------------- */
-    if ((p_msc_dev->state == USBH_CLASS_DEV_STATE_CONN) &&
-        (p_msc_dev->ref_cnt > 0))
-    {
+	*p_err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
+	if (*p_err != 0) {
+		return unit_rdy;
+	}
+	/* --------------- TEST_UNIT_READY REQ ---------------- */
+	if ((p_msc_dev->state == USBH_CLASS_DEV_STATE_CONN) &&
+	    (p_msc_dev->ref_cnt > 0)) {
 
-        *p_err = usbh_scsi_cmd_test_unit_rdy(p_msc_dev, 0);
-        if (*p_err == 0)
-        {
-            unit_rdy = 1;
-        }
-        else if (*p_err == EAGAIN)
-        {
-            *p_err = 0; /* CSW reporting cmd failed for this req NOT an err.    */
-            unit_rdy = 1;
-        }
-        else
-        {
-            /* Empty Else statement                                 */
-        }
-    }
-    else
-    { /* MSC dev enumeration not completed by host.           */
-        *p_err = ENODEV;
-    }
+		*p_err = usbh_scsi_cmd_test_unit_rdy(p_msc_dev, 0);
+		if (*p_err == 0) {
+			unit_rdy = 1;
+		} else if (*p_err == EAGAIN) {
+			*p_err = 0; /* CSW reporting cmd failed for this req NOT an err.    */
+			unit_rdy = 1;
+		} else   {
+			/* Empty Else statement                                 */
+		}
+	} else   {/* MSC dev enumeration not completed by host.           */
+		*p_err = ENODEV;
+	}
 
-    k_mutex_unlock(&p_msc_dev->HMutex);
+	k_mutex_unlock(&p_msc_dev->HMutex);
 
-    return unit_rdy;
+	return unit_rdy;
 }
 
 /*
-*********************************************************************************************************
-*                                        USBH_MSC_CapacityRd()
-*
-* Description : Read mass storage device capacity (i.e number of blocks and block size) of specified LUN
-*               by sending READ_CAPACITY SCSI command.
-*
-* Argument(s) : p_msc_dev       Pointer to MSC device.
-*
-*               lun             Logical unit number.
-*
-*               p_nbr_blks      Pointer to variable that receives number of blocks.
-*
-*               p_blk_size      Pointer to variable that receives block size.
-*
-* Return(s)   : USBH_ERR_NONE,              If capacity of MSC device retrieved successfully.
-*               USBH_ERR_INVALID_ARG,       If invalid argument passed to 'p_msc_dev' / 'p_nbr_blks' /
-*                                           'p_blk_size'.
-*               USBH_ERR_DEV_NOT_READY,     If device enumeration not completed.
-*
-*                                           ----- RETURNED BY USBH_OS_MutexLock() : -----
-*               USBH_ERR_INVALID_ARG,       If invalid argument passed to 'mutex'.
-*               USBH_ERR_OS_ABORT,          If mutex wait aborted.
-*               USBH_ERR_OS_FAIL,           Otherwise.
-*               List error codes from USBH_SCSI_CMD_CapacityRd
-*
-* Note(s)     : None.
-*********************************************************************************************************
-*/
+ * Read mass storage device capacity (i.e number of blocks and block size) of specified LUN
+ * by sending READ_CAPACITY SCSI command.
+ */
 
 int usbh_msc_capacity_rd(struct usbh_msc_dev *p_msc_dev,
-                             uint8_t lun,
-                             uint32_t *p_nbr_blks,
-                             uint32_t *p_blk_size)
+			 uint8_t lun,
+			 uint32_t *p_nbr_blks,
+			 uint32_t *p_blk_size)
 {
-    int err;
+	int err;
 
-    /* ------------------- VALIDATE PTR ------------------- */
-    if ((p_msc_dev == NULL) ||
-        (p_nbr_blks == NULL) ||
-        (p_blk_size == NULL))
-    {
-        err = -EINVAL;
-        return err;
-    }
+	/* ------------------- VALIDATE PTR ------------------- */
+	if ((p_msc_dev == NULL) ||
+	    (p_nbr_blks == NULL) ||
+	    (p_blk_size == NULL)) {
+		err = -EINVAL;
+		return err;
+	}
 
-    err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
-    if (err != 0)
-    {
-        return err;
-    }
+	err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
+	if (err != 0) {
+		return err;
+	}
 
-    /* -------------- READ_CAPACITY REQUEST --------------- */
-    if ((p_msc_dev->state == USBH_CLASS_DEV_STATE_CONN) &&
-        (p_msc_dev->ref_cnt > 0))
-    {
+	/* -------------- READ_CAPACITY REQUEST --------------- */
+	if ((p_msc_dev->state == USBH_CLASS_DEV_STATE_CONN) &&
+	    (p_msc_dev->ref_cnt > 0)) {
 
-        err = usbh_scsi_cmd_capacity_read(p_msc_dev, /* Issue READ_CAPACITY SCSI cmd using bulk xfers.       */
-                                       lun,
-                                       p_nbr_blks,
-                                       p_blk_size);
-    }
-    else
-    { /* MSC dev enumeration not completed by host.           */
-        err = ENODEV;
-    }
+		err = usbh_scsi_cmd_capacity_read(p_msc_dev, /* Issue READ_CAPACITY SCSI cmd using bulk xfers.       */
+						  lun,
+						  p_nbr_blks,
+						  p_blk_size);
+	} else   {/* MSC dev enumeration not completed by host.           */
+		err = ENODEV;
+	}
 
-    k_mutex_unlock(&p_msc_dev->HMutex); /* Unlock access to MSC dev.                            */
+	k_mutex_unlock(&p_msc_dev->HMutex); /* Unlock access to MSC dev.                            */
 
-    return err;
+	return err;
 }
 
 /*
-*********************************************************************************************************
-*                                        USBH_MSC_StdInquiry()
-*
-* Description : Retrieve various information about a specific logical unit inside mass storage device
-*               such as device type, if device is removable, vendor/product identification, etc.
-*               INQUIRY SCSI command is used.
-*
-* Argument(s) : p_msc_dev               Pointer to MSC device.
-*
-*               p_msc_inquiry_info      Pointer to structure that will receive the informations.
-*
-*               lun                     Logical unit number.
-*
-* Return(s)   : USBH_ERR_NONE,              If information about logical unit retrieved successfully.
-*               USBH_ERR_INVALID_ARG,       If invalid argument passed to 'p_msc_dev' / 'p_msc_inquiry_info'.
-*               USBH_ERR_NOT_SUPPORTED,     If INQUIRY command has failed.
-*               USBH_ERR_DEV_NOT_READY,     If device enumeration not completed.
-*
-*                                           ----- RETURNED BY USBH_OS_MutexLock() : -----
-*               USBH_ERR_INVALID_ARG,       If invalid argument passed to 'mutex'.
-*               USBH_ERR_OS_ABORT,          If mutex wait aborted.
-*               USBH_ERR_OS_FAIL,           Otherwise.
-
-* Note(s)     : None.
-*********************************************************************************************************
-*/
+ * Retrieve various information about a specific logical unit inside mass storage device
+ * such as device type, if device is removable, vendor/product identification, etc.
+ * INQUIRY SCSI command is used.
+ */
 
 int usbh_msc_std_inquiry(struct usbh_msc_dev *p_msc_dev,
-                             struct msc_inquiry_info *p_msc_inquiry_info,
-                             uint8_t lun)
+			 struct msc_inquiry_info *p_msc_inquiry_info,
+			 uint8_t lun)
 {
-    int err;
+	int err;
 
-    /* ------------------- VALIDATE PTR ------------------- */
-    if ((p_msc_dev == NULL) ||
-        (p_msc_inquiry_info == NULL))
-    {
-        err = -EINVAL;
-        return err;
-    }
+	/* ------------------- VALIDATE PTR ------------------- */
+	if ((p_msc_dev == NULL) ||
+	    (p_msc_inquiry_info == NULL)) {
+		err = -EINVAL;
+		return err;
+	}
 
-    err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
-    if (err != 0)
-    {
-        return err;
-    }
+	err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
+	if (err != 0) {
+		return err;
+	}
 
-    /* ----------------- INQUIRY REQUEST ------------------ */
-    if ((p_msc_dev->state == USBH_CLASS_DEV_STATE_CONN) &&
-        (p_msc_dev->ref_cnt > 0))
-    {
+	/* ----------------- INQUIRY REQUEST ------------------ */
+	if ((p_msc_dev->state == USBH_CLASS_DEV_STATE_CONN) &&
+	    (p_msc_dev->ref_cnt > 0)) {
 
-        err = usbh_scsi_cmd_std_inquiry(p_msc_dev, /* Issue INQUIRY SCSI command using Bulk xfers.         */
-                                       p_msc_inquiry_info,
-                                       lun);
-        if (err == 0)
-        {
-            err = 0;
-        }
-        else
-        {
-            err = ENOTSUP;
-        }
-    }
-    else
-    {
-        err = ENODEV;
-    }
+		err = usbh_scsi_cmd_std_inquiry(p_msc_dev, /* Issue INQUIRY SCSI command using Bulk xfers.         */
+						p_msc_inquiry_info,
+						lun);
+		if (err == 0) {
+			err = 0;
+		} else   {
+			err = ENOTSUP;
+		}
+	} else   {
+		err = ENODEV;
+	}
 
-    k_mutex_unlock(&p_msc_dev->HMutex);
+	k_mutex_unlock(&p_msc_dev->HMutex);
 
-    return err;
+	return err;
 }
 
 /*
-*********************************************************************************************************
-*                                          USBH_MSC_RefAdd()
-*
-* Description : Increment counter of connected mass storage devices.
-*
-* Argument(s) : p_msc_dev       Pointer to MSC device.
-*
-* Return(s)   : USBH_ERR_NONE,              If counter successfully incremented.
-*               USBH_ERR_INVALID_ARG,       If invalid argument passed to 'p_msc_dev'.
-*
-*                                           ----- RETURNED BY USBH_OS_MutexLock() : -----
-*               USBH_ERR_INVALID_ARG,       If invalid argument passed to 'mutex'.
-*               USBH_ERR_OS_ABORT,          If mutex wait aborted.
-*               USBH_ERR_OS_FAIL,           Otherwise.
-*
-* Note(s)     : None.
-*********************************************************************************************************
-*/
+ * Increment counter of connected mass storage devices.
+ */
 
 int usbh_msc_ref_add(struct usbh_msc_dev *p_msc_dev)
 {
-    int err;
+	int err;
 
-    /* ------------------- VALIDATE ARG ------------------- */
-    if (p_msc_dev == NULL)
-    {
-        return -EINVAL;
-    }
+	/* ------------------- VALIDATE ARG ------------------- */
+	if (p_msc_dev == NULL) {
+		return -EINVAL;
+	}
 
-    err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
-    if (err != 0)
-    {
-        return err;
-    }
+	err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
+	if (err != 0) {
+		return err;
+	}
 
-    p_msc_dev->ref_cnt++;
+	p_msc_dev->ref_cnt++;
 
-    k_mutex_unlock(&p_msc_dev->HMutex);
+	k_mutex_unlock(&p_msc_dev->HMutex);
 
-    return err;
+	return err;
 }
 
 /*
-*********************************************************************************************************
-*                                          USBH_MSC_RefRel()
-*
-* Description : Decrement counter of connected mass storage devices and free device if counter = 0.
-*
-* Argument(s) : p_msc_dev       Pointer to MSC device.
-*
-* Return(s)   : USBH_ERR_NONE,              If counter successfully decremented.
-*               USBH_ERR_INVALID_ARG,       If invalid argument passed to 'p_msc_dev'.
-*
-*                                           ----- RETURNED BY USBH_OS_MutexLock() : -----
-*               USBH_ERR_INVALID_ARG,       If invalid argument passed to 'mutex'.
-*               USBH_ERR_OS_ABORT,          If mutex wait aborted.
-*               USBH_ERR_OS_FAIL,           Otherwise.
-*
-* Note(s)     : None.
-*********************************************************************************************************
-*/
+ * Decrement counter of connected mass storage devices and free device if counter = 0.
+ */
 
 int usbh_msc_ref_rel(struct usbh_msc_dev *p_msc_dev)
 {
-    int err;
+	int err;
 
-    /* ------------------- VALIDATE PTR ------------------- */
-    if (p_msc_dev == NULL)
-    {
-        return -EINVAL;
-    }
+	/* ------------------- VALIDATE PTR ------------------- */
+	if (p_msc_dev == NULL) {
+		return -EINVAL;
+	}
 
-    err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
-    if (err != 0)
-    {
-        return err;
-    }
+	err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
+	if (err != 0) {
+		return err;
+	}
 
-    if (p_msc_dev->ref_cnt > 0)
-    {
-        p_msc_dev->ref_cnt--;
+	if (p_msc_dev->ref_cnt > 0) {
+		p_msc_dev->ref_cnt--;
 
-        if ((p_msc_dev->ref_cnt == 0) &&
-            (p_msc_dev->state == USBH_CLASS_DEV_STATE_DISCONN))
-        {
-            /* Release MSC dev if no more ref on it.                */
-            usbh_msc_dev_cnt++;
-        }
-    }
+		if ((p_msc_dev->ref_cnt == 0) &&
+		    (p_msc_dev->state == USBH_CLASS_DEV_STATE_DISCONN)) {
+			/* Release MSC dev if no more ref on it.                */
+			usbh_msc_dev_cnt++;
+		}
+	}
 
-    k_mutex_unlock(&p_msc_dev->HMutex);
+	k_mutex_unlock(&p_msc_dev->HMutex);
 
-    return err;
+	return err;
 }
 
 /*
-*********************************************************************************************************
-*                                             USBH_MSC_Rd()
-*
-* Description : Read specified number of blocks from device using READ_10 SCSI command.
-*
-* Argument(s) : p_msc_dev        Pointer to MSC device.
-*
-*               lun              Logical unit number.
-*
-*               blk_addr         Block address.
-*
-*               nbr_blks         Number of blocks to read.
-*
-*               blk_size         Block size.
-*
-*               p_arg            Pointer to data buffer.
-*
-*               p_err   Pointer to variable that will receive the return error code from this function :
-*
-*                           USBH_ERR_NONE                           Block(s) read successfully.
-*                           USBH_ERR_INVALID_ARG                    If invalid argument passed to 'p_msc_dev'.
-*                           USBH_ERR_DEV_NOT_READY                  If device enumeration not completed.
-*
-*                                                                   ----- RETURNED BY USBH_OS_MutexLock() : -----
-*                           USBH_ERR_INVALID_ARG,                   If invalid argument passed to 'mutex'.
-*                           USBH_ERR_OS_ABORT,                      If mutex wait aborted.
-*                           USBH_ERR_OS_FAIL,                       Otherwise.
-*
-*                                                                   ----- RETURNED BY USBH_SCSI_Rd -----
-*                           USBH_ERR_MSC_CMD_FAILED                 Device reports command failed.
-*                           USBH_ERR_MSC_CMD_PHASE                  Device reports command phase error.
-*                           USBH_ERR_MSC_IO                         Unable to receive CSW.
-*                           USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
-*                           USBH_ERR_EP_INVALID_TYPE                Endpoint type or direction is incorrect.
-*                           USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
-*                           Host controller drivers error code,     Otherwise.
-*
-* Return(s)   : Number of octets read.
-*
-* Note(s)     : None.
-*********************************************************************************************************
-*/
+ * Read specified number of blocks from device using READ_10 SCSI command.
+ */
 
 uint32_t usbh_msc_read(struct usbh_msc_dev *p_msc_dev,
-                       uint8_t lun,
-                       uint32_t blk_addr,
-                       uint16_t nbr_blks,
-                       uint32_t blk_size,
-                       void *p_arg,
-                       int *p_err)
+		       uint8_t lun,
+		       uint32_t blk_addr,
+		       uint16_t nbr_blks,
+		       uint32_t blk_size,
+		       void *p_arg,
+		       int *p_err)
 
 {
-    uint32_t xfer_len;
+	uint32_t xfer_len;
 
-    if (p_msc_dev == NULL)
-    {
-        *p_err = -EINVAL;
-        return 0;
-    }
+	if (p_msc_dev == NULL) {
+		*p_err = -EINVAL;
+		return 0;
+	}
 
-    *p_err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
-    if (*p_err != 0)
-    {
-        return 0;
-    }
+	*p_err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
+	if (*p_err != 0) {
+		return 0;
+	}
 
-    if ((p_msc_dev->state == USBH_CLASS_DEV_STATE_CONN) &&
-        (p_msc_dev->ref_cnt > 0))
-    {
-        xfer_len = usbh_scsi_read(p_msc_dev,
-                                lun,
-                                blk_addr,
-                                nbr_blks,
-                                blk_size,
-                                p_arg,
-                                p_err);
-    }
-    else
-    {
-        xfer_len = 0;
-        *p_err = ENODEV;
-    }
+	if ((p_msc_dev->state == USBH_CLASS_DEV_STATE_CONN) &&
+	    (p_msc_dev->ref_cnt > 0)) {
+		xfer_len = usbh_scsi_read(p_msc_dev,
+					  lun,
+					  blk_addr,
+					  nbr_blks,
+					  blk_size,
+					  p_arg,
+					  p_err);
+	} else   {
+		xfer_len = 0;
+		*p_err = ENODEV;
+	}
 
-    k_mutex_unlock(&p_msc_dev->HMutex);
+	k_mutex_unlock(&p_msc_dev->HMutex);
 
-    return xfer_len;
+	return xfer_len;
 }
 
 /*
-*********************************************************************************************************
-*                                             USBH_MSC_Wr()
-*
-* Description : Write specified number of blocks to the device.
-*
-* Argument(s) : p_msc_dev        Pointer to mass storage device.
-*
-*               lun              Logical unit number.
-*
-*               blk_addr         Block address.
-*
-*               nbr_blks         Number of blocks to write.
-*
-*               blk_size         Block size.
-*
-*               p_arg            Pointer to data buffer.
-*
-*               p_err   Pointer to variable that will receive the return error code from this function :
-*
-*                       USBH_ERR_NONE                           Block(s) write successfully.
-*                       USBH_ERR_INVALID_ARG                    If invalid argument passed to 'p_msc_dev'.
-*                       USBH_ERR_DEV_NOT_READY                  If device enumeration not completed.
-*
-*                                                               ----- RETURNED BY USBH_OS_MutexLock() : -----
-*                       USBH_ERR_INVALID_ARG,                   If invalid argument passed to 'mutex'.
-*                       USBH_ERR_OS_ABORT,                      If mutex wait aborted.
-*                       USBH_ERR_OS_FAIL,                       Otherwise.
-*
-*                                                               ----- RETURNED BY USBH_SCSI_Rd -----
-*                       USBH_ERR_MSC_CMD_FAILED                 Device reports command failed.
-*                       USBH_ERR_MSC_CMD_PHASE                  Device reports command phase error.
-*                       USBH_ERR_MSC_IO                         Unable to receive CSW.
-*                       USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
-*                       USBH_ERR_EP_INVALID_TYPE                Endpoint type or direction is incorrect.
-*                       USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
-*                       Host controller drivers error code,     Otherwise.
-*
-* Return(s)   : Number of octets written.
-*
-* Note(s)     : None.
-*********************************************************************************************************
-*/
+ * Write specified number of blocks to the device.
+ */
 
 uint32_t usbh_msc_write(struct usbh_msc_dev *p_msc_dev,
-                        uint8_t lun,
-                        uint32_t blk_addr,
-                        uint16_t nbr_blks,
-                        uint32_t blk_size,
-                        const void *p_arg,
-                        int *p_err)
+			uint8_t lun,
+			uint32_t blk_addr,
+			uint16_t nbr_blks,
+			uint32_t blk_size,
+			const void *p_arg,
+			int *p_err)
 
 {
-    uint32_t xfer_len;
+	uint32_t xfer_len;
 
-    if (p_msc_dev == NULL)
-    {
-        *p_err = -EINVAL;
-        return 0;
-    }
+	if (p_msc_dev == NULL) {
+		*p_err = -EINVAL;
+		return 0;
+	}
 
-    *p_err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
-    if (*p_err != 0)
-    {
-        return 0;
-    }
+	*p_err = k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
+	if (*p_err != 0) {
+		return 0;
+	}
 
-    if ((p_msc_dev->state == USBH_CLASS_DEV_STATE_CONN) &&
-        (p_msc_dev->ref_cnt > 0))
-    {
-        xfer_len = usbh_scsi_write(p_msc_dev,
-                                lun,
-                                blk_addr,
-                                nbr_blks,
-                                blk_size,
-                                p_arg,
-                                p_err);
-    }
-    else
-    {
-        xfer_len = 0;
-        *p_err = ENODEV;
-    }
+	if ((p_msc_dev->state == USBH_CLASS_DEV_STATE_CONN) &&
+	    (p_msc_dev->ref_cnt > 0)) {
+		xfer_len = usbh_scsi_write(p_msc_dev,
+					   lun,
+					   blk_addr,
+					   nbr_blks,
+					   blk_size,
+					   p_arg,
+					   p_err);
+	} else   {
+		xfer_len = 0;
+		*p_err = ENODEV;
+	}
 
-    k_mutex_unlock(&p_msc_dev->HMutex);
+	k_mutex_unlock(&p_msc_dev->HMutex);
 
-    return xfer_len;
+	return xfer_len;
 }
 
 /*
-*********************************************************************************************************
-*********************************************************************************************************
-*                                           LOCAL FUNCTIONS
-*********************************************************************************************************
-*********************************************************************************************************
-*/
-
-/*
-*********************************************************************************************************
-*                                        usbh_msc_global_init()
-*
-* Description : Initialize MSC.
-*
-* Argument(s) : p_err   Pointer to variable that will receive the return error code from this function :
-*
-*                           USBH_ERR_NONE       MSC successfully initalized.
-*                           USBH_ERR_ALLOC      If MSC device cannot be allocated.
-*
-* Return(s)   : None.
-*
-* Note(s)     : None.
-*********************************************************************************************************
-*/
+ * Initialize MSC.
+ */
 
 static void usbh_msc_global_init(int *p_err)
 {
 
-    uint8_t ix;
+	uint8_t ix;
 
-    /* --------------- INIT MSC DEV STRUCT ---------------- */
-    for (ix = 0; ix < USBH_MSC_CFG_MAX_DEV; ix++)
-    {
-        usbh_msc_dev_clr(&usbh_msc_dev_arr[ix]);
-        k_mutex_init(&usbh_msc_dev_arr[ix].HMutex);
-    }
-    usbh_msc_dev_cnt = (USBH_MSC_CFG_MAX_DEV - 1);
-    *p_err = 0;
+	/* --------------- INIT MSC DEV STRUCT ---------------- */
+	for (ix = 0; ix < USBH_MSC_CFG_MAX_DEV; ix++) {
+		usbh_msc_dev_clr(&usbh_msc_dev_arr[ix]);
+		k_mutex_init(&usbh_msc_dev_arr[ix].HMutex);
+	}
+	usbh_msc_dev_cnt = (USBH_MSC_CFG_MAX_DEV - 1);
+	*p_err = 0;
 }
 
 /*
-*********************************************************************************************************
-*                                         usbh_msc_probe_if()
-*
-* Description : Determine if interface is mass storage class interface.
-*
-* Argument(s) : p_dev      Pointer to USB device.
-*
-*               p_if       Pointer to interface.
-*
-*               p_err   Pointer to variable that will receive the return error code from this function :
-*
-*                       USBH_ERR_NONE                       MSC successfully initalized.
-*                       USBH_ERR_DEV_ALLOC                  MSC device cannot be allocated.
-*                       USBH_ERR_CLASS_DRV_NOT_FOUND        IF type is not MSC.
-*
-*                                                           ----- RETURNED BY USBH_IF_DescGet() : -----
-*                       USBH_ERR_INVALID_ARG,               Invalid argument passed to 'alt_ix'.
-*
-*                                                           ----- RETURNED BY usbh_msc_ep_open -----
-*                       USBH_ERR_EP_ALLOC,                  If USBH_CFG_MAX_NBR_EPS reached.
-*                       USBH_ERR_EP_NOT_FOUND,              If endpoint with given type and direction not found.
-*                       USBH_ERR_OS_SIGNAL_CREATE,          if mutex or semaphore creation failed.
-*                       Host controller drivers error,      Otherwise.
-*
-* Return(s)   : p_msc_dev,      if device has a mass storage class interface.
-*               0,              otherwise.
-*
-* Note(s)     : None.
-*********************************************************************************************************
-*/
+ * Determine if interface is mass storage class interface.
+ */
 
 static void *usbh_msc_probe_if(struct usbh_dev *p_dev,
-                              struct usbh_if *p_if,
-                              int *p_err)
+			       struct usbh_if *p_if,
+			       int *p_err)
 {
-    struct usbh_if_desc p_if_desc;
-    struct usbh_msc_dev *p_msc_dev;
+	struct usbh_if_desc p_if_desc;
+	struct usbh_msc_dev *p_msc_dev;
 
-    p_msc_dev = NULL;
-    *p_err = usbh_if_desc_get(p_if, 0, &p_if_desc);
-    if (*p_err != 0)
-    {
-        return NULL;
-    }
-    /* Chk for class, sub class and protocol.               */
-    if ((p_if_desc.b_if_class == USBH_CLASS_CODE_MASS_STORAGE) &&
-        ((p_if_desc.b_if_sub_class == USBH_MSC_SUBCLASS_CODE_SCSI) ||
-         (p_if_desc.b_if_sub_class == USBH_MSC_SUBCLASS_CODE_SFF_8070i)) &&
-        (p_if_desc.b_if_protocol == USBH_MSC_PROTOCOL_CODE_BULK_ONLY))
-    {
+	p_msc_dev = NULL;
+	*p_err = usbh_if_desc_get(p_if, 0, &p_if_desc);
+	if (*p_err != 0) {
+		return NULL;
+	}
+	/* Chk for class, sub class and protocol.               */
+	if ((p_if_desc.b_if_class == USBH_CLASS_CODE_MASS_STORAGE) &&
+	    ((p_if_desc.b_if_sub_class == USBH_MSC_SUBCLASS_CODE_SCSI) ||
+	     (p_if_desc.b_if_sub_class == USBH_MSC_SUBCLASS_CODE_SFF_8070i)) &&
+	    (p_if_desc.b_if_protocol == USBH_MSC_PROTOCOL_CODE_BULK_ONLY)) {
 
-        /* Alloc dev from MSC dev pool.                         */
-        if (usbh_msc_dev_cnt < 0)
-        {
-            *p_err = ENOMEM;
-            return NULL;
-        }
-        else
-        {
-            p_msc_dev = &usbh_msc_dev_arr[usbh_msc_dev_cnt--];
-        }
+		/* Alloc dev from MSC dev pool.                         */
+		if (usbh_msc_dev_cnt < 0) {
+			*p_err = ENOMEM;
+			return NULL;
+		}
+		p_msc_dev = &usbh_msc_dev_arr[usbh_msc_dev_cnt--];
 
-        usbh_msc_dev_clr(p_msc_dev);
-        p_msc_dev->ref_cnt = 0;
-        p_msc_dev->state = USBH_CLASS_DEV_STATE_CONN;
-        p_msc_dev->dev_ptr = p_dev;
-        p_msc_dev->if_ptr = p_if;
+		usbh_msc_dev_clr(p_msc_dev);
+		p_msc_dev->ref_cnt = 0;
+		p_msc_dev->state = USBH_CLASS_DEV_STATE_CONN;
+		p_msc_dev->dev_ptr = p_dev;
+		p_msc_dev->if_ptr = p_if;
 
-        *p_err = usbh_msc_ep_open(p_msc_dev); /* Open Bulk in/out EPs.                                */
-        if (*p_err != 0)
-        {
-            usbh_msc_dev_cnt++;
-        }
-    }
-    else
-    {
-        *p_err = ENOENT;
-    }
+		*p_err = usbh_msc_ep_open(p_msc_dev); /* Open Bulk in/out EPs.                                */
+		if (*p_err != 0) {
+			usbh_msc_dev_cnt++;
+		}
+	} else   {
+		*p_err = ENOENT;
+	}
 
-    if (*p_err != 0)
-    {
-        p_msc_dev = NULL;
-    }
+	if (*p_err != 0) {
+		p_msc_dev = NULL;
+	}
 
-    return (void *)p_msc_dev;
+	return (void *)p_msc_dev;
 }
 
 /*
-*********************************************************************************************************
-*                                         usbh_msc_disconn()
-*
-* Description : Handle disconnection of mass storage device.
-*
-* Argument(s) : p_msc_dev       Pointer to MSC device.
-*
-* Return(s)   : None.
-*
-* Note(s)     : None.
-*********************************************************************************************************
-*/
+ * Handle disconnection of mass storage device.
+ */
 
 static void usbh_msc_disconn(void *p_class_dev)
 {
-    struct usbh_msc_dev *p_msc_dev;
+	struct usbh_msc_dev *p_msc_dev;
 
-    p_msc_dev = (struct usbh_msc_dev *)p_class_dev;
+	p_msc_dev = (struct usbh_msc_dev *)p_class_dev;
 
-    k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
+	k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
 
-    p_msc_dev->state = USBH_CLASS_DEV_STATE_DISCONN;
-    usbh_msc_ep_close(p_msc_dev); /* Close bulk in/out EPs.                               */
+	p_msc_dev->state = USBH_CLASS_DEV_STATE_DISCONN;
+	usbh_msc_ep_close(p_msc_dev); /* Close bulk in/out EPs.                               */
 
-    if (p_msc_dev->ref_cnt == 0)
-    { /* Release MSC dev.                                     */
-        k_mutex_unlock(&p_msc_dev->HMutex);
-        usbh_msc_dev_cnt++;
-    }
+	if (p_msc_dev->ref_cnt == 0) { /* Release MSC dev.                                     */
+		k_mutex_unlock(&p_msc_dev->HMutex);
+		usbh_msc_dev_cnt++;
+	}
 
-    k_mutex_unlock(&p_msc_dev->HMutex);
+	k_mutex_unlock(&p_msc_dev->HMutex);
 }
 
 /*
-*********************************************************************************************************
-*                                         usbh_msc_supsend()
-*
-* Description : Suspend MSC device. Waits for completion of any pending I/O.
-*
-* Argument(s) : p_msc_dev       Pointer to MSC device.
-*
-* Return(s)   : None.
-*
-* Note(s)     : None.
-*********************************************************************************************************
-*/
+ * Suspend MSC device. Waits for completion of any pending I/O.
+ */
 
 static void usbh_msc_supsend(void *p_class_dev)
 {
-    struct usbh_msc_dev *p_msc_dev;
+	struct usbh_msc_dev *p_msc_dev;
 
-    p_msc_dev = (struct usbh_msc_dev *)p_class_dev;
+	p_msc_dev = (struct usbh_msc_dev *)p_class_dev;
 
-    k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
+	k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
 
-    p_msc_dev->state = USBH_CLASS_DEV_STATE_SUSPEND;
+	p_msc_dev->state = USBH_CLASS_DEV_STATE_SUSPEND;
 
-    k_mutex_unlock(&p_msc_dev->HMutex);
+	k_mutex_unlock(&p_msc_dev->HMutex);
 }
 
 /*
-*********************************************************************************************************
-*                                          usbh_msc_resume()
-*
-* Description : Resume MSC device.
-*
-* Argument(s) : p_msc_dev       Pointer to MSC device.
-*
-* Return(s)   : None.
-*
-* Note(s)     : None.
-*********************************************************************************************************
-*/
+ * Resume MSC device.
+ */
 
 static void usbh_msc_resume(void *p_class_dev)
 {
-    struct usbh_msc_dev *p_msc_dev;
+	struct usbh_msc_dev *p_msc_dev;
 
-    p_msc_dev = (struct usbh_msc_dev *)p_class_dev;
+	p_msc_dev = (struct usbh_msc_dev *)p_class_dev;
 
-    k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
+	k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
 
-    p_msc_dev->state = USBH_CLASS_DEV_STATE_CONN;
+	p_msc_dev->state = USBH_CLASS_DEV_STATE_CONN;
 
-    k_mutex_unlock(&p_msc_dev->HMutex);
+	k_mutex_unlock(&p_msc_dev->HMutex);
 }
 
 /*
-*********************************************************************************************************
-*                                          usbh_msc_dev_clr()
-*
-* Description : Clear USBH_MSC_DEV structure.
-*
-* Argument(s) : p_msc_dev       Pointer to MSC device.
-*
-* Return(s)   : None.
-*
-* Note(s)     : None.
-*********************************************************************************************************
-*/
+ * Clear USBH_MSC_DEV structure.
+ */
 
 static void usbh_msc_dev_clr(struct usbh_msc_dev *p_msc_dev)
 {
-    p_msc_dev->dev_ptr = NULL;
-    p_msc_dev->if_ptr = NULL;
-    p_msc_dev->state = USBH_CLASS_DEV_STATE_NONE;
-    p_msc_dev->ref_cnt = 0;
+	p_msc_dev->dev_ptr = NULL;
+	p_msc_dev->if_ptr = NULL;
+	p_msc_dev->state = USBH_CLASS_DEV_STATE_NONE;
+	p_msc_dev->ref_cnt = 0;
 }
 
 /*
-*********************************************************************************************************
-*                                         usbh_msc_ep_open()
-*
-* Description : Open bulk IN & OUT endpoints.
-*
-* Argument(s) : p_msc_dev       Pointer to MSC device.
-*
-* Return(s)   : USBH_ERR_NONE,                      if endpoints successfully opened.
-*
-*                                                   ---- RETURNED BY USBH_BulkInOpen ----
-*               USBH_ERR_EP_ALLOC,                  If USBH_CFG_MAX_NBR_EPS reached.
-*               USBH_ERR_EP_NOT_FOUND,              If endpoint with given type and direction not found.
-*               USBH_ERR_OS_SIGNAL_CREATE,          if mutex or semaphore creation failed.
-*               Host controller drivers error,      Otherwise.
-*
-*                                                   ---- RETURNED BY USBH_BulkOutOpen ----
-*               USBH_ERR_EP_ALLOC,                  If USBH_CFG_MAX_NBR_EPS reached.
-*               USBH_ERR_EP_NOT_FOUND,              If endpoint with given type and direction not found.
-*               USBH_ERR_OS_SIGNAL_CREATE,          if mutex or semaphore creation failed.
-*               Host controller drivers error,      Otherwise.
-*
-* Note(s)     : None.
-*********************************************************************************************************
-*/
+ * Open bulk IN & OUT endpoints.
+ */
 
 static int usbh_msc_ep_open(struct usbh_msc_dev *p_msc_dev)
 {
-    int err;
+	int err;
 
-    err = usbh_bulk_in_open(p_msc_dev->dev_ptr,
-                          p_msc_dev->if_ptr,
-                          &p_msc_dev->BulkInEP);
-    if (err != 0)
-    {
-        return err;
-    }
+	err = usbh_bulk_in_open(p_msc_dev->dev_ptr,
+				p_msc_dev->if_ptr,
+				&p_msc_dev->BulkInEP);
+	if (err != 0) {
+		return err;
+	}
 
-    err = usbh_bulk_out_open(p_msc_dev->dev_ptr,
-                           p_msc_dev->if_ptr,
-                           &p_msc_dev->BulkOutEP);
-    if (err != 0)
-    {
-        usbh_msc_ep_close(p_msc_dev);
-    }
+	err = usbh_bulk_out_open(p_msc_dev->dev_ptr,
+				 p_msc_dev->if_ptr,
+				 &p_msc_dev->BulkOutEP);
+	if (err != 0) {
+		usbh_msc_ep_close(p_msc_dev);
+	}
 
-    return err;
+	return err;
 }
 
 /*
-*********************************************************************************************************
-*                                         usbh_msc_ep_close()
-*
-* Description : Close bulk IN & OUT endpoints.
-*
-* Argument(s) : p_msc_dev       Pointer to MSC device.
-*
-* Return(s)   : None.
-*
-* Note(s)     : None.
-*********************************************************************************************************
-*/
+ * Close bulk IN & OUT endpoints.
+ */
 
 static void usbh_msc_ep_close(struct usbh_msc_dev *p_msc_dev)
 {
-    usbh_ep_close(&p_msc_dev->BulkInEP);
-    usbh_ep_close(&p_msc_dev->BulkOutEP);
+	usbh_ep_close(&p_msc_dev->BulkInEP);
+	usbh_ep_close(&p_msc_dev->BulkOutEP);
 }
 
 /*
-*********************************************************************************************************
-*                                         USBH_MSC_XferCmd()
-*
-* Description : Executes MSC command cycle. Sends command (CBW), followed by data stage (if present),
-*               and then receive status (CSW).
-*
-* Argument(s) : p_msc_dev       Pointer to MSC device.
-*
-*               lun             Logical Unit Number.
-*
-*               dir             Direction of data transfer, if present.
-*
-*               p_cb            Pointer to command block.
-*
-*               cb_len          Command block length, in octets.
-*
-*               p_arg           Pointer to data buffer, if data stage present.
-*
-*               data_len        Length of data buffer in octets, if data stage present.
-*
-*               p_err   Pointer to variable that will receive the return error code from this function :
-*                           USBH_ERR_NONE                           Command successfully transmitted.
-*                           USBH_ERR_MSC_CMD_FAILED                 Device reports command failed.
-*                           USBH_ERR_MSC_CMD_PHASE                  Device reports command phase error.
-*                           USBH_ERR_MSC_IO                         Unable to receive CSW.
-*
-*                                                                   ----- RETURNED BY usbh_msc_rx_csw() : -----
-*                           USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
-*                           USBH_ERR_EP_INVALID_TYPE                Endpoint type is not Bulk or direction is not IN.
-*                           USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
-*                           Host controller drivers error code,     Otherwise.
-*
-*                                                                   ----- RETURNED BY usbh_msc_rx_data() : -----
-*                           USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
-*                           USBH_ERR_EP_INVALID_TYPE                Endpoint type is not Bulk or direction is not IN.
-*                           USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
-*                           Host controller drivers error code,     Otherwise.
-*
-*                                                                   ----- RETURNED BY usbh_msc_tx_cbw() : -----
-*                           USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
-*                           USBH_ERR_EP_INVALID_TYPE                Endpoint type is not Bulk or direction is not OUT.
-*                           USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
-*                           Host controller drivers error code,     Otherwise.
-*
-*                                                                   ----- RETURNED BY usbh_msc_tx_data() : -----
-*                           USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
-*                           USBH_ERR_EP_INVALID_TYPE                Endpoint type is not Bulk or direction is not OUT.
-*                           USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
-*                           Host controller drivers error code,     Otherwise.
-*
-* Return(s)   : Number of octets transferred.
-*
-* Note(s)     : None.
-*********************************************************************************************************
-*/
+ * Executes MSC command cycle. Sends command (CBW), followed by data stage (if present),
+ * and then receive status (CSW).
+ */
 
 static uint32_t usbh_msc_xfer_cmd(struct usbh_msc_dev *p_msc_dev,
-                                   uint8_t lun,
-                                   uint8_t dir,
-                                   void *p_cb,
-                                   uint8_t cb_len,
-                                   void *p_arg,
-                                   uint32_t data_len,
-                                   int *p_err)
+				  uint8_t lun,
+				  uint8_t dir,
+				  void *p_cb,
+				  uint8_t cb_len,
+				  void *p_arg,
+				  uint32_t data_len,
+				  int *p_err)
 {
-    uint32_t xfer_len;
-    struct usbh_msc_cbw msc_cbw;
-    struct usbh_msc_csw msc_csw;
+	uint32_t xfer_len;
+	struct usbh_msc_cbw msc_cbw;
+	struct usbh_msc_csw msc_csw;
 
-    /* Prepare CBW.                                         */
-    msc_cbw.dCBWSignature = USBH_MSC_SIG_CBW;
-    msc_cbw.dCBWTag = 0;
-    msc_cbw.dCBWDataTransferLength = data_len;
-    msc_cbw.bmCBWFlags = (dir == USBH_MSC_DATA_DIR_NONE) ? 0 : dir;
-    msc_cbw.bCBWLUN = lun;
-    msc_cbw.bCBWCBLength = cb_len;
+	/* Prepare CBW.                                         */
+	msc_cbw.dCBWSignature = USBH_MSC_SIG_CBW;
+	msc_cbw.dCBWTag = 0;
+	msc_cbw.dCBWDataTransferLength = data_len;
+	msc_cbw.bmCBWFlags = (dir == USBH_MSC_DATA_DIR_NONE) ? 0 : dir;
+	msc_cbw.bCBWLUN = lun;
+	msc_cbw.bCBWCBLength = cb_len;
 
-    memcpy((void *)msc_cbw.CBWCB,
-             p_cb,
-             cb_len);
+	memcpy((void *)msc_cbw.CBWCB,
+	       p_cb,
+	       cb_len);
 
-    *p_err = usbh_msc_tx_cbw(p_msc_dev, &msc_cbw); /* Send CBW to dev.                                     */
-    if (*p_err != 0)
-    {
-        return 0;
-    }
+	*p_err = usbh_msc_tx_cbw(p_msc_dev, &msc_cbw); /* Send CBW to dev.                                     */
+	if (*p_err != 0) {
+		return 0;
+	}
 
-    switch (dir)
-    {
-    case USBH_MSC_DATA_DIR_OUT:
-        *p_err = usbh_msc_tx_data(p_msc_dev,
-                                 p_arg,
-                                 data_len); /* Send data to dev.                                    */
-        break;
+	switch (dir) {
+	case USBH_MSC_DATA_DIR_OUT:
+		*p_err = usbh_msc_tx_data(p_msc_dev,
+					  p_arg,
+					  data_len); /* Send data to dev.                                    */
+		break;
 
-    case USBH_MSC_DATA_DIR_IN:
-        *p_err = usbh_msc_rx_data(p_msc_dev,
-                                 p_arg,
-                                 data_len); /* Receive data from dev.                               */
-        break;
+	case USBH_MSC_DATA_DIR_IN:
+		*p_err = usbh_msc_rx_data(p_msc_dev,
+					  p_arg,
+					  data_len); /* Receive data from dev.                               */
+		break;
 
-    default:
-        *p_err = 0;
-        break;
-    }
+	default:
+		*p_err = 0;
+		break;
+	}
 
-    if (*p_err != 0)
-    {
-        return 0;
-    }
+	if (*p_err != 0) {
+		return 0;
+	}
 
-    memset((void *)&msc_csw,
-            0,
-            USBH_MSC_LEN_CSW);
+	memset((void *)&msc_csw,
+	       0,
+	       USBH_MSC_LEN_CSW);
 
-    *p_err = usbh_msc_rx_csw(p_msc_dev, &msc_csw); /* Receive CSW.                                         */
+	*p_err = usbh_msc_rx_csw(p_msc_dev, &msc_csw); /* Receive CSW.                                         */
 
-    if ((msc_csw.dCSWSignature != USBH_MSC_SIG_CSW) ||
-        (msc_csw.bCSWStatus == USBH_MSC_BCSWSTATUS_PHASE_ERROR) ||
-        (msc_csw.dCSWTag != msc_cbw.dCBWTag))
-    {
-        usbh_msc_rx_rst_rcv(p_msc_dev); /* Invalid CSW, issue reset recovery.                   */
-    }
+	if ((msc_csw.dCSWSignature != USBH_MSC_SIG_CSW) ||
+	    (msc_csw.bCSWStatus == USBH_MSC_BCSWSTATUS_PHASE_ERROR) ||
+	    (msc_csw.dCSWTag != msc_cbw.dCBWTag)) {
+		usbh_msc_rx_rst_rcv(p_msc_dev); /* Invalid CSW, issue reset recovery.                   */
+	}
 
-    if (*p_err == 0)
-    {
-        switch (msc_csw.bCSWStatus)
-        {
-        case USBH_MSC_BCSWSTATUS_CMD_PASSED:
-            *p_err = 0;
-            break;
+	if (*p_err == 0) {
+		switch (msc_csw.bCSWStatus) {
+		case USBH_MSC_BCSWSTATUS_CMD_PASSED:
+			*p_err = 0;
+			break;
 
-        case USBH_MSC_BCSWSTATUS_CMD_FAILED:
-            *p_err = EAGAIN;
-            break;
+		case USBH_MSC_BCSWSTATUS_CMD_FAILED:
+			*p_err = EAGAIN;
+			break;
 
-        case USBH_MSC_BCSWSTATUS_PHASE_ERROR:
-            *p_err = EFAULT;
-            break;
+		case USBH_MSC_BCSWSTATUS_PHASE_ERROR:
+			*p_err = EFAULT;
+			break;
 
-        default:
-            *p_err = EAGAIN;
-            break;
-        }
-    }
-    else
-    {
-        *p_err = -EIO;
-    }
+		default:
+			*p_err = EAGAIN;
+			break;
+		}
+	} else   {
+		*p_err = -EIO;
+	}
 
-    /* Actual len of data xfered to dev.                    */
-    xfer_len = msc_cbw.dCBWDataTransferLength - msc_csw.dCSWDataResidue;
+	/* Actual len of data xfered to dev.                    */
+	xfer_len = msc_cbw.dCBWDataTransferLength - msc_csw.dCSWDataResidue;
 
-    return xfer_len;
+	return xfer_len;
 }
 
 /*
-*********************************************************************************************************
-*                                          usbh_msc_tx_cbw()
-*
-* Description : Send Command Block Wrapper (CBW) to device through bulk OUT endpoint.
-*
-* Argument(s) : p_msc_dev       Pointer to MSC device.
-*
-*               p_msc_cbw       Pointer to Command Block Wrapper (CBW).
-*
-* Return(s)   : USBH_ERR_NONE                           If CBW successfully transmitted.
-*
-*                                                       ----- RETURNED BY USBH_BulkTx() : -----
-*               USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
-*               USBH_ERR_EP_INVALID_TYPE                Endpoint type is not Bulk or direction is not OUT.
-*               USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
-*               Host controller drivers error code,     Otherwise.
-*
-* Note(s)     : None.
-*********************************************************************************************************
-*/
+ * Send Command Block Wrapper (CBW) to device through bulk OUT endpoint.
+ */
 
 static int usbh_msc_tx_cbw(struct usbh_msc_dev *p_msc_dev,
-                               struct usbh_msc_cbw *p_msc_cbw)
+			   struct usbh_msc_cbw *p_msc_cbw)
 {
-    uint8_t cmd_buf[USBH_MSC_LEN_CBW];
-    int err;
-    uint32_t len;
+	uint8_t cmd_buf[USBH_MSC_LEN_CBW];
+	int err;
+	uint32_t len;
 
-    memset(cmd_buf, 0, USBH_MSC_LEN_CBW);
+	memset(cmd_buf, 0, USBH_MSC_LEN_CBW);
 
-    usbh_msc_fmt_cbw(p_msc_cbw, cmd_buf); /* Format CBW.                                          */
+	usbh_msc_fmt_cbw(p_msc_cbw, cmd_buf);           /* Format CBW.                                          */
 
-    len = usbh_bulk_tx(&p_msc_dev->BulkOutEP, /* Send CBW through bulk OUT EP.                        */
-                      (void *)&cmd_buf[0],
-                      USBH_MSC_LEN_CBW,
-                      USBH_MSC_TIMEOUT,
-                      &err);
-    if (len != USBH_MSC_LEN_CBW)
-    {
-        if (err != 0)
-        {
-            LOG_ERR("%d", err);
-            usbh_ep_reset(p_msc_dev->dev_ptr,
-                          &p_msc_dev->BulkOutEP); /* Clear EP err on host side.                           */
-        }
+	len = usbh_bulk_tx(&p_msc_dev->BulkOutEP,       /* Send CBW through bulk OUT EP.                        */
+			   (void *)&cmd_buf[0],
+			   USBH_MSC_LEN_CBW,
+			   USBH_MSC_TIMEOUT,
+			   &err);
+	if (len != USBH_MSC_LEN_CBW) {
+		if (err != 0) {
+			LOG_ERR("%d", err);
+			usbh_ep_reset(p_msc_dev->dev_ptr,
+				      &p_msc_dev->BulkOutEP); /* Clear EP err on host side.                           */
+		}
 
-        if (err == EBUSY)
-        {
-            usbh_msc_rx_rst_rcv(p_msc_dev);
-        }
-    }
-    else
-    {
-        err = 0;
-    }
+		if (err == EBUSY) {
+			usbh_msc_rx_rst_rcv(p_msc_dev);
+		}
+	} else   {
+		err = 0;
+	}
 
-    return err;
+	return err;
 }
 
 /*
-*********************************************************************************************************
-*                                          usbh_msc_rx_csw()
-*
-* Description : Receive Command Status Word (CSW) from device through bulk IN endpoint.
-*
-* Argument(s) : p_msc_dev       Pointer to MSC device.
-*
-*               p_msc_csw       Pointer to Command Status Word (CSW).
-*
-* Return(s)   : USBH_ERR_NONE,                          If CSW successfully received.
-*
-*                                                       ----- RETURNED BY USBH_BulkRx() : -----
-*               USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
-*               USBH_ERR_EP_INVALID_TYPE                Endpoint type is not Bulk or direction is not IN.
-*               USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
-*               Host controller drivers error code,     Otherwise.
-*
-* Note(s)     : None.
-*********************************************************************************************************
-*/
+ * Receive Command Status Word (CSW) from device through bulk IN endpoint.
+ */
 
 static int usbh_msc_rx_csw(struct usbh_msc_dev *p_msc_dev,
-                               struct usbh_msc_csw *p_msc_csw)
+			   struct usbh_msc_csw *p_msc_csw)
 {
-    uint32_t retry;
-    uint8_t status_buf[USBH_MSC_LEN_CSW];
-    int err;
-    uint32_t len;
+	uint32_t retry;
+	uint8_t status_buf[USBH_MSC_LEN_CSW];
+	int err;
+	uint32_t len;
 
-    err = 0;
-    retry = 2;
+	err = 0;
+	retry = 2;
 
-    /* Receive CSW from dev through bulk IN EP.             */
-    while (retry > 0)
-    {
-        len = usbh_bulk_rx(&p_msc_dev->BulkInEP,
-                          (void *)&status_buf[0],
-                          USBH_MSC_LEN_CSW,
-                          USBH_MSC_TIMEOUT,
-                          &err);
-        if (len != USBH_MSC_LEN_CSW)
-        {
-            usbh_ep_reset(p_msc_dev->dev_ptr,
-                          &p_msc_dev->BulkInEP); /* Clear err on host side.                              */
+	/* Receive CSW from dev through bulk IN EP.             */
+	while (retry > 0) {
+		len = usbh_bulk_rx(&p_msc_dev->BulkInEP,
+				   (void *)&status_buf[0],
+				   USBH_MSC_LEN_CSW,
+				   USBH_MSC_TIMEOUT,
+				   &err);
+		if (len != USBH_MSC_LEN_CSW) {
+			usbh_ep_reset(p_msc_dev->dev_ptr,
+				      &p_msc_dev->BulkInEP); /* Clear err on host side.                              */
 
-            if (err == EBUSY)
-            {
-                usbh_ep_stall_clr(&p_msc_dev->BulkInEP);
-                retry--;
-            }
-            else
-            {
-                break;
-            }
-        }
-        else
-        {
-            err = 0;
-            usbh_msc_parse_csw(p_msc_csw, status_buf);
-            break;
-        }
-    }
+			if (err == EBUSY) {
+				usbh_ep_stall_clr(&p_msc_dev->BulkInEP);
+				retry--;
+			} else   {
+				break;
+			}
+		} else   {
+			err = 0;
+			usbh_msc_parse_csw(p_msc_csw, status_buf);
+			break;
+		}
+	}
 
-    return err;
+	return err;
 }
 
 /*
-*********************************************************************************************************
-*                                          usbh_msc_tx_data()
-*
-* Description : Send data to device through bulk OUT endpoint.
-*
-* Argument(s) : p_msc_dev        Pointer to MSC device.
-*
-*               p_arg            Pointer to data buffer.
-*
-*               data_len         Length of data buffer in octets.
-*
-* Return(s)   : USBH_ERR_NONE,                          if data successfully transmitted.
-*
-*                                                       ----- RETURNED BY USBH_BulkTx() : -----
-*               USBH_ERR_NONE                           Bulk transfer successfully transmitted.
-*               USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
-*               USBH_ERR_EP_INVALID_TYPE                Endpoint type is not Bulk or direction is not OUT.
-*               USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
-*               USBH_ERR_NONE,                          urb is successfully submitted to host controller.
-*               Host controller drivers error code,     Otherwise.
-*
-* Note(s)     : None.
-*********************************************************************************************************
-*/
+ * Send data to device through bulk OUT endpoint.
+ */
 
 static int usbh_msc_tx_data(struct usbh_msc_dev *p_msc_dev,
-                                void *p_arg,
-                                uint32_t data_len)
+			    void *p_arg,
+			    uint32_t data_len)
 {
-    int err;
-    bool retry;
-    uint8_t *p_data_08;
-    uint16_t retry_cnt;
-    uint32_t p_data_ix;
-    uint32_t data_len_rem;
-    uint32_t data_len_tx;
+	int err;
+	bool retry;
+	uint8_t *p_data_08;
+	uint16_t retry_cnt;
+	uint32_t p_data_ix;
+	uint32_t data_len_rem;
+	uint32_t data_len_tx;
 
-    err = 0;
-    p_data_ix = 0;
-    p_data_08 = (uint8_t *)p_arg;
-    data_len_rem = data_len;
-    retry_cnt = 0;
-    retry = true;
+	err = 0;
+	p_data_ix = 0;
+	p_data_08 = (uint8_t *)p_arg;
+	data_len_rem = data_len;
+	retry_cnt = 0;
+	retry = true;
 
-    while ((data_len_rem > 0) &&
-           (retry == true))
-    {
+	while ((data_len_rem > 0) &&
+	       (retry == true)) {
 
-        data_len_tx = usbh_bulk_tx(&p_msc_dev->BulkOutEP,
-                                  (void *)(p_data_08 + p_data_ix),
-                                  data_len_rem,
-                                  USBH_MSC_TIMEOUT,
-                                  &err);
-        switch (err)
-        {
-        case -EIO :
-            retry_cnt++;
-            if (retry_cnt >= USBH_MSC_MAX_TRANSFER_RETRY)
-            {
-                retry = false;
-            }
-            break;
+		data_len_tx = usbh_bulk_tx(&p_msc_dev->BulkOutEP,
+					   (void *)(p_data_08 + p_data_ix),
+					   data_len_rem,
+					   USBH_MSC_TIMEOUT,
+					   &err);
+		switch (err) {
+		case -EIO:
+			retry_cnt++;
+			if (retry_cnt >= USBH_MSC_MAX_TRANSFER_RETRY) {
+				retry = false;
+			}
+			break;
 
-        case 0:
-            if (data_len_tx < data_len_rem)
-            {
-                data_len_rem -= data_len_tx;
-                p_data_ix += data_len_tx;
-            }
-            else
-            {
-                data_len_rem = 0;
-            }
-            break;
+		case 0:
+			if (data_len_tx < data_len_rem) {
+				data_len_rem -= data_len_tx;
+				p_data_ix += data_len_tx;
+			} else   {
+				data_len_rem = 0;
+			}
+			break;
 
-        default:
-            retry = false;
-            break;
-        }
-    }
+		default:
+			retry = false;
+			break;
+		}
+	}
 
-    if (err != 0)
-    {
-        LOG_ERR("tx data %d", err);
+	if (err != 0) {
+		LOG_ERR("tx data %d", err);
 
-        usbh_ep_reset(p_msc_dev->dev_ptr,
-                      &p_msc_dev->BulkOutEP);
-        if (err == EBUSY)
-        {
-            usbh_ep_stall_clr(&p_msc_dev->BulkOutEP);
-        }
-        else
-        {
-            usbh_msc_rx_rst_rcv(p_msc_dev);
-        }
-    }
+		usbh_ep_reset(p_msc_dev->dev_ptr,
+			      &p_msc_dev->BulkOutEP);
+		if (err == EBUSY) {
+			usbh_ep_stall_clr(&p_msc_dev->BulkOutEP);
+		} else   {
+			usbh_msc_rx_rst_rcv(p_msc_dev);
+		}
+	}
 
-    return err;
+	return err;
 }
 
 /*
-*********************************************************************************************************
-*                                          usbh_msc_rx_data()
-*
-* Description : Receive data from device through bulk IN endpoint.
-*
-* Argument(s) : p_msc_dev        Pointer to MSC device.
-*
-*               p_arg            Pointer to data buffer.
-*
-*               data_len         Length of data buffer in octets.
-*
-* Return(s)   : USBH_ERR_NONE,                          if data successfully received.
-*
-*                                                       ----- RETURNED BY USBH_BulkRx() : -----
-*               USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
-*               USBH_ERR_EP_INVALID_TYPE                Endpoint type is not Bulk or direction is not IN.
-*               USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
-*               Host controller drivers error code,     Otherwise.
-*
-* Note(s)     : None.
-*********************************************************************************************************
-*/
+ * Receive data from device through bulk IN endpoint.
+ */
 
 static int usbh_msc_rx_data(struct usbh_msc_dev *p_msc_dev,
-                                void *p_arg,
-                                uint32_t data_len)
+			    void *p_arg,
+			    uint32_t data_len)
 
 {
-    int err;
-    bool retry;
-    uint8_t *p_data_08;
-    uint16_t retry_cnt;
-    uint32_t p_data_ix;
-    uint32_t data_len_rem;
-    uint32_t data_len_rx;
+	int err;
+	bool retry;
+	uint8_t *p_data_08;
+	uint16_t retry_cnt;
+	uint32_t p_data_ix;
+	uint32_t data_len_rem;
+	uint32_t data_len_rx;
 
-    err = 0;
-    p_data_ix = 0;
-    p_data_08 = (uint8_t *)p_arg;
-    data_len_rem = data_len;
-    retry_cnt = 0;
-    retry = true;
+	err = 0;
+	p_data_ix = 0;
+	p_data_08 = (uint8_t *)p_arg;
+	data_len_rem = data_len;
+	retry_cnt = 0;
+	retry = true;
 
-    while ((data_len_rem > 0) &&
-           (retry == true))
-    {
+	while ((data_len_rem > 0) &&
+	       (retry == true)) {
 
-        data_len_rx = usbh_bulk_rx(&p_msc_dev->BulkInEP,
-                                  (void *)(p_data_08 + p_data_ix),
-                                  data_len_rem,
-                                  USBH_MSC_TIMEOUT,
-                                  &err);
-        switch (err)
-        {
-        case -EIO :
-            retry_cnt++;
-            if (retry_cnt >= USBH_MSC_MAX_TRANSFER_RETRY)
-            {
-                retry = false;
-            }
-            break;
+		data_len_rx = usbh_bulk_rx(&p_msc_dev->BulkInEP,
+					   (void *)(p_data_08 + p_data_ix),
+					   data_len_rem,
+					   USBH_MSC_TIMEOUT,
+					   &err);
+		switch (err) {
+		case -EIO:
+			retry_cnt++;
+			if (retry_cnt >= USBH_MSC_MAX_TRANSFER_RETRY) {
+				retry = false;
+			}
+			break;
 
-        case 0:
-            if (data_len_rx < data_len_rem)
-            {
-                data_len_rem -= data_len_rx; /* Update remaining nbr of octets to read.              */
-                p_data_ix += data_len_rx;    /* Update buf ix.                                       */
-            }
-            else
-            {
-                data_len_rem = 0;
-            }
-            break;
+		case 0:
+			if (data_len_rx < data_len_rem) {
+				data_len_rem -= data_len_rx;    /* Update remaining nbr of octets to read.              */
+				p_data_ix += data_len_rx;       /* Update buf ix.                                       */
+			} else   {
+				data_len_rem = 0;
+			}
+			break;
 
-        default:
-            retry = false;
-            break;
-        }
-    }
+		default:
+			retry = false;
+			break;
+		}
+	}
 
-    if (err != 0)
-    {
-        LOG_ERR("rx data %d", err);
+	if (err != 0) {
+		LOG_ERR("rx data %d", err);
 
-        (void)usbh_ep_reset(p_msc_dev->dev_ptr,
-                            &p_msc_dev->BulkInEP); /* Clr err on host side EP.                             */
-        if (err == EBUSY)
-        {
-            usbh_ep_stall_clr(&p_msc_dev->BulkInEP);
-            err = 0;
-        }
-        else
-        {
-            usbh_msc_rx_rst_rcv(p_msc_dev);
-            err = -EIO;
-        }
-    }
+		(void)usbh_ep_reset(p_msc_dev->dev_ptr,
+				    &p_msc_dev->BulkInEP); /* Clr err on host side EP.                             */
+		if (err == EBUSY) {
+			usbh_ep_stall_clr(&p_msc_dev->BulkInEP);
+			err = 0;
+		} else   {
+			usbh_msc_rx_rst_rcv(p_msc_dev);
+			err = -EIO;
+		}
+	}
 
-    return err;
+	return err;
 }
 
 /*
-*********************************************************************************************************
-*                                      usbh_msc_rx_rst_rcv()
-*
-* Description : Apply bulk-only reset recovery to device on phase error & clear stalled endpoints.
-*
-* Argument(s) : p_msc_dev       Pointer to MSC device.
-*
-* Return(s)   : USBH_ERR_NONE,                          If reset recovery procedure is successful.
-*
-*                                                       ----- RETURNED BY usbh_msc_rx_bulk_only_reset -----
-*               USBH_ERR_UNKNOWN,                       Unknown error occurred.
-*               USBH_ERR_INVALID_ARG,                   Invalid argument passed to 'p_ep'.
-*               USBH_ERR_EP_INVALID_STATE,              Endpoint is not opened.
-*               USBH_ERR_HC_IO,                         Root hub input/output error.
-*               USBH_ERR_EP_STALL,                      Root hub does not support request.
-*               Host controller drivers error code,     Otherwise.
-*
-*                                                       ----- RETURNED BY USBH_EP_StallClr -----
-*               USBH_ERR_UNKNOWN                        Unknown error occurred.
-*               USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
-*               USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
-*               USBH_ERR_HC_IO,                         Root hub input/output error.
-*               USBH_ERR_EP_STALL,                      Root hub does not support request.
-*               Host controller drivers error code,     Otherwise.
-*
-* Note(s)     : None.
-*********************************************************************************************************
-*/
+ * Apply bulk-only reset recovery to device on phase error & clear stalled endpoints.
+ */
 
 static int usbh_msc_rx_rst_rcv(struct usbh_msc_dev *p_msc_dev)
 {
-    int err;
+	int err;
 
-    err = usbh_msc_rx_bulk_only_reset(p_msc_dev);
-    if (err != 0)
-    {
-        return err;
-    }
+	err = usbh_msc_rx_bulk_only_reset(p_msc_dev);
+	if (err != 0) {
+		return err;
+	}
 
-    err = usbh_ep_stall_clr(&p_msc_dev->BulkInEP);
-    if (err != 0)
-    {
-        return err;
-    }
+	err = usbh_ep_stall_clr(&p_msc_dev->BulkInEP);
+	if (err != 0) {
+		return err;
+	}
 
-    err = usbh_ep_stall_clr(&p_msc_dev->BulkOutEP);
+	err = usbh_ep_stall_clr(&p_msc_dev->BulkOutEP);
 
-    return err;
+	return err;
 }
 
 /*
-*********************************************************************************************************
-*                                      usbh_msc_rx_bulk_only_reset()
-*
-* Description : Issue bulk-only reset.
-*
-* Argument(s) : p_msc_dev       Pointer to MSC device.
-*
-* Return(s)   : Specific error code.
-*
-* Note(s)     : (1)The "BULK ONLY MASS STORAGE RESET" is an MSC specific request is documented in USB
-                   MSC Bulk only transport specification, section 3.1
-*********************************************************************************************************
-*/
-
+ * Issue bulk-only reset.
+ */
 static int usbh_msc_rx_bulk_only_reset(struct usbh_msc_dev *p_msc_dev)
 {
-    int err;
-    uint8_t if_nbr;
+	int err;
+	uint8_t if_nbr;
 
-    err = 0;
-    if_nbr = usbh_if_nbr_get(p_msc_dev->if_ptr);
+	err = 0;
+	if_nbr = usbh_if_nbr_get(p_msc_dev->if_ptr);
 
-    usbh_ctrl_tx(p_msc_dev->dev_ptr,
-                USBH_MSC_REQ_MASS_STORAGE_RESET, /*  See Note(s) #1                                      */
-                (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_IF),
-                0,
-                if_nbr,
-                NULL,
-                0,
-                USBH_MSC_TIMEOUT,
-                &err);
-    if (err != 0)
-    {
-        LOG_ERR("%d", err);
-        usbh_ep_reset(p_msc_dev->dev_ptr,
-                      NULL);
-    }
+	usbh_ctrl_tx(p_msc_dev->dev_ptr,
+		     USBH_MSC_REQ_MASS_STORAGE_RESET, /*  See Note(s) #1                                      */
+		     (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_IF),
+		     0,
+		     if_nbr,
+		     NULL,
+		     0,
+		     USBH_MSC_TIMEOUT,
+		     &err);
+	if (err != 0) {
+		LOG_ERR("%d", err);
+		usbh_ep_reset(p_msc_dev->dev_ptr,
+			      NULL);
+	}
 
-    return err;
+	return err;
 }
 
 /*
-*********************************************************************************************************
-*                                     usbh_scsi_cmd_std_inquiry()
-*
-* Description : Read inquiry data of device.
-*
-* Argument(s) : p_msc_dev               Pointer to MSC device.
-*
-*               p_msc_inquiry_info      Pointer to inquiry info structure.
-*
-*               lun                     Logical unit number.
-*
-* Return(s)   : USBH_ERR_NONE,                          if command is successful.
-*
-*                                                       ---- RETURNED BY USBH_MSC_XferCmd ----
-*               USBH_ERR_MSC_CMD_FAILED                 Device reports command failed.
-*               USBH_ERR_MSC_CMD_PHASE                  Device reports command phase error.
-*               USBH_ERR_MSC_IO                         Unable to receive CSW.
-*               USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
-*               USBH_ERR_EP_INVALID_TYPE                Endpoint type or direction is incorrect.
-*               USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
-*               Host controller drivers error code,     Otherwise.
-*
-* Note(s)     : (1) The SCSI "INQUIRY" command is documented in 'SCSI Primary Commands - 3
-*                   (SPC-3)', Section 6.33.
-*********************************************************************************************************
-*/
+ * Read inquiry data of device.
+ */
 
 static int usbh_scsi_cmd_std_inquiry(struct usbh_msc_dev *p_msc_dev,
-                                         struct msc_inquiry_info *p_msc_inquiry_info,
-                                         uint8_t lun)
+				     struct msc_inquiry_info *p_msc_inquiry_info,
+				     uint8_t lun)
 {
-    int err;
-    uint8_t cmd[6];
-    uint8_t data[0x24];
+	int err;
+	uint8_t cmd[6];
+	uint8_t data[0x24];
 
-    /* ------- PREPARE SCSI CMD BLOCK (SEE NOTE #1) ------- */
-    cmd[0] = USBH_SCSI_CMD_INQUIRY; /* Operation code (0x12).                               */
-    cmd[1] = 0;                    /* Std inquiry data.                                    */
-    cmd[2] = 0;                    /* Page code.                                           */
-    cmd[3] = 0;                    /* Alloc len.                                           */
-    cmd[4] = 0x24u;                 /* Alloc len.                                           */
-    cmd[5] = 0;                    /* Ctrl.                                                */
+	/* ------- PREPARE SCSI CMD BLOCK (SEE NOTE #1) ------- */
+	cmd[0] = USBH_SCSI_CMD_INQUIRY; /* Operation code (0x12).                               */
+	cmd[1] = 0;                     /* Std inquiry data.                                    */
+	cmd[2] = 0;                     /* Page code.                                           */
+	cmd[3] = 0;                     /* Alloc len.                                           */
+	cmd[4] = 0x24u;                 /* Alloc len.                                           */
+	cmd[5] = 0;                     /* Ctrl.                                                */
 
-    /* ------------------ SEND SCSI CMD ------------------- */
-    usbh_msc_xfer_cmd(p_msc_dev,
-                     lun,
-                     USBH_MSC_DATA_DIR_IN,
-                     (void *)&cmd[0],
-                     6u,
-                     (void *)data,
-                     0x24u,
-                     &err);
-    if (err == 0)
-    {
-        p_msc_inquiry_info->DevType = data[0] & 0x1Fu;
-        p_msc_inquiry_info->IsRemovable = data[1] >> 7u;
+	/* ------------------ SEND SCSI CMD ------------------- */
+	usbh_msc_xfer_cmd(p_msc_dev,
+			  lun,
+			  USBH_MSC_DATA_DIR_IN,
+			  (void *)&cmd[0],
+			  6u,
+			  (void *)data,
+			  0x24u,
+			  &err);
+	if (err == 0) {
+		p_msc_inquiry_info->DevType = data[0] & 0x1Fu;
+		p_msc_inquiry_info->IsRemovable = data[1] >> 7u;
 
-        memcpy((void *)p_msc_inquiry_info->Vendor_ID,
-                 (void *)&data[8],
-                 8);
+		memcpy((void *)p_msc_inquiry_info->Vendor_ID,
+		       (void *)&data[8],
+		       8);
 
-        memcpy((void *)p_msc_inquiry_info->Product_ID,
-                 (void *)&data[16],
-                 16u);
+		memcpy((void *)p_msc_inquiry_info->Product_ID,
+		       (void *)&data[16],
+		       16u);
 
-        p_msc_inquiry_info->ProductRevisionLevel = sys_get_le32(&data[32]);
-    }
+		p_msc_inquiry_info->ProductRevisionLevel = sys_get_le32(&data[32]);
+	}
 
-    return err;
+	return err;
 }
 
 /*
-*********************************************************************************************************
-*                                    usbh_scsi_cmd_test_unit_rdy()
-*
-* Description : Read number of sectors & sector size.
-*
-* Argument(s) : p_msc_dev       Pointer to MSC device.
-*
-*               lun             Logical unit number.
-*
-* Return(s)   : USBH_ERR_NONE,                          if the command is successful.
-*
-*                                                       ---- RETURNED BY USBH_MSC_XferCmd ----
-*               USBH_ERR_MSC_CMD_FAILED                 Device reports command failed.
-*               USBH_ERR_MSC_CMD_PHASE                  Device reports command phase error.
-*               USBH_ERR_MSC_IO                         Unable to receive CSW.
-*               USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
-*               USBH_ERR_EP_INVALID_TYPE                Endpoint type or direction is incorrect.
-*               USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
-*               Host controller drivers error code,     Otherwise.
-*
-* Note(s)     : (1) The SCSI "TEST UNIT READY" command is documented in 'SCSI Primary Commands - 3
-*                   (SPC-3)', Section 6.33.
-*********************************************************************************************************
-*/
+ * Read number of sectors & sector size.
+ */
 
 static int usbh_scsi_cmd_test_unit_rdy(struct usbh_msc_dev *p_msc_dev,
-                                            uint8_t lun)
+				       uint8_t lun)
 {
-    int err;
-    uint8_t cmd[6];
-    /* See Note #1.                                         */
-    /* ------------ PREPARE SCSI COMMAND BLOCK ------------ */
-    cmd[0] = USBH_SCSI_CMD_TEST_UNIT_READY; /* Operation code (0x00).                               */
-    cmd[1] = 0;                            /* Reserved.                                            */
-    cmd[2] = 0;                            /* Reserved.                                            */
-    cmd[3] = 0;                            /* Reserved.                                            */
-    cmd[4] = 0;                            /* Reserved.                                            */
-    cmd[5] = 0;                            /* Control.                                             */
+	int err;
+	uint8_t cmd[6];
 
-    usbh_msc_xfer_cmd(p_msc_dev, /* ---------------- SEND SCSI COMMAND ----------------- */
-                     lun,
-                     USBH_MSC_DATA_DIR_NONE,
-                     (void *)&cmd[0],
-                     6u,
-                     NULL,
-                     0,
-                     &err);
+	/* See Note #1.                                         */
+	/* ------------ PREPARE SCSI COMMAND BLOCK ------------ */
+	cmd[0] = USBH_SCSI_CMD_TEST_UNIT_READY; /* Operation code (0x00).                               */
+	cmd[1] = 0;                             /* Reserved.                                            */
+	cmd[2] = 0;                             /* Reserved.                                            */
+	cmd[3] = 0;                             /* Reserved.                                            */
+	cmd[4] = 0;                             /* Reserved.                                            */
+	cmd[5] = 0;                             /* Control.                                             */
 
-    return err;
+	usbh_msc_xfer_cmd(p_msc_dev,            /* ---------------- SEND SCSI COMMAND ----------------- */
+			  lun,
+			  USBH_MSC_DATA_DIR_NONE,
+			  (void *)&cmd[0],
+			  6u,
+			  NULL,
+			  0,
+			  &err);
+
+	return err;
 }
 
 /*
-*********************************************************************************************************
-*                                      USBH_SCSI_CMD_ReqSense()
-*
-* Description : Issue command to obtain sense data.
-*
-* Argument(s) : p_msc_dev       Pointer to USBH_MSC_DEV device.
-*
-*               lun             Logical unit number
-*
-*               p_arg           Pointer to data buffer.
-*
-*               data_len        Number of data bytes to receive.
-*
-*               p_err   Pointer to variable that will receive the return error code from this function :
-*                       USBH_ERR_NONE                           Command successfully transmitted.
-*
-*                                                               ---- RETURNED BY USBH_MSC_XferCmd ----
-*                       USBH_ERR_MSC_CMD_FAILED                 Device reports command failed.
-*                       USBH_ERR_MSC_CMD_PHASE                  Device reports command phase error.
-*                       USBH_ERR_MSC_IO                         Unable to receive CSW.
-*                       USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
-*                       USBH_ERR_EP_INVALID_TYPE                Endpoint type or direction is incorrect.
-*                       USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
-*                       Host controller drivers error code,     Otherwise.
-*
-* Return(s)   : Number of octets sent.
-*
-* Note(s)     : (1) The SCSI "REQUEST SENSE" command is documented in 'SCSI Primary Commands - 3
-*                   (SPC-3)', Section 6.27.
-*********************************************************************************************************
-*/
+ * Issue command to obtain sense data.
+ */
 
 static uint32_t usbh_scsi_cmd_req_sense(struct usbh_msc_dev *p_msc_dev,
-                                         uint8_t lun,
-                                         uint8_t *p_arg,
-                                         uint32_t data_len,
-                                         int *p_err)
+					uint8_t lun,
+					uint8_t *p_arg,
+					uint32_t data_len,
+					int *p_err)
 {
-    uint8_t cmd[6];
-    uint32_t xfer_len;
+	uint8_t cmd[6];
+	uint32_t xfer_len;
 
-    /* See Note(s) #1                                       */
-    /* ------------ PREPARE SCSI COMMAND BLOCK ------------ */
-    cmd[0] = USBH_SCSI_CMD_REQUEST_SENSE; /* Operation code (0x03).                               */
-    cmd[1] = 0;                          /* Reserved.                                            */
-    cmd[2] = 0;                          /* Reserved.                                            */
-    cmd[3] = 0;                          /* Reserved.                                            */
-    cmd[4] = (uint8_t)data_len;        /* Allocation length.                                   */
-    cmd[5] = 0;                          /* Ctrl.                                                */
+	/* See Note(s) #1                                       */
+	/* ------------ PREPARE SCSI COMMAND BLOCK ------------ */
+	cmd[0] = USBH_SCSI_CMD_REQUEST_SENSE;   /* Operation code (0x03).                               */
+	cmd[1] = 0;                             /* Reserved.                                            */
+	cmd[2] = 0;                             /* Reserved.                                            */
+	cmd[3] = 0;                             /* Reserved.                                            */
+	cmd[4] = (uint8_t)data_len;             /* Allocation length.                                   */
+	cmd[5] = 0;                             /* Ctrl.                                                */
 
-    /* ------------------ SEND SCSI CMD ------------------- */
-    xfer_len = usbh_msc_xfer_cmd(p_msc_dev,
-                                lun,
-                                USBH_MSC_DATA_DIR_IN,
-                                (void *)cmd,
-                                6u,
-                                (void *)p_arg,
-                                data_len,
-                                p_err);
+	/* ------------------ SEND SCSI CMD ------------------- */
+	xfer_len = usbh_msc_xfer_cmd(p_msc_dev,
+				     lun,
+				     USBH_MSC_DATA_DIR_IN,
+				     (void *)cmd,
+				     6u,
+				     (void *)p_arg,
+				     data_len,
+				     p_err);
 
-    return xfer_len;
+	return xfer_len;
 }
 
 /*
-*********************************************************************************************************
-*                                      USBH_SCSI_GetSenseInfo()
-*
-* Description : Obtain sense data.
-*
-* Argument(s) : p_msc_dev       Pointer to MSC device.
-*
-*               lun             Logical unit number.
-*
-*               p_sense_key     Pointer to variable that will receive sense key.
-*
-*               p_asc           Pointer to variable that will receive additional sense code.
-*
-*               p_ascq          Pointer to variable that will receive additional sense code qualifier.
-*
-* Return(s)   : USBH_ERR_NONE,                          if command is successful.
-*               USBH_ERR_UNKNOWN,                       if unknown error occured.
-*
-*                                                       ---- RETURNED BY USBH_SCSI_CMD_ReqSense ----
-*               USBH_ERR_MSC_CMD_FAILED                 Device reports command failed.
-*               USBH_ERR_MSC_CMD_PHASE                  Device reports command phase error.
-*               USBH_ERR_MSC_IO                         Unable to receive CSW.
-*               USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
-*               USBH_ERR_EP_INVALID_TYPE                Endpoint type or direction is incorrect.
-*               USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
-*               Host controller drivers error code,     Otherwise.
-*
-* Note(s)     : (1) The SCSI "REQUEST SENSE" command is documented in 'SCSI Primary Commands - 3
-*                   (SPC-3)', Section 6.27.
-*
-*               (2) The format of the sense data is documented in 'SCSI Primary Commands - 3 (SPC-3)',
-*                   Section 4.5.3. :
-*                   (a) The response code in the 0th byte of the sense data should be either 0x70 or 0x71.
-*                   (b) The lower nibble of the  2nd byte of the sense data is the sense key.
-*                   (c) The 12th byte of the sense data is the additional sense code (ASC).
-*                   (d) The 13th byte of the sense data is the additional sense code (ASC) qualifier.
-*********************************************************************************************************
-*/
+ * Obtain sense data.
+ */
 
 static int usbh_scsi_get_sense_info(struct usbh_msc_dev *p_msc_dev,
-                                       uint8_t lun,
-                                       uint8_t *p_sense_key,
-                                       uint8_t *p_asc,
-                                       uint8_t *p_ascq)
+				    uint8_t lun,
+				    uint8_t *p_sense_key,
+				    uint8_t *p_asc,
+				    uint8_t *p_ascq)
 {
-    int err;
-    uint32_t xfer_len;
-    uint8_t sense_data[18];
-    uint8_t resp_code;
+	int err;
+	uint32_t xfer_len;
+	uint8_t sense_data[18];
+	uint8_t resp_code;
 
-    xfer_len = usbh_scsi_cmd_req_sense(p_msc_dev, /* Issue SCSI request sense cmd.                        */
-                                      lun,
-                                      sense_data,
-                                      18u,
-                                      &err);
-    if (err == 0)
-    {
-        resp_code = sense_data[0] & 0x7Fu;
+	xfer_len = usbh_scsi_cmd_req_sense(p_msc_dev, /* Issue SCSI request sense cmd.                        */
+					   lun,
+					   sense_data,
+					   18u,
+					   &err);
+	if (err == 0) {
+		resp_code = sense_data[0] & 0x7Fu;
 
-        if ((xfer_len >= 13u) &&
-            ((resp_code == 0x70u) || (resp_code == 0x71u)))
-        {
-            *p_sense_key = sense_data[2] & 0x0Fu;
-            *p_asc = sense_data[12];
-            *p_ascq = sense_data[13];
-            err = 0;
-        }
-        else
-        {
-            *p_sense_key = 0;
-            *p_asc = 0;
-            *p_ascq = 0;
-            err = EAGAIN;
-            LOG_ERR("ERROR Invalid SENSE response from device - ");
-            LOG_ERR("xfer_len : %d, sense_data[0] : %02X\r\n", xfer_len, sense_data[0]);
-        }
-    }
-    else
-    {
-        *p_sense_key = 0;
-        *p_asc = 0;
-        *p_ascq = 0;
-        LOG_ERR("%d", err);
-    }
+		if ((xfer_len >= 13u) &&
+		    ((resp_code == 0x70u) || (resp_code == 0x71u))) {
+			*p_sense_key = sense_data[2] & 0x0Fu;
+			*p_asc = sense_data[12];
+			*p_ascq = sense_data[13];
+			err = 0;
+		} else   {
+			*p_sense_key = 0;
+			*p_asc = 0;
+			*p_ascq = 0;
+			err = EAGAIN;
+			LOG_ERR("ERROR Invalid SENSE response from device - ");
+			LOG_ERR("xfer_len : %d, sense_data[0] : %02X\r\n", xfer_len, sense_data[0]);
+		}
+	} else   {
+		*p_sense_key = 0;
+		*p_asc = 0;
+		*p_ascq = 0;
+		LOG_ERR("%d", err);
+	}
 
-    return err;
+	return err;
 }
 
 /*
-*********************************************************************************************************
-*                                     USBH_SCSI_CMD_CapacityRd()
-*
-* Description : Read number of sectors & sector size.
-*
-* Argument(s) : p_msc_dev       Pointer to MSC device.
-*
-*               lun             Logical unit number.
-*
-*               p_nbr_blks      Pointer to variable that will receive number of blocks.
-*
-*               p_blk_size      Pointer to variable that will receive block size.
-*
-* Return(s)   : USBH_ERR_NONE,                          if command is successful.
-*
-*                                                       ---- RETURNED BY USBH_MSC_XferCmd ----
-*               USBH_ERR_MSC_CMD_FAILED                 Device reports command failed.
-*               USBH_ERR_MSC_CMD_PHASE                  Device reports command phase error.
-*               USBH_ERR_MSC_IO                         Unable to receive CSW.
-*               USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
-*               USBH_ERR_EP_INVALID_TYPE                Endpoint type or direction is incorrect.
-*               USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
-*               Host controller drivers error code,     Otherwise.
-*
-* Note(s)     : (1) The SCSI "READ CAPAPITY (10)" command is documented in 'SCSI Block Commands - 2
-*                   (SBC-2)', Section 5.10.
-*********************************************************************************************************
-*/
+ * Read number of sectors & sector size.
+ */
 
 static int usbh_scsi_cmd_capacity_read(struct usbh_msc_dev *p_msc_dev,
-                                         uint8_t lun,
-                                         uint32_t *p_nbr_blks,
-                                         uint32_t *p_blk_size)
+				       uint8_t lun,
+				       uint32_t *p_nbr_blks,
+				       uint32_t *p_blk_size)
 {
-    uint8_t cmd[10];
-    uint8_t data[8];
-    int err;
-    /* See Note #1.                                         */
-    /* -------------- PREPARE SCSI CMD BLOCK -------------- */
-    cmd[0] = USBH_SCSI_CMD_READ_CAPACITY; /* Operation code (0x25).                               */
-    cmd[1] = 0;                          /* Reserved.                                            */
-    cmd[2] = 0;                          /* Logical Block Address (MSB).                         */
-    cmd[3] = 0;                          /* Logical Block Address.                               */
-    cmd[4] = 0;                          /* Logical Block Address.                               */
-    cmd[5] = 0;                          /* Logical Block Address (LSB).                         */
-    cmd[6] = 0;                          /* Reserved.                                            */
-    cmd[7] = 0;                          /* Reserved.                                            */
-    cmd[8] = 0;                          /* ----------------------- PMI. ----------------------- */
-    cmd[9] = 0;                          /* Control.                                             */
+	uint8_t cmd[10];
+	uint8_t data[8];
+	int err;
 
-    usbh_msc_xfer_cmd(p_msc_dev, /* ------------------ SEND SCSI CMD ------------------- */
-                     lun,
-                     USBH_MSC_DATA_DIR_IN,
-                     (void *)cmd,
-                     10u,
-                     (void *)data,
-                     8,
-                     &err);
-    if (err == 0)
-    { /* -------------- HANDLE DEVICE RESPONSE -------------- */
-        sys_memcpy_swap(p_nbr_blks, &data[0], sizeof(uint32_t));
-        *p_nbr_blks += 1;
-        sys_memcpy_swap(p_blk_size, &data[4], sizeof(uint32_t));
-    }
+	/* See Note #1.                                         */
+	/* -------------- PREPARE SCSI CMD BLOCK -------------- */
+	cmd[0] = USBH_SCSI_CMD_READ_CAPACITY;   /* Operation code (0x25).                               */
+	cmd[1] = 0;                             /* Reserved.                                            */
+	cmd[2] = 0;                             /* Logical Block Address (MSB).                         */
+	cmd[3] = 0;                             /* Logical Block Address.                               */
+	cmd[4] = 0;                             /* Logical Block Address.                               */
+	cmd[5] = 0;                             /* Logical Block Address (LSB).                         */
+	cmd[6] = 0;                             /* Reserved.                                            */
+	cmd[7] = 0;                             /* Reserved.                                            */
+	cmd[8] = 0;                             /* ----------------------- PMI. ----------------------- */
+	cmd[9] = 0;                             /* Control.                                             */
 
-    return err;
+	usbh_msc_xfer_cmd(p_msc_dev,            /* ------------------ SEND SCSI CMD ------------------- */
+			  lun,
+			  USBH_MSC_DATA_DIR_IN,
+			  (void *)cmd,
+			  10u,
+			  (void *)data,
+			  8,
+			  &err);
+	if (err == 0) { /* -------------- HANDLE DEVICE RESPONSE -------------- */
+		sys_memcpy_swap(p_nbr_blks, &data[0], sizeof(uint32_t));
+		*p_nbr_blks += 1;
+		sys_memcpy_swap(p_blk_size, &data[4], sizeof(uint32_t));
+	}
+
+	return err;
 }
 
 /*
-*********************************************************************************************************
-*                                           USBH_SCSI_Rd()
-*
-* Description : Read specified number of blocks from device.
-*
-* Argument(s) : p_msc_dev        Pointer to MSC device.
-*
-*               lun              Logical unit number.
-*
-*               blk_addr         Block address.
-*
-*               nbr_blks         Number of blocks to read.
-*
-*               blk_size         Block size.
-*
-*               p_arg            Pointer to data buffer.
-*
-*               p_err   Pointer to variable that will receive the return error code from this function :
-*                       USBH_ERR_NONE                           Data successfully received.
-*
-*                                                               ---- RETURNED BY USBH_MSC_XferCmd ----
-*                       USBH_ERR_MSC_CMD_FAILED                 Device reports command failed.
-*                       USBH_ERR_MSC_CMD_PHASE                  Device reports command phase error.
-*                       USBH_ERR_MSC_IO                         Unable to receive CSW.
-*                       USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
-*                       USBH_ERR_EP_INVALID_TYPE                Endpoint type or direction is incorrect.
-*                       USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
-*                       Host controller drivers error code,     Otherwise.
-*
-* Return(s)   : Number of bytes read.
-*
-* Note(s)     : (1) The SCSI "READ (10): command is documented in 'SCSI Block Commands - 2 (SBC-2)',
-*                   Section 5.6.
-*********************************************************************************************************
-*/
+ * Read specified number of blocks from device.
+ */
 
 static uint32_t usbh_scsi_read(struct usbh_msc_dev *p_msc_dev,
-                               uint8_t lun,
-                               uint32_t blk_addr,
-                               uint16_t nbr_blks,
-                               uint32_t blk_size,
-                               void *p_arg,
-                               int *p_err)
+			       uint8_t lun,
+			       uint32_t blk_addr,
+			       uint16_t nbr_blks,
+			       uint32_t blk_size,
+			       void *p_arg,
+			       int *p_err)
 {
-    uint8_t cmd[10];
-    uint32_t data_len;
-    uint32_t xfer_len;
+	uint8_t cmd[10];
+	uint32_t data_len;
+	uint32_t xfer_len;
 
-    data_len = nbr_blks * blk_size;
-    /* See Note #1.                                         */
-    /* -------------- PREPARE SCSI CMD BLOCK -------------- */
-    cmd[0] = USBH_SCSI_CMD_READ_10;                  /* Operation code (0x28).                               */
-    cmd[1] = 0;                                     /* Reserved.                                            */
-    sys_memcpy_swap(&cmd[2], &blk_addr, sizeof(uint32_t)); /* Logcal Block Address (LBA).                          */
-    cmd[6] = 0;                                     /* Reserved.                                            */
-    sys_memcpy_swap(&cmd[7], &nbr_blks, sizeof(uint16_t)); /* Transfer length (number of logical blocks).          */
-    cmd[9] = 0;                                     /* Control.                                             */
+	data_len = nbr_blks * blk_size;
+	/* See Note #1.                                         */
+	/* -------------- PREPARE SCSI CMD BLOCK -------------- */
+	cmd[0] = USBH_SCSI_CMD_READ_10;                         /* Operation code (0x28).                               */
+	cmd[1] = 0;                                             /* Reserved.                                            */
+	sys_memcpy_swap(&cmd[2], &blk_addr, sizeof(uint32_t));  /* Logcal Block Address (LBA).                          */
+	cmd[6] = 0;                                             /* Reserved.                                            */
+	sys_memcpy_swap(&cmd[7], &nbr_blks, sizeof(uint16_t));  /* Transfer length (number of logical blocks).          */
+	cmd[9] = 0;                                             /* Control.                                             */
 
-    xfer_len = usbh_msc_xfer_cmd(p_msc_dev, /* ---------------- SEND SCSI COMMAND ----------------- */
-                                lun,
-                                USBH_MSC_DATA_DIR_IN,
-                                (void *)&cmd[0],
-                                10u,
-                                p_arg,
-                                data_len,
-                                p_err);
-    if (*p_err != 0)
-    {
-        xfer_len = (uint32_t)0;
-    }
+	xfer_len = usbh_msc_xfer_cmd(p_msc_dev,                 /* ---------------- SEND SCSI COMMAND ----------------- */
+				     lun,
+				     USBH_MSC_DATA_DIR_IN,
+				     (void *)&cmd[0],
+				     10u,
+				     p_arg,
+				     data_len,
+				     p_err);
+	if (*p_err != 0) {
+		xfer_len = (uint32_t)0;
+	}
 
-    return xfer_len;
+	return xfer_len;
 }
 
 /*
-*********************************************************************************************************
-*                                           USBH_SCSI_Wr()
-*
-* Description : Write specified number of blocks to device.
-*
-* Argument(s) : p_msc_dev        Pointer to MSC device.
-*
-*               lun              Logical unit number.
-*
-*               blk_addr         Block address.
-*
-*               nbr_blks         Number of blocks to write.
-*
-*               blk_size         Block size.
-*
-*               p_arg            Pointer to data buffer.
-*
-*               p_err   Pointer to variable that will receive the return error code from this function :
-*                       USBH_ERR_NONE                           Data successfully transmitted.
-*
-*                                                               ---- RETURNED BY USBH_MSC_XferCmd ----
-*                       USBH_ERR_MSC_CMD_FAILED                 Device reports command failed.
-*                       USBH_ERR_MSC_CMD_PHASE                  Device reports command phase error.
-*                       USBH_ERR_MSC_IO                         Unable to receive CSW.
-*                       USBH_ERR_INVALID_ARG                    Invalid argument passed to 'p_ep'.
-*                       USBH_ERR_EP_INVALID_TYPE                Endpoint type or direction is incorrect.
-*                       USBH_ERR_EP_INVALID_STATE               Endpoint is not opened.
-*                       Host controller drivers error code,     Otherwise.
-*
-* Return(s)   : Number of octets written.
-*
-* Note(s)     : (1) The SCSI "WRITE (10)" command is documented in 'SCSI Block Commands - 2 (SBC-2)',
-*                   Section 5.25.
-*********************************************************************************************************
-*/
+ * Write specified number of blocks to device.
+ */
 
 static uint32_t usbh_scsi_write(struct usbh_msc_dev *p_msc_dev,
-                                uint8_t lun,
-                                uint32_t blk_addr,
-                                uint16_t nbr_blks,
-                                uint32_t blk_size,
-                                const void *p_arg,
-                                int *p_err)
+				uint8_t lun,
+				uint32_t blk_addr,
+				uint16_t nbr_blks,
+				uint32_t blk_size,
+				const void *p_arg,
+				int *p_err)
 
 {
-    uint8_t cmd[10];
-    uint32_t data_len;
-    uint32_t xfer_len;
+	uint8_t cmd[10];
+	uint32_t data_len;
+	uint32_t xfer_len;
 
-    data_len = nbr_blks * blk_size;
-    /* See Note #1.                                         */
-    /* -------------- PREPARE SCSI CMD BLOCK -------------- */
-    cmd[0] = USBH_SCSI_CMD_WRITE_10;                 /* Operation code (0x2A).                               */
-    cmd[1] = 0;                                     /* Reserved.                                            */
-    sys_memcpy_swap(&cmd[2], &blk_addr, sizeof(uint32_t)); /* Logical Block Address (LBA).                         */
-    cmd[6] = 0;                                     /* Reserved.                                            */
-    sys_memcpy_swap(&cmd[7], &nbr_blks, sizeof(uint16_t)); /* Transfer length (number of logical blocks).          */
-    cmd[9] = 0;                                     /* Control.                                             */
+	data_len = nbr_blks * blk_size;
+	/* See Note #1.                                         */
+	/* -------------- PREPARE SCSI CMD BLOCK -------------- */
+	cmd[0] = USBH_SCSI_CMD_WRITE_10;                        /* Operation code (0x2A).                               */
+	cmd[1] = 0;                                             /* Reserved.                                            */
+	sys_memcpy_swap(&cmd[2], &blk_addr, sizeof(uint32_t));  /* Logical Block Address (LBA).                         */
+	cmd[6] = 0;                                             /* Reserved.                                            */
+	sys_memcpy_swap(&cmd[7], &nbr_blks, sizeof(uint16_t));  /* Transfer length (number of logical blocks).          */
+	cmd[9] = 0;                                             /* Control.                                             */
 
-    xfer_len = usbh_msc_xfer_cmd(p_msc_dev, /* ------------------ SEND SCSI CMD ------------------- */
-                                lun,
-                                USBH_MSC_DATA_DIR_OUT,
-                                (void *)&cmd[0],
-                                10u,
-                                (void *)p_arg,
-                                data_len,
-                                p_err);
-    if (*p_err != 0)
-    {
-        xfer_len = 0;
-    }
+	xfer_len = usbh_msc_xfer_cmd(p_msc_dev,                 /* ------------------ SEND SCSI CMD ------------------- */
+				     lun,
+				     USBH_MSC_DATA_DIR_OUT,
+				     (void *)&cmd[0],
+				     10u,
+				     (void *)p_arg,
+				     data_len,
+				     p_err);
+	if (*p_err != 0) {
+		xfer_len = 0;
+	}
 
-    return xfer_len;
+	return xfer_len;
 }
 
 /*
-*********************************************************************************************************
-*                                          USBH_MSC_FmtCBW()
-*
-* Description : Format CBW from CBW structure.
-*
-* Argument(s) : p_cbw           Variable that contains CBW information.
-*
-*               p_buf_dest      Pointer to buffer that will receive CBW content.
-*
-* Return(s)   : None.
-*
-* Note(s)     : None.
-*********************************************************************************************************
-*/
+ * Format CBW from CBW structure.
+ */
 
 static void usbh_msc_fmt_cbw(struct usbh_msc_cbw *p_cbw,
-                             void *p_buf_dest)
+			     void *p_buf_dest)
 {
-    uint8_t i;
-    struct usbh_msc_cbw *p_buf_dest_cbw;
+	uint8_t i;
+	struct usbh_msc_cbw *p_buf_dest_cbw;
 
-    p_buf_dest_cbw = (struct usbh_msc_cbw *)p_buf_dest;
+	p_buf_dest_cbw = (struct usbh_msc_cbw *)p_buf_dest;
 
-    p_buf_dest_cbw->dCBWSignature = sys_get_le32((uint8_t *)&p_cbw->dCBWSignature);
-    p_buf_dest_cbw->dCBWTag = sys_get_le32((uint8_t *)&p_cbw->dCBWTag);
-    p_buf_dest_cbw->dCBWDataTransferLength = sys_get_le32((uint8_t *)&p_cbw->dCBWDataTransferLength);
-    p_buf_dest_cbw->bmCBWFlags = p_cbw->bmCBWFlags;
-    p_buf_dest_cbw->bCBWLUN = p_cbw->bCBWLUN;
-    p_buf_dest_cbw->bCBWCBLength = p_cbw->bCBWCBLength;
+	p_buf_dest_cbw->dCBWSignature = sys_get_le32((uint8_t *)&p_cbw->dCBWSignature);
+	p_buf_dest_cbw->dCBWTag = sys_get_le32((uint8_t *)&p_cbw->dCBWTag);
+	p_buf_dest_cbw->dCBWDataTransferLength = sys_get_le32((uint8_t *)&p_cbw->dCBWDataTransferLength);
+	p_buf_dest_cbw->bmCBWFlags = p_cbw->bmCBWFlags;
+	p_buf_dest_cbw->bCBWLUN = p_cbw->bCBWLUN;
+	p_buf_dest_cbw->bCBWCBLength = p_cbw->bCBWCBLength;
 
-    for (i = 0; i < 16u; i++)
-    {
-        p_buf_dest_cbw->CBWCB[i] = p_cbw->CBWCB[i];
-    }
+	for (i = 0; i < 16u; i++) {
+		p_buf_dest_cbw->CBWCB[i] = p_cbw->CBWCB[i];
+	}
 }
 
 /*
-*********************************************************************************************************
-*                                         USBH_MSC_ParseCSW()
-*
-* Description : Parse CSW into CSW structure.
-*
-* Argument(s) : p_csw           Variable that will receive CSW parsed in this function.
-*
-*               p_buf_src       Pointer to buffer that contains CSW.
-*
-* Return(s)   : None.
-*
-* Note(s)     : None.
-*********************************************************************************************************
-*/
+ * Parse CSW into CSW structure.
+ */
 
 static void usbh_msc_parse_csw(struct usbh_msc_csw *p_csw,
-                               void *p_buf_src)
+			       void *p_buf_src)
 {
-    struct usbh_msc_csw *p_buf_src_cbw;
+	struct usbh_msc_csw *p_buf_src_cbw;
 
-    p_buf_src_cbw = (struct usbh_msc_csw *)p_buf_src;
+	p_buf_src_cbw = (struct usbh_msc_csw *)p_buf_src;
 
-    p_csw->dCSWSignature = sys_get_le32((uint8_t *)&p_buf_src_cbw->dCSWSignature);
-    p_csw->dCSWTag = sys_get_le32((uint8_t *)&p_buf_src_cbw->dCSWTag);
-    p_csw->dCSWDataResidue = sys_get_le32((uint8_t *)&p_buf_src_cbw->dCSWDataResidue);
-    p_csw->bCSWStatus = p_buf_src_cbw->bCSWStatus;
+	p_csw->dCSWSignature = sys_get_le32((uint8_t *)&p_buf_src_cbw->dCSWSignature);
+	p_csw->dCSWTag = sys_get_le32((uint8_t *)&p_buf_src_cbw->dCSWTag);
+	p_csw->dCSWDataResidue = sys_get_le32((uint8_t *)&p_buf_src_cbw->dCSWDataResidue);
+	p_csw->bCSWStatus = p_buf_src_cbw->bCSWStatus;
 }

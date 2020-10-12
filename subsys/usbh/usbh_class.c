@@ -62,7 +62,7 @@ int usbh_reg_class_drv(const struct usbh_class_drv *p_class_drv,
 	irq_unlock(key);
 
 	if (ix >= USBH_CFG_MAX_NBR_CLASS_DRVS) { /* List is full.                                        */
-		return ERANGE;
+		return -ERANGE;
 	}
 
 	p_class_drv->global_init(&err);
@@ -98,7 +98,7 @@ int usbh_class_drv_unreg(const struct usbh_class_drv *p_class_drv)
 	irq_unlock(key);
 
 	if (ix >= USBH_CFG_MAX_NBR_CLASS_DRVS) {
-		return ENOENT;
+		return -ENOENT;
 	}
 
 	return 0;
@@ -217,7 +217,7 @@ int usbh_class_drv_conn(struct usbh_dev *p_dev)
 				  p_dev->class_dev_ptr,
 				  USBH_CLASS_DEV_STATE_CONN);
 		return 0;
-	} else if (err != ENOTSUP) {
+	} else if (err != -ENOTSUP) {
 		LOG_ERR("ERROR: Probe class driver. #%d\r\n", err);
 	} else {
 		/* Empty Else statement                                 */
@@ -239,13 +239,13 @@ int usbh_class_drv_conn(struct usbh_dev *p_dev)
 		LOG_DBG("get interface");
 		p_if = usbu_if_get(p_cfg, if_ix);
 		if (p_if == NULL) {
-			return ENOTSUP;
+			return -ENOTSUP;
 		}
 		LOG_DBG("probe interface");
 		err = usbh_class_probe_if(p_dev, p_if); /* Find class driver matching IF.                       */
 		if (err == 0) {
 			drv_found = true;
-		} else if (err != ENOTSUP) {
+		} else if (err != -ENOTSUP) {
 			LOG_ERR("ERROR: Probe class driver. #%d\r\n", err);
 		} else {
 			/* Empty Else statement                                 */
@@ -261,7 +261,7 @@ int usbh_class_drv_conn(struct usbh_dev *p_dev)
 
 		p_if = usbu_if_get(p_cfg, if_ix);
 		if (p_if == NULL) {
-			return ENOTSUP;
+			return -ENOTSUP;
 		}
 
 		if (p_if->class_dev_ptr != 0) {
@@ -349,7 +349,7 @@ static int usbh_class_probe_dev(struct usbh_dev *p_dev)
 	int err;
 	void *p_class_dev;
 
-	err = ENOTSUP;
+	err = -ENOTSUP;
 
 	for (ix = 0; ix < USBH_CFG_MAX_NBR_CLASS_DRVS; ix++) { /* For each class drv present in list.                  */
 
@@ -383,9 +383,8 @@ static int usbh_class_probe_if(struct usbh_dev *p_dev,
 	void *p_class_dev;
 	int err;
 
-	err = ENOTSUP;
-	for (ix = 0; ix < USBH_CFG_MAX_NBR_CLASS_DRVS; ix++) { /* Search drv list for matching IF class.
-		                                                */
+	err = -ENOTSUP;
+	for (ix = 0; ix < USBH_CFG_MAX_NBR_CLASS_DRVS; ix++) { /* Search drv list for matching IF class. */
 		if (usbh_class_drv_list[ix].in_use != 0) {
 			p_class_drv = usbh_class_drv_list[ix].class_drv_ptr;
 

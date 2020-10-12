@@ -21,18 +21,16 @@
 #define USBH_CLASS_DRV_TYPE_DEV_CLASS_DRV 2u
 
 struct usbh_class_drv {
-	uint8_t *name_ptr;                      /* Name of the class driver.                            */
+	uint8_t *name_ptr;                                      /* Name of the class driver.                            */
 
-	void (*global_init)(int *p_err);        /* Global initialization function.                      */
+	void (*global_init)(int *p_err);                        /* Global initialization function.                      */
 
-	void *(*probe_dev)(struct usbh_dev *p_dev,
-	                   /* Probe device descriptor.                             */
-			   int *p_err);
+	void *(*probe_dev)(struct usbh_dev *p_dev, int *p_err); /* Probe device descriptor.                             */
+
 
 	void *(*probe_if)(struct usbh_dev *p_dev,
-	                  /* Probe interface descriptor.                          */
 			  struct usbh_if *p_if,
-			  int *p_err);
+			  int *p_err);          /* Probe interface descriptor. */
 
 	void (*suspend)(void *p_class_dev);     /* Called when bus suspends.                            */
 
