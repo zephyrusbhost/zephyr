@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014 Wind River Systems, Inc.
+ * Copyright (c) 2020 PHYTEC Messtechnik GmbH
  *
  * SPDX-License-Identifier: Apache-2.0
  */
@@ -11,7 +11,7 @@
 #include <logging/log.h>
 LOG_MODULE_REGISTER(main);
 
-static void App_USBH_MSC_ClassNotify(void *p_class_dev, uint8_t is_conn,
+static void msc_class_notify(void *p_class_dev, uint8_t is_conn,
 				     void *p_ctx)
 {
 	struct usbh_msc_dev *p_msc_dev;
@@ -57,7 +57,7 @@ void main(void)
 	uint8_t hc_nbr =
 		usbh_hc_add(&err);
 
-	err = usbh_reg_class_drv(&USBH_MSC_ClassDrv, App_USBH_MSC_ClassNotify,
+	err = usbh_reg_class_drv(&usbh_msc_class_drv, msc_class_notify,
 				 NULL);
 
 	printk("HC_add return %d\n", hc_nbr);
