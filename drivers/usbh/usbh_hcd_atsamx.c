@@ -281,10 +281,11 @@ struct usbh_atsamx_pinfo {
 struct usbh_drv_data {
 	struct usbh_atsamx_pipe_desc DescTbl[ATSAMX_MAX_NBR_PIPE];
 	struct usbh_atsamx_pinfo PipeTbl[ATSAMX_MAX_NBR_PIPE];
-	uint16_t
-		PipeUsed;               /* Bit array for BULK, ISOC, INTR, CTRL pipe mgmt.      */
+	uint16_t PipeUsed;              /* Bit array for BULK, ISOC, INTR, CTRL pipe mgmt.      */
+
 	uint8_t RH_Desc
 	[USBH_HUB_LEN_HUB_DESC];        /* RH desc content.                                     */
+
 	uint16_t
 		RH_PortStat;            /* Root Hub Port status.                                */
 	uint16_t
@@ -500,7 +501,8 @@ static void usbh_atsamx_hcd_start(struct usbh_hc_drv *p_hc_drv,
 	uint8_t reg_val;
 	uint8_t i;
 	int key;
-	p_reg =  (struct usbh_atsamx_reg*) DT_INST_REG_ADDR(0);
+
+	p_reg =  (struct usbh_atsamx_reg *) DT_INST_REG_ADDR(0);
 	p_drv_data = (struct usbh_drv_data *)p_hc_drv->data_ptr;
 
 	/* maybe not enough for all atsam boards */
@@ -509,10 +511,9 @@ static void usbh_atsamx_hcd_start(struct usbh_hc_drv *p_hc_drv,
 
 	/* Enable the GCLK */
 	GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID_USB | GCLK_CLKCTRL_GEN_GCLK0 |
-						GCLK_CLKCTRL_CLKEN;
+			    GCLK_CLKCTRL_CLKEN;
 
-	while (GCLK->STATUS.bit.SYNCBUSY)
-	{
+	while (GCLK->STATUS.bit.SYNCBUSY) {
 	}
 	/* --- */
 
@@ -528,19 +529,24 @@ static void usbh_atsamx_hcd_start(struct usbh_hc_drv *p_hc_drv,
 			while (p_reg->SYNCBUSY & USBH_ATSAMX_SYNCBUSY_MSK)
 				;
 			irq_unlock(key); /* Disable USB peripheral                               */
-			while (p_reg->SYNCBUSY & USBH_ATSAMX_SYNCBUSY_ENABLE);
+			while (p_reg->SYNCBUSY & USBH_ATSAMX_SYNCBUSY_ENABLE) {
+
+			}
 		}
 		/* Resets all regs in the USB to initial state, and ..  */
 		/* .. the USB will be disabled
 		 */
 		key = irq_lock();
 		p_reg->CTRLA = USBH_ATSAMX_CTRLA_SWRST;
-		while (p_reg->SYNCBUSY & USBH_ATSAMX_SYNCBUSY_MSK)
-			;
+		while (p_reg->SYNCBUSY & USBH_ATSAMX_SYNCBUSY_MSK) {
+
+		}
 		irq_unlock(key);
 	}
 
-	while (p_reg->SYNCBUSY & USBH_ATSAMX_SYNCBUSY_SWRST);
+	while (p_reg->SYNCBUSY & USBH_ATSAMX_SYNCBUSY_SWRST) {
+
+	}
 
 	/* -- LOAD PAD CALIBRATION REG WITH PRODUCTION VALUES-- */
 	pad_transn = ATSAMX_NVM_USB_TRANSN;
@@ -592,10 +598,13 @@ static void usbh_atsamx_hcd_start(struct usbh_hc_drv *p_hc_drv,
 	if ((reg_val & USBH_ATSAMX_CTRLA_ENABLE) == 0) {
 		key = irq_lock();
 		p_reg->CTRLA = (reg_val | USBH_ATSAMX_CTRLA_ENABLE);
-		while (p_reg->SYNCBUSY & USBH_ATSAMX_SYNCBUSY_MSK)
-			;
+		while (p_reg->SYNCBUSY & USBH_ATSAMX_SYNCBUSY_MSK) {
+
+		}
 		irq_unlock(key);
-		while (p_reg->SYNCBUSY & USBH_ATSAMX_SYNCBUSY_ENABLE);
+		while (p_reg->SYNCBUSY & USBH_ATSAMX_SYNCBUSY_ENABLE) {
+
+		}
 	}
 
 	for (i = 0; i < ATSAMX_MAX_NBR_PIPE; i++) {
@@ -624,7 +633,8 @@ static void usbh_atsamx_hcd_stop(struct usbh_hc_drv *p_hc_drv,
 	LOG_DBG("Stop");
 
 	struct usbh_atsamx_reg *p_reg;
-	p_reg =  (struct usbh_atsamx_reg*) DT_INST_REG_ADDR(0);
+
+	p_reg =  (struct usbh_atsamx_reg *) DT_INST_REG_ADDR(0);
 
 	p_reg->INTENCLR =
 		USBH_ATSAMX_INT_MSK;    /* Disable all interrupts                               */
@@ -661,7 +671,7 @@ static void usbh_atsamx_hcd_suspend(struct usbh_hc_drv *p_hc_drv,
 	struct usbh_drv_data *p_drv_data;
 	uint8_t pipe_nbr;
 
-	p_reg =  (struct usbh_atsamx_reg*) DT_INST_REG_ADDR(0);
+	p_reg =  (struct usbh_atsamx_reg *) DT_INST_REG_ADDR(0);
 	p_drv_data = (struct usbh_drv_data *)p_hc_drv->data_ptr;
 
 	for (pipe_nbr = 0; pipe_nbr < ATSAMX_MAX_NBR_PIPE; pipe_nbr++) {
@@ -690,7 +700,7 @@ static void usbh_atsamx_hcd_resume(struct usbh_hc_drv *p_hc_drv,
 	struct usbh_drv_data *p_drv_data;
 	uint8_t pipe_nbr;
 
-	p_reg =  (struct usbh_atsamx_reg*) DT_INST_REG_ADDR(0);
+	p_reg =  (struct usbh_atsamx_reg *) DT_INST_REG_ADDR(0);
 	p_drv_data = (struct usbh_drv_data *)p_hc_drv->data_ptr;
 
 	p_reg->CTRLB |=
@@ -720,7 +730,8 @@ static uint32_t usbh_atsamx_hcd_frame_nbr_get(struct usbh_hc_drv *p_hc_drv,
 {
 	struct usbh_atsamx_reg *p_reg;
 	uint32_t frm_nbr;
-	p_reg =  (struct usbh_atsamx_reg*) DT_INST_REG_ADDR(0);
+
+	p_reg =  (struct usbh_atsamx_reg *) DT_INST_REG_ADDR(0);
 	frm_nbr = (p_reg->FNUM & USBH_ATSAMX_FNUM_MSK) >> USBH_ATSAMX_FNUM_POS;
 
 	*p_err = 0;
@@ -738,7 +749,7 @@ static void usbh_atsamx_hcd_ep_open(struct usbh_hc_drv *p_hc_drv,
 	LOG_DBG("EP_Open");
 	struct usbh_atsamx_reg *p_reg;
 
-	p_reg = (struct usbh_atsamx_reg*) DT_INST_REG_ADDR(0);
+	p_reg = (struct usbh_atsamx_reg *) DT_INST_REG_ADDR(0);
 	p_ep->data_pid =
 		0; /* Set PID to DATA0                                     */
 	p_ep->urb.err = 0;
@@ -763,7 +774,8 @@ static void usbh_atsamx_hcd_ep_close(struct usbh_hc_drv *p_hc_drv,
 	struct usbh_atsamx_reg *p_reg;
 	struct usbh_drv_data *p_drv_data;
 	uint8_t pipe_nbr;
-	p_reg = (struct usbh_atsamx_reg*) DT_INST_REG_ADDR(0);
+
+	p_reg = (struct usbh_atsamx_reg *) DT_INST_REG_ADDR(0);
 	p_drv_data = (struct usbh_drv_data *)p_hc_drv->data_ptr;
 	pipe_nbr = usbh_atsamx_get_pipe_nbr(p_drv_data, p_ep);
 	p_ep->data_pid =
@@ -830,7 +842,8 @@ static void usbh_atsamx_hcd_urb_submit(struct usbh_hc_drv *p_hc_drv,
 	struct usbh_drv_data *p_drv_data;
 	uint8_t ep_type;
 	uint8_t pipe_nbr;
-	p_reg = (struct usbh_atsamx_reg*) DT_INST_REG_ADDR(0);
+
+	p_reg = (struct usbh_atsamx_reg *) DT_INST_REG_ADDR(0);
 	p_drv_data = (struct usbh_drv_data *)p_hc_drv->data_ptr;
 	ep_type = usbh_ep_type_get(p_urb->ep_ptr);
 
@@ -856,7 +869,7 @@ static void usbh_atsamx_hcd_urb_submit(struct usbh_hc_drv *p_hc_drv,
 	if (p_urb->dma_buf_ptr == NULL) {
 		p_urb->dma_buf_ptr =
 			k_mem_pool_malloc(&ATSAMX_DrvMemPool,
-					DT_INST_PROP(0, buf_len));
+					  DT_INST_PROP(0, buf_len));
 		if (p_urb->dma_buf_ptr == NULL) {
 			*p_err = ENOMEM;
 			return;
@@ -877,7 +890,7 @@ static void usbh_atsamx_hcd_urb_submit(struct usbh_hc_drv *p_hc_drv,
 	if ((ep_type == USBH_EP_TYPE_BULK) && (p_urb->ep_ptr->interval < 1)) {
 		p_reg->HPIPE[pipe_nbr].BINTERVAL =
 			1; /* See Note 2.                                          */
-	} else   {
+	} else {
 		p_reg->HPIPE[pipe_nbr].BINTERVAL = p_urb->ep_ptr->interval;
 	}
 
@@ -891,7 +904,7 @@ static void usbh_atsamx_hcd_urb_submit(struct usbh_hc_drv *p_hc_drv,
 				USBH_ATSAMX_PINT_TXSTP;         /* Enable setup transfer interrupt      */
 			p_reg->HPIPE[pipe_nbr].PSTATUSCLR =
 				USBH_ATSAMX_PSTATUS_DTGL;       /* Set PID to DATA0                     */
-		} else   {
+		} else {
 			p_reg->HPIPE[pipe_nbr].PINTENSET =
 				USBH_ATSAMX_PINT_TRCPT;         /* Enable transfer complete interrupt   */
 			p_reg->HPIPE[pipe_nbr].PSTATUSSET =
@@ -907,7 +920,7 @@ static void usbh_atsamx_hcd_urb_submit(struct usbh_hc_drv *p_hc_drv,
 		if (p_urb->ep_ptr->data_pid == 0) {
 			p_reg->HPIPE[pipe_nbr].PSTATUSCLR =
 				USBH_ATSAMX_PSTATUS_DTGL; /* Set PID to DATA0                     */
-		} else   {
+		} else {
 			p_reg->HPIPE[pipe_nbr].PSTATUSSET =
 				USBH_ATSAMX_PSTATUS_DTGL; /* Set PID to DATA1                     */
 		}
@@ -942,7 +955,7 @@ static void usbh_atsamx_hcd_urb_complete(struct usbh_hc_drv *p_hc_drv,
 	int key;
 
 	*p_err = 0;
-	p_reg = (struct usbh_atsamx_reg*) DT_INST_REG_ADDR(0);
+	p_reg = (struct usbh_atsamx_reg *) DT_INST_REG_ADDR(0);
 	p_drv_data = (struct usbh_drv_data *)p_hc_drv->data_ptr;
 	pipe_nbr = usbh_atsamx_get_pipe_nbr(p_drv_data, p_urb->ep_ptr);
 
@@ -961,15 +974,15 @@ static void usbh_atsamx_hcd_urb_complete(struct usbh_hc_drv *p_hc_drv,
 		    p_urb->uberbuf_len) {
 			p_urb->xfer_len += xfer_len;
 			p_urb->err = EIO;
-		} else   {
+		} else {
 			p_urb->xfer_len += xfer_len;
 		}
-	} else   { /* ----------- HANDLE SETUP/OUT TRANSACTIONS ---------- */
+	} else {   /* ----------- HANDLE SETUP/OUT TRANSACTIONS ---------- */
 		xfer_len = (p_drv_data->PipeTbl[pipe_nbr].Appbuf_len - xfer_len);
 		if (xfer_len == 0) {
 			p_urb->xfer_len +=
 				p_drv_data->PipeTbl[pipe_nbr].NextXferLen;
-		} else   {
+		} else {
 			p_urb->xfer_len +=
 				(p_drv_data->PipeTbl[pipe_nbr].NextXferLen -
 				 xfer_len);
@@ -1019,7 +1032,8 @@ usbh_atsamx_rh_port_status_get(struct usbh_hc_drv *p_hc_drv, uint8_t port_nbr,
 	struct usbh_atsamx_reg *p_reg;
 	struct usbh_drv_data *p_drv_data;
 	uint8_t reg_val;
-	p_reg =  (struct usbh_atsamx_reg*) DT_INST_REG_ADDR(0);
+
+	p_reg =  (struct usbh_atsamx_reg *) DT_INST_REG_ADDR(0);
 	p_drv_data = (struct usbh_drv_data *)p_hc_drv->data_ptr;
 
 	if (port_nbr != 1) {
@@ -1034,13 +1048,13 @@ usbh_atsamx_rh_port_status_get(struct usbh_hc_drv *p_hc_drv, uint8_t port_nbr,
 	reg_val = (p_reg->STATUS & USBH_ATSAMX_STATUS_SPEED_MSK) >>
 		  USBH_ATSAMX_STATUS_SPEED_POS;
 	if (reg_val ==
-	    USBH_ATSAMX_STATUS_SPEED_FS) { /* ------------- FULL-SPEED DEVICE ATTACHED ----------- */
+	    USBH_ATSAMX_STATUS_SPEED_FS) {              /* ------------- FULL-SPEED DEVICE ATTACHED ----------- */
 		p_drv_data->RH_PortStat &=
 			~USBH_HUB_STATUS_PORT_LOW_SPD;  /* PORT_LOW_SPEED  = 0 = FS dev attached.        */
 		p_drv_data->RH_PortStat &=
 			~USBH_HUB_STATUS_PORT_HIGH_SPD; /* PORT_HIGH_SPEED = 0 = FS dev attached.        */
 	} else if (reg_val ==
-		   USBH_ATSAMX_STATUS_SPEED_LS) { /* ------------- LOW-SPEED DEVICE ATTACHED ------------ */
+		   USBH_ATSAMX_STATUS_SPEED_LS) {       /* ------------- LOW-SPEED DEVICE ATTACHED ------------ */
 		p_drv_data->RH_PortStat |=
 			USBH_HUB_STATUS_PORT_LOW_SPD;   /* PORT_LOW_SPEED  = 1 = LS dev attached.        */
 		p_drv_data->RH_PortStat &=
@@ -1158,7 +1172,8 @@ static bool usbh_atsamx_hcd_port_reset_set(struct usbh_hc_drv *p_hc_drv,
 {
 	struct usbh_atsamx_reg *p_reg;
 	struct usbh_drv_data *p_drv_data;
-	p_reg =  (struct usbh_atsamx_reg*) DT_INST_REG_ADDR(0);
+
+	p_reg =  (struct usbh_atsamx_reg *) DT_INST_REG_ADDR(0);
 	p_drv_data = (struct usbh_drv_data *)p_hc_drv->data_ptr;
 
 	p_drv_data->RH_PortStat |=
@@ -1242,7 +1257,7 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 	struct usbh_urb *p_urb;
 
 	p_hc_drv = (struct usbh_hc_drv *)p_hc_drv_local;
-	p_reg = (struct usbh_atsamx_reg*) DT_INST_REG_ADDR(0);
+	p_reg = (struct usbh_atsamx_reg *) DT_INST_REG_ADDR(0);
 	p_drv_data = (struct usbh_drv_data *)p_hc_drv->data_ptr;
 	int_stat = p_reg->INTFLAG;
 	int_stat &= p_reg->INTENSET;
@@ -1282,7 +1297,7 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 		p_drv_data->RH_PortChng |=
 			USBH_HUB_STATUS_C_PORT_CONN;    /* Current connect status has changed                   */
 		usbh_rh_event(
-			p_hc_drv->rh_dev_ptr);           /* Notify the core layer.                               */
+			p_hc_drv->rh_dev_ptr);          /* Notify the core layer.                               */
 	} else if (int_stat & USBH_ATSAMX_INT_DCONN) {
 		LOG_DBG("connect usb");
 
@@ -1329,9 +1344,9 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 
 	/* ----------- HANDLE PIPE INTERRUPT STATUS ----------- */
 	pipe_stat =
-		p_reg->PINTSMRY; /* Read Pipe interrupt summary                          */
+		p_reg->PINTSMRY;        /* Read Pipe interrupt summary                          */
 	while (pipe_stat !=
-	       0) { /* Check if there is a pipe to handle                   */
+	       0) {                     /* Check if there is a pipe to handle                   */
 		pipe_nbr = u32_count_trailing_zeros(pipe_stat);
 		int_stat = p_reg->HPIPE[pipe_nbr].PINTFLAG;
 		int_stat &= p_reg->HPIPE[pipe_nbr].PINTENSET;
@@ -1401,7 +1416,7 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 					p_urb->err = 0;
 					usbh_urb_done(
 						p_urb); /* Notify the Core layer about the urb completion       */
-				} else   {
+				} else {
 					p_urb->err = k_msgq_put(&ATSAMX_URB_Proc_Q,
 								(void *)p_urb,
 								K_NO_WAIT);
@@ -1410,7 +1425,7 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 							p_urb); /* Notify the Core layer about the urb completion       */
 					}
 				}
-			} else   { /* ---------------- OUT PACKETS HANDLER --------------- */
+			} else {   /* ---------------- OUT PACKETS HANDLER --------------- */
 				LOG_DBG("out packets handler");
 				xfer_len =
 					p_drv_data->PipeTbl[pipe_nbr].Appbuf_len +
@@ -1420,7 +1435,7 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 					p_urb->err = 0;
 					usbh_urb_done(
 						p_urb); /* Notify the Core layer about the urb completion       */
-				} else   {
+				} else {
 					p_urb->err = k_msgq_put(&ATSAMX_URB_Proc_Q,
 								(void *)p_urb,
 								K_NO_WAIT);
@@ -1452,7 +1467,7 @@ static void usbh_atsamx_process_urb(void *p_arg, void *p_arg2, void *p_arg3)
 
 	p_hc_drv = (struct usbh_hc_drv *)p_arg;
 	p_drv_data = (struct usbh_drv_data *)p_hc_drv->data_ptr;
-	p_reg =  (struct usbh_atsamx_reg*) DT_INST_REG_ADDR(0);
+	p_reg =  (struct usbh_atsamx_reg *) DT_INST_REG_ADDR(0);
 
 	while (true) {
 		p_err = k_msgq_get(&ATSAMX_URB_Proc_Q, (void *)p_urb,
@@ -1488,10 +1503,10 @@ static void usbh_atsamx_process_urb(void *p_arg, void *p_arg2, void *p_arg3)
 					LOG_ERR("DRV: Rx'd more data than was expected.\r\n");
 					usbh_urb_done(
 						p_urb); /* Notify the Core layer about the urb completion       */
-				} else   {
+				} else {
 					p_urb->xfer_len += xfer_len;
 				}
-			} else   { /* ------------- HANDLE OUT TRANSACTIONS -------------- */
+			} else {   /* ------------- HANDLE OUT TRANSACTIONS -------------- */
 				xfer_len = (p_drv_data->PipeTbl[pipe_nbr]
 					    .Appbuf_len -
 					    xfer_len);
@@ -1499,7 +1514,7 @@ static void usbh_atsamx_process_urb(void *p_arg, void *p_arg2, void *p_arg3)
 					p_urb->xfer_len +=
 						p_drv_data->PipeTbl[pipe_nbr]
 						.NextXferLen;
-				} else   {
+				} else {
 					p_urb->xfer_len +=
 						(p_drv_data->PipeTbl[pipe_nbr]
 						 .NextXferLen -
@@ -1554,7 +1569,7 @@ static void usbh_atsamx_pipe_cfg(struct usbh_urb *p_urb,
 		       p_pipe_info->NextXferLen);
 
 		p_desc_bank->PCKSIZE = p_pipe_info->Appbuf_len;
-	} else   { /* -------------------- IN PACKETS -------------------- */
+	} else {   /* -------------------- IN PACKETS -------------------- */
 		p_desc_bank->PCKSIZE = (p_pipe_info->NextXferLen << 14u);
 	}
 
@@ -1573,8 +1588,8 @@ static void usbh_atsamx_pipe_cfg(struct usbh_urb *p_urb,
 		irq_unlock(key);
 
 		p_reg_hpipe->PSTATUSSET =
-			USBH_ATSAMX_PSTATUS_BK0RDY; /* Set Bank0 ready : Pipe can send data to device       */
-	} else   { /* -------------------- IN PACKETS -------------------- */
+			USBH_ATSAMX_PSTATUS_BK0RDY;     /* Set Bank0 ready : Pipe can send data to device       */
+	} else {                                        /* -------------------- IN PACKETS -------------------- */
 		LOG_DBG("setup in packets");
 		key = irq_lock();
 		reg_val = p_reg_hpipe->PCFG;
