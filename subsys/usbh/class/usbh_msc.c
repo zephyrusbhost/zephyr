@@ -25,7 +25,6 @@ LOG_MODULE_REGISTER(msc);
 /*
  * Note(s) : (1) See 'USB Mass Storage Class Specification Overview', Revision 1.2, Section 2.
  */
-
 #define USBH_MSC_SUBCLASS_CODE_RBC 0x01u
 #define USBH_MSC_SUBCLASS_CODE_SFF_8020i 0x02u
 #define USBH_MSC_SUBCLASS_CODE_MMC_2 0x02u
@@ -37,7 +36,6 @@ LOG_MODULE_REGISTER(msc);
 /*
  * Note(s) : (1) See 'USB Mass Storage Class Specification Overview', Revision 1.2, Section 3.
  */
-
 #define USBH_MSC_PROTOCOL_CODE_CTRL_BULK_INTR_CMD_INTR 0x00u
 #define USBH_MSC_PROTOCOL_CODE_CTRL_BULK_INTR 0x01u
 #define USBH_MSC_PROTOCOL_CODE_BULK_ONLY 0x50u
@@ -65,7 +63,6 @@ LOG_MODULE_REGISTER(msc);
  *               (d) w_index        = Interface number
  *               (e) w_length       =   0x0001
  */
-
 #define USBH_MSC_REQ_MASS_STORAGE_RESET 0xFFu   /* See Note #3.                                        */
 #define USBH_MSC_REQ_GET_MAX_LUN 0xFEu          /* See Note #4.                                        */
 
@@ -74,7 +71,6 @@ LOG_MODULE_REGISTER(msc);
  *
  *           (2) The 'bm_cbw_flags' field of a command block wrapper may contain one of these values.
  */
-
 #define USBH_MSC_BMCBWFLAGS_DIR_HOST_TO_DEVICE 0x00u
 #define USBH_MSC_BMCBWFLAGS_DIR_DEVICE_TO_HOST 0x80u
 
@@ -83,7 +79,6 @@ LOG_MODULE_REGISTER(msc);
  *
  *           (2) The 'b_csw_stat' field of a command status wrapper may contain one of these values.
  */
-
 #define USBH_MSC_BCSWSTATUS_CMD_PASSED 0x00u
 #define USBH_MSC_BCSWSTATUS_CMD_FAILED 0x01u
 #define USBH_MSC_BCSWSTATUS_PHASE_ERROR 0x02u
@@ -459,25 +454,23 @@ LOG_MODULE_REGISTER(msc);
  *               (b) Bit  6  : Obsolete.  Should be set to zero.
  *               (c) Bits 5-0: Reserved.  Should be set to zero.
  */
-
 struct usbh_msc_cbw {
-	uint32_t d_cbw_sig;                 /* Signature to identify this data pkt as CBW.          */
-	uint32_t d_cbw_tag;                       /* Command block tag sent by host.                      */
-	uint32_t d_cbw_data_trans_len;        /* Number of bytes of data that host expects to xfer.   */
-	uint8_t bm_cbw_flags;                     /* Flags (see Notes #2).                                */
-	uint8_t b_cbw_lun;                        /* LUN to which the command block is being sent.        */
-	uint8_t b_cbwcb_len;                   /* Length of cbwcb in bytes.                            */
+	uint32_t d_cbw_sig;                     /* Signature to identify this data pkt as CBW.          */
+	uint32_t d_cbw_tag;                     /* Command block tag sent by host.                      */
+	uint32_t d_cbw_data_trans_len;          /* Number of bytes of data that host expects to xfer.   */
+	uint8_t bm_cbw_flags;                   /* Flags (see Notes #2).                                */
+	uint8_t b_cbw_lun;                      /* LUN to which the command block is being sent.        */
+	uint8_t b_cbwcb_len;                    /* Length of cbwcb in bytes.                            */
 	uint8_t cbwcb[16];                      /* Command block to be executed by device.              */
 };
 
 /*
  * Note(s) : (1) See 'USB Mass Storage Class - Bulk Only Transport', Section 5.2.
  */
-
 struct usbh_msc_csw {
-	uint32_t d_csw_sig;         /* Signature to identify this data pkt as CSW.          */
-	uint32_t d_csw_tag;               /* Device shall set this to value in CBW's d_cbw_tag.     */
-	uint32_t d_csw_data_residue;       /* Difference between expected & actual nbr data bytes. */
+	uint32_t d_csw_sig;             /* Signature to identify this data pkt as CSW.          */
+	uint32_t d_csw_tag;             /* Device shall set this to value in CBW's d_cbw_tag.     */
+	uint32_t d_csw_data_residue;    /* Difference between expected & actual nbr data bytes. */
 	uint8_t b_csw_stat;             /* Indicates success or failure of command.             */
 };
 
@@ -591,7 +584,6 @@ const struct usbh_class_drv usbh_msc_class_drv = {
 /*
  * Initialize a mass storage device instance.
  */
-
 int usbh_msc_init(struct usbh_msc_dev *p_msc_dev,
 		  uint8_t lun)
 {
@@ -611,7 +603,7 @@ int usbh_msc_init(struct usbh_msc_dev *p_msc_dev,
 	if (err != 0) {
 		return err;
 	}
-	/* See Note #1.                                         */
+
 	if ((p_msc_dev->state == USBH_CLASS_DEV_STATE_CONN) &&
 	    (p_msc_dev->ref_cnt > 0)) {
 
@@ -634,12 +626,12 @@ int usbh_msc_init(struct usbh_msc_dev *p_msc_dev,
 			}
 
 			err = usbh_scsi_get_sense_info(p_msc_dev, /* ...determine reason of failure.                      */
-							lun,
-							&sense_key,
-							&asc,
-							&ascq);
+						       lun,
+						       &sense_key,
+						       &asc,
+						       &ascq);
 			if (err == 0) {
-				switch (sense_key) {                            /* See Note #2.                                         */
+				switch (sense_key) {
 				case USBH_SCSI_SENSE_KEY_UNIT_ATTENTION:        /* MSC dev is initializing internally but not rdy.      */
 					switch (asc) {
 					case USBH_SCSI_ASC_MEDIUM_NOT_PRESENT:
@@ -666,7 +658,7 @@ int usbh_msc_init(struct usbh_msc_dev *p_msc_dev,
 				}
 
 				retry--;
-			} else   {
+			} else {
 				LOG_ERR("%d", err);
 				break;
 			}
@@ -676,7 +668,7 @@ int usbh_msc_init(struct usbh_msc_dev *p_msc_dev,
 			LOG_ERR("Device is not ready\r\n");
 			err = ENODEV;
 		}
-	} else   {
+	} else {
 		err = ENODEV; /* MSC dev enum not completed by host.                  */
 	}
 
@@ -688,7 +680,6 @@ int usbh_msc_init(struct usbh_msc_dev *p_msc_dev,
 /*
  * Get maximum logical unit number (LUN) supported by MSC device.
  */
-
 uint8_t usbh_msc_max_lun_get(struct usbh_msc_dev *p_msc_dev,
 			     int *p_err)
 {
@@ -712,7 +703,7 @@ uint8_t usbh_msc_max_lun_get(struct usbh_msc_dev *p_msc_dev,
 		if_nbr = usbh_if_nbr_get(p_msc_dev->if_ptr);    /* Get IF nbr matching to MSC dev.                      */
 
 		usbh_ctrl_rx(p_msc_dev->dev_ptr,                /* Send GET_MAX_LUN request via a Ctrl xfer.            */
-			     USBH_MSC_REQ_GET_MAX_LUN,          /* See Note #1.                                         */
+			     USBH_MSC_REQ_GET_MAX_LUN,
 			     (USBH_REQ_DIR_DEV_TO_HOST | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_IF),
 			     0,
 			     if_nbr,
@@ -729,7 +720,7 @@ uint8_t usbh_msc_max_lun_get(struct usbh_msc_dev *p_msc_dev,
 				*p_err = 0;
 			}
 		}
-	} else   {/* MSC dev enumeration not completed by host.           */
+	} else {  /* MSC dev enumeration not completed by host.           */
 		*p_err = ENODEV;
 	}
 
@@ -741,7 +732,6 @@ uint8_t usbh_msc_max_lun_get(struct usbh_msc_dev *p_msc_dev,
 /*
  * Test if a certain logical unit within the MSC device is ready for communication.
  */
-
 bool usbh_msc_unit_rdy_test(struct usbh_msc_dev *p_msc_dev,
 			    uint8_t lun,
 			    int *p_err)
@@ -768,10 +758,10 @@ bool usbh_msc_unit_rdy_test(struct usbh_msc_dev *p_msc_dev,
 		} else if (*p_err == EAGAIN) {
 			*p_err = 0; /* CSW reporting cmd failed for this req NOT an err.    */
 			unit_rdy = 1;
-		} else   {
+		} else {
 			/* Empty Else statement                                 */
 		}
-	} else   {/* MSC dev enumeration not completed by host.           */
+	} else {  /* MSC dev enumeration not completed by host.           */
 		*p_err = ENODEV;
 	}
 
@@ -784,7 +774,6 @@ bool usbh_msc_unit_rdy_test(struct usbh_msc_dev *p_msc_dev,
  * Read mass storage device capacity (i.e number of blocks and block size) of specified LUN
  * by sending READ_CAPACITY SCSI command.
  */
-
 int usbh_msc_capacity_rd(struct usbh_msc_dev *p_msc_dev,
 			 uint8_t lun,
 			 uint32_t *p_nbr_blks,
@@ -813,11 +802,11 @@ int usbh_msc_capacity_rd(struct usbh_msc_dev *p_msc_dev,
 						  lun,
 						  p_nbr_blks,
 						  p_blk_size);
-	} else   {/* MSC dev enumeration not completed by host.           */
+	} else {  /* MSC dev enumeration not completed by host. */
 		err = ENODEV;
 	}
 
-	k_mutex_unlock(&p_msc_dev->HMutex); /* Unlock access to MSC dev.                            */
+	k_mutex_unlock(&p_msc_dev->HMutex); /* Unlock access to MSC dev. */
 
 	return err;
 }
@@ -827,7 +816,6 @@ int usbh_msc_capacity_rd(struct usbh_msc_dev *p_msc_dev,
  * such as device type, if device is removable, vendor/product identification, etc.
  * INQUIRY SCSI command is used.
  */
-
 int usbh_msc_std_inquiry(struct usbh_msc_dev *p_msc_dev,
 			 struct msc_inquiry_info *p_msc_inquiry_info,
 			 uint8_t lun)
@@ -855,10 +843,10 @@ int usbh_msc_std_inquiry(struct usbh_msc_dev *p_msc_dev,
 						lun);
 		if (err == 0) {
 			err = 0;
-		} else   {
+		} else {
 			err = ENOTSUP;
 		}
-	} else   {
+	} else {
 		err = ENODEV;
 	}
 
@@ -870,7 +858,6 @@ int usbh_msc_std_inquiry(struct usbh_msc_dev *p_msc_dev,
 /*
  * Increment counter of connected mass storage devices.
  */
-
 int usbh_msc_ref_add(struct usbh_msc_dev *p_msc_dev)
 {
 	int err;
@@ -895,7 +882,6 @@ int usbh_msc_ref_add(struct usbh_msc_dev *p_msc_dev)
 /*
  * Decrement counter of connected mass storage devices and free device if counter = 0.
  */
-
 int usbh_msc_ref_rel(struct usbh_msc_dev *p_msc_dev)
 {
 	int err;
@@ -928,7 +914,6 @@ int usbh_msc_ref_rel(struct usbh_msc_dev *p_msc_dev)
 /*
  * Read specified number of blocks from device using READ_10 SCSI command.
  */
-
 uint32_t usbh_msc_read(struct usbh_msc_dev *p_msc_dev,
 		       uint8_t lun,
 		       uint32_t blk_addr,
@@ -959,7 +944,7 @@ uint32_t usbh_msc_read(struct usbh_msc_dev *p_msc_dev,
 					  blk_size,
 					  p_arg,
 					  p_err);
-	} else   {
+	} else {
 		xfer_len = 0;
 		*p_err = ENODEV;
 	}
@@ -972,7 +957,6 @@ uint32_t usbh_msc_read(struct usbh_msc_dev *p_msc_dev,
 /*
  * Write specified number of blocks to the device.
  */
-
 uint32_t usbh_msc_write(struct usbh_msc_dev *p_msc_dev,
 			uint8_t lun,
 			uint32_t blk_addr,
@@ -1003,7 +987,7 @@ uint32_t usbh_msc_write(struct usbh_msc_dev *p_msc_dev,
 					   blk_size,
 					   p_arg,
 					   p_err);
-	} else   {
+	} else {
 		xfer_len = 0;
 		*p_err = ENODEV;
 	}
@@ -1016,7 +1000,6 @@ uint32_t usbh_msc_write(struct usbh_msc_dev *p_msc_dev,
 /*
  * Initialize MSC.
  */
-
 static void usbh_msc_global_init(int *p_err)
 {
 
@@ -1034,7 +1017,6 @@ static void usbh_msc_global_init(int *p_err)
 /*
  * Determine if interface is mass storage class interface.
  */
-
 static void *usbh_msc_probe_if(struct usbh_dev *p_dev,
 			       struct usbh_if *p_if,
 			       int *p_err)
@@ -1070,7 +1052,7 @@ static void *usbh_msc_probe_if(struct usbh_dev *p_dev,
 		if (*p_err != 0) {
 			usbh_msc_dev_cnt++;
 		}
-	} else   {
+	} else {
 		*p_err = ENOENT;
 	}
 
@@ -1084,7 +1066,6 @@ static void *usbh_msc_probe_if(struct usbh_dev *p_dev,
 /*
  * Handle disconnection of mass storage device.
  */
-
 static void usbh_msc_disconn(void *p_class_dev)
 {
 	struct usbh_msc_dev *p_msc_dev;
@@ -1094,9 +1075,9 @@ static void usbh_msc_disconn(void *p_class_dev)
 	k_mutex_lock(&p_msc_dev->HMutex, K_NO_WAIT);
 
 	p_msc_dev->state = USBH_CLASS_DEV_STATE_DISCONN;
-	usbh_msc_ep_close(p_msc_dev); /* Close bulk in/out EPs.                               */
+	usbh_msc_ep_close(p_msc_dev);   /* Close bulk in/out EPs.                               */
 
-	if (p_msc_dev->ref_cnt == 0) { /* Release MSC dev.                                     */
+	if (p_msc_dev->ref_cnt == 0) {  /* Release MSC dev.                                     */
 		k_mutex_unlock(&p_msc_dev->HMutex);
 		usbh_msc_dev_cnt++;
 	}
@@ -1107,7 +1088,6 @@ static void usbh_msc_disconn(void *p_class_dev)
 /*
  * Suspend MSC device. Waits for completion of any pending I/O.
  */
-
 static void usbh_msc_supsend(void *p_class_dev)
 {
 	struct usbh_msc_dev *p_msc_dev;
@@ -1124,7 +1104,6 @@ static void usbh_msc_supsend(void *p_class_dev)
 /*
  * Resume MSC device.
  */
-
 static void usbh_msc_resume(void *p_class_dev)
 {
 	struct usbh_msc_dev *p_msc_dev;
@@ -1141,7 +1120,6 @@ static void usbh_msc_resume(void *p_class_dev)
 /*
  * Clear USBH_MSC_DEV structure.
  */
-
 static void usbh_msc_dev_clr(struct usbh_msc_dev *p_msc_dev)
 {
 	p_msc_dev->dev_ptr = NULL;
@@ -1153,7 +1131,6 @@ static void usbh_msc_dev_clr(struct usbh_msc_dev *p_msc_dev)
 /*
  * Open bulk IN & OUT endpoints.
  */
-
 static int usbh_msc_ep_open(struct usbh_msc_dev *p_msc_dev)
 {
 	int err;
@@ -1178,7 +1155,6 @@ static int usbh_msc_ep_open(struct usbh_msc_dev *p_msc_dev)
 /*
  * Close bulk IN & OUT endpoints.
  */
-
 static void usbh_msc_ep_close(struct usbh_msc_dev *p_msc_dev)
 {
 	usbh_ep_close(&p_msc_dev->BulkInEP);
@@ -1189,7 +1165,6 @@ static void usbh_msc_ep_close(struct usbh_msc_dev *p_msc_dev)
  * Executes MSC command cycle. Sends command (CBW), followed by data stage (if present),
  * and then receive status (CSW).
  */
-
 static uint32_t usbh_msc_xfer_cmd(struct usbh_msc_dev *p_msc_dev,
 				  uint8_t lun,
 				  uint8_t dir,
@@ -1272,7 +1247,7 @@ static uint32_t usbh_msc_xfer_cmd(struct usbh_msc_dev *p_msc_dev,
 			*p_err = EAGAIN;
 			break;
 		}
-	} else   {
+	} else {
 		*p_err = -EIO;
 	}
 
@@ -1285,7 +1260,6 @@ static uint32_t usbh_msc_xfer_cmd(struct usbh_msc_dev *p_msc_dev,
 /*
  * Send Command Block Wrapper (CBW) to device through bulk OUT endpoint.
  */
-
 static int usbh_msc_tx_cbw(struct usbh_msc_dev *p_msc_dev,
 			   struct usbh_msc_cbw *p_msc_cbw)
 {
@@ -1312,7 +1286,7 @@ static int usbh_msc_tx_cbw(struct usbh_msc_dev *p_msc_dev,
 		if (err == EBUSY) {
 			usbh_msc_rx_rst_rcv(p_msc_dev);
 		}
-	} else   {
+	} else {
 		err = 0;
 	}
 
@@ -1322,7 +1296,6 @@ static int usbh_msc_tx_cbw(struct usbh_msc_dev *p_msc_dev,
 /*
  * Receive Command Status Word (CSW) from device through bulk IN endpoint.
  */
-
 static int usbh_msc_rx_csw(struct usbh_msc_dev *p_msc_dev,
 			   struct usbh_msc_csw *p_msc_csw)
 {
@@ -1348,10 +1321,10 @@ static int usbh_msc_rx_csw(struct usbh_msc_dev *p_msc_dev,
 			if (err == EBUSY) {
 				usbh_ep_stall_clr(&p_msc_dev->BulkInEP);
 				retry--;
-			} else   {
+			} else {
 				break;
 			}
-		} else   {
+		} else {
 			err = 0;
 			usbh_msc_parse_csw(p_msc_csw, status_buf);
 			break;
@@ -1364,7 +1337,6 @@ static int usbh_msc_rx_csw(struct usbh_msc_dev *p_msc_dev,
 /*
  * Send data to device through bulk OUT endpoint.
  */
-
 static int usbh_msc_tx_data(struct usbh_msc_dev *p_msc_dev,
 			    void *p_arg,
 			    uint32_t data_len)
@@ -1404,7 +1376,7 @@ static int usbh_msc_tx_data(struct usbh_msc_dev *p_msc_dev,
 			if (data_len_tx < data_len_rem) {
 				data_len_rem -= data_len_tx;
 				p_data_ix += data_len_tx;
-			} else   {
+			} else {
 				data_len_rem = 0;
 			}
 			break;
@@ -1416,13 +1388,11 @@ static int usbh_msc_tx_data(struct usbh_msc_dev *p_msc_dev,
 	}
 
 	if (err != 0) {
-		LOG_ERR("tx data %d", err);
-
 		usbh_ep_reset(p_msc_dev->dev_ptr,
 			      &p_msc_dev->BulkOutEP);
 		if (err == EBUSY) {
 			usbh_ep_stall_clr(&p_msc_dev->BulkOutEP);
-		} else   {
+		} else {
 			usbh_msc_rx_rst_rcv(p_msc_dev);
 		}
 	}
@@ -1433,7 +1403,6 @@ static int usbh_msc_tx_data(struct usbh_msc_dev *p_msc_dev,
 /*
  * Receive data from device through bulk IN endpoint.
  */
-
 static int usbh_msc_rx_data(struct usbh_msc_dev *p_msc_dev,
 			    void *p_arg,
 			    uint32_t data_len)
@@ -1474,7 +1443,7 @@ static int usbh_msc_rx_data(struct usbh_msc_dev *p_msc_dev,
 			if (data_len_rx < data_len_rem) {
 				data_len_rem -= data_len_rx;    /* Update remaining nbr of octets to read.              */
 				p_data_ix += data_len_rx;       /* Update buf ix.                                       */
-			} else   {
+			} else {
 				data_len_rem = 0;
 			}
 			break;
@@ -1486,14 +1455,12 @@ static int usbh_msc_rx_data(struct usbh_msc_dev *p_msc_dev,
 	}
 
 	if (err != 0) {
-		LOG_ERR("rx data %d", err);
-
 		(void)usbh_ep_reset(p_msc_dev->dev_ptr,
 				    &p_msc_dev->BulkInEP); /* Clr err on host side EP.                             */
 		if (err == EBUSY) {
 			usbh_ep_stall_clr(&p_msc_dev->BulkInEP);
 			err = 0;
-		} else   {
+		} else {
 			usbh_msc_rx_rst_rcv(p_msc_dev);
 			err = -EIO;
 		}
@@ -1505,7 +1472,6 @@ static int usbh_msc_rx_data(struct usbh_msc_dev *p_msc_dev,
 /*
  * Apply bulk-only reset recovery to device on phase error & clear stalled endpoints.
  */
-
 static int usbh_msc_rx_rst_rcv(struct usbh_msc_dev *p_msc_dev)
 {
 	int err;
@@ -1537,7 +1503,7 @@ static int usbh_msc_rx_bulk_only_reset(struct usbh_msc_dev *p_msc_dev)
 	if_nbr = usbh_if_nbr_get(p_msc_dev->if_ptr);
 
 	usbh_ctrl_tx(p_msc_dev->dev_ptr,
-		     USBH_MSC_REQ_MASS_STORAGE_RESET, /*  See Note(s) #1                                      */
+		     USBH_MSC_REQ_MASS_STORAGE_RESET,
 		     (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_IF),
 		     0,
 		     if_nbr,
@@ -1546,7 +1512,6 @@ static int usbh_msc_rx_bulk_only_reset(struct usbh_msc_dev *p_msc_dev)
 		     USBH_MSC_TIMEOUT,
 		     &err);
 	if (err != 0) {
-		LOG_ERR("%d", err);
 		usbh_ep_reset(p_msc_dev->dev_ptr,
 			      NULL);
 	}
@@ -1557,7 +1522,6 @@ static int usbh_msc_rx_bulk_only_reset(struct usbh_msc_dev *p_msc_dev)
 /*
  * Read inquiry data of device.
  */
-
 static int usbh_scsi_cmd_std_inquiry(struct usbh_msc_dev *p_msc_dev,
 				     struct msc_inquiry_info *p_msc_inquiry_info,
 				     uint8_t lun)
@@ -1604,7 +1568,6 @@ static int usbh_scsi_cmd_std_inquiry(struct usbh_msc_dev *p_msc_dev,
 /*
  * Read number of sectors & sector size.
  */
-
 static int usbh_scsi_cmd_test_unit_rdy(struct usbh_msc_dev *p_msc_dev,
 				       uint8_t lun)
 {
@@ -1635,7 +1598,6 @@ static int usbh_scsi_cmd_test_unit_rdy(struct usbh_msc_dev *p_msc_dev,
 /*
  * Issue command to obtain sense data.
  */
-
 static uint32_t usbh_scsi_cmd_req_sense(struct usbh_msc_dev *p_msc_dev,
 					uint8_t lun,
 					uint8_t *p_arg,
@@ -1645,7 +1607,6 @@ static uint32_t usbh_scsi_cmd_req_sense(struct usbh_msc_dev *p_msc_dev,
 	uint8_t cmd[6];
 	uint32_t xfer_len;
 
-	/* See Note(s) #1                                       */
 	/* ------------ PREPARE SCSI COMMAND BLOCK ------------ */
 	cmd[0] = USBH_SCSI_CMD_REQUEST_SENSE;   /* Operation code (0x03).                               */
 	cmd[1] = 0;                             /* Reserved.                                            */
@@ -1670,7 +1631,6 @@ static uint32_t usbh_scsi_cmd_req_sense(struct usbh_msc_dev *p_msc_dev,
 /*
  * Obtain sense data.
  */
-
 static int usbh_scsi_get_sense_info(struct usbh_msc_dev *p_msc_dev,
 				    uint8_t lun,
 				    uint8_t *p_sense_key,
@@ -1696,7 +1656,7 @@ static int usbh_scsi_get_sense_info(struct usbh_msc_dev *p_msc_dev,
 			*p_asc = sense_data[12];
 			*p_ascq = sense_data[13];
 			err = 0;
-		} else   {
+		} else {
 			*p_sense_key = 0;
 			*p_asc = 0;
 			*p_ascq = 0;
@@ -1704,11 +1664,11 @@ static int usbh_scsi_get_sense_info(struct usbh_msc_dev *p_msc_dev,
 			LOG_ERR("ERROR Invalid SENSE response from device - ");
 			LOG_ERR("xfer_len : %d, sense_data[0] : %02X\r\n", xfer_len, sense_data[0]);
 		}
-	} else   {
+	} else {
 		*p_sense_key = 0;
 		*p_asc = 0;
 		*p_ascq = 0;
-		LOG_ERR("%d", err);
+		LOG_ERR("%s %d", __func__, err);
 	}
 
 	return err;
@@ -1717,7 +1677,6 @@ static int usbh_scsi_get_sense_info(struct usbh_msc_dev *p_msc_dev,
 /*
  * Read number of sectors & sector size.
  */
-
 static int usbh_scsi_cmd_capacity_read(struct usbh_msc_dev *p_msc_dev,
 				       uint8_t lun,
 				       uint32_t *p_nbr_blks,
@@ -1727,7 +1686,6 @@ static int usbh_scsi_cmd_capacity_read(struct usbh_msc_dev *p_msc_dev,
 	uint8_t data[8];
 	int err;
 
-	/* See Note #1.                                         */
 	/* -------------- PREPARE SCSI CMD BLOCK -------------- */
 	cmd[0] = USBH_SCSI_CMD_READ_CAPACITY;   /* Operation code (0x25).                               */
 	cmd[1] = 0;                             /* Reserved.                                            */
@@ -1760,7 +1718,6 @@ static int usbh_scsi_cmd_capacity_read(struct usbh_msc_dev *p_msc_dev,
 /*
  * Read specified number of blocks from device.
  */
-
 static uint32_t usbh_scsi_read(struct usbh_msc_dev *p_msc_dev,
 			       uint8_t lun,
 			       uint32_t blk_addr,
@@ -1774,7 +1731,6 @@ static uint32_t usbh_scsi_read(struct usbh_msc_dev *p_msc_dev,
 	uint32_t xfer_len;
 
 	data_len = nbr_blks * blk_size;
-	/* See Note #1.                                         */
 	/* -------------- PREPARE SCSI CMD BLOCK -------------- */
 	cmd[0] = USBH_SCSI_CMD_READ_10;                         /* Operation code (0x28).                               */
 	cmd[1] = 0;                                             /* Reserved.                                            */
@@ -1801,7 +1757,6 @@ static uint32_t usbh_scsi_read(struct usbh_msc_dev *p_msc_dev,
 /*
  * Write specified number of blocks to device.
  */
-
 static uint32_t usbh_scsi_write(struct usbh_msc_dev *p_msc_dev,
 				uint8_t lun,
 				uint32_t blk_addr,
@@ -1816,7 +1771,6 @@ static uint32_t usbh_scsi_write(struct usbh_msc_dev *p_msc_dev,
 	uint32_t xfer_len;
 
 	data_len = nbr_blks * blk_size;
-	/* See Note #1.                                         */
 	/* -------------- PREPARE SCSI CMD BLOCK -------------- */
 	cmd[0] = USBH_SCSI_CMD_WRITE_10;                        /* Operation code (0x2A).                               */
 	cmd[1] = 0;                                             /* Reserved.                                            */
@@ -1843,7 +1797,6 @@ static uint32_t usbh_scsi_write(struct usbh_msc_dev *p_msc_dev,
 /*
  * Format CBW from CBW structure.
  */
-
 static void usbh_msc_fmt_cbw(struct usbh_msc_cbw *p_cbw,
 			     void *p_buf_dest)
 {
@@ -1867,7 +1820,6 @@ static void usbh_msc_fmt_cbw(struct usbh_msc_cbw *p_cbw,
 /*
  * Parse CSW into CSW structure.
  */
-
 static void usbh_msc_parse_csw(struct usbh_msc_csw *p_csw,
 			       void *p_buf_src)
 {

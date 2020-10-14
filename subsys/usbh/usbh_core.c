@@ -398,20 +398,17 @@ int usbh_dev_conn(struct usbh_dev *p_dev)
 	p_dev->class_drv_reg_ptr = NULL;
 	memset(p_dev->dev_desc, 0, USBH_LEN_DESC_DEV);
 
-	LOG_DBG("defaualt ep open");
 	err = usbh_dflt_ep_open(p_dev);
 	if (err != 0) {
 		return err;
 	}
 
-	LOG_DBG("read device descriptor");
 	err = usbh_dev_desc_rd(
 		p_dev); /* ------------------- RD DEV DESC -------------------- */
 	if (err != 0) {
 		return err;
 	}
 
-	LOG_DBG("set device address");
 	err = usbh_dev_addr_set(
 		p_dev); /* -------------- ASSIGN NEW ADDR TO DEV -------------- */
 	if (err != 0) {
@@ -432,10 +429,8 @@ int usbh_dev_conn(struct usbh_dev *p_dev)
 	nbr_cfgs = usbh_dev_cfg_nbr_get(
 		p_dev); /* ---------- GET NBR OF CFG PRESENT IN DEV ----------- */
 	if (nbr_cfgs == 0) {
-		LOG_ERR("descriptor invalid %d", nbr_cfgs);
 		return -EAGAIN;
 	} else if (nbr_cfgs > USBH_CFG_MAX_NBR_CFGS) {
-		LOG_ERR("config nbr %d", nbr_cfgs);
 		return -EAGAIN;
 	}
 
@@ -443,7 +438,6 @@ int usbh_dev_conn(struct usbh_dev *p_dev)
 	     cfg_ix++) { /* -------------------- RD ALL CFG -------------------- */
 		err = usbh_cfg_rd(p_dev, cfg_ix);
 		if (err != 0) {
-			LOG_ERR("err cfg read");
 			return err;
 		}
 	}
@@ -473,7 +467,7 @@ void usbh_dev_disconn(struct usbh_dev *p_dev)
 uint8_t usbh_dev_cfg_nbr_get(struct usbh_dev *p_dev)
 {
 	return (p_dev->dev_desc
-		[17]);         /* See Note (1).                                        */
+		[17]);
 }
 
 /*
@@ -493,12 +487,11 @@ int usbh_cfg_set(struct usbh_dev *p_dev, uint8_t cfg_nbr)
 
 	usbh_ctrl_tx(p_dev, USBH_REQ_SET_CFG,
 		     (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_RECIPIENT_DEV),
-		     cfg_nbr, 0, NULL, 0, USBH_CFG_STD_REQ_TIMEOUT, &err); /* See Note (1).                                        */
+		     cfg_nbr, 0, NULL, 0, USBH_CFG_STD_REQ_TIMEOUT, &err);
 
 	if (err == 0) {
 		p_dev->sel_cfg = cfg_nbr;
 	}
-	LOG_DBG("set configuration %d ret %d", cfg_nbr, err);
 
 	return err;
 }
@@ -531,7 +524,7 @@ uint8_t usbh_cfg_if_nbr_get(struct usbh_cfg *p_cfg)
 {
 	if (p_cfg != NULL) {
 		return (p_cfg->cfg_data
-			[4]);         /* See Note (1).                                        */
+			[4]);
 	} else {
 		return 0;
 	}
@@ -687,7 +680,7 @@ uint8_t usbh_if_alt_nbr_get(struct usbh_if *p_if)
 uint8_t usbh_if_nbr_get(struct usbh_if *p_if)
 {
 	return (p_if->if_data_ptr
-		[2]);         /* See Note (1)                                         */
+		[2]);
 }
 
 /*
@@ -1351,7 +1344,7 @@ int usbh_isoc_rx_async(struct usbh_ep *p_ep, uint8_t *p_buf,
 uint8_t usbh_ep_log_nbr_get(struct usbh_ep *p_ep)
 {
 	return ((uint8_t)p_ep->desc.b_endpoint_address &
-		0x7F); /* See Note (1).                                        */
+		0x7F);
 }
 
 /*
@@ -1367,7 +1360,7 @@ uint8_t usbh_ep_dir_get(struct usbh_ep *p_ep)
 	}
 
 	if (((uint8_t)p_ep->desc.b_endpoint_address & 0x80) !=
-	    0) { /* See Note (1).                                        */
+	    0) {
 		return USBH_EP_DIR_IN;
 	} else {
 		return USBH_EP_DIR_OUT;
@@ -1380,7 +1373,7 @@ uint8_t usbh_ep_dir_get(struct usbh_ep *p_ep)
 uint16_t usbh_ep_max_pkt_size_get(struct usbh_ep *p_ep)
 {
 	return ((uint16_t)p_ep->desc.w_max_packet_size &
-		0x07FF); /* See Note (1).                                        */
+		0x07FF);
 }
 
 /*
@@ -1389,7 +1382,7 @@ uint16_t usbh_ep_max_pkt_size_get(struct usbh_ep *p_ep)
 uint8_t usbh_ep_type_get(struct usbh_ep *p_ep)
 {
 	return ((uint8_t)p_ep->desc.bm_attributes &
-		0x03); /* See Note (1).                                        */
+		0x03);
 }
 
 /*
@@ -1474,7 +1467,7 @@ int usbh_ep_stall_clr(struct usbh_ep *p_ep)
 	p_dev = p_ep->dev_ptr;
 	(void)usbh_ctrl_tx(
 		p_dev,
-		USBH_REQ_CLR_FEATURE, /* See Note (1)                                         */
+		USBH_REQ_CLR_FEATURE,
 		USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_STD |
 		USBH_REQ_RECIPIENT_EP,
 		USBH_FEATURE_SEL_EP_HALT, p_ep->desc.b_endpoint_address,
@@ -1714,7 +1707,7 @@ uint32_t usbh_str_get(struct usbh_dev *p_dev, uint8_t desc_ix, uint16_t lang_id,
 		str_len =
 			usbh_str_desc_get(p_dev, 0, 0, p_buf, buf_len, p_err);
 		if (str_len <
-		    4u) { /* See Note #1.                                         */
+		    4u) {
 			*p_err = -EINVAL;
 			return 0;
 		}
@@ -1841,7 +1834,7 @@ static int usbh_ep_open(struct usbh_dev *p_dev, struct usbh_if *p_if,
 		p_ep->interval =
 			1
 				<< (p_ep->desc.b_interval -
-				    1); /* Isoc interval is 2 ^ (b_interval - 1). See Note #2.   */
+				    1); /* Isoc interval is 2 ^ (b_interval - 1).   */
 	} else {
 		/* Empty Else statement                                 */
 	}
@@ -2221,7 +2214,7 @@ static int usbh_dflt_ep_open(struct usbh_dev *p_dev)
 	p_ep->dev_ptr = p_dev;
 
 	if (p_dev->dev_spd ==
-	    USBH_LOW_SPEED) { /* See Note (1).                                        */
+	    USBH_LOW_SPEED) {
 		ep_max_pkt_size = 8;
 	} else {
 		ep_max_pkt_size = 64u;
@@ -2305,7 +2298,6 @@ static int usbh_dev_desc_rd(struct usbh_dev *p_dev)
 						       &p_dev->dflt_ep, &err);
 		k_mutex_unlock(&p_dev->hc_ptr->hcd_mutex);
 		if (err != 0) {
-			LOG_ERR("%d", err);
 			return err;
 		}
 	}
@@ -2358,7 +2350,6 @@ static int usbh_dev_desc_rd(struct usbh_dev *p_dev)
 	    (dev_desc.b_device_class != USBH_CLASS_CODE_MISCELLANEOUS) &&
 	    (dev_desc.b_device_class != USBH_CLASS_CODE_APP_SPECIFIC) &&
 	    (dev_desc.b_device_class != USBH_CLASS_CODE_VENDOR_SPECIFIC)) {
-		LOG_ERR("descriptor invalid");
 		return -EINVAL;
 	}
 
@@ -2378,7 +2369,6 @@ static int usbh_cfg_rd(struct usbh_dev *p_dev, uint8_t cfg_ix)
 
 	p_cfg = usbh_cfg_get(p_dev, cfg_ix);
 	if (p_cfg == NULL) {
-		LOG_ERR("err cfg get");
 		return -ENOMEM;
 	}
 
@@ -2391,7 +2381,6 @@ static int usbh_cfg_rd(struct usbh_dev *p_dev, uint8_t cfg_ix)
 				      p_cfg->cfg_data, USBH_LEN_DESC_CFG,
 				      USBH_CFG_STD_REQ_TIMEOUT, &err);
 		if (err != 0) {
-			LOG_ERR("err get descriptor");
 			usbh_ep_reset(p_dev, NULL);
 			k_sleep(K_MSEC(100u));
 		} else {
@@ -2413,7 +2402,7 @@ static int usbh_cfg_rd(struct usbh_dev *p_dev, uint8_t cfg_ix)
 		return -EINVAL;
 	}
 
-	w_tot_len = sys_get_le16((uint8_t *)&p_cfg->cfg_data[2]); /* See Note (3).                                        */
+	w_tot_len = sys_get_le16((uint8_t *)&p_cfg->cfg_data[2]);
 
 	if (w_tot_len >
 	    USBH_CFG_MAX_CFG_DATA_LEN) { /* Chk total len of config desc.                        */
@@ -2582,7 +2571,7 @@ static int usbh_dev_addr_set(struct usbh_dev *p_dev)
 	while (retry > 0) {
 		retry--;
 
-		usbh_ctrl_tx(p_dev, USBH_REQ_SET_ADDR, (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_RECIPIENT_DEV), p_dev->dev_addr, 0, NULL, 0, USBH_CFG_STD_REQ_TIMEOUT, &err); /* See Note (1). */
+		usbh_ctrl_tx(p_dev, USBH_REQ_SET_ADDR, (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_RECIPIENT_DEV), p_dev->dev_addr, 0, NULL, 0, USBH_CFG_STD_REQ_TIMEOUT, &err);
 		if (err != 0) {
 			usbh_ep_reset(p_dev, NULL);
 			k_sleep(K_MSEC(100u));
@@ -2615,7 +2604,7 @@ static int usbh_dev_addr_set(struct usbh_dev *p_dev)
 		return err;
 	}
 
-	k_sleep(K_MSEC(2)); /* See Note (2).                                        */
+	k_sleep(K_MSEC(2));
 
 	return err;
 }

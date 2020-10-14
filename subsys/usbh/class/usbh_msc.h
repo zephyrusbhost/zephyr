@@ -6,8 +6,8 @@
  * SPDX-License-Identifier: APACHE-2.0
  */
 
-#ifndef USBH_MSC_CLASS_H_
-#define USBH_MSC_CLASS_H_
+#ifndef ZEPHYR_USBH_MSC_CLASS_H_
+#define ZEPHYR_USBH_MSC_CLASS_H_
 
 #include <usbh_class.h>
 

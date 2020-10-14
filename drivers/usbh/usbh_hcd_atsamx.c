@@ -393,10 +393,6 @@ static bool usbh_atsamx_rh_int_en(struct usbh_hc_drv *p_hc_drv);
 
 static bool usbh_atsamx_rh_int_dis(struct usbh_hc_drv *p_hc_drv);
 
-/*
- * LOCAL FUNCTION PROTOTYPES
- */
-
 static void usbh_atsamx_isr_callback(void *p_drv);
 
 static void usbh_atsamx_process_urb(void *p_arg, void *p_arg2, void *p_arg3);
@@ -458,7 +454,6 @@ const struct usbh_hc_rh_api usbh_hcd_rh_api = {
 static void usbh_atsamx_hcd_init(struct usbh_hc_drv *p_hc_drv,
 				 int *p_err)
 {
-	LOG_DBG("atsam hcd init");
 	struct usbh_drv_data *p_drv_data;
 
 	p_drv_data = k_malloc(sizeof(struct usbh_drv_data));
@@ -533,8 +528,8 @@ static void usbh_atsamx_hcd_start(struct usbh_hc_drv *p_hc_drv,
 
 			}
 		}
-		/* Resets all regs in the USB to initial state, and ..  */
-		/* .. the USB will be disabled
+		/* Resets all regs in the USB to initial state,
+		 * and the USB will be disabled
 		 */
 		key = irq_lock();
 		p_reg->ctrl_a = USBH_ATSAMX_CTRLA_SWRST;
@@ -654,7 +649,6 @@ static void usbh_atsamx_hcd_stop(struct usbh_hc_drv *p_hc_drv,
 static enum usbh_device_speed usbh_atsamx_hcd_spd_get(struct usbh_hc_drv *p_hc_drv,
 						      int *p_err)
 {
-
 	*p_err = 0;
 
 	return USBH_FULL_SPEED;
@@ -746,7 +740,6 @@ static void usbh_atsamx_hcd_ep_open(struct usbh_hc_drv *p_hc_drv,
 				    struct usbh_ep *p_ep,
 				    int *p_err)
 {
-	LOG_DBG("EP_Open");
 	struct usbh_atsamx_reg *p_reg;
 
 	p_reg = (struct usbh_atsamx_reg *) DT_INST_REG_ADDR(0);
@@ -770,7 +763,6 @@ static void usbh_atsamx_hcd_ep_close(struct usbh_hc_drv *p_hc_drv,
 				     struct usbh_ep *p_ep,
 				     int *p_err)
 {
-	LOG_DBG("EP_Close");
 	struct usbh_atsamx_reg *p_reg;
 	struct usbh_drv_data *p_drv_data;
 	uint8_t pipe_nbr;
@@ -806,7 +798,6 @@ static void usbh_atsamx_hcd_ep_close(struct usbh_hc_drv *p_hc_drv,
 /*
  * Abort all pending URBs on endpoint.
  */
-
 static void usbh_atsamx_hcd_ep_abort(struct usbh_hc_drv *p_hc_drv,
 				     struct usbh_ep *p_ep,
 				     int *p_err)
@@ -817,7 +808,6 @@ static void usbh_atsamx_hcd_ep_abort(struct usbh_hc_drv *p_hc_drv,
 /*
  * Retrieve endpoint halt state.
  */
-
 static bool usbh_atsamx_hcd_ep_is_halt(struct usbh_hc_drv *p_hc_drv,
 				       struct usbh_ep *p_ep,
 				       int *p_err)
@@ -833,7 +823,6 @@ static bool usbh_atsamx_hcd_ep_is_halt(struct usbh_hc_drv *p_hc_drv,
 /*
  * Submit specified urb.
  */
-
 static void usbh_atsamx_hcd_urb_submit(struct usbh_hc_drv *p_hc_drv,
 				       struct usbh_urb *p_urb,
 				       int *p_err)
@@ -848,7 +837,7 @@ static void usbh_atsamx_hcd_urb_submit(struct usbh_hc_drv *p_hc_drv,
 	ep_type = usbh_ep_type_get(p_urb->ep_ptr);
 
 	if (p_urb->state ==
-	    USBH_URB_STATE_ABORTED) { /* See note 1.                                          */
+	    USBH_URB_STATE_ABORTED) {
 		*p_err = EIO;
 		return;
 	}
@@ -889,7 +878,7 @@ static void usbh_atsamx_hcd_urb_submit(struct usbh_hc_drv *p_hc_drv,
 
 	if ((ep_type == USBH_EP_TYPE_BULK) && (p_urb->ep_ptr->interval < 1)) {
 		p_reg->h_pipe[pipe_nbr].b_interval =
-			1; /* See Note 2.                                          */
+			1;
 	} else {
 		p_reg->h_pipe[pipe_nbr].b_interval = p_urb->ep_ptr->interval;
 	}
@@ -943,7 +932,6 @@ static void usbh_atsamx_hcd_urb_submit(struct usbh_hc_drv *p_hc_drv,
 /*
  * Complete specified urb.
  */
-
 static void usbh_atsamx_hcd_urb_complete(struct usbh_hc_drv *p_hc_drv,
 					 struct usbh_urb *p_urb,
 					 int *p_err)
@@ -1010,7 +998,6 @@ static void usbh_atsamx_hcd_urb_complete(struct usbh_hc_drv *p_hc_drv,
 /*
  * Abort specified urb.
  */
-
 static void usbh_atsamx_hcd_urb_abort(struct usbh_hc_drv *p_hc_drv,
 				      struct usbh_urb *p_urb,
 				      int *p_err)
@@ -1024,7 +1011,6 @@ static void usbh_atsamx_hcd_urb_abort(struct usbh_hc_drv *p_hc_drv,
 /*
  * Retrieve port status changes and port status.
  */
-
 static bool
 usbh_atsamx_rh_port_status_get(struct usbh_hc_drv *p_hc_drv, uint8_t port_nbr,
 			       struct usbh_hub_port_status *p_port_status)
@@ -1203,7 +1189,6 @@ static bool usbh_atsamx_hcd_port_reset_chng_clr(struct usbh_hc_drv *p_hc_drv,
 /*
  * Resume given port if port is suspended.
  */
-
 static bool usbh_atsamx_hcd_port_suspend_clr(struct usbh_hc_drv *p_hc_drv,
 					     uint8_t port_nbr)
 {

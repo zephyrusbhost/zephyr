@@ -18,7 +18,6 @@ LOG_MODULE_REGISTER(hub);
 /*
  * ROOT HUB DEVICE DESCRIPTOR
  */
-
 static const uint8_t usbh_hub_rh_dev_desc[18] = {
 	USBH_LEN_DESC_DEV,              /* b_length                                              */
 	USBH_DESC_TYPE_DEV,             /* b_desc_type: Device                              */
@@ -39,7 +38,6 @@ static const uint8_t usbh_hub_rh_dev_desc[18] = {
 /*
  * ROOT HUB CONFIGURATION DESCRIPTOR
  */
-
 static const uint8_t usbh_hub_rh_fs_cfg_desc[] = {
 	/* ------------- CONFIGURATION DESCRIPTOR ------------- */
 	USBH_LEN_DESC_CFG,      /* b_length                                              */
@@ -74,7 +72,6 @@ static const uint8_t usbh_hub_rh_fs_cfg_desc[] = {
 /*
  * ROOT HUB STRING DESCRIPTOR
  */
-
 static const uint8_t usbh_hub_rh_lang_id[] = {
 	0x04u,
 	USBH_DESC_TYPE_STR,
@@ -161,7 +158,6 @@ static int usbh_hub_ref_rel(struct usbh_hub_dev *p_hub_dev);
 /*
  * HUB CLASS DRIVER
  */
-
 const struct usbh_class_drv usbh_hub_drv = {
 	(uint8_t *)"HUB",
 	usbh_hub_class_init,
@@ -175,7 +171,6 @@ const struct usbh_class_drv usbh_hub_drv = {
 /*
  * Task that process HUB Events.
  */
-
 void usbh_hub_event_task(void *p_arg, void *p_arg2, void *p_arg3)
 {
 	while (1) {
@@ -187,7 +182,6 @@ void usbh_hub_event_task(void *p_arg, void *p_arg2, void *p_arg3)
 /*
  * Disable given port on hub.
  */
-
 int usbh_hub_port_dis(struct usbh_hub_dev *p_hub_dev,
 		      uint16_t port_nbr)
 {
@@ -205,7 +199,6 @@ int usbh_hub_port_dis(struct usbh_hub_dev *p_hub_dev,
 /*
  * Enable given port on hub.
  */
-
 int usbh_hub_port_en(struct usbh_hub_dev *p_hub_dev,
 		     uint16_t port_nbr)
 {
@@ -223,7 +216,6 @@ int usbh_hub_port_en(struct usbh_hub_dev *p_hub_dev,
 /*
  * Initializes all USBH_HUB_DEV structures, device lists and HUB pool.
  */
-
 static void usbh_hub_class_init(int *p_err)
 {
 	uint8_t hub_ix;
@@ -245,7 +237,6 @@ static void usbh_hub_class_init(int *p_err)
  * Determine whether connected device implements hub class by examining it's interface
  * descriptor.
  */
-
 static void *usbh_hub_if_probe(struct usbh_dev *p_dev,
 			       struct usbh_if *p_if,
 			       int *p_err)
@@ -298,7 +289,6 @@ static void *usbh_hub_if_probe(struct usbh_dev *p_dev,
 /*
  * Suspend given hub and all devices connected to it.
  */
-
 static void usbh_hub_suspend(void *p_class_dev)
 {
 	uint16_t nbr_ports;
@@ -321,7 +311,6 @@ static void usbh_hub_suspend(void *p_class_dev)
 /*
  * Resume given hub and all devices connected to it.
  */
-
 static void usbh_hub_resume(void *p_class_dev)
 {
 	uint16_t nbr_ports;
@@ -360,7 +349,6 @@ static void usbh_hub_resume(void *p_class_dev)
 /*
  * Disconnect given hub.
  */
-
 static void usbh_hub_disconn(void *p_class_dev)
 {
 	struct usbh_hub_dev *p_hub_dev;
@@ -376,7 +364,6 @@ static void usbh_hub_disconn(void *p_class_dev)
  * Opens the endpoints, reads hub descriptor, initializes ports and submits request to
  * start receiving hub events.
  */
-
 static int usbh_hub_init(struct usbh_hub_dev *p_hub_dev)
 {
 	int err;
@@ -404,7 +391,6 @@ static int usbh_hub_init(struct usbh_hub_dev *p_hub_dev)
 /*
  * Uninitialize given hub.
  */
-
 static void usbh_hub_uninit(struct usbh_hub_dev *p_hub_dev)
 {
 	uint16_t nbr_ports;
@@ -429,7 +415,6 @@ static void usbh_hub_uninit(struct usbh_hub_dev *p_hub_dev)
 /*
  * Open interrupt endpoint required to receive hub events.
  */
-
 static int usbh_hub_ep_open(struct usbh_hub_dev *p_hub_dev)
 {
 	int err;
@@ -449,7 +434,6 @@ static int usbh_hub_ep_open(struct usbh_hub_dev *p_hub_dev)
 /*
  * Close interrupt endpoint.
  */
-
 static void usbh_hub_ep_close(struct usbh_hub_dev *p_hub_dev)
 {
 	usbh_ep_close(&p_hub_dev->intr_ep); /* Close hub intr EP.                                   */
@@ -458,7 +442,6 @@ static void usbh_hub_ep_close(struct usbh_hub_dev *p_hub_dev)
 /*
  * Issue an asynchronous interrupt request to receive hub events.
  */
-
 static int usbh_hub_event_req(struct usbh_hub_dev *p_hub_dev)
 {
 	uint32_t len;
@@ -482,7 +465,7 @@ static int usbh_hub_event_req(struct usbh_hub_dev *p_hub_dev)
 		}
 	}
 
-	len = (p_hub_dev->desc.b_nbr_ports / 8) + 1;    /* See Note (1).                                        */
+	len = (p_hub_dev->desc.b_nbr_ports / 8) + 1;
 	err = usbh_intr_rx_async(&p_hub_dev->intr_ep,   /* Start receiving hub events.                          */
 				 (void *)p_hub_dev->hub_intr_buf,
 				 len,
@@ -494,7 +477,6 @@ static int usbh_hub_event_req(struct usbh_hub_dev *p_hub_dev)
 /*
  * Handles hub interrupt.
  */
-
 static void usbh_hub_isr_cb(struct usbh_ep *p_ep,
 			    void *p_buf,
 			    uint32_t buf_len,
@@ -574,7 +556,6 @@ int conn_err_routine(struct usbh_hub_dev *p_hub_dev, struct usbh_dev *p_dev, uin
  * Determine status of each of hub ports. Newly connected device will be reset & configured.
  * Appropriate notifications & cleanup will be performed if a device has been disconnected.
  */
-
 static void usbh_hub_event_proc(void)
 {
 	uint16_t nbr_ports;
@@ -642,14 +623,14 @@ static void usbh_hub_event_proc(void)
 					p_hub_dev->dev_ptr_list[port_nbr - 1] = NULL;
 				}
 
-				k_sleep(K_MSEC(100u));                          /* See Notes #1.                                        */
+				k_sleep(K_MSEC(100u));
 				err = usbh_hub_port_reset_set(p_hub_dev,        /* Apply port reset.                                    */
 							      port_nbr);
 				if (err != 0) {
 					break;
 				}
 
-				k_sleep(K_MSEC(USBH_HUB_DLY_DEV_RESET));        /* See Notes #2.                                        */
+				k_sleep(K_MSEC(USBH_HUB_DLY_DEV_RESET));
 				continue;                                       /* Handle port reset status change.                     */
 			} else {                                                /* --------------- DEV HAS BEEN REMOVED --------------- */
 				LOG_DBG("device has been removed");
@@ -758,7 +739,6 @@ static void usbh_hub_event_proc(void)
 /*
  * Retrieve hub descriptor.
  */
-
 static int usbh_hub_desc_get(struct usbh_hub_dev *p_hub_dev)
 {
 	int err;
@@ -768,7 +748,7 @@ static int usbh_hub_desc_get(struct usbh_hub_dev *p_hub_dev)
 
 	for (i = 0; i < USBH_CFG_STD_REQ_RETRY; i++) {  /* Attempt to get desc hdr 3 times.                     */
 		len = usbh_ctrl_rx(p_hub_dev->dev_ptr,
-				   USBH_REQ_GET_DESC,   /* See Note (1).                                        */
+				   USBH_REQ_GET_DESC,
 				   (USBH_REQ_DIR_DEV_TO_HOST | USBH_REQ_TYPE_CLASS),
 				   (USBH_HUB_DESC_TYPE_HUB << 8),
 				   0,
@@ -827,7 +807,6 @@ static int usbh_hub_desc_get(struct usbh_hub_dev *p_hub_dev)
 /*
  * Enable power on each hub port & initialize device on each port.
  */
-
 static int usbh_hub_ports_init(struct usbh_hub_dev *p_hub_dev)
 {
 	int err;
@@ -843,7 +822,7 @@ static int usbh_hub_ports_init(struct usbh_hub_dev *p_hub_dev)
 			LOG_ERR("PortPwrSet error");
 			return err;
 		}
-		k_sleep(K_MSEC(p_hub_dev->desc.b_pwr_on_to_pwr_good * 2)); /* See Note (1).                                       */
+		k_sleep(K_MSEC(p_hub_dev->desc.b_pwr_on_to_pwr_good * 2));
 	}
 	return 0;
 }
@@ -851,7 +830,6 @@ static int usbh_hub_ports_init(struct usbh_hub_dev *p_hub_dev)
 /*
  * Get port status on given hub.
  */
-
 static int usbh_hub_port_status_get(struct usbh_hub_dev *p_hub_dev,
 				    uint16_t port_nbr,
 				    struct usbh_hub_port_status *p_port_status)
@@ -862,7 +840,7 @@ static int usbh_hub_port_status_get(struct usbh_hub_dev *p_hub_dev,
 
 	p_buf = (uint8_t *)&port_status;
 
-	usbh_ctrl_rx(p_hub_dev->dev_ptr, /* See Note (1).                                        */
+	usbh_ctrl_rx(p_hub_dev->dev_ptr,
 		     USBH_REQ_GET_STATUS,
 		     (USBH_REQ_DIR_DEV_TO_HOST | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_OTHER),
 		     0,
@@ -884,13 +862,12 @@ static int usbh_hub_port_status_get(struct usbh_hub_dev *p_hub_dev,
 /*
  * Set port reset on given hub.
  */
-
 static int usbh_hub_port_reset_set(struct usbh_hub_dev *p_hub_dev,
 				   uint16_t port_nbr)
 {
 	int err;
 
-	usbh_ctrl_tx(p_hub_dev->dev_ptr, /* See Note (1).                                        */
+	usbh_ctrl_tx(p_hub_dev->dev_ptr,
 		     USBH_REQ_SET_FEATURE,
 		     (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_OTHER),
 		     USBH_HUB_FEATURE_SEL_PORT_RESET,
@@ -909,13 +886,12 @@ static int usbh_hub_port_reset_set(struct usbh_hub_dev *p_hub_dev,
 /*
  * Clear port reset change on given hub.
  */
-
 static int usbh_hub_port_rst_chng_clr(struct usbh_hub_dev *p_hub_dev,
 				      uint16_t port_nbr)
 {
 	int err;
 
-	usbh_ctrl_tx(p_hub_dev->dev_ptr, /* See Note (1).                                        */
+	usbh_ctrl_tx(p_hub_dev->dev_ptr,
 		     USBH_REQ_CLR_FEATURE,
 		     (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_OTHER),
 		     USBH_HUB_FEATURE_SEL_C_PORT_RESET,
@@ -934,13 +910,12 @@ static int usbh_hub_port_rst_chng_clr(struct usbh_hub_dev *p_hub_dev,
 /*
  * Clear port enable change on given hub.
  */
-
 static int usbh_hub_port_en_chng_clr(struct usbh_hub_dev *p_hub_dev,
 				     uint16_t port_nbr)
 {
 	int err;
 
-	usbh_ctrl_tx(p_hub_dev->dev_ptr, /* See Note (1).                                        */
+	usbh_ctrl_tx(p_hub_dev->dev_ptr,
 		     USBH_REQ_CLR_FEATURE,
 		     (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_OTHER),
 		     USBH_HUB_FEATURE_SEL_C_PORT_EN,
@@ -959,13 +934,12 @@ static int usbh_hub_port_en_chng_clr(struct usbh_hub_dev *p_hub_dev,
 /*
  * Clear port connection change on given hub.
  */
-
 static int usbh_hub_port_conn_chng_clr(struct usbh_hub_dev *p_hub_dev,
 				       uint16_t port_nbr)
 {
 	int err;
 
-	usbh_ctrl_tx(p_hub_dev->dev_ptr, /* See Note #1.                                         */
+	usbh_ctrl_tx(p_hub_dev->dev_ptr,
 		     USBH_REQ_CLR_FEATURE,
 		     (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_OTHER),
 		     USBH_HUB_FEATURE_SEL_C_PORT_CONN,
@@ -984,13 +958,12 @@ static int usbh_hub_port_conn_chng_clr(struct usbh_hub_dev *p_hub_dev,
 /*
  * Set power on given hub and port.
  */
-
 static int usbh_hub_port_pwr_set(struct usbh_hub_dev *p_hub_dev,
 				 uint16_t port_nbr)
 {
 	int err;
 
-	usbh_ctrl_tx(p_hub_dev->dev_ptr, /* See Note #1.                                         */
+	usbh_ctrl_tx(p_hub_dev->dev_ptr,
 		     USBH_REQ_SET_FEATURE,
 		     (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_OTHER),
 		     USBH_HUB_FEATURE_SEL_PORT_PWR,
@@ -1009,13 +982,12 @@ static int usbh_hub_port_pwr_set(struct usbh_hub_dev *p_hub_dev,
 /*
  * Clear port suspend on given hub.
  */
-
 static int usbh_hub_port_susp_clr(struct usbh_hub_dev *p_hub_dev,
 				  uint16_t port_nbr)
 {
 	int err;
 
-	usbh_ctrl_tx(p_hub_dev->dev_ptr, /* See Note #1.                                         */
+	usbh_ctrl_tx(p_hub_dev->dev_ptr,
 		     USBH_REQ_CLR_FEATURE,
 		     (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_OTHER),
 		     USBH_HUB_FEATURE_SEL_C_PORT_SUSPEND,
@@ -1034,13 +1006,12 @@ static int usbh_hub_port_susp_clr(struct usbh_hub_dev *p_hub_dev,
 /*
  * Clear port enable on given hub.
  */
-
 static int usbh_hub_port_en_clr(struct usbh_hub_dev *p_hub_dev,
 				uint16_t port_nbr)
 {
 	int err;
 
-	usbh_ctrl_tx(p_hub_dev->dev_ptr, /* See Note #1.                                         */
+	usbh_ctrl_tx(p_hub_dev->dev_ptr,
 		     USBH_REQ_CLR_FEATURE,
 		     (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_OTHER),
 		     USBH_HUB_FEATURE_SEL_PORT_EN,
@@ -1059,13 +1030,12 @@ static int usbh_hub_port_en_clr(struct usbh_hub_dev *p_hub_dev,
 /*
  * Set port enable on given hub.
  */
-
 static int usbh_hub_port_en_set(struct usbh_hub_dev *p_hub_dev,
 				uint16_t port_nbr)
 {
 	int err;
 
-	usbh_ctrl_tx(p_hub_dev->dev_ptr, /* See Note #1.                                         */
+	usbh_ctrl_tx(p_hub_dev->dev_ptr,
 		     USBH_REQ_SET_FEATURE,
 		     (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_OTHER),
 		     USBH_HUB_FEATURE_SEL_PORT_EN,
@@ -1084,13 +1054,12 @@ static int usbh_hub_port_en_set(struct usbh_hub_dev *p_hub_dev,
 /*
  * Set port suspend on given hub.
  */
-
 int usbh_hub_port_suspend_set(struct usbh_hub_dev *p_hub_dev,
 			      uint16_t port_nbr)
 {
 	int err;
 
-	usbh_ctrl_tx(p_hub_dev->dev_ptr, /* See Note #1.                                         */
+	usbh_ctrl_tx(p_hub_dev->dev_ptr,
 		     USBH_REQ_SET_FEATURE,
 		     (USBH_REQ_DIR_HOST_TO_DEV | USBH_REQ_TYPE_CLASS | USBH_REQ_RECIPIENT_OTHER),
 		     USBH_HUB_FEATURE_SEL_PORT_SUSPEND,
@@ -1109,7 +1078,6 @@ int usbh_hub_port_suspend_set(struct usbh_hub_dev *p_hub_dev,
 /*
  * Initializes USBH_HUB_DEV structure.
  */
-
 static void usbh_hub_clr(struct usbh_hub_dev *p_hub_dev)
 {
 	uint8_t dev_ix;
@@ -1129,7 +1097,6 @@ static void usbh_hub_clr(struct usbh_hub_dev *p_hub_dev)
 /*
  * Increment access reference count to a hub device.
  */
-
 static int usbh_hub_ref_add(struct usbh_hub_dev *p_hub_dev)
 {
 	int key;
@@ -1148,7 +1115,6 @@ static int usbh_hub_ref_add(struct usbh_hub_dev *p_hub_dev)
 /*
  * Increment the access reference count to a hub device.
  */
-
 static int usbh_hub_ref_rel(struct usbh_hub_dev *p_hub_dev)
 {
 	int key;
@@ -1173,7 +1139,6 @@ static int usbh_hub_ref_rel(struct usbh_hub_dev *p_hub_dev)
 /*
  * Process hub request from core layer.
  */
-
 uint32_t usbh_rh_ctrl_req(struct usbh_hc *p_hc,
 			  uint8_t b_req,
 			  uint8_t bm_req_type,
@@ -1357,7 +1322,6 @@ uint32_t usbh_rh_ctrl_req(struct usbh_hc *p_hc,
 /*
  * Queue a root hub event.
  */
-
 void usbh_rh_event(struct usbh_dev *p_dev)
 {
 	struct usbh_hub_dev *p_hub_dev;
@@ -1375,7 +1339,6 @@ void usbh_rh_event(struct usbh_dev *p_dev)
 
 	p_rh_drv_api->int_dis(p_hc_drv);
 
-	LOG_DBG("RefAdd");
 	usbh_hub_ref_add(p_hub_dev);
 
 	key = irq_lock();
@@ -1393,7 +1356,6 @@ void usbh_rh_event(struct usbh_dev *p_dev)
 /*
  * Handle device state change notification for hub class devices.
  */
-
 void usbh_hub_class_notify(void *p_class_dev,
 			   uint8_t state,
 			   void *p_ctx)
@@ -1425,7 +1387,6 @@ void usbh_hub_class_notify(void *p_class_dev,
 /*
  * Parse hub descriptor into hub descriptor structure.
  */
-
 void usbh_hub_parse_hub_desc(struct usbh_hub_desc *p_hub_desc,
 			     void *p_buf_src)
 {
@@ -1450,7 +1411,6 @@ void usbh_hub_parse_hub_desc(struct usbh_hub_desc *p_hub_desc,
 /*
  * Format hub descriptor from hub descriptor structure.
  */
-
 void usbh_hub_fmt_hub_desc(struct usbh_hub_desc *p_hub_desc,
 			   void *p_buf_dest)
 {

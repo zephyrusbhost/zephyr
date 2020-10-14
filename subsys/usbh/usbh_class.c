@@ -61,7 +61,7 @@ int usbh_reg_class_drv(const struct usbh_class_drv *p_class_drv,
 	}
 	irq_unlock(key);
 
-	if (ix >= USBH_CFG_MAX_NBR_CLASS_DRVS) { /* List is full.                                        */
+	if (ix >= USBH_CFG_MAX_NBR_CLASS_DRVS) { /* List is full. */
 		return -ERANGE;
 	}
 
@@ -206,12 +206,10 @@ int usbh_class_drv_conn(struct usbh_dev *p_dev)
 	struct usbh_cfg *p_cfg;
 	struct usbh_if *p_if;
 
-	LOG_DBG("probe_dev");
 	err = usbh_class_probe_dev(p_dev);
 	if (err == 0) {
 		p_if = NULL;
 
-		LOG_DBG("notify class");
 		usbh_class_notify(p_dev, /* Find a class drv matching dev desc.                  */
 				  p_if,
 				  p_dev->class_dev_ptr,
@@ -223,25 +221,20 @@ int usbh_class_drv_conn(struct usbh_dev *p_dev)
 		/* Empty Else statement                                 */
 	}
 
-	LOG_DBG("set cfg");
 	err = usbh_cfg_set(p_dev, 1); /* Select first cfg.                                    */
 	if (err != 0) {
 		return err;
 	}
 
 	drv_found = false;
-	LOG_DBG("get cfg");
 	p_cfg = usbh_cfg_get(p_dev, (p_dev->sel_cfg - 1)); /* Get active cfg struct.                               */
-	LOG_DBG("get cfg interface nbr");
 	nbr_if = usbh_cfg_if_nbr_get(p_cfg);
 
 	for (if_ix = 0; if_ix < nbr_if; if_ix++) { /* For all IFs present in cfg.                          */
-		LOG_DBG("get interface");
 		p_if = usbu_if_get(p_cfg, if_ix);
 		if (p_if == NULL) {
 			return -ENOTSUP;
 		}
-		LOG_DBG("probe interface");
 		err = usbh_class_probe_if(p_dev, p_if); /* Find class driver matching IF.                       */
 		if (err == 0) {
 			drv_found = true;
@@ -257,16 +250,12 @@ int usbh_class_drv_conn(struct usbh_dev *p_dev)
 	}
 
 	for (if_ix = 0; if_ix < nbr_if; if_ix++) { /* For all IFs present in this cfg, notify app.         */
-		LOG_DBG("get interface");
-
 		p_if = usbu_if_get(p_cfg, if_ix);
 		if (p_if == NULL) {
 			return -ENOTSUP;
 		}
 
 		if (p_if->class_dev_ptr != 0) {
-			LOG_INF("notify class");
-
 			usbh_class_notify(p_dev,
 					  p_if,
 					  p_if->class_dev_ptr,
@@ -282,7 +271,6 @@ int usbh_class_drv_conn(struct usbh_dev *p_dev)
  */
 void usbh_class_drv_disconn(struct usbh_dev *p_dev)
 {
-	LOG_DBG("disconnect class driver");
 	uint8_t if_ix;
 	uint8_t nbr_ifs;
 	struct usbh_cfg *p_cfg;
@@ -295,7 +283,6 @@ void usbh_class_drv_disconn(struct usbh_dev *p_dev)
 
 		if ((p_class_drv != NULL) &&
 		    (p_class_drv->disconn != 0)) {
-			LOG_DBG("notify class");
 			usbh_class_notify(p_dev,
 					  p_if,
 					  p_dev->class_dev_ptr,
@@ -323,7 +310,6 @@ void usbh_class_drv_disconn(struct usbh_dev *p_dev)
 
 			if ((p_class_drv != NULL) &&
 			    (p_class_drv->disconn != NULL)) {
-				LOG_DBG("notify class");
 				usbh_class_notify(p_dev,
 						  p_if,
 						  p_if->class_dev_ptr,
