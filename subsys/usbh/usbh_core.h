@@ -321,7 +321,7 @@
 
 
 /*
- *USB DEV + RH DEV
+ * USB DEV + RH DEV
  */
 
 /* #define  USBH_MAX_NBR_DEVS                          USBH_CFG_MAX_NBR_DEVS + USBH_CFG_MAX_NBR_HC */
@@ -412,14 +412,14 @@
  */
 
 typedef  void (*usbh_isoc_cmpl_fnct)(struct usbh_ep     *p_ep,
-				     uint8_t  *p_buf,
+				     uint8_t    *p_buf,
 				     uint32_t buf_len,
 				     uint32_t cur_xfer_len,
 				     uint32_t start_frm,
 				     uint32_t nbr_frm,
-				     uint16_t  *p_frm_len,
-				     int    *p_frm_err,
-				     void        *p_arg,
+				     uint16_t   *p_frm_len,
+				     int        *p_frm_err,
+				     void       *p_arg,
 				     int err);
 
 typedef  void (*usbh_xfer_cmpl_fnct)(struct usbh_ep     *p_ep,
@@ -480,10 +480,9 @@ struct usbh_cfg       *usbh_cfg_get(struct usbh_dev               *p_dev,
 
 uint8_t      usbh_cfg_if_nbr_get(struct usbh_cfg               *p_cfg);
 
-/*
-int        usbh_cfg_desc_get(struct usbh_cfg               *p_cfg,
-			  struct usbh_cfg_desc          *p_cfg_desc);
- */
+
+int usbh_cfg_desc_get(struct usbh_cfg *p_cfg, struct usbh_cfg_desc *p_cfg_desc);
+
 
 struct usbh_desc_hdr  *usbh_cfg_extra_desc_get(struct usbh_cfg               *p_cfg,
 					       int               *p_err);

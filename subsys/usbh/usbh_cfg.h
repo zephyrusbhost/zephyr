@@ -1,62 +1,15 @@
 /*
- *********************************************************************************************************
- *                                             uC/USB-Host
- *                                     The Embedded USB Host Stack
+ * Copyright 2004-2020 Silicon Laboratories Inc. www.silabs.com
  *
- *                    Copyright 2004-2020 Silicon Laboratories Inc. www.silabs.com
+ * SPDX-License-Identifier: APACHE-2.0
  *
- *                                 SPDX-License-Identifier: APACHE-2.0
- *
- *               This software is subject to an open source license and is distributed by
- *                Silicon Laboratories Inc. pursuant to the terms of the Apache License,
- *                    Version 2.0 available at www.apache.org/licenses/LICENSE-2.0.
- *
- *********************************************************************************************************
  */
 
-/*
- *********************************************************************************************************
- *
- *                                    USB HOST STACK CONFIGURATION
- *
- * Filename : usbh_cfg.h
- * Version  : V3.42.00
- *********************************************************************************************************
- */
+#ifndef USBH_CFG_MODULE_PRESENT
+#define USBH_CFG_MODULE_PRESENT
 
 /*
- *********************************************************************************************************
- *                                               MODULE
- *********************************************************************************************************
- */
-
-#ifndef  USBH_CFG_MODULE_PRESENT
-#define  USBH_CFG_MODULE_PRESENT
-
-
-/*
- *********************************************************************************************************
- *                                            INCLUDE FILES
- *********************************************************************************************************
- */
-
-
-/*
- *********************************************************************************************************
- *                                               EXTERNS
- *********************************************************************************************************
- */
-
-
-/*
- *********************************************************************************************************
- *                                               DEFINES
- *********************************************************************************************************
- */
-
-/*
- *********************************************************************************************************
- *                                    USB HOST STACK CONFIGURATION
+ * USB HOST STACK CONFIGURATION
  *
  * Notes:    (1) USB uses a tiered star topology. Each external hub has one upstream-facing port and one or
  *               more downstream facing ports. Up to five external hubs can connect in series with a limit of
@@ -145,7 +98,6 @@
  *
  *           (4) The standard request timeout is 5 secs (refer to Universal Serial Bus specification,
  *               revision 2,0, sec 9.2.6.4).
- *********************************************************************************************************
  */
 
 /* ------ USB TOPOLOGY CFG. SEE NOTE #1 AND #2. ------- */
@@ -233,9 +185,7 @@
 
 
 /*
- *********************************************************************************************************
- *                           COMMUNICATION DEVICE CLASS (CDC) CONFIGURATION
- *********************************************************************************************************
+ * COMMUNICATION DEVICE CLASS (CDC) CONFIGURATION
  */
 
 /*  Maximum number of CDC device                        */

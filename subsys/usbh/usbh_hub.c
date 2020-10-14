@@ -543,6 +543,33 @@ static void usbh_hub_isr_cb(struct usbh_ep *p_ep,
 	k_sem_give(&usbh_hub_event_sem);
 }
 
+
+int conn_err_routine(struct usbh_hub_dev *p_hub_dev, struct usbh_dev *p_dev, uint16_t *port_nbr, int *err)
+{
+	usbh_hub_port_dis(p_hub_dev, *port_nbr);
+	usbh_dev_disconn(p_dev);
+
+	p_hub_dev->dev_ptr->hc_ptr->host_ptr->dev_cnt++;
+
+	if (p_hub_dev->conn_cnt < USBH_CFG_MAX_NUM_DEV_RECONN) {
+		/*This condition may happen due to EP_STALL return      */
+		*err = usbh_hub_port_reset_set(p_hub_dev, /* Apply port reset.                                    */
+					       *port_nbr);
+		if (*err != 0) {
+			return -1;
+		}
+
+		k_sleep(K_MSEC(USBH_HUB_DLY_DEV_RESET));        /* See Notes #2.                                        */
+		p_hub_dev->conn_cnt++;
+
+		return 0;                                       /* Handle port reset status change.                     */
+	}
+
+	p_hub_dev->dev_ptr_list[*port_nbr - 1] = NULL;
+
+	return 1;
+}
+
 /*
  * Determine status of each of hub ports. Newly connected device will be reset & configured.
  * Appropriate notifications & cleanup will be performed if a device has been disconnected.
@@ -702,25 +729,12 @@ static void usbh_hub_event_proc(void)
 				k_sleep(K_MSEC(50u));
 				err = usbh_dev_conn(p_dev); /* Conn dev.                                            */
 				if (err != 0) {
-					usbh_hub_port_dis(p_hub_dev, port_nbr);
-					usbh_dev_disconn(p_dev);
+					int ret = conn_err_routine(p_hub_dev, p_dev, &port_nbr, &err);
 
-					p_hub_dev->dev_ptr->hc_ptr->host_ptr->dev_cnt++;
-
-					if (p_hub_dev->conn_cnt < USBH_CFG_MAX_NUM_DEV_RECONN) {
-						/*This condition may happen due to EP_STALL return      */
-						err = usbh_hub_port_reset_set(p_hub_dev, /* Apply port reset.                                    */
-									      port_nbr);
-						if (err != 0) {
-							break;
-						}
-
-						k_sleep(K_MSEC(USBH_HUB_DLY_DEV_RESET)); /* See Notes #2.                                        */
-						p_hub_dev->conn_cnt++;
-						;
-						continue; /* Handle port reset status change.                     */
-					} else {
-						p_hub_dev->dev_ptr_list[port_nbr - 1] = NULL;
+					if (ret < 0) {
+						break;
+					} else if (ret == 0) {
+						continue;
 					}
 				} else {
 					p_hub_dev->dev_ptr_list[port_nbr - 1] = p_dev;
@@ -1185,8 +1199,8 @@ uint32_t usbh_rh_ctrl_req(struct usbh_hc *p_hc,
 		/* Only port status is supported.                       */
 		if ((bm_req_type & USBH_REQ_RECIPIENT_OTHER) == USBH_REQ_RECIPIENT_OTHER) {
 			valid = p_hc_rh_api->status_get(p_hc_drv,
-							   w_ix,
-							   (struct usbh_hub_port_status *)p_buf);
+							w_ix,
+							(struct usbh_hub_port_status *)p_buf);
 		} else {
 			len = buf_len;
 			memset(p_buf, 0, len); /* Return 0 for other reqs.                             */
@@ -1291,8 +1305,8 @@ uint32_t usbh_rh_ctrl_req(struct usbh_hc *p_hc,
 		case USBH_HUB_DESC_TYPE_HUB: /* Return hub desc.                                     */
 			len = buf_len;
 			valid = p_hc_rh_api->desc_get(p_hc_drv,
-							(struct usbh_hub_desc *)p_buf,
-							len);
+						      (struct usbh_hub_desc *)p_buf,
+						      len);
 			break;
 
 		case USBH_DESC_TYPE_STR:
