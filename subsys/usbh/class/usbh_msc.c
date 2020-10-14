@@ -23,7 +23,6 @@ LOG_MODULE_REGISTER(msc);
 #define USBH_MSC_MAX_TRANSFER_RETRY 1000u
 
 /*
- * SUBCLASS CODES
  * Note(s) : (1) See 'USB Mass Storage Class Specification Overview', Revision 1.2, Section 2.
  */
 
@@ -44,9 +43,6 @@ LOG_MODULE_REGISTER(msc);
 #define USBH_MSC_PROTOCOL_CODE_BULK_ONLY 0x50u
 
 /*
- *********************************************************************************************************
- *                                       CLASS-SPECIFIC REQUESTS
- *
  * Note(s) : (1) See 'USB Mass Storage Class - Bulk Only Transport', Section 3.
  *
  *           (2) The 'b_request' field of a class-specific setup request may contain one of these values.
@@ -68,33 +64,24 @@ LOG_MODULE_REGISTER(msc);
  *               (c) w_value        =   0x0000
  *               (d) w_index        = Interface number
  *               (e) w_length       =   0x0001
- *********************************************************************************************************
  */
 
 #define USBH_MSC_REQ_MASS_STORAGE_RESET 0xFFu   /* See Note #3.                                        */
 #define USBH_MSC_REQ_GET_MAX_LUN 0xFEu          /* See Note #4.                                        */
 
 /*
- *********************************************************************************************************
- *                                      COMMAND BLOCK FLAG VALUES
- *
  * Note(s) : (1) See 'USB Mass Storage Class - Bulk Only Transport', Section 5.1.
  *
- *           (2) The 'bmCBWFlags' field of a command block wrapper may contain one of these values.
- *********************************************************************************************************
+ *           (2) The 'bm_cbw_flags' field of a command block wrapper may contain one of these values.
  */
 
 #define USBH_MSC_BMCBWFLAGS_DIR_HOST_TO_DEVICE 0x00u
 #define USBH_MSC_BMCBWFLAGS_DIR_DEVICE_TO_HOST 0x80u
 
 /*
- *********************************************************************************************************
- *                                     COMMAND BLOCK STATUS VALUES
- *
  * Note(s) : (1) See 'USB Mass Storage Class - Bulk Only Transport', Section 5.3, Table 5.3.
  *
- *           (2) The 'bCSWStatus' field of a command status wrapper may contain one of these values.
- *********************************************************************************************************
+ *           (2) The 'b_csw_stat' field of a command status wrapper may contain one of these values.
  */
 
 #define USBH_MSC_BCSWSTATUS_CMD_PASSED 0x00u
@@ -460,12 +447,9 @@ LOG_MODULE_REGISTER(msc);
 #define USBH_SCSI_PAGE_LENGTH_FORMAT_DEVICE 0x16u
 
 /*
- *********************************************************************************************************
- *                                   COMMAND BLOCK WRAPPER DATA TYPE
- *
  * Note(s) : (1) See 'USB Mass Storage Class - Bulk Only Transport', Section 5.1.
  *
- *           (2) The 'bmCBWFlags' field is a bit-mapped datum with three subfields :
+ *           (2) The 'bm_cbw_flags' field is a bit-mapped datum with three subfields :
  *
  *               (a) Bit  7  : Data transfer direction :
  *
@@ -474,32 +458,27 @@ LOG_MODULE_REGISTER(msc);
  *
  *               (b) Bit  6  : Obsolete.  Should be set to zero.
  *               (c) Bits 5-0: Reserved.  Should be set to zero.
- *********************************************************************************************************
  */
 
 struct usbh_msc_cbw {
-	uint32_t dCBWSignature;                 /* Signature to identify this data pkt as CBW.          */
-	uint32_t dCBWTag;                       /* Command block tag sent by host.                      */
-	uint32_t dCBWDataTransferLength;        /* Number of bytes of data that host expects to xfer.   */
-	uint8_t bmCBWFlags;                     /* Flags (see Notes #2).                                */
-	uint8_t bCBWLUN;                        /* LUN to which the command block is being sent.        */
-	uint8_t bCBWCBLength;                   /* Length of CBWCB in bytes.                            */
-	uint8_t CBWCB[16];                      /* Command block to be executed by device.              */
+	uint32_t d_cbw_sig;                 /* Signature to identify this data pkt as CBW.          */
+	uint32_t d_cbw_tag;                       /* Command block tag sent by host.                      */
+	uint32_t d_cbw_data_trans_len;        /* Number of bytes of data that host expects to xfer.   */
+	uint8_t bm_cbw_flags;                     /* Flags (see Notes #2).                                */
+	uint8_t b_cbw_lun;                        /* LUN to which the command block is being sent.        */
+	uint8_t b_cbwcb_len;                   /* Length of cbwcb in bytes.                            */
+	uint8_t cbwcb[16];                      /* Command block to be executed by device.              */
 };
 
 /*
- *********************************************************************************************************
- *                                  COMMAND STATUS WRAPPER DATA TYPE
- *
  * Note(s) : (1) See 'USB Mass Storage Class - Bulk Only Transport', Section 5.2.
- *********************************************************************************************************
  */
 
 struct usbh_msc_csw {
-	uint32_t dCSWSignature;         /* Signature to identify this data pkt as CSW.          */
-	uint32_t dCSWTag;               /* Device shall set this to value in CBW's dCBWTag.     */
-	uint32_t dCSWDataResidue;       /* Difference between expected & actual nbr data bytes. */
-	uint8_t bCSWStatus;             /* Indicates success or failure of command.             */
+	uint32_t d_csw_sig;         /* Signature to identify this data pkt as CSW.          */
+	uint32_t d_csw_tag;               /* Device shall set this to value in CBW's d_cbw_tag.     */
+	uint32_t d_csw_data_residue;       /* Difference between expected & actual nbr data bytes. */
+	uint8_t b_csw_stat;             /* Indicates success or failure of command.             */
 };
 
 
@@ -1225,14 +1204,14 @@ static uint32_t usbh_msc_xfer_cmd(struct usbh_msc_dev *p_msc_dev,
 	struct usbh_msc_csw msc_csw;
 
 	/* Prepare CBW.                                         */
-	msc_cbw.dCBWSignature = USBH_MSC_SIG_CBW;
-	msc_cbw.dCBWTag = 0;
-	msc_cbw.dCBWDataTransferLength = data_len;
-	msc_cbw.bmCBWFlags = (dir == USBH_MSC_DATA_DIR_NONE) ? 0 : dir;
-	msc_cbw.bCBWLUN = lun;
-	msc_cbw.bCBWCBLength = cb_len;
+	msc_cbw.d_cbw_sig = USBH_MSC_SIG_CBW;
+	msc_cbw.d_cbw_tag = 0;
+	msc_cbw.d_cbw_data_trans_len = data_len;
+	msc_cbw.bm_cbw_flags = (dir == USBH_MSC_DATA_DIR_NONE) ? 0 : dir;
+	msc_cbw.b_cbw_lun = lun;
+	msc_cbw.b_cbwcb_len = cb_len;
 
-	memcpy((void *)msc_cbw.CBWCB,
+	memcpy((void *)msc_cbw.cbwcb,
 	       p_cb,
 	       cb_len);
 
@@ -1269,14 +1248,14 @@ static uint32_t usbh_msc_xfer_cmd(struct usbh_msc_dev *p_msc_dev,
 
 	*p_err = usbh_msc_rx_csw(p_msc_dev, &msc_csw); /* Receive CSW.                                         */
 
-	if ((msc_csw.dCSWSignature != USBH_MSC_SIG_CSW) ||
-	    (msc_csw.bCSWStatus == USBH_MSC_BCSWSTATUS_PHASE_ERROR) ||
-	    (msc_csw.dCSWTag != msc_cbw.dCBWTag)) {
+	if ((msc_csw.d_csw_sig != USBH_MSC_SIG_CSW) ||
+	    (msc_csw.b_csw_stat == USBH_MSC_BCSWSTATUS_PHASE_ERROR) ||
+	    (msc_csw.d_csw_tag != msc_cbw.d_cbw_tag)) {
 		usbh_msc_rx_rst_rcv(p_msc_dev); /* Invalid CSW, issue reset recovery.                   */
 	}
 
 	if (*p_err == 0) {
-		switch (msc_csw.bCSWStatus) {
+		switch (msc_csw.b_csw_stat) {
 		case USBH_MSC_BCSWSTATUS_CMD_PASSED:
 			*p_err = 0;
 			break;
@@ -1298,7 +1277,7 @@ static uint32_t usbh_msc_xfer_cmd(struct usbh_msc_dev *p_msc_dev,
 	}
 
 	/* Actual len of data xfered to dev.                    */
-	xfer_len = msc_cbw.dCBWDataTransferLength - msc_csw.dCSWDataResidue;
+	xfer_len = msc_cbw.d_cbw_data_trans_len - msc_csw.d_csw_data_residue;
 
 	return xfer_len;
 }
@@ -1873,15 +1852,15 @@ static void usbh_msc_fmt_cbw(struct usbh_msc_cbw *p_cbw,
 
 	p_buf_dest_cbw = (struct usbh_msc_cbw *)p_buf_dest;
 
-	p_buf_dest_cbw->dCBWSignature = sys_get_le32((uint8_t *)&p_cbw->dCBWSignature);
-	p_buf_dest_cbw->dCBWTag = sys_get_le32((uint8_t *)&p_cbw->dCBWTag);
-	p_buf_dest_cbw->dCBWDataTransferLength = sys_get_le32((uint8_t *)&p_cbw->dCBWDataTransferLength);
-	p_buf_dest_cbw->bmCBWFlags = p_cbw->bmCBWFlags;
-	p_buf_dest_cbw->bCBWLUN = p_cbw->bCBWLUN;
-	p_buf_dest_cbw->bCBWCBLength = p_cbw->bCBWCBLength;
+	p_buf_dest_cbw->d_cbw_sig = sys_get_le32((uint8_t *)&p_cbw->d_cbw_sig);
+	p_buf_dest_cbw->d_cbw_tag = sys_get_le32((uint8_t *)&p_cbw->d_cbw_tag);
+	p_buf_dest_cbw->d_cbw_data_trans_len = sys_get_le32((uint8_t *)&p_cbw->d_cbw_data_trans_len);
+	p_buf_dest_cbw->bm_cbw_flags = p_cbw->bm_cbw_flags;
+	p_buf_dest_cbw->b_cbw_lun = p_cbw->b_cbw_lun;
+	p_buf_dest_cbw->b_cbwcb_len = p_cbw->b_cbwcb_len;
 
 	for (i = 0; i < 16u; i++) {
-		p_buf_dest_cbw->CBWCB[i] = p_cbw->CBWCB[i];
+		p_buf_dest_cbw->cbwcb[i] = p_cbw->cbwcb[i];
 	}
 }
 
@@ -1896,8 +1875,8 @@ static void usbh_msc_parse_csw(struct usbh_msc_csw *p_csw,
 
 	p_buf_src_cbw = (struct usbh_msc_csw *)p_buf_src;
 
-	p_csw->dCSWSignature = sys_get_le32((uint8_t *)&p_buf_src_cbw->dCSWSignature);
-	p_csw->dCSWTag = sys_get_le32((uint8_t *)&p_buf_src_cbw->dCSWTag);
-	p_csw->dCSWDataResidue = sys_get_le32((uint8_t *)&p_buf_src_cbw->dCSWDataResidue);
-	p_csw->bCSWStatus = p_buf_src_cbw->bCSWStatus;
+	p_csw->d_csw_sig = sys_get_le32((uint8_t *)&p_buf_src_cbw->d_csw_sig);
+	p_csw->d_csw_tag = sys_get_le32((uint8_t *)&p_buf_src_cbw->d_csw_tag);
+	p_csw->d_csw_data_residue = sys_get_le32((uint8_t *)&p_buf_src_cbw->d_csw_data_residue);
+	p_csw->b_csw_stat = p_buf_src_cbw->b_csw_stat;
 }
