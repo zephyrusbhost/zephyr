@@ -210,97 +210,97 @@ LOG_MODULE_REGISTER(hcd);
 
 struct usbh_atsamx_desc_bank {
 	/* ----------- USB HOST PIPE DESCRIPTOR BANK ---------- */
-	volatile uint32_t ADDR;         /* Address of the data buffer                           */
-	volatile uint32_t PCKSIZE;      /* Packet size                                          */
-	volatile uint16_t EXTREG;       /* Extended register                                    */
-	volatile uint8_t STATUS_BK;     /* Host status bank                                     */
-	volatile uint8_t RSVD0;
-	volatile uint16_t CTRL_PIPE;    /* Host control pipe                                    */
-	volatile uint16_t STATUS_PIPE;  /* Host Status pipe                                     */
+	volatile uint32_t addr;         /* Address of the data buffer                           */
+	volatile uint32_t pck_size;      /* Packet size                                          */
+	volatile uint16_t ext_reg;       /* Extended register                                    */
+	volatile uint8_t stat_bnk;     /* Host status bank                                     */
+	volatile uint8_t rsvd_0;
+	volatile uint16_t ctrl_pipe;    /* Host control pipe                                    */
+	volatile uint16_t status_pipe;  /* Host Status pipe                                     */
 };
 
 struct usbh_atsamx_pipe_desc {
-	struct usbh_atsamx_desc_bank DescBank[2];
+	struct usbh_atsamx_desc_bank desc_bank[2];
 };
 
 struct usbh_atsamx_pipe_reg {
 	/* -------------- USB HOST PIPE REGISTERS ------------- */
-	volatile uint8_t PCFG;          /* Host pipe configuration                              */
-	volatile uint8_t RSVD0[2];
-	volatile uint8_t BINTERVAL;     /* interval for the Bulk-Out/Ping transaction           */
-	volatile uint8_t PSTATUSCLR;    /* Pipe status clear                                    */
-	volatile uint8_t PSTATUSSET;    /* Pipe status set                                      */
-	volatile uint8_t PSTATUS;       /* Pipe status register                                 */
-	volatile uint8_t PINTFLAG;      /* Host pipe interrupt flag register                    */
-	volatile uint8_t PINTENCLR;     /* Host pipe interrupt clear register                   */
-	volatile uint8_t PINTENSET;     /* Host pipe interrupt set register                     */
-	volatile uint8_t RSVD1[22u];
+	volatile uint8_t p_cfg;          /* Host pipe configuration                              */
+	volatile uint8_t rsvd_0[2];
+	volatile uint8_t b_interval;     /* interval for the Bulk-Out/Ping transaction           */
+	volatile uint8_t p_status_clr;    /* Pipe status clear                                    */
+	volatile uint8_t p_status_set;    /* Pipe status set                                      */
+	volatile uint8_t p_status;       /* Pipe status register                                 */
+	volatile uint8_t p_int_flag;      /* Host pipe interrupt flag register                    */
+	volatile uint8_t p_int_clr;     /* Host pipe interrupt clear register                   */
+	volatile uint8_t p_int_set;     /* Host pipe interrupt set register                     */
+	volatile uint8_t rsvd_1[22u];
 };
 
 struct usbh_atsamx_reg {
 	/* ------------ USB HOST GENERAL REGISTERS ------------ */
-	volatile uint8_t CTRLA;         /* Control A                                            */
-	volatile uint8_t RSVD0;
-	volatile uint8_t SYNCBUSY;      /* Synchronization Busy                                 */
-	volatile uint8_t QOSCTRL;       /* QOS control                                          */
-	volatile uint32_t RSVD1;
-	volatile uint16_t CTRLB;        /* Control B                                            */
-	volatile uint8_t HSOFC;         /* Host Start-of-Frame control                          */
-	volatile uint8_t RSVD2;
-	volatile uint8_t STATUS;        /* Status                                               */
-	volatile uint8_t FSMSTATUS;     /* Finite state machine status                          */
-	volatile uint16_t RSVD3;
-	volatile uint16_t FNUM;         /* Host frame number                                    */
-	volatile uint8_t FLENHIGH;      /* Host frame length                                    */
-	volatile uint8_t RSVD4;
-	volatile uint16_t INTENCLR;     /* Host interrupt enable register clear                 */
-	volatile uint16_t RSVD5;
-	volatile uint16_t INTENSET;     /* Host interrupt enable register set                   */
-	volatile uint16_t RSVD6;
-	volatile uint16_t INTFLAG;      /* Host interrupt flag status and clear                 */
-	volatile uint16_t RSVD7;
-	volatile uint16_t PINTSMRY;     /* Pipe interrupt summary                               */
-	volatile uint16_t RSVD8;
-	volatile uint32_t DESCADD;      /* Descriptor address                                   */
-	volatile uint16_t PADCAL;       /* Pad calibration                                      */
-	volatile uint8_t RSVD9[214u];
-	struct usbh_atsamx_pipe_reg HPIPE
+	volatile uint8_t ctrl_a;         /* Control A                                            */
+	volatile uint8_t rsvd_0;
+	volatile uint8_t sync_busy;      /* Synchronization Busy                                 */
+	volatile uint8_t qos_ctrl;       /* QOS control                                          */
+	volatile uint32_t rsvd_1;
+	volatile uint16_t ctrl_b;        /* Control B                                            */
+	volatile uint8_t h_sof_c;         /* Host Start-of-Frame control                          */
+	volatile uint8_t rsvd_2;
+	volatile uint8_t status;        /* Status                                               */
+	volatile uint8_t fsm_status;     /* Finite state machine status                          */
+	volatile uint16_t rsvd_3;
+	volatile uint16_t frm_nbr;         /* Host frame number                                    */
+	volatile uint8_t frm_len_high;      /* Host frame length                                    */
+	volatile uint8_t rsvd_4;
+	volatile uint16_t int_en_clr;     /* Host interrupt enable register clear                 */
+	volatile uint16_t rsvd_5;
+	volatile uint16_t int_en_set;     /* Host interrupt enable register set                   */
+	volatile uint16_t rsvd_6;
+	volatile uint16_t int_flag;      /* Host interrupt flag status and clear                 */
+	volatile uint16_t rsvd7;
+	volatile uint16_t p_int_smry;     /* Pipe interrupt summary                               */
+	volatile uint16_t rsvd_8;
+	volatile uint32_t desc_addr;      /* Descriptor address                                   */
+	volatile uint16_t pad_cal;       /* Pad calibration                                      */
+	volatile uint8_t rsvd_9[214u];
+	struct usbh_atsamx_pipe_reg h_pipe
 	[ATSAMX_MAX_NBR_PIPE];         /* Host pipes                                           */
 };
 
 struct usbh_atsamx_pinfo {
 	uint16_t
-		EP_Addr; /* Device addr | EP DIR | EP NBR.                       */
+		ep_addr; /* Device addr | EP DIR | EP NBR.                       */
 	/* To ensure the urb EP xfer size is not corrupted ...  */
 	uint16_t
-		Appbuf_len; /* ... for multi-transaction transfer                   */
-	uint32_t NextXferLen;
-	struct usbh_urb *URB_Ptr;
+		appbuf_len; /* ... for multi-transaction transfer                   */
+	uint32_t next_xfer_len;
+	struct usbh_urb *urb_ptr;
 };
 
 struct usbh_drv_data {
-	struct usbh_atsamx_pipe_desc DescTbl[ATSAMX_MAX_NBR_PIPE];
-	struct usbh_atsamx_pinfo PipeTbl[ATSAMX_MAX_NBR_PIPE];
-	uint16_t PipeUsed;              /* Bit array for BULK, ISOC, INTR, CTRL pipe mgmt.      */
+	struct usbh_atsamx_pipe_desc desc_tbl[ATSAMX_MAX_NBR_PIPE];
+	struct usbh_atsamx_pinfo pipe_tbl[ATSAMX_MAX_NBR_PIPE];
+	uint16_t pipe_used;              /* Bit array for BULK, ISOC, INTR, CTRL pipe mgmt.      */
 
-	uint8_t RH_Desc
+	uint8_t rh_desc
 	[USBH_HUB_LEN_HUB_DESC];        /* RH desc content.                                     */
 
 	uint16_t
-		RH_PortStat;            /* Root Hub Port status.                                */
+		rh_port_stat;            /* Root Hub Port status.                                */
 	uint16_t
-		RH_PortChng;            /* Root Hub Port status change.                         */
+		rh_port_chng;            /* Root Hub Port status change.                         */
 };
 
 static struct k_thread htask;
 static struct usbh_hc_drv *p_hc_drv_local;
 
-K_MSGQ_DEFINE(ATSAMX_URB_Proc_Q, sizeof(struct usbh_urb),
+K_MSGQ_DEFINE(atsamx_urb_proc_q, sizeof(struct usbh_urb),
 	      ATSAMX_URB_PROC_Q_MAX, 4);
 
-K_THREAD_STACK_DEFINE(ATSAMX_URB_ProcTaskStk, ATSAMX_URB_PROC_TASK_STK_SIZE);
+K_THREAD_STACK_DEFINE(atsamx_urb_task_stk, ATSAMX_URB_PROC_TASK_STK_SIZE);
 
-K_MEM_POOL_DEFINE(ATSAMX_DrvMemPool, DT_INST_PROP(0, buf_len), DT_INST_PROP(0, buf_len), (DT_INST_PROP(0, nbr_ep_bulk) + DT_INST_PROP(0, nbr_ep_intr) + 1),
+K_MEM_POOL_DEFINE(atsamx_drv_pool, DT_INST_PROP(0, buf_len), DT_INST_PROP(0, buf_len), (DT_INST_PROP(0, nbr_ep_bulk) + DT_INST_PROP(0, nbr_ep_intr) + 1),
 		  sizeof(uint32_t));
 
 /* --------------- DRIVER API FUNCTIONS --------------- */
@@ -476,8 +476,8 @@ static void usbh_atsamx_hcd_init(struct usbh_hc_drv *p_hc_drv,
 		return;
 	}
 
-	k_thread_create(&htask, ATSAMX_URB_ProcTaskStk,
-			K_THREAD_STACK_SIZEOF(ATSAMX_URB_ProcTaskStk),
+	k_thread_create(&htask, atsamx_urb_task_stk,
+			K_THREAD_STACK_SIZEOF(atsamx_urb_task_stk),
 			usbh_atsamx_process_urb,
 			(void *)p_hc_drv,
 			NULL, NULL, 0, 0,
@@ -517,19 +517,19 @@ static void usbh_atsamx_hcd_start(struct usbh_hc_drv *p_hc_drv,
 	}
 	/* --- */
 
-	if (!(p_reg->SYNCBUSY &
+	if (!(p_reg->sync_busy &
 	      USBH_ATSAMX_SYNCBUSY_SWRST)) { /* Check if synchronization is completed                */
-		while (p_reg->SYNCBUSY & USBH_ATSAMX_SYNCBUSY_MSK)
+		while (p_reg->sync_busy & USBH_ATSAMX_SYNCBUSY_MSK)
 			;
-		reg_val = p_reg->CTRLA;
+		reg_val = p_reg->ctrl_a;
 		if (reg_val & USBH_ATSAMX_CTRLA_ENABLE) {
 			reg_val &= ~USBH_ATSAMX_CTRLA_ENABLE;
 			key = irq_lock();
-			p_reg->CTRLA = reg_val;
-			while (p_reg->SYNCBUSY & USBH_ATSAMX_SYNCBUSY_MSK)
+			p_reg->ctrl_a = reg_val;
+			while (p_reg->sync_busy & USBH_ATSAMX_SYNCBUSY_MSK)
 				;
 			irq_unlock(key); /* Disable USB peripheral                               */
-			while (p_reg->SYNCBUSY & USBH_ATSAMX_SYNCBUSY_ENABLE) {
+			while (p_reg->sync_busy & USBH_ATSAMX_SYNCBUSY_ENABLE) {
 
 			}
 		}
@@ -537,14 +537,14 @@ static void usbh_atsamx_hcd_start(struct usbh_hc_drv *p_hc_drv,
 		/* .. the USB will be disabled
 		 */
 		key = irq_lock();
-		p_reg->CTRLA = USBH_ATSAMX_CTRLA_SWRST;
-		while (p_reg->SYNCBUSY & USBH_ATSAMX_SYNCBUSY_MSK) {
+		p_reg->ctrl_a = USBH_ATSAMX_CTRLA_SWRST;
+		while (p_reg->sync_busy & USBH_ATSAMX_SYNCBUSY_MSK) {
 
 		}
 		irq_unlock(key);
 	}
 
-	while (p_reg->SYNCBUSY & USBH_ATSAMX_SYNCBUSY_SWRST) {
+	while (p_reg->sync_busy & USBH_ATSAMX_SYNCBUSY_SWRST) {
 
 	}
 
@@ -566,59 +566,59 @@ static void usbh_atsamx_hcd_start(struct usbh_hc_drv *p_hc_drv,
 			6u; /* Default value                                        */
 	}
 
-	p_reg->PADCAL =
+	p_reg->pad_cal =
 		((pad_transp << 0) | (pad_transn << 6) | (pad_trim << 12u));
 
 	/* Write quality of service RAM access                  */
-	p_reg->QOSCTRL =
+	p_reg->qos_ctrl =
 		(USBH_ATSAMX_QOSCTRL_DQOS_HIGH | USBH_ATSAMX_QOSCTRL_CQOS_HIGH);
 	/* Set Host mode & set USB clk to run in standby mode   */
 	key = irq_lock();
-	p_reg->CTRLA = (USBH_ATSAMX_CTRLA_HOST_MODE | USBH_ATSAMX_CTRLA_RUNSTBY);
-	while (p_reg->SYNCBUSY & USBH_ATSAMX_SYNCBUSY_MSK)
+	p_reg->ctrl_a = (USBH_ATSAMX_CTRLA_HOST_MODE | USBH_ATSAMX_CTRLA_RUNSTBY);
+	while (p_reg->sync_busy & USBH_ATSAMX_SYNCBUSY_MSK)
 		;
 	irq_unlock(key);
 
-	p_reg->DESCADD =
-		(uint32_t)&p_drv_data->DescTbl
+	p_reg->desc_addr =
+		(uint32_t)&p_drv_data->desc_tbl
 		[0];         /* Set Pipe Descriptor address                          */
 
-	p_reg->CTRLB &=
+	p_reg->ctrl_b &=
 		~USBH_ATSAMX_CTRLB_SPDCONF_MSK;         /* Clear USB speed configuration                        */
-	p_reg->CTRLB |=
+	p_reg->ctrl_b |=
 		(USBH_ATSAMX_CTRLB_SPDCONF_LSFS |       /* Set USB LS/FS speed configuration                    */
 		 USBH_ATSAMX_CTRLB_VBUSOK);
 
 	IRQ_CONNECT(DT_INST_IRQN(0), 0, usbh_atsamx_isr_callback, 0, 0);
 	irq_enable(DT_INST_IRQN(0));
 
-	while (p_reg->SYNCBUSY & USBH_ATSAMX_SYNCBUSY_MSK)
+	while (p_reg->sync_busy & USBH_ATSAMX_SYNCBUSY_MSK)
 		;
-	reg_val = p_reg->CTRLA;
+	reg_val = p_reg->ctrl_a;
 	if ((reg_val & USBH_ATSAMX_CTRLA_ENABLE) == 0) {
 		key = irq_lock();
-		p_reg->CTRLA = (reg_val | USBH_ATSAMX_CTRLA_ENABLE);
-		while (p_reg->SYNCBUSY & USBH_ATSAMX_SYNCBUSY_MSK) {
+		p_reg->ctrl_a = (reg_val | USBH_ATSAMX_CTRLA_ENABLE);
+		while (p_reg->sync_busy & USBH_ATSAMX_SYNCBUSY_MSK) {
 
 		}
 		irq_unlock(key);
-		while (p_reg->SYNCBUSY & USBH_ATSAMX_SYNCBUSY_ENABLE) {
+		while (p_reg->sync_busy & USBH_ATSAMX_SYNCBUSY_ENABLE) {
 
 		}
 	}
 
 	for (i = 0; i < ATSAMX_MAX_NBR_PIPE; i++) {
-		p_reg->HPIPE[i].PCFG =
+		p_reg->h_pipe[i].p_cfg =
 			0; /* Disable the pipe                                     */
 		/* Set default pipe info fields.                        */
-		p_drv_data->PipeTbl[i].Appbuf_len = 0;
-		p_drv_data->PipeTbl[i].NextXferLen = 0;
-		p_drv_data->PipeTbl[i].EP_Addr = ATSAMX_DFLT_EP_ADDR;
+		p_drv_data->pipe_tbl[i].appbuf_len = 0;
+		p_drv_data->pipe_tbl[i].next_xfer_len = 0;
+		p_drv_data->pipe_tbl[i].ep_addr = ATSAMX_DFLT_EP_ADDR;
 	}
 
-	p_reg->INTFLAG =
+	p_reg->int_flag =
 		USBH_ATSAMX_INT_MSK;            /* Clear all interrupts                                 */
-	p_reg->INTENSET =
+	p_reg->int_en_set =
 		(USBH_ATSAMX_INT_DCONN |        /* Enable interrupts to detect connection               */
 		 USBH_ATSAMX_INT_RST | USBH_ATSAMX_INT_WAKEUP);
 	*p_err = 0;
@@ -636,14 +636,14 @@ static void usbh_atsamx_hcd_stop(struct usbh_hc_drv *p_hc_drv,
 
 	p_reg =  (struct usbh_atsamx_reg *) DT_INST_REG_ADDR(0);
 
-	p_reg->INTENCLR =
+	p_reg->int_en_clr =
 		USBH_ATSAMX_INT_MSK;    /* Disable all interrupts                               */
-	p_reg->INTFLAG =
+	p_reg->int_flag =
 		USBH_ATSAMX_INT_MSK;    /* Clear all interrupts                                 */
 
 	irq_disable(7);
 
-	p_reg->CTRLB &= ~USBH_ATSAMX_CTRLB_VBUSOK;
+	p_reg->ctrl_b &= ~USBH_ATSAMX_CTRLB_VBUSOK;
 
 	*p_err = 0;
 }
@@ -675,15 +675,15 @@ static void usbh_atsamx_hcd_suspend(struct usbh_hc_drv *p_hc_drv,
 	p_drv_data = (struct usbh_drv_data *)p_hc_drv->data_ptr;
 
 	for (pipe_nbr = 0; pipe_nbr < ATSAMX_MAX_NBR_PIPE; pipe_nbr++) {
-		if (DEF_BIT_IS_SET(p_drv_data->PipeUsed, BIT(pipe_nbr))) {
-			p_reg->HPIPE[pipe_nbr].PSTATUSSET =
+		if (DEF_BIT_IS_SET(p_drv_data->pipe_used, BIT(pipe_nbr))) {
+			p_reg->h_pipe[pipe_nbr].p_status_set =
 				USBH_ATSAMX_PSTATUS_PFREEZE; /* Stop transfer                          */
 		}
 	}
 
 	k_sleep(K_MSEC(1)); /* wait at least 1 complete frame                       */
 
-	p_reg->CTRLB &=
+	p_reg->ctrl_b &=
 		~USBH_ATSAMX_CTRLB_SOFE; /* Stop sending start of frames                         */
 
 	*p_err = 0;
@@ -703,18 +703,18 @@ static void usbh_atsamx_hcd_resume(struct usbh_hc_drv *p_hc_drv,
 	p_reg =  (struct usbh_atsamx_reg *) DT_INST_REG_ADDR(0);
 	p_drv_data = (struct usbh_drv_data *)p_hc_drv->data_ptr;
 
-	p_reg->CTRLB |=
+	p_reg->ctrl_b |=
 		USBH_ATSAMX_CTRLB_SOFE;         /* Start sending start of frames                        */
-	p_reg->CTRLB |=
+	p_reg->ctrl_b |=
 		USBH_ATSAMX_CTRLB_RESUME;       /* Do resume to downstream                              */
-	p_reg->INTENSET =
+	p_reg->int_en_set =
 		USBH_ATSAMX_INT_WAKEUP;         /* Force a wakeup interrupt                             */
 
 	k_sleep(K_MSEC(20u));
 
 	for (pipe_nbr = 0; pipe_nbr < ATSAMX_MAX_NBR_PIPE; pipe_nbr++) {
-		if (DEF_BIT_IS_SET(p_drv_data->PipeUsed, BIT(pipe_nbr))) {
-			p_reg->HPIPE[pipe_nbr].PSTATUSCLR =
+		if (DEF_BIT_IS_SET(p_drv_data->pipe_used, BIT(pipe_nbr))) {
+			p_reg->h_pipe[pipe_nbr].p_status_clr =
 				USBH_ATSAMX_PSTATUS_PFREEZE; /* Start transfer                         */
 		}
 	}
@@ -732,7 +732,7 @@ static uint32_t usbh_atsamx_hcd_frame_nbr_get(struct usbh_hc_drv *p_hc_drv,
 	uint32_t frm_nbr;
 
 	p_reg =  (struct usbh_atsamx_reg *) DT_INST_REG_ADDR(0);
-	frm_nbr = (p_reg->FNUM & USBH_ATSAMX_FNUM_MSK) >> USBH_ATSAMX_FNUM_POS;
+	frm_nbr = (p_reg->frm_nbr & USBH_ATSAMX_FNUM_MSK) >> USBH_ATSAMX_FNUM_POS;
 
 	*p_err = 0;
 
@@ -755,7 +755,7 @@ static void usbh_atsamx_hcd_ep_open(struct usbh_hc_drv *p_hc_drv,
 	p_ep->urb.err = 0;
 	*p_err = 0;
 
-	if (p_reg->STATUS ==
+	if (p_reg->status ==
 	    0) { /* Do not open Endpoint if device is disconnected       */
 		LOG_ERR("device not connected");
 		*p_err = EIO;
@@ -788,17 +788,17 @@ static void usbh_atsamx_hcd_ep_close(struct usbh_hc_drv *p_hc_drv,
 	}
 
 	if (pipe_nbr != ATSAMX_INVALID_PIPE) {
-		p_reg->HPIPE[pipe_nbr].PINTENCLR =
+		p_reg->h_pipe[pipe_nbr].p_int_clr =
 			USBH_ATSAMX_PINT_ALL;   /* Disable all pipe interrupts                           */
-		p_reg->HPIPE[pipe_nbr].PINTFLAG =
+		p_reg->h_pipe[pipe_nbr].p_int_flag =
 			USBH_ATSAMX_PINT_ALL;   /* Clear   all pipe interrupt flags                      */
-		p_reg->HPIPE[pipe_nbr].PCFG =
+		p_reg->h_pipe[pipe_nbr].p_cfg =
 			0;                      /* Disable the pipe                                      */
 
-		p_drv_data->PipeTbl[pipe_nbr].EP_Addr = ATSAMX_DFLT_EP_ADDR;
-		p_drv_data->PipeTbl[pipe_nbr].Appbuf_len = 0;
-		p_drv_data->PipeTbl[pipe_nbr].NextXferLen = 0;
-		WRITE_BIT(p_drv_data->PipeUsed, pipe_nbr, 0);
+		p_drv_data->pipe_tbl[pipe_nbr].ep_addr = ATSAMX_DFLT_EP_ADDR;
+		p_drv_data->pipe_tbl[pipe_nbr].appbuf_len = 0;
+		p_drv_data->pipe_tbl[pipe_nbr].next_xfer_len = 0;
+		WRITE_BIT(p_drv_data->pipe_used, pipe_nbr, 0);
 
 	}
 }
@@ -860,15 +860,15 @@ static void usbh_atsamx_hcd_urb_submit(struct usbh_hc_drv *p_hc_drv,
 	}
 	LOG_DBG("pipe %d set ep adress %d", pipe_nbr,
 		((p_urb->ep_ptr->dev_addr << 8) | p_urb->ep_ptr->desc.b_endpoint_address));
-	p_drv_data->PipeTbl[pipe_nbr].EP_Addr =
+	p_drv_data->pipe_tbl[pipe_nbr].ep_addr =
 		((p_urb->ep_ptr->dev_addr << 8) |
 		 p_urb->ep_ptr->desc.b_endpoint_address);
-	p_drv_data->PipeTbl[pipe_nbr].Appbuf_len = 0;
-	p_drv_data->PipeTbl[pipe_nbr].NextXferLen = 0;
+	p_drv_data->pipe_tbl[pipe_nbr].appbuf_len = 0;
+	p_drv_data->pipe_tbl[pipe_nbr].next_xfer_len = 0;
 
 	if (p_urb->dma_buf_ptr == NULL) {
 		p_urb->dma_buf_ptr =
-			k_mem_pool_malloc(&ATSAMX_DrvMemPool,
+			k_mem_pool_malloc(&atsamx_drv_pool,
 					  DT_INST_PROP(0, buf_len));
 		if (p_urb->dma_buf_ptr == NULL) {
 			*p_err = ENOMEM;
@@ -876,52 +876,52 @@ static void usbh_atsamx_hcd_urb_submit(struct usbh_hc_drv *p_hc_drv,
 		}
 	}
 
-	p_reg->HPIPE[pipe_nbr].PCFG = USBH_ATSAMX_PCFG_PTYPE(
+	p_reg->h_pipe[pipe_nbr].p_cfg = USBH_ATSAMX_PCFG_PTYPE(
 		ep_type);               /* Set pipe type and single bank               */
-	p_reg->HPIPE[pipe_nbr].PINTENCLR =
+	p_reg->h_pipe[pipe_nbr].p_int_clr =
 		USBH_ATSAMX_PINT_ALL;   /* Disable all interrupts                               */
-	p_reg->HPIPE[pipe_nbr].PINTFLAG =
+	p_reg->h_pipe[pipe_nbr].p_int_flag =
 		USBH_ATSAMX_PINT_ALL;   /* Clear   all interrupts                               */
 
 	/*enable general error and stall interrupts             */
-	p_reg->HPIPE[pipe_nbr].PINTENSET =
+	p_reg->h_pipe[pipe_nbr].p_int_set =
 		(USBH_ATSAMX_PINT_STALL | USBH_ATSAMX_PINT_PERR);
 
 	if ((ep_type == USBH_EP_TYPE_BULK) && (p_urb->ep_ptr->interval < 1)) {
-		p_reg->HPIPE[pipe_nbr].BINTERVAL =
+		p_reg->h_pipe[pipe_nbr].b_interval =
 			1; /* See Note 2.                                          */
 	} else {
-		p_reg->HPIPE[pipe_nbr].BINTERVAL = p_urb->ep_ptr->interval;
+		p_reg->h_pipe[pipe_nbr].b_interval = p_urb->ep_ptr->interval;
 	}
 
-	p_drv_data->PipeTbl[pipe_nbr].URB_Ptr =
+	p_drv_data->pipe_tbl[pipe_nbr].urb_ptr =
 		p_urb; /* Store transaction urb                                */
 
 	switch (ep_type) {
 	case USBH_EP_TYPE_CTRL:
 		if (p_urb->token == USBH_TOKEN_SETUP) {
-			p_reg->HPIPE[pipe_nbr].PINTENSET =
+			p_reg->h_pipe[pipe_nbr].p_int_set =
 				USBH_ATSAMX_PINT_TXSTP;         /* Enable setup transfer interrupt      */
-			p_reg->HPIPE[pipe_nbr].PSTATUSCLR =
+			p_reg->h_pipe[pipe_nbr].p_status_clr =
 				USBH_ATSAMX_PSTATUS_DTGL;       /* Set PID to DATA0                     */
 		} else {
-			p_reg->HPIPE[pipe_nbr].PINTENSET =
+			p_reg->h_pipe[pipe_nbr].p_int_set =
 				USBH_ATSAMX_PINT_TRCPT;         /* Enable transfer complete interrupt   */
-			p_reg->HPIPE[pipe_nbr].PSTATUSSET =
+			p_reg->h_pipe[pipe_nbr].p_status_set =
 				USBH_ATSAMX_PSTATUS_DTGL;       /* Set PID to DATA1                     */
 		}
 		break;
 
 	case USBH_EP_TYPE_INTR:
 	case USBH_EP_TYPE_BULK:
-		p_reg->HPIPE[pipe_nbr].PINTENSET =
+		p_reg->h_pipe[pipe_nbr].p_int_set =
 			USBH_ATSAMX_PINT_TRCPT; /* Enable transfer complete interrupt   */
 
 		if (p_urb->ep_ptr->data_pid == 0) {
-			p_reg->HPIPE[pipe_nbr].PSTATUSCLR =
+			p_reg->h_pipe[pipe_nbr].p_status_clr =
 				USBH_ATSAMX_PSTATUS_DTGL; /* Set PID to DATA0                     */
 		} else {
-			p_reg->HPIPE[pipe_nbr].PSTATUSSET =
+			p_reg->h_pipe[pipe_nbr].p_status_set =
 				USBH_ATSAMX_PSTATUS_DTGL; /* Set PID to DATA1                     */
 		}
 		break;
@@ -932,11 +932,11 @@ static void usbh_atsamx_hcd_urb_submit(struct usbh_hc_drv *p_hc_drv,
 		return;
 	}
 
-	usbh_atsamx_pipe_cfg(p_urb, &p_reg->HPIPE[pipe_nbr],
-			     &p_drv_data->PipeTbl[pipe_nbr],
-			     &p_drv_data->DescTbl[pipe_nbr].DescBank[0]);
+	usbh_atsamx_pipe_cfg(p_urb, &p_reg->h_pipe[pipe_nbr],
+			     &p_drv_data->pipe_tbl[pipe_nbr],
+			     &p_drv_data->desc_tbl[pipe_nbr].desc_bank[0]);
 	/* Start transfer                                       */
-	p_reg->HPIPE[pipe_nbr].PSTATUSCLR = USBH_ATSAMX_PSTATUS_PFREEZE;
+	p_reg->h_pipe[pipe_nbr].p_status_clr = USBH_ATSAMX_PSTATUS_PFREEZE;
 	*p_err = 0;
 }
 
@@ -961,7 +961,7 @@ static void usbh_atsamx_hcd_urb_complete(struct usbh_hc_drv *p_hc_drv,
 
 	key = irq_lock();
 	xfer_len = USBH_ATSAMX_GET_BYTE_CNT(
-		p_drv_data->DescTbl[pipe_nbr].DescBank[0].PCKSIZE);
+		p_drv_data->desc_tbl[pipe_nbr].desc_bank[0].pck_size);
 
 	if (p_urb->token ==
 	    USBH_TOKEN_IN) { /* -------------- HANDLE IN TRANSACTIONS -------------- */
@@ -970,7 +970,7 @@ static void usbh_atsamx_hcd_urb_complete(struct usbh_hc_drv *p_hc_drv,
 		       p_urb->dma_buf_ptr, xfer_len);
 
 		/* Check if it rx'd more data than what was expected    */
-		if (p_drv_data->PipeTbl[pipe_nbr].Appbuf_len >
+		if (p_drv_data->pipe_tbl[pipe_nbr].appbuf_len >
 		    p_urb->uberbuf_len) {
 			p_urb->xfer_len += xfer_len;
 			p_urb->err = EIO;
@@ -978,33 +978,33 @@ static void usbh_atsamx_hcd_urb_complete(struct usbh_hc_drv *p_hc_drv,
 			p_urb->xfer_len += xfer_len;
 		}
 	} else {   /* ----------- HANDLE SETUP/OUT TRANSACTIONS ---------- */
-		xfer_len = (p_drv_data->PipeTbl[pipe_nbr].Appbuf_len - xfer_len);
+		xfer_len = (p_drv_data->pipe_tbl[pipe_nbr].appbuf_len - xfer_len);
 		if (xfer_len == 0) {
 			p_urb->xfer_len +=
-				p_drv_data->PipeTbl[pipe_nbr].NextXferLen;
+				p_drv_data->pipe_tbl[pipe_nbr].next_xfer_len;
 		} else {
 			p_urb->xfer_len +=
-				(p_drv_data->PipeTbl[pipe_nbr].NextXferLen -
+				(p_drv_data->pipe_tbl[pipe_nbr].next_xfer_len -
 				 xfer_len);
 		}
 	}
 
-	p_reg->HPIPE[pipe_nbr].PINTENCLR =
+	p_reg->h_pipe[pipe_nbr].p_int_clr =
 		USBH_ATSAMX_PINT_ALL;   /* Disable all pipe interrupts                          */
-	p_reg->HPIPE[pipe_nbr].PINTFLAG =
+	p_reg->h_pipe[pipe_nbr].p_int_flag =
 		USBH_ATSAMX_PINT_ALL;   /* Clear   all pipe interrupts                          */
-	p_reg->HPIPE[pipe_nbr].PCFG =
+	p_reg->h_pipe[pipe_nbr].p_cfg =
 		0;                      /* Disable the pipe                                     */
 	irq_unlock(key);
 
 	k_free(p_urb->dma_buf_ptr);
 	p_urb->dma_buf_ptr = NULL;
 
-	p_drv_data->PipeTbl[pipe_nbr].EP_Addr = ATSAMX_DFLT_EP_ADDR;
-	p_drv_data->PipeTbl[pipe_nbr].Appbuf_len = 0;
-	p_drv_data->PipeTbl[pipe_nbr].NextXferLen = 0;
-	p_drv_data->PipeTbl[pipe_nbr].URB_Ptr = NULL;
-	WRITE_BIT(p_drv_data->PipeUsed, pipe_nbr, 0);
+	p_drv_data->pipe_tbl[pipe_nbr].ep_addr = ATSAMX_DFLT_EP_ADDR;
+	p_drv_data->pipe_tbl[pipe_nbr].appbuf_len = 0;
+	p_drv_data->pipe_tbl[pipe_nbr].next_xfer_len = 0;
+	p_drv_data->pipe_tbl[pipe_nbr].urb_ptr = NULL;
+	WRITE_BIT(p_drv_data->pipe_used, pipe_nbr, 0);
 }
 
 /*
@@ -1042,27 +1042,27 @@ usbh_atsamx_rh_port_status_get(struct usbh_hc_drv *p_hc_drv, uint8_t port_nbr,
 		return 0;
 	}
 	/* Bits not used by the stack. Maintain constant value. */
-	p_drv_data->RH_PortStat &= ~USBH_HUB_STATUS_PORT_TEST;
-	p_drv_data->RH_PortStat &= ~USBH_HUB_STATUS_PORT_INDICATOR;
+	p_drv_data->rh_port_stat &= ~USBH_HUB_STATUS_PORT_TEST;
+	p_drv_data->rh_port_stat &= ~USBH_HUB_STATUS_PORT_INDICATOR;
 
-	reg_val = (p_reg->STATUS & USBH_ATSAMX_STATUS_SPEED_MSK) >>
+	reg_val = (p_reg->status & USBH_ATSAMX_STATUS_SPEED_MSK) >>
 		  USBH_ATSAMX_STATUS_SPEED_POS;
 	if (reg_val ==
 	    USBH_ATSAMX_STATUS_SPEED_FS) {              /* ------------- FULL-SPEED DEVICE ATTACHED ----------- */
-		p_drv_data->RH_PortStat &=
+		p_drv_data->rh_port_stat &=
 			~USBH_HUB_STATUS_PORT_LOW_SPD;  /* PORT_LOW_SPEED  = 0 = FS dev attached.        */
-		p_drv_data->RH_PortStat &=
+		p_drv_data->rh_port_stat &=
 			~USBH_HUB_STATUS_PORT_HIGH_SPD; /* PORT_HIGH_SPEED = 0 = FS dev attached.        */
 	} else if (reg_val ==
 		   USBH_ATSAMX_STATUS_SPEED_LS) {       /* ------------- LOW-SPEED DEVICE ATTACHED ------------ */
-		p_drv_data->RH_PortStat |=
+		p_drv_data->rh_port_stat |=
 			USBH_HUB_STATUS_PORT_LOW_SPD;   /* PORT_LOW_SPEED  = 1 = LS dev attached.        */
-		p_drv_data->RH_PortStat &=
+		p_drv_data->rh_port_stat &=
 			~USBH_HUB_STATUS_PORT_HIGH_SPD; /* PORT_HIGH_SPEED = 0 = LS dev attached.        */
 	}
 
-	p_port_status->w_port_status = p_drv_data->RH_PortStat;
-	p_port_status->w_port_change = p_drv_data->RH_PortChng;
+	p_port_status->w_port_status = p_drv_data->rh_port_stat;
+	p_port_status->w_port_change = p_drv_data->rh_port_chng;
 
 	return 1;
 }
@@ -1088,11 +1088,11 @@ static bool usbh_atsamx_rh_hub_desc_get(struct usbh_hc_drv *p_hc_drv,
 
 	usbh_hub_fmt_hub_desc(
 		&hub_desc,
-		p_drv_data->RH_Desc); /* Write the structure in USB format                    */
+		p_drv_data->rh_desc); /* Write the structure in USB format                    */
 
 	buf_len = MIN(buf_len, sizeof(struct usbh_hub_desc));
 	memcpy(
-		p_buf, p_drv_data->RH_Desc,
+		p_buf, p_drv_data->rh_desc,
 		buf_len); /* Copy the formatted structure into the buffer         */
 
 	return 1;
@@ -1117,7 +1117,7 @@ static bool usbh_atsamx_rh_port_en_clr(struct usbh_hc_drv *p_hc_drv,
 
 	p_drv_data = (struct usbh_drv_data *)p_hc_drv->data_ptr;
 
-	p_drv_data->RH_PortStat &=
+	p_drv_data->rh_port_stat &=
 		~USBH_HUB_STATUS_PORT_EN; /* Bit is clr by ClearPortFeature(PORT_ENABLE)          */
 
 	return 1;
@@ -1133,7 +1133,7 @@ static bool usbh_atsamx_rh_port_en_chng_clr(struct usbh_hc_drv *p_hc_drv,
 
 	p_drv_data = (struct usbh_drv_data *)p_hc_drv->data_ptr;
 
-	p_drv_data->RH_PortChng &=
+	p_drv_data->rh_port_chng &=
 		~USBH_HUB_STATUS_C_PORT_EN; /* Bit is clr by ClearPortFeature(C_PORT_ENABLE)        */
 
 	return 1;
@@ -1149,7 +1149,7 @@ static bool usbh_atsamx_rh_port_pwr_set(struct usbh_hc_drv *p_hc_drv,
 
 	p_drv_data = (struct usbh_drv_data *)p_hc_drv->data_ptr;
 
-	p_drv_data->RH_PortStat |=
+	p_drv_data->rh_port_stat |=
 		USBH_HUB_STATUS_PORT_PWR; /* Bit is set by SetPortFeature(PORT_POWER) request     */
 
 	return 1;
@@ -1176,9 +1176,9 @@ static bool usbh_atsamx_hcd_port_reset_set(struct usbh_hc_drv *p_hc_drv,
 	p_reg =  (struct usbh_atsamx_reg *) DT_INST_REG_ADDR(0);
 	p_drv_data = (struct usbh_drv_data *)p_hc_drv->data_ptr;
 
-	p_drv_data->RH_PortStat |=
+	p_drv_data->rh_port_stat |=
 		USBH_HUB_STATUS_PORT_RESET;     /* This bit is set while in the resetting state         */
-	p_reg->CTRLB |=
+	p_reg->ctrl_b |=
 		USBH_ATSAMX_CTRLB_BUSRESET;     /* Send USB reset signal.                               */
 
 	return 1;
@@ -1194,7 +1194,7 @@ static bool usbh_atsamx_hcd_port_reset_chng_clr(struct usbh_hc_drv *p_hc_drv,
 
 	p_drv_data = (struct usbh_drv_data *)p_hc_drv->data_ptr;
 
-	p_drv_data->RH_PortChng &=
+	p_drv_data->rh_port_chng &=
 		~USBH_HUB_STATUS_C_PORT_RESET; /* Bit is clr by ClearPortFeature(C_PORT_RESET) request */
 
 	return 1;
@@ -1219,7 +1219,7 @@ static bool usbh_atsamx_hcd_port_conn_chng_clr(struct usbh_hc_drv *p_hc_drv,
 	struct usbh_drv_data *p_drv_data;
 
 	p_drv_data = (struct usbh_drv_data *)p_hc_drv->data_ptr;
-	p_drv_data->RH_PortChng ^= USBH_HUB_STATUS_C_PORT_CONN;
+	p_drv_data->rh_port_chng ^= USBH_HUB_STATUS_C_PORT_CONN;
 
 	return 1;
 }
@@ -1259,18 +1259,18 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 	p_hc_drv = (struct usbh_hc_drv *)p_hc_drv_local;
 	p_reg = (struct usbh_atsamx_reg *) DT_INST_REG_ADDR(0);
 	p_drv_data = (struct usbh_drv_data *)p_hc_drv->data_ptr;
-	int_stat = p_reg->INTFLAG;
-	int_stat &= p_reg->INTENSET;
+	int_stat = p_reg->int_flag;
+	int_stat &= p_reg->int_en_set;
 
-	/* ----------- HANDLE INTERRUPT FLAG STATUS ----------- */
+	/* ----------- HANDLE INTERRUPT FLAG status ----------- */
 	if (int_stat & USBH_ATSAMX_INT_RST) {
 		LOG_DBG("bus reset");
-		p_reg->INTFLAG =
+		p_reg->int_flag =
 			USBH_ATSAMX_INT_RST; /* Clear BUS RESET interrupt flag                       */
 
-		p_drv_data->RH_PortStat |=
+		p_drv_data->rh_port_stat |=
 			USBH_HUB_STATUS_PORT_EN;        /* Bit may be set due to SetPortFeature(PORT_RESET)     */
-		p_drv_data->RH_PortChng |=
+		p_drv_data->rh_port_chng |=
 			USBH_HUB_STATUS_C_PORT_RESET;   /* Transitioned from RESET state to ENABLED state       */
 
 		usbh_rh_event(
@@ -1279,39 +1279,39 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 		LOG_DBG("disconnect usb");
 
 		/* Clear device disconnect/connect interrupt flags      */
-		p_reg->INTFLAG =
+		p_reg->int_flag =
 			(USBH_ATSAMX_INT_DDISC | USBH_ATSAMX_INT_DCONN);
-		p_reg->INTENCLR =
+		p_reg->int_en_clr =
 			(USBH_ATSAMX_INT_DDISC |
 			 USBH_ATSAMX_INT_WAKEUP); /* Disable disconnect/wakeup interrupt     */
 
 		/* Clear device connect/wakeup interrupt flags          */
-		p_reg->INTFLAG =
+		p_reg->int_flag =
 			(USBH_ATSAMX_INT_DCONN | USBH_ATSAMX_INT_WAKEUP);
-		p_reg->INTENSET =
+		p_reg->int_en_set =
 			(USBH_ATSAMX_INT_DCONN |
 			 USBH_ATSAMX_INT_WAKEUP); /* Enable connect/wakeup interrupt         */
 
-		p_drv_data->RH_PortStat =
+		p_drv_data->rh_port_stat =
 			0;                              /* Clear Root hub Port Status bits                      */
-		p_drv_data->RH_PortChng |=
+		p_drv_data->rh_port_chng |=
 			USBH_HUB_STATUS_C_PORT_CONN;    /* Current connect status has changed                   */
 		usbh_rh_event(
 			p_hc_drv->rh_dev_ptr);          /* Notify the core layer.                               */
 	} else if (int_stat & USBH_ATSAMX_INT_DCONN) {
 		LOG_DBG("connect usb");
 
-		p_reg->INTENCLR =
+		p_reg->int_en_clr =
 			USBH_ATSAMX_INT_DCONN; /* Disable device connect interrupt                     */
 
-		p_drv_data->RH_PortStat |=
+		p_drv_data->rh_port_stat |=
 			USBH_HUB_STATUS_PORT_CONN;      /* Bit reflects if a device is currently connected      */
-		p_drv_data->RH_PortChng |=
+		p_drv_data->rh_port_chng |=
 			USBH_HUB_STATUS_C_PORT_CONN;    /* Bit indicates a Port's current connect status change */
 
-		p_reg->INTFLAG =
+		p_reg->int_flag =
 			USBH_ATSAMX_INT_DDISC;  /* Clear  disconnection interrupt                       */
-		p_reg->INTENSET =
+		p_reg->int_en_set =
 			USBH_ATSAMX_INT_DDISC;  /* Enable disconnection interrupt                       */
 
 		usbh_rh_event(
@@ -1320,7 +1320,7 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 	/* ----------------- WAKE UP TO POWER ----------------- */
 	if (int_stat & (USBH_ATSAMX_INT_WAKEUP | USBH_ATSAMX_INT_DCONN)) {
 		LOG_DBG("Wake up to power");
-		p_reg->INTFLAG =
+		p_reg->int_flag =
 			USBH_ATSAMX_INT_WAKEUP; /* Clear WAKEUP interrupt flag                          */
 	}
 
@@ -1329,36 +1329,36 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 			USBH_ATSAMX_INT_DNRSM)) {
 		LOG_DBG("resume\n");
 		/* Clear interrupt flag                                 */
-		p_reg->INTFLAG =
+		p_reg->int_flag =
 			(USBH_ATSAMX_INT_WAKEUP | USBH_ATSAMX_INT_UPRSM |
 			 USBH_ATSAMX_INT_DNRSM);
 		/* Disable interrupts                                   */
-		p_reg->INTENCLR =
+		p_reg->int_en_clr =
 			(USBH_ATSAMX_INT_WAKEUP | USBH_ATSAMX_INT_UPRSM |
 			 USBH_ATSAMX_INT_DNRSM);
-		p_reg->INTENSET = (USBH_ATSAMX_INT_RST | USBH_ATSAMX_INT_DDISC);
+		p_reg->int_en_set = (USBH_ATSAMX_INT_RST | USBH_ATSAMX_INT_DDISC);
 
-		p_reg->CTRLB |=
+		p_reg->ctrl_b |=
 			USBH_ATSAMX_CTRLB_SOFE; /* enable start of frames */
 	}
 
-	/* ----------- HANDLE PIPE INTERRUPT STATUS ----------- */
+	/* ----------- HANDLE PIPE INTERRUPT status ----------- */
 	pipe_stat =
-		p_reg->PINTSMRY;        /* Read Pipe interrupt summary                          */
+		p_reg->p_int_smry;        /* Read Pipe interrupt summary                          */
 	while (pipe_stat !=
 	       0) {                     /* Check if there is a pipe to handle                   */
 		pipe_nbr = u32_count_trailing_zeros(pipe_stat);
-		int_stat = p_reg->HPIPE[pipe_nbr].PINTFLAG;
-		int_stat &= p_reg->HPIPE[pipe_nbr].PINTENSET;
-		p_urb = p_drv_data->PipeTbl[pipe_nbr].URB_Ptr;
+		int_stat = p_reg->h_pipe[pipe_nbr].p_int_flag;
+		int_stat &= p_reg->h_pipe[pipe_nbr].p_int_set;
+		p_urb = p_drv_data->pipe_tbl[pipe_nbr].urb_ptr;
 		xfer_len = USBH_ATSAMX_GET_BYTE_CNT(
-			p_drv_data->DescTbl[pipe_nbr].DescBank[0].PCKSIZE);
+			p_drv_data->desc_tbl[pipe_nbr].desc_bank[0].pck_size);
 
 		if (int_stat & USBH_ATSAMX_PINT_STALL) {
 			LOG_DBG("stall");
-			p_reg->HPIPE[pipe_nbr].PSTATUSSET =
+			p_reg->h_pipe[pipe_nbr].p_status_set =
 				USBH_ATSAMX_PSTATUS_PFREEZE;    /* Stop transfer                          */
-			p_reg->HPIPE[pipe_nbr].PINTFLAG =
+			p_reg->h_pipe[pipe_nbr].p_int_flag =
 				USBH_ATSAMX_PINT_STALL;         /* Clear Stall interrupt flag             */
 			p_urb->err = EBUSY;
 			usbh_urb_done(
@@ -1367,9 +1367,9 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 
 		if (int_stat & USBH_ATSAMX_PINT_PERR) {
 			LOG_DBG("pipe error interrupt");
-			p_reg->HPIPE[pipe_nbr].PSTATUSSET =
+			p_reg->h_pipe[pipe_nbr].p_status_set =
 				USBH_ATSAMX_PSTATUS_PFREEZE;    /* Stop transfer                          */
-			p_reg->HPIPE[pipe_nbr].PINTFLAG =
+			p_reg->h_pipe[pipe_nbr].p_int_flag =
 				USBH_ATSAMX_PINT_PERR;          /* Clear Pipe error interrupt flag        */
 			p_urb->err = EIO;
 			usbh_urb_done(
@@ -1379,12 +1379,12 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 		if (int_stat &
 		    USBH_ATSAMX_PINT_TXSTP) { /* --------------- HANDLE SETUP PACKETS --------------- */
 			LOG_DBG("handle setup packets");
-			p_reg->HPIPE[pipe_nbr].PINTENCLR =
+			p_reg->h_pipe[pipe_nbr].p_int_clr =
 				USBH_ATSAMX_PINT_TXSTP; /* Disable Setup transfer interrupt              */
-			p_reg->HPIPE[pipe_nbr].PINTFLAG =
+			p_reg->h_pipe[pipe_nbr].p_int_flag =
 				USBH_ATSAMX_PINT_TXSTP; /* Clear   Setup transfer flag                   */
 
-			xfer_len = p_drv_data->PipeTbl[pipe_nbr].Appbuf_len +
+			xfer_len = p_drv_data->pipe_tbl[pipe_nbr].appbuf_len +
 				   p_urb->xfer_len;
 			p_urb->err = 0;
 
@@ -1393,31 +1393,31 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 		}
 
 		if (int_stat & USBH_ATSAMX_PINT_TRCPT) {
-			p_reg->HPIPE[pipe_nbr].PINTENCLR =
+			p_reg->h_pipe[pipe_nbr].p_int_clr =
 				USBH_ATSAMX_PINT_TRCPT; /* Disable transfer complete interrupt           */
-			p_reg->HPIPE[pipe_nbr].PINTFLAG =
+			p_reg->h_pipe[pipe_nbr].p_int_flag =
 				USBH_ATSAMX_PINT_TRCPT; /* Clear   transfer complete flag                */
 
 			/* Keep track of PID DATA toggle                        */
 			p_urb->ep_ptr->data_pid = USBH_ATSAMX_GET_DPID(
-				p_reg->HPIPE[pipe_nbr].PSTATUS);
+				p_reg->h_pipe[pipe_nbr].p_status);
 
 			if (p_urb->token ==
 			    USBH_TOKEN_IN) { /* ---------------- IN PACKETS HANDLER ---------------- */
 				LOG_DBG("in packets handler");
 				max_pkt_size =
 					usbh_ep_max_pkt_size_get(p_urb->ep_ptr);
-				p_drv_data->PipeTbl[pipe_nbr].Appbuf_len +=
+				p_drv_data->pipe_tbl[pipe_nbr].appbuf_len +=
 					xfer_len;
 
-				if ((p_drv_data->PipeTbl[pipe_nbr].Appbuf_len ==
+				if ((p_drv_data->pipe_tbl[pipe_nbr].appbuf_len ==
 				     p_urb->uberbuf_len) ||
 				    (xfer_len < max_pkt_size)) {
 					p_urb->err = 0;
 					usbh_urb_done(
 						p_urb); /* Notify the Core layer about the urb completion       */
 				} else {
-					p_urb->err = k_msgq_put(&ATSAMX_URB_Proc_Q,
+					p_urb->err = k_msgq_put(&atsamx_urb_proc_q,
 								(void *)p_urb,
 								K_NO_WAIT);
 					if (p_urb->err != 0) {
@@ -1428,7 +1428,7 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 			} else {   /* ---------------- OUT PACKETS HANDLER --------------- */
 				LOG_DBG("out packets handler");
 				xfer_len =
-					p_drv_data->PipeTbl[pipe_nbr].Appbuf_len +
+					p_drv_data->pipe_tbl[pipe_nbr].appbuf_len +
 					p_urb->xfer_len;
 
 				if (xfer_len == p_urb->uberbuf_len) {
@@ -1436,7 +1436,7 @@ static void usbh_atsamx_isr_callback(void *p_drv)
 					usbh_urb_done(
 						p_urb); /* Notify the Core layer about the urb completion       */
 				} else {
-					p_urb->err = k_msgq_put(&ATSAMX_URB_Proc_Q,
+					p_urb->err = k_msgq_put(&atsamx_urb_proc_q,
 								(void *)p_urb,
 								K_NO_WAIT);
 					if (p_urb->err != 0) {
@@ -1470,7 +1470,7 @@ static void usbh_atsamx_process_urb(void *p_arg, void *p_arg2, void *p_arg3)
 	p_reg =  (struct usbh_atsamx_reg *) DT_INST_REG_ADDR(0);
 
 	while (true) {
-		p_err = k_msgq_get(&ATSAMX_URB_Proc_Q, (void *)p_urb,
+		p_err = k_msgq_get(&atsamx_urb_proc_q, (void *)p_urb,
 				   K_FOREVER);
 		if (p_err != 0) {
 			LOG_ERR("Cannot get USB urb");
@@ -1481,9 +1481,9 @@ static void usbh_atsamx_process_urb(void *p_arg, void *p_arg2, void *p_arg3)
 		if (pipe_nbr != ATSAMX_INVALID_PIPE) {
 			key = irq_lock();
 			xfer_len = USBH_ATSAMX_GET_BYTE_CNT(
-				p_drv_data->DescTbl[pipe_nbr]
-				.DescBank[0]
-				.PCKSIZE);
+				p_drv_data->desc_tbl[pipe_nbr]
+				.desc_bank[0]
+				.pck_size);
 
 			if (p_urb->token ==
 			    USBH_TOKEN_IN) { /* -------------- HANDLE IN TRANSACTIONS -------------- */
@@ -1493,11 +1493,11 @@ static void usbh_atsamx_process_urb(void *p_arg, void *p_arg2, void *p_arg3)
 					p_urb->dma_buf_ptr, xfer_len);
 				/* Check if it rx'd more data than what was expected    */
 				if (xfer_len >
-				    p_drv_data->PipeTbl[pipe_nbr]
-				    .NextXferLen) { /* Rx'd more data than what was expected   */
+				    p_drv_data->pipe_tbl[pipe_nbr]
+				    .next_xfer_len) { /* Rx'd more data than what was expected   */
 					p_urb->xfer_len +=
-						p_drv_data->PipeTbl[pipe_nbr]
-						.NextXferLen;
+						p_drv_data->pipe_tbl[pipe_nbr]
+						.next_xfer_len;
 					p_urb->err = EIO;
 
 					LOG_ERR("DRV: Rx'd more data than was expected.\r\n");
@@ -1507,31 +1507,31 @@ static void usbh_atsamx_process_urb(void *p_arg, void *p_arg2, void *p_arg3)
 					p_urb->xfer_len += xfer_len;
 				}
 			} else {   /* ------------- HANDLE OUT TRANSACTIONS -------------- */
-				xfer_len = (p_drv_data->PipeTbl[pipe_nbr]
-					    .Appbuf_len -
+				xfer_len = (p_drv_data->pipe_tbl[pipe_nbr]
+					    .appbuf_len -
 					    xfer_len);
 				if (xfer_len == 0) {
 					p_urb->xfer_len +=
-						p_drv_data->PipeTbl[pipe_nbr]
-						.NextXferLen;
+						p_drv_data->pipe_tbl[pipe_nbr]
+						.next_xfer_len;
 				} else {
 					p_urb->xfer_len +=
-						(p_drv_data->PipeTbl[pipe_nbr]
-						 .NextXferLen -
+						(p_drv_data->pipe_tbl[pipe_nbr]
+						 .next_xfer_len -
 						 xfer_len);
 				}
 			}
 
 			if (p_urb->err == 0) {
 				usbh_atsamx_pipe_cfg(
-					p_urb, &p_reg->HPIPE[pipe_nbr],
-					&p_drv_data->PipeTbl[pipe_nbr],
-					&p_drv_data->DescTbl[pipe_nbr]
-					.DescBank[0]);
+					p_urb, &p_reg->h_pipe[pipe_nbr],
+					&p_drv_data->pipe_tbl[pipe_nbr],
+					&p_drv_data->desc_tbl[pipe_nbr]
+					.desc_bank[0]);
 
-				p_reg->HPIPE[pipe_nbr].PINTENSET =
+				p_reg->h_pipe[pipe_nbr].p_int_set =
 					USBH_ATSAMX_PINT_TRCPT;         /* Enable transfer complete interrupt */
-				p_reg->HPIPE[pipe_nbr].PSTATUSCLR =
+				p_reg->h_pipe[pipe_nbr].p_status_clr =
 					USBH_ATSAMX_PSTATUS_PFREEZE;    /* Start  transfer                    */
 			}
 			irq_unlock(key);
@@ -1554,51 +1554,51 @@ static void usbh_atsamx_pipe_cfg(struct usbh_urb *p_urb,
 
 	max_pkt_size = usbh_ep_max_pkt_size_get(p_urb->ep_ptr);
 	ep_nbr = usbh_ep_log_nbr_get(p_urb->ep_ptr);
-	p_pipe_info->NextXferLen = p_urb->uberbuf_len - p_urb->xfer_len;
-	p_pipe_info->NextXferLen =
-		MIN(p_pipe_info->NextXferLen, DT_INST_PROP(0, buf_len));
+	p_pipe_info->next_xfer_len = p_urb->uberbuf_len - p_urb->xfer_len;
+	p_pipe_info->next_xfer_len =
+		MIN(p_pipe_info->next_xfer_len, DT_INST_PROP(0, buf_len));
 
-	memset(p_urb->dma_buf_ptr, 0, p_pipe_info->NextXferLen);
+	memset(p_urb->dma_buf_ptr, 0, p_pipe_info->next_xfer_len);
 	if (p_urb->token !=
 	    USBH_TOKEN_IN) { /* ---------------- SETUP/OUT PACKETS ----------------- */
-		p_pipe_info->Appbuf_len = p_pipe_info->NextXferLen;
+		p_pipe_info->appbuf_len = p_pipe_info->next_xfer_len;
 
 		memcpy(p_urb->dma_buf_ptr,
 		       (void *)((uint32_t)p_urb->userbuf_ptr +
 				p_urb->xfer_len),
-		       p_pipe_info->NextXferLen);
+		       p_pipe_info->next_xfer_len);
 
-		p_desc_bank->PCKSIZE = p_pipe_info->Appbuf_len;
+		p_desc_bank->pck_size = p_pipe_info->appbuf_len;
 	} else {   /* -------------------- IN PACKETS -------------------- */
-		p_desc_bank->PCKSIZE = (p_pipe_info->NextXferLen << 14u);
+		p_desc_bank->pck_size = (p_pipe_info->next_xfer_len << 14u);
 	}
 
-	p_desc_bank->ADDR = (uint32_t)p_urb->dma_buf_ptr;
-	p_desc_bank->PCKSIZE |= (u32_count_trailing_zeros(max_pkt_size >> 3u) << 28u);
-	p_desc_bank->CTRL_PIPE = (p_urb->ep_ptr->dev_addr | (ep_nbr << 8));
+	p_desc_bank->addr = (uint32_t)p_urb->dma_buf_ptr;
+	p_desc_bank->pck_size |= (u32_count_trailing_zeros(max_pkt_size >> 3u) << 28u);
+	p_desc_bank->ctrl_pipe = (p_urb->ep_ptr->dev_addr | (ep_nbr << 8));
 
 	if (p_urb->token !=
 	    USBH_TOKEN_IN) { /* ---------------- SETUP/OUT PACKETS ----------------- */
 		LOG_DBG("setup out packets");
 		key = irq_lock();
-		reg_val = p_reg_hpipe->PCFG;
+		reg_val = p_reg_hpipe->p_cfg;
 		reg_val &= ~USBH_ATSAMX_PCFG_PTOKEN_MSK;
 		reg_val |= (p_urb->token ? USBH_ATSAMX_PCFG_PTOKEN_OUT : USBH_ATSAMX_PCFG_PTOKEN_SETUP);
-		p_reg_hpipe->PCFG = reg_val;
+		p_reg_hpipe->p_cfg = reg_val;
 		irq_unlock(key);
 
-		p_reg_hpipe->PSTATUSSET =
+		p_reg_hpipe->p_status_set =
 			USBH_ATSAMX_PSTATUS_BK0RDY;     /* Set Bank0 ready : Pipe can send data to device       */
 	} else {                                        /* -------------------- IN PACKETS -------------------- */
 		LOG_DBG("setup in packets");
 		key = irq_lock();
-		reg_val = p_reg_hpipe->PCFG;
+		reg_val = p_reg_hpipe->p_cfg;
 		reg_val &= ~USBH_ATSAMX_PCFG_PTOKEN_MSK;
 		reg_val |= USBH_ATSAMX_PCFG_PTOKEN_IN;
-		p_reg_hpipe->PCFG = reg_val;
+		p_reg_hpipe->p_cfg = reg_val;
 		irq_unlock(key);
 
-		p_reg_hpipe->PSTATUSCLR =
+		p_reg_hpipe->p_status_clr =
 			USBH_ATSAMX_PSTATUS_BK0RDY; /* Clear Bank0 ready: Pipe can receive data from device */
 	}
 }
@@ -1612,8 +1612,8 @@ static uint8_t usbh_atsamx_get_free_pipe(struct usbh_drv_data *p_drv_data)
 	uint8_t pipe_nbr;
 
 	for (pipe_nbr = 0; pipe_nbr < ATSAMX_MAX_NBR_PIPE; pipe_nbr++) {
-		if (DEF_BIT_IS_CLR(p_drv_data->PipeUsed, BIT(pipe_nbr))) {
-			WRITE_BIT(p_drv_data->PipeUsed, pipe_nbr, 1);
+		if (DEF_BIT_IS_CLR(p_drv_data->pipe_used, BIT(pipe_nbr))) {
+			WRITE_BIT(p_drv_data->pipe_used, pipe_nbr, 1);
 			return pipe_nbr;
 		}
 	}
@@ -1633,7 +1633,7 @@ static uint8_t usbh_atsamx_get_pipe_nbr(struct usbh_drv_data *p_drv_data,
 	ep_addr = ((p_ep->dev_addr << 8) | p_ep->desc.b_endpoint_address);
 
 	for (pipe_nbr = 0; pipe_nbr < ATSAMX_MAX_NBR_PIPE; pipe_nbr++) {
-		if (p_drv_data->PipeTbl[pipe_nbr].EP_Addr == ep_addr) {
+		if (p_drv_data->pipe_tbl[pipe_nbr].ep_addr == ep_addr) {
 			return pipe_nbr;
 		}
 	}
