@@ -74,6 +74,9 @@ typedef k_thread_stack_t CPU_STK;
 #error "Unknown byte order"
 #endif
 
+
+#define  CPU_CFG_CACHE_MGMT_EN            DEF_DISABLED
+
 typedef CPU_INT32U CPU_ADDR;
 typedef CPU_INT32U CPU_DATA;
 

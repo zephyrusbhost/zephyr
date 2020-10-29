@@ -61,7 +61,7 @@
 #define USBH_DATA_BUF_MAX_LEN 1024
 #define USBH_MAX_NBR_EP_BULK_OPEN 2
 #define USBH_MAX_NBR_EP_INTR_OPEN 2
-
+#define USBH_MAX_NBR_EP_ISOC_OPEN 2
 /*
 *********************************************************************************************************
 *                                             DATA TYPES

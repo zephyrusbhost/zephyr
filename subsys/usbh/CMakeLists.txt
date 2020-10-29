@@ -6,15 +6,19 @@ if(CONFIG_USBH)
 
 	#samr21 board support package and host controller driver
 	zephyr_library_sources_ifdef(CONFIG_BOARD_ATSAMR21_XPRO		HCD/ATSAMx/usbh_hcd_atsamx.c)
-	zephyr_library_sources_ifdef(CONFIG_BOARD_ATSAMR21_XPRO		bsp/bsp_usbh_samr21.c)
+  zephyr_library_sources_ifdef(CONFIG_BOARD_ATSAMR21_XPRO		bsp/bsp_usbh_samr21.c)
 
-	zephyr_include_directories(${ZEPHYR_BASE}/subsys/usbh HCD/ATSAMx Class/MSC Class/CDC  Class/CDC/ACM bsp Source)
+  zephyr_library_sources_ifdef(CONFIG_BOARD_MIMXRT1050_EVK		bsp/bsp_usbh_imxrt_1050.c)
+	zephyr_library_sources_ifdef(CONFIG_BOARD_MIMXRT1050_EVK	HCD/EHCI/usbh_hcd_ehci.c)
+
+
+	zephyr_include_directories(${ZEPHYR_BASE}/subsys/usbh HCD/ATSAMx HCD/EHCI Class/MSC Class/CDC  Class/CDC/ACM bsp Source)
 
 	zephyr_library_sources(
 		Source/usbh_class.c
 		Source/usbh_core.c
-		Source/usbh_hub.c		
+		Source/usbh_hub.c
 		usbh_os.c
-		usbh_hc_cfg.c		
+		usbh_hc_cfg.c
 	)
 endif()

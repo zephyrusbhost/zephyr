@@ -48,10 +48,15 @@
 #define   USBH_EHCI_MODULE
 #define   MICRIUM_SOURCE
 #include  "../../Source/usbh_hub.h"
+#include <usbh_hc_cfg.h>
 #include  "usbh_hcd_ehci.h"
-#include  <cpu_cache.h>
 
+#ifdef CONFIG_HAS_MCUX_CACHE
+#include <fsl_cache.h>
+#endif
 
+#include <logging/log.h>
+LOG_MODULE_REGISTER(hcd);
 
 /*
 *********************************************************************************************************
@@ -62,6 +67,15 @@
 #define  EHCI_HCD_GENERIC                                  0u
 #define  EHCI_HCD_SYNOPSYS                                 1u
 
+K_MEM_POOL_DEFINE(HC_QHPool, sizeof(EHCI_QH), sizeof(EHCI_QH), (USBH_MAX_NBR_EP_BULK_OPEN + USBH_MAX_NBR_EP_INTR_OPEN + 1), 4);
+K_MEM_POOL_DEFINE(HC_QTDPool, sizeof(EHCI_QTD), sizeof(EHCI_QTD), (USBH_MAX_NBR_EP_INTR_OPEN * USBH_DATA_BUF_MAX_LEN / (20 * 1024) + 1), 4);
+K_MEM_POOL_DEFINE(HC_ITDPool, sizeof(EHCI_ITD), sizeof(EHCI_ITD), (USBH_MAX_NBR_EP_ISOC_OPEN * EHCI_MAX_SITD * 8u), 4);
+K_MEM_POOL_DEFINE(HC_Isoc_EP_DescPool, sizeof(EHCI_ISOC_EP_DESC), sizeof(EHCI_ISOC_EP_DESC), USBH_MAX_NBR_EP_ISOC_OPEN, 4);
+K_MEM_POOL_DEFINE(HC_Isoc_EP_URBPool, sizeof(EHCI_ISOC_EP_URB), sizeof(EHCI_ISOC_EP_URB), USBH_MAX_NBR_EP_ISOC_OPEN * 2u, 4);
+K_MEM_POOL_DEFINE(BufPool, USBH_DATA_BUF_MAX_LEN, USBH_DATA_BUF_MAX_LEN, USBH_CFG_MAX_NBR_DEVS + USBH_MAX_NBR_EP_BULK_OPEN, 4);
+K_MEM_POOL_DEFINE(IntrInfoPool, sizeof(EHCI_INTR_INFO), sizeof(EHCI_INTR_INFO), USBH_MAX_NBR_EP_INTR_OPEN, 4);
+
+                                                                  /* 1 is added to take the ceiling value                 */
 
 /*
 *********************************************************************************************************
@@ -963,7 +977,6 @@ static  void  EHCI_InitHandler (USBH_HC_DRV  *p_hc_drv,
 {
     EHCI_DEV         *p_ehci;
     CPU_REG32         usb_cmd;
-    CPU_SIZE_T        octets_reqd;
     CPU_ADDR          base_addr;
     LIB_ERR           err_lib;
     USBH_HC_CFG      *p_hc_cfg;
@@ -978,63 +991,59 @@ static  void  EHCI_InitHandler (USBH_HC_DRV  *p_hc_drv,
                                        sizeof(CPU_ALIGN),
                                       &octets_reqd,
                                       &err_lib);
-    if (err_lib != LIB_MEM_ERR_NONE) {
+    if (p_ehci == NULL) {
        *p_err = USBH_ERR_ALLOC;
         return;
     }
 
     Mem_Clr(p_ehci, sizeof(EHCI_DEV));
 
+
     p_hc_drv->DataPtr  = (void *)p_ehci;
     p_ehci->HC_Started =  DEF_FALSE;
     p_hc_cfg           =  p_hc_drv->HC_CfgPtr;
     p_bsp_api          =  p_hc_drv->BSP_API_Ptr;
 
-    if ((p_bsp_api       != (USBH_HC_BSP_API *)0) &&
-        (p_bsp_api->Init !=                    0)) {
+    if ((p_bsp_api       != NULL) &&
+        (p_bsp_api->Init != NULL)) {
         p_bsp_api->Init(p_hc_drv, p_err);
         if (*p_err != USBH_ERR_NONE) {
             return;
         }
     }
-
     base_addr        = p_hc_cfg->BaseAddr;
     p_ehci->HcCapReg = (EHCI_CAP_REG *)base_addr;               /* EHCI Capability  registers base address.             */
     EHCI_CapRegRead(p_ehci, &p_ehci->HcCap);
                                                                 /* EHCI Operational registers base address.             */
+//     p_ehci->HcOperReg = (EHCI_OPER_REG *)((CPU_INT32U)0x402e0140);
     p_ehci->HcOperReg = (EHCI_OPER_REG *)((CPU_INT32U)base_addr + p_ehci->HcCap.CapLen);
+
 
    *p_err = EHCI_DMA_Init(p_hc_drv);                            /* Initialize memory pool.                              */
     if (*p_err != USBH_ERR_NONE) {
         return;
     }
-
-#if (USBH_CFG_PRINT_LOG == DEF_ENABLED)
-    USBH_PRINT_LOG("EHCI Applying Hardware Reset...\r\n");
-#endif
+    printk("EHCI Applying Hardware Reset...\r\n");
 
     USBCMD = EHCI_USBCMD_RD_HCR;                                /* Apply hardware reset.                                */
     do {
         usb_cmd = USBCMD;
     } while ((usb_cmd & EHCI_USBCMD_RD_HCR) != 0u);             /* Wait for the reset completion.                       */
 
+
     p_ehci->DrvType = ehci_drv_type;
     if (p_ehci->DrvType == EHCI_HCD_SYNOPSYS) {                 /* Set ctrlr in host mode.                              */
         CPU_INT32U  reg_val;
-
 
         reg_val = EHCI_SYNOPSYS_USBMODE;
         DEF_BIT_SET(reg_val, EHCI_SYNOPSYS_USBMODE_WR_CM_HOST);
         EHCI_SYNOPSYS_USBMODE = reg_val;
     }
 
-#if (EHCI_CFG_ONRESET_EN == DEF_ENABLED)
-    EHCI_OnReset(p_dev);
-#endif
-
     USBSTATUS = USBSTATUS;
     if ((USBSTATUS & EHCI_USBSTS_RD_HC_HAL) == 0u) {
        *p_err = USBH_ERR_HC_INIT;
+
         return;
     }
 
@@ -1084,13 +1093,11 @@ static  void  EHCI_Start (USBH_HC_DRV  *p_hc_drv,
     USBH_HC_BSP_API  *p_bsp_api;
     CPU_REG32         usb_cmd;
 
+    printk("EHCI Enabling interrupts...\r\n");
 
     p_ehci    = (EHCI_DEV *)p_hc_drv->DataPtr;
     p_bsp_api = p_hc_drv->BSP_API_Ptr;
 
-#if (USBH_CFG_PRINT_LOG == DEF_ENABLED)
-    USBH_PRINT_LOG("EHCI Enabling interrupts...\r\n");
-#endif
 
     if ((p_bsp_api          != (USBH_HC_BSP_API *)0) &&
         (p_bsp_api->ISR_Reg !=                    0)) {
@@ -1322,7 +1329,7 @@ static  void  EHCI_EP_Open (USBH_HC_DRV  *p_hc_drv,
 {
     CPU_INT08U  ep_type;
 
-
+	printk("ep opne\n");
     ep_type = USBH_EP_TypeGet(p_ep);
 
     switch(ep_type) {
@@ -1538,7 +1545,7 @@ static  void  EHCI_URB_Submit (USBH_HC_DRV  *p_hc_drv,
 
         if (p_urb->UserBufLen != 0u) {
 
-            p_urb->DMA_BufPtr = Mem_PoolBlkGet(&p_ehci->BufPool,
+            p_urb->DMA_BufPtr = Mem_PoolBlkGet(&BufPool,
                                                 p_hc_cfg->DataBufMaxLen,
                                                &err_lib);
             if (err_lib != LIB_MEM_ERR_NONE) {
@@ -1556,10 +1563,10 @@ static  void  EHCI_URB_Submit (USBH_HC_DRV  *p_hc_drv,
                          p_urb->UserBufPtr,
                          p_urb->DMA_BufLen);
 
-                CPU_DCACHE_RANGE_FLUSH(p_urb->DMA_BufPtr, p_urb->DMA_BufLen);
+                DCACHE_CleanByRange((uint32_t)p_urb->DMA_BufPtr, p_urb->DMA_BufLen);
             } else {
-                CPU_DCACHE_RANGE_FLUSH(p_urb->DMA_BufPtr, p_urb->DMA_BufLen);
-                CPU_DCACHE_RANGE_INV(p_urb->DMA_BufPtr, p_urb->DMA_BufLen);
+                DCACHE_CleanByRange((uint32_t)p_urb->DMA_BufPtr, p_urb->DMA_BufLen);
+                DCACHE_InvalidateByRange((uint32_t)p_urb->DMA_BufPtr, p_urb->DMA_BufLen);
             }
         }
     } else {                                                    /* ------------- DATA BUF FROM SYSTEM MEM ------------- */
@@ -1586,10 +1593,10 @@ static  void  EHCI_URB_Submit (USBH_HC_DRV  *p_hc_drv,
              (p_urb->Token     == USBH_TOKEN_SETUP)) &&
             (p_urb->DMA_BufLen != 0u)) {
 
-            CPU_DCACHE_RANGE_FLUSH(p_cache_aligned_buf_addr, len);
+            DCACHE_CleanByRange((uint32_t)p_cache_aligned_buf_addr, len);
         } else {
-            CPU_DCACHE_RANGE_FLUSH(p_cache_aligned_buf_addr, len);
-            CPU_DCACHE_RANGE_INV(p_cache_aligned_buf_addr, len);
+            DCACHE_CleanByRange((uint32_t)p_cache_aligned_buf_addr, len);
+            DCACHE_InvalidateByRange((uint32_t)p_cache_aligned_buf_addr, len);
         }
 #endif
     }
@@ -1613,7 +1620,7 @@ static  void  EHCI_URB_Submit (USBH_HC_DRV  *p_hc_drv,
         CPU_CRITICAL_ENTER();
         p_qh->QTDHead     = (CPU_INT32U)p_head_qtd;
         p_qh->QHNxtQTDPtr = (CPU_INT32U)USBH_OS_VirToBus((void *)p_head_qtd);
-        CPU_DCACHE_RANGE_FLUSH(p_qh, sizeof(EHCI_QH));
+        DCACHE_CleanByRange((uint32_t)p_qh, sizeof(EHCI_QH));
         CPU_CRITICAL_EXIT();
 
     }
@@ -1666,7 +1673,6 @@ static  void  EHCI_URB_Complete (USBH_HC_DRV  *p_hc_drv,
                                  USBH_ERR     *p_err)
 {
     EHCI_DEV     *p_ehci;
-    LIB_ERR       err_lib;
     USBH_HC_CFG  *p_hc_cfg;
 
 
@@ -1700,11 +1706,12 @@ static  void  EHCI_URB_Complete (USBH_HC_DRV  *p_hc_drv,
                     p_cache_aligned_buf_addr = (CPU_INT08U *)p_urb->UserBufPtr;
                     len                      =  p_urb->XferLen;
                 }
+		DCACHE_CleanByRange((uint32_t)p_cache_aligned_buf_addr, len);
+
 #endif
-                CPU_DCACHE_RANGE_FLUSH(p_cache_aligned_buf_addr, len);
             }
 
-            Mem_PoolBlkFree(&p_ehci->BufPool,
+            Mem_PoolBlkFree(&BufPool,
                              p_urb->DMA_BufPtr,
                             &err_lib);
         }
@@ -1714,7 +1721,7 @@ static  void  EHCI_URB_Complete (USBH_HC_DRV  *p_hc_drv,
         if ((p_urb->Token   == USBH_TOKEN_IN) &&
             (p_urb->XferLen != 0u           )) {
 
-            CPU_DCACHE_RANGE_INV(p_urb->DMA_BufPtr, p_urb->XferLen);
+            DCACHE_InvalidateByRange((uint32_t)p_urb->DMA_BufPtr, p_urb->XferLen);
         }
     }
 
@@ -1748,7 +1755,6 @@ static  void  EHCI_URB_Abort (USBH_HC_DRV  *p_hc_drv,
 {
     EHCI_DEV     *p_ehci;
     USBH_HC_CFG  *p_hc_cfg;
-    LIB_ERR       err_lib;
 
 
     p_ehci     = (EHCI_DEV *)p_hc_drv->DataPtr;
@@ -1759,7 +1765,7 @@ static  void  EHCI_URB_Abort (USBH_HC_DRV  *p_hc_drv,
 
         if (p_urb->DMA_BufPtr != (void *)0) {
 
-            Mem_PoolBlkFree(&p_ehci->BufPool,
+            Mem_PoolBlkFree(&BufPool,
                              p_urb->DMA_BufPtr,
                             &err_lib);
         }
@@ -1816,7 +1822,7 @@ static  USBH_ERR  EHCI_AsyncEP_Open (USBH_HC_DRV  *p_hc_drv,
 
     p_ehci = (EHCI_DEV *)p_hc_drv->DataPtr;
                                                                  /* Allocate memory for a queue head                    */
-    p_new_qh = (EHCI_QH *)Mem_PoolBlkGet(&p_ehci->HC_QHPool,
+    p_new_qh = (EHCI_QH *)Mem_PoolBlkGet(&HC_QHPool,
                                           sizeof(EHCI_QH),
                                          &err_lib);
     if (err_lib != LIB_MEM_ERR_NONE) {
@@ -1907,17 +1913,17 @@ static  USBH_ERR  EHCI_AsyncEP_Open (USBH_HC_DRV  *p_hc_drv,
     p_new_qh->QHBufPagePtrList[2] = (CPU_INT32U)0;
     p_new_qh->QHBufPagePtrList[3] = (CPU_INT32U)0;
     p_new_qh->QHBufPagePtrList[4] = (CPU_INT32U)0;
-    CPU_DCACHE_RANGE_INV(p_ehci->AsyncQHHead, sizeof(EHCI_QH));
+    DCACHE_InvalidateByRange((uint32_t)p_ehci->AsyncQHHead, sizeof(EHCI_QH));
     p_new_qh->QHHorLinkPtr       |= (CPU_INT32U)(p_ehci->AsyncQHHead->QHHorLinkPtr & 0xFFFFFFE0);
 
-    CPU_DCACHE_RANGE_FLUSH(p_new_qh, sizeof(EHCI_QH));
+    DCACHE_CleanByRange((uint32_t)p_new_qh, sizeof(EHCI_QH));
 
     USBCMD &= ~EHCI_USBCMD_RD_ASE;                              /* Disable async list processing                        */
     retry = 100u;
     while ((USBSTATUS & EHCI_USBSTS_RD_ASS) != 0u) {            /* Wait until the async list processing is disabled     */
         retry--;
         if (retry == 0) {
-            Mem_PoolBlkFree(       &p_ehci->HC_QHPool,
+            Mem_PoolBlkFree(       &HC_QHPool,
                             (void *)p_new_qh,
                                    &err_lib);
 
@@ -1932,7 +1938,7 @@ static  USBH_ERR  EHCI_AsyncEP_Open (USBH_HC_DRV  *p_hc_drv,
                                         HOR_LNK_PTR_TYP(DWORD1_TYP_QH)         |
                                         HOR_LNK_PTR_T(DWORD1_T_VALID);
 
-    CPU_DCACHE_RANGE_FLUSH(p_ehci->AsyncQHHead, sizeof(EHCI_QH));
+    DCACHE_CleanByRange((uint32_t)p_ehci->AsyncQHHead, sizeof(EHCI_QH));
 
     USBCMD |= EHCI_USBCMD_WR_ASE;                              /* Enable async list processing                         */
 
@@ -1940,7 +1946,7 @@ static  USBH_ERR  EHCI_AsyncEP_Open (USBH_HC_DRV  *p_hc_drv,
     while ((USBSTATUS & EHCI_USBSTS_RD_ASS) == 0u) {            /* Wait till async list processing is enabled           */
         retry--;
         if (retry == 0u) {
-            Mem_PoolBlkFree(       &p_ehci->HC_QHPool,
+            Mem_PoolBlkFree(       &HC_QHPool,
                             (void *)p_new_qh,
                                    &err_lib);
 
@@ -2008,7 +2014,7 @@ static  USBH_ERR  EHCI_IntrEP_Open (USBH_HC_DRV  *p_hc_drv,
 
     p_ehci = (EHCI_DEV *)p_hc_drv->DataPtr;
                                                                 /* Allocate memory for a queue head                     */
-    p_new_qh = (EHCI_QH *)Mem_PoolBlkGet(&p_ehci->HC_QHPool,
+    p_new_qh = (EHCI_QH *)Mem_PoolBlkGet(&HC_QHPool,
                                           sizeof(EHCI_QH),
                                          &err_lib);
     if (err_lib != LIB_MEM_ERR_NONE) {
@@ -2102,7 +2108,7 @@ static  USBH_ERR  EHCI_IntrEP_Open (USBH_HC_DRV  *p_hc_drv,
     p_new_qh->QHBufPagePtrList[3] = (CPU_INT32U)0u;
     p_new_qh->QHBufPagePtrList[4] = (CPU_INT32U)0u;
 
-    CPU_DCACHE_RANGE_FLUSH(p_new_qh, sizeof(EHCI_QH));
+    DCACHE_CleanByRange((uint32_t)p_new_qh, sizeof(EHCI_QH));
 
     CPU_CRITICAL_ENTER();
 
@@ -2111,7 +2117,7 @@ static  USBH_ERR  EHCI_IntrEP_Open (USBH_HC_DRV  *p_hc_drv,
                        (void *)p_new_qh);
 
     if (err != USBH_ERR_NONE) {
-        Mem_PoolBlkFree(       &p_ehci->HC_QHPool,
+        Mem_PoolBlkFree(       &HC_QHPool,
                         (void *)p_new_qh,
                                &err_lib);
 
@@ -2124,7 +2130,7 @@ static  USBH_ERR  EHCI_IntrEP_Open (USBH_HC_DRV  *p_hc_drv,
     p_new_qh->QHEpCapChar[1] |= p_new_qh->SMask |
                                 DWORD3_QH_PS_CSPLIT_UFRAME_2345 << 8;
 
-    CPU_DCACHE_RANGE_FLUSH(p_new_qh, sizeof(EHCI_QH));
+    DCACHE_CleanByRange((uint32_t)p_new_qh, sizeof(EHCI_QH));
 
     EHCI_BW_Update(        p_hc_drv,
                            p_ep,
@@ -2132,14 +2138,14 @@ static  USBH_ERR  EHCI_IntrEP_Open (USBH_HC_DRV  *p_hc_drv,
                            DEF_TRUE);
 
 
-    p_intr_info = (EHCI_INTR_INFO *)Mem_PoolBlkGet(&p_ehci->IntrInfoPool,
+    p_intr_info = (EHCI_INTR_INFO *)Mem_PoolBlkGet(&IntrInfoPool,
                                                     sizeof(EHCI_INTR_INFO),
                                                    &err_lib);
     if (err_lib != LIB_MEM_ERR_NONE) {
         return (USBH_ERR_ALLOC);
     }
 
-    CPU_DCACHE_RANGE_INV(p_new_qh, sizeof(EHCI_QH));
+    DCACHE_InvalidateByRange((uint32_t)p_new_qh, sizeof(EHCI_QH));
     p_intr_info->IntrPlaceholderIx = p_new_qh->BWStartFrame;    /* Save placeholder index in QHLists array.             */
     p_intr_info->FrameInterval     = p_new_qh->FrameInterval;   /* Save polling interval list to which belongs qH.      */
     p_intr_info->EpPtr             = p_ep;
@@ -2193,7 +2199,7 @@ static  USBH_ERR  EHCI_IsocEP_Open (USBH_HC_DRV  *p_hc_drv,
 
 
     p_ehci    = (EHCI_DEV *)p_hc_drv->DataPtr;
-    p_ep_desc = (EHCI_ISOC_EP_DESC *)Mem_PoolBlkGet(&p_ehci->HC_Isoc_EP_DescPool,
+    p_ep_desc = (EHCI_ISOC_EP_DESC *)Mem_PoolBlkGet(&HC_Isoc_EP_DescPool,
                                                      sizeof(EHCI_ISOC_EP_DESC),
                                                     &err_lib);
     if (err_lib != LIB_MEM_ERR_NONE) {
@@ -2222,7 +2228,7 @@ static  USBH_ERR  EHCI_IsocEP_Open (USBH_HC_DRV  *p_hc_drv,
                        (void *)p_ep_desc);
 
     if (err != USBH_ERR_NONE) {
-        Mem_PoolBlkFree(       &p_ehci->HC_QHPool,
+        Mem_PoolBlkFree(       &HC_QHPool,
                         (void *)p_ep_desc,
                                &err_lib);
 
@@ -2271,7 +2277,6 @@ static  USBH_ERR  EHCI_AsyncEP_Close (USBH_HC_DRV  *p_hc_drv,
     CPU_INT32U   qh_hor_link_ptr_temp;
     CPU_INT32U   qh_bus_addr;
     CPU_INT32U   async_qh_head_bus_addr;
-    LIB_ERR      err_lib;
     CPU_INT32U   retry;
     USBH_ERR     err;
 
@@ -2285,8 +2290,8 @@ static  USBH_ERR  EHCI_AsyncEP_Close (USBH_HC_DRV  *p_hc_drv,
     p_temp_qh              = p_ehci->AsyncQHHead;
     async_qh_head_bus_addr = (CPU_INT32U)USBH_OS_VirToBus((void *)p_temp_qh);
 
-    CPU_DCACHE_RANGE_INV(p_qh_to_remove, sizeof(EHCI_QH));
-    CPU_DCACHE_RANGE_INV(p_temp_qh,      sizeof(EHCI_QH));
+    DCACHE_InvalidateByRange((uint32_t)p_qh_to_remove, sizeof(EHCI_QH));
+    DCACHE_InvalidateByRange((uint32_t)p_temp_qh,      sizeof(EHCI_QH));
 
                                                                 /* Mask Typ bits-field and T-bit.                       */
     qh_hor_link_ptr_temp = p_temp_qh->QHHorLinkPtr & 0xFFFFFFE0;
@@ -2296,7 +2301,7 @@ static  USBH_ERR  EHCI_AsyncEP_Close (USBH_HC_DRV  *p_hc_drv,
 
         p_temp_qh = (EHCI_QH *)USBH_OS_BusToVir((void *)(qh_hor_link_ptr_temp));
 
-        CPU_DCACHE_RANGE_INV(p_temp_qh, sizeof(EHCI_QH));
+        DCACHE_InvalidateByRange((uint32_t)p_temp_qh, sizeof(EHCI_QH));
 
         qh_hor_link_ptr_temp = p_temp_qh->QHHorLinkPtr & 0xFFFFFFE0;
     }
@@ -2319,11 +2324,11 @@ static  USBH_ERR  EHCI_AsyncEP_Close (USBH_HC_DRV  *p_hc_drv,
     }
 
     p_temp_qh->QHHorLinkPtr = p_qh_to_remove->QHHorLinkPtr;     /* Remove the QH from the Async list.                   */
-    CPU_DCACHE_RANGE_FLUSH(p_temp_qh, sizeof(EHCI_QH));
+    DCACHE_CleanByRange((uint32_t)p_temp_qh, sizeof(EHCI_QH));
 
     EHCI_QTDRemove(p_hc_drv, p_qh_to_remove);                   /* Remove all QTDs attached to QH to remove.            */
                                                                 /* Free the QH just removed.                            */
-    Mem_PoolBlkFree(       &p_ehci->HC_QHPool,
+    Mem_PoolBlkFree(       &HC_QHPool,
                     (void *)p_qh_to_remove,
                            &err_lib);
     p_ep->ArgPtr = (void *)0;
@@ -2371,7 +2376,6 @@ static  USBH_ERR  EHCI_IntrEP_Close (USBH_HC_DRV  *p_hc_drv,
     EHCI_QH         *p_parent_qh;
     CPU_INT08U       bw_start_frame;
     USBH_ERR         err;
-    LIB_ERR          err_lib;
     EHCI_INTR_INFO  *p_intr_info_to_remove;
     EHCI_INTR_INFO  *p_prev_intr_info = DEF_NULL;
 
@@ -2380,27 +2384,27 @@ static  USBH_ERR  EHCI_IntrEP_Close (USBH_HC_DRV  *p_hc_drv,
     p_ehci         = (EHCI_DEV *)p_hc_drv->DataPtr;
     p_qh_to_remove = (EHCI_QH  *)p_ep->ArgPtr;
 
-    CPU_DCACHE_RANGE_INV(p_qh_to_remove, sizeof(EHCI_QH));
+    DCACHE_InvalidateByRange((uint32_t)p_qh_to_remove, sizeof(EHCI_QH));
 
     bw_start_frame = p_qh_to_remove->BWStartFrame;
     p_parent_qh    = p_ehci->QHLists[bw_start_frame];
     p_parent_qh    = (EHCI_QH  *) USBH_OS_BusToVir((void *)p_parent_qh);
 
-    CPU_DCACHE_RANGE_INV(p_parent_qh, sizeof(EHCI_QH));
+    DCACHE_InvalidateByRange((uint32_t)p_parent_qh, sizeof(EHCI_QH));
 
     while (((p_parent_qh->QHHorLinkPtr & 0x01u)       ==  0u) &&
            ((p_parent_qh->QHHorLinkPtr & 0xFFFFFFE0u) != (CPU_INT32U)p_qh_to_remove)) {
 
            p_parent_qh = (EHCI_QH *)USBH_OS_BusToVir((void *)(p_parent_qh->QHHorLinkPtr & 0xFFFFFFE0u));
 
-           CPU_DCACHE_RANGE_INV(p_parent_qh, sizeof(EHCI_QH));
+           DCACHE_InvalidateByRange((uint32_t)p_parent_qh, sizeof(EHCI_QH));
     }
 
     if ((p_parent_qh->QHHorLinkPtr & 0x01u) != 0u) {
         err = USBH_ERR_EP_FREE;
     } else {
         p_parent_qh->QHHorLinkPtr = p_qh_to_remove->QHHorLinkPtr;
-        CPU_DCACHE_RANGE_FLUSH(p_parent_qh, sizeof(EHCI_QH));
+        DCACHE_CleanByRange((uint32_t)p_parent_qh, sizeof(EHCI_QH));
     }
 
     EHCI_QTDRemove(p_hc_drv, p_qh_to_remove);                   /* Remove all QTDs attached to this QH                  */
@@ -2410,7 +2414,7 @@ static  USBH_ERR  EHCI_IntrEP_Close (USBH_HC_DRV  *p_hc_drv,
                    (void *)p_qh_to_remove,
                            DEF_FALSE);
 
-    Mem_PoolBlkFree(       &p_ehci->HC_QHPool,
+    Mem_PoolBlkFree(       &HC_QHPool,
                     (void *)p_qh_to_remove,
                            &err_lib);
 
@@ -2434,7 +2438,7 @@ static  USBH_ERR  EHCI_IntrEP_Close (USBH_HC_DRV  *p_hc_drv,
             p_prev_intr_info->NxtIntrInfo = p_intr_info_to_remove->NxtIntrInfo;
         }
 
-        Mem_PoolBlkFree(       &p_ehci->IntrInfoPool,
+        Mem_PoolBlkFree(       &IntrInfoPool,
                         (void *)p_intr_info_to_remove,
                                &err_lib);
     }
@@ -2471,7 +2475,6 @@ static  USBH_ERR  EHCI_IsocEP_Close (USBH_HC_DRV  *p_hc_drv,
     EHCI_DEV           *p_ehci;
     CPU_INT08U          dev_addr;
     CPU_INT08U          ep_addr;
-    LIB_ERR             err_lib;
     CPU_BOOLEAN         isoc_ep_desc_found;
     USBH_URB           *p_urb;
     EHCI_ISOC_EP_URB   *p_urb_info;
@@ -2513,7 +2516,7 @@ static  USBH_ERR  EHCI_IsocEP_Close (USBH_HC_DRV  *p_hc_drv,
             if (p_ep->DevSpd == USBH_DEV_SPD_HIGH) {
                 p_itd = (EHCI_ITD *)p_urb_info->iTD_Addr;
 
-                CPU_DCACHE_RANGE_INV(p_itd, sizeof(EHCI_ITD));
+                DCACHE_InvalidateByRange((uint32_t)p_itd, sizeof(EHCI_ITD));
                 dev_addr = p_itd->ITDBufPagePtrList[0] & 0x0000007Fu;
                 ep_addr  = (p_itd->ITDBufPagePtrList[0] & 0x00000F00u) >> 8u;
 
@@ -2526,7 +2529,7 @@ static  USBH_ERR  EHCI_IsocEP_Close (USBH_HC_DRV  *p_hc_drv,
 
                 p_sitd = (EHCI_SITD *)p_urb_info->iTD_Addr;
 
-                CPU_DCACHE_RANGE_INV(p_sitd, sizeof(EHCI_SITD));
+                DCACHE_InvalidateByRange((uint32_t)p_sitd, sizeof(EHCI_SITD));
                 dev_addr = p_sitd->SITDEpCapChar[0] & 0x0000007Fu;
                 ep_addr  = (p_sitd->SITDEpCapChar[0] & 0x00000F00u) >> 8u;
 
@@ -2545,7 +2548,7 @@ static  USBH_ERR  EHCI_IsocEP_Close (USBH_HC_DRV  *p_hc_drv,
                    (void *)p_ep_desc_to_close,
                            DEF_FALSE);
 
-    Mem_PoolBlkFree(       &p_ehci->HC_Isoc_EP_DescPool,
+    Mem_PoolBlkFree(       &HC_Isoc_EP_DescPool,
                     (void *)p_ep_desc_to_close,
                            &err_lib);
 
@@ -2657,7 +2660,7 @@ static  EHCI_QTD  *EHCI_QTDListPrepare (USBH_HC_DRV  *p_hc_drv,
     } else if (p_urb->Token == USBH_TOKEN_IN) {
         token = DWORD3_QTD_PIDC_IN;
     } else {
-                                                                /* Empty Else Statement                                 */        
+                                                                /* Empty Else Statement                                 */
     }
 
     p_buf        = (CPU_INT08U *)USBH_OS_VirToBus((void *)p_buf);
@@ -2669,7 +2672,7 @@ static  EHCI_QTD  *EHCI_QTDListPrepare (USBH_HC_DRV  *p_hc_drv,
     while ((p_buf_page <  (p_buf + buf_len)) ||                 /* Initialize one or several qTDs for total xfer's size */
            (buf_len    ==  0u              )) {                 /* See Note #1                                          */
                                                                 /* Get a qTD structure                                  */
-        p_temp_qtd = (EHCI_QTD *)Mem_PoolBlkGet(&p_ehci->HC_QTDPool,
+        p_temp_qtd = (EHCI_QTD *)Mem_PoolBlkGet(&HC_QTDPool,
                                                  sizeof(EHCI_QTD),
                                                 &err_lib);
         if (err_lib != LIB_MEM_ERR_NONE) {
@@ -2678,13 +2681,13 @@ static  EHCI_QTD  *EHCI_QTDListPrepare (USBH_HC_DRV  *p_hc_drv,
         }
 
         EHCI_QTD_Clr(p_temp_qtd);                               /* Clear every field of the qTD to have a known state   */
-        CPU_DCACHE_RANGE_FLUSH(p_temp_qtd, sizeof(EHCI_QTD));
+        DCACHE_CleanByRange((uint32_t)p_temp_qtd, sizeof(EHCI_QTD));
 
         if (p_new_qtd) {                                        /* Next qTD.                                            */
                                                                 /* Set Next qTD Pointer.                                */
             p_new_qtd->QTDNxtPtr    = (CPU_INT32U)USBH_OS_VirToBus(p_temp_qtd);
             p_new_qtd->QTDAltNxtPtr = 0x00000001u;              /* Set Alternate Next qTD Pointer (see Note #2).        */
-            CPU_DCACHE_RANGE_FLUSH(p_new_qtd, sizeof(EHCI_QTD));
+            DCACHE_CleanByRange((uint32_t)p_new_qtd, sizeof(EHCI_QTD));
             p_new_qtd               = p_temp_qtd;               /* qTD struct gotten.                                   */
 
         } else {                                                /* 1st qTD.                                             */
@@ -2752,7 +2755,7 @@ static  EHCI_QTD  *EHCI_QTDListPrepare (USBH_HC_DRV  *p_hc_drv,
                     QTD_TOKEN_DT(qtd_toggle);                   /* Data Toggle                                          */
 
         p_new_qtd->QTDToken = qtd_token;                        /* Prepare qTD with the parameters                      */
-        CPU_DCACHE_RANGE_FLUSH(p_new_qtd, sizeof(EHCI_QTD));
+        DCACHE_CleanByRange((uint32_t)p_new_qtd, sizeof(EHCI_QTD));
     }
 
     if (p_new_qtd == (EHCI_QTD *)0) {
@@ -2763,7 +2766,7 @@ static  EHCI_QTD  *EHCI_QTDListPrepare (USBH_HC_DRV  *p_hc_drv,
     p_new_qtd->QTDToken     |= QTD_TOKEN_IOC(1u);               /* Interrupt On Completion for last qTD                 */
     p_new_qtd->QTDNxtPtr    |= QTD_N_QTD_PTR_T(1u);             /* Set Terminate bit                                    */
     p_new_qtd->QTDAltNxtPtr |= QTD_ALT_QTD_PTR_T(1u);
-    CPU_DCACHE_RANGE_FLUSH(p_new_qtd, sizeof(EHCI_QTD));
+    DCACHE_CleanByRange((uint32_t)p_new_qtd, sizeof(EHCI_QTD));
 
    *p_err = USBH_ERR_NONE;
 
@@ -2882,7 +2885,7 @@ static  USBH_ERR  EHCI_SITDListPrepare (USBH_HC_DRV        *p_hc_drv,
     p_ep_desc->AppStartFrame = frame_nbr;                       /* Save the index                                       */
     p_ep_desc->NbrFrame      = p_urb->IsocDescPtr->NbrFrm;
 
-    p_urb_info = (EHCI_ISOC_EP_URB *)Mem_PoolBlkGet(&p_ehci->HC_Isoc_EP_URBPool,
+    p_urb_info = (EHCI_ISOC_EP_URB *)Mem_PoolBlkGet(&HC_Isoc_EP_URBPool,
                                                      sizeof(EHCI_ISOC_EP_URB),
                                                     &err_lib);
     if (err_lib != LIB_MEM_ERR_NONE) {
@@ -2899,7 +2902,7 @@ static  USBH_ERR  EHCI_SITDListPrepare (USBH_HC_DRV        *p_hc_drv,
         frame_nbr %= 256u;                                      /* Keep the Periodic Frame List index between 0 and 255 */
 
                                                                 /* Get a new siTD struct                                */
-        p_new_sitd = (EHCI_SITD *)Mem_PoolBlkGet(&p_ehci->HC_ITDPool,
+        p_new_sitd = (EHCI_SITD *)Mem_PoolBlkGet(&HC_ITDPool,
                                                   sizeof(EHCI_SITD),
                                                  &err_lib);
         if (err_lib != LIB_MEM_ERR_NONE) {
@@ -2956,16 +2959,16 @@ static  USBH_ERR  EHCI_SITDListPrepare (USBH_HC_DRV        *p_hc_drv,
 
                                                                 /* Get the data struct at index 'frame_nbr' in PFL      */
         p_hw_desc = (CPU_INT32U *)USBH_OS_BusToVir((void *)(p_ehci->PeriodicListBase[frame_nbr] & 0xFFFFFFE0u));
-        CPU_DCACHE_RANGE_INV(p_hw_desc, sizeof(CPU_INT32U));
+        DCACHE_InvalidateByRange((uint32_t)p_hw_desc, sizeof(CPU_INT32U));
                                                                 /* Find the last siTD at this entry position            */
         while ((*p_hw_desc & 0x06u) != HOR_LNK_PTR_TYP(DWORD1_TYP_QH)) {
 
             p_hw_desc = (CPU_INT32U *)USBH_OS_BusToVir((void *)(*p_hw_desc & 0xFFFFFFE0u));
-            CPU_DCACHE_RANGE_INV(p_hw_desc, sizeof(CPU_INT32U));
+            DCACHE_InvalidateByRange((uint32_t)p_hw_desc, sizeof(CPU_INT32U));
         }
 
         p_new_sitd->SITDNxtLinkPtr = *p_hw_desc;                /* Store the gotten data struct in siTD Next Link Ptr   */
-        CPU_DCACHE_RANGE_FLUSH(p_new_sitd, sizeof(EHCI_SITD));
+        DCACHE_CleanByRange((uint32_t)p_new_sitd, sizeof(EHCI_SITD));
 
        *p_hw_desc = HOR_LNK_PTR_T(DWORD1_T_INVALID);            /* Invalidate siTD Next Link Ptr so HC ignores it       */
                                                                 /* Insert the new siTD after the gotten data struct     */
@@ -2973,7 +2976,7 @@ static  USBH_ERR  EHCI_SITDListPrepare (USBH_HC_DRV        *p_hc_drv,
                       HOR_LNK_PTR_TYP(DWORD1_TYP_SITD);
 
        *p_hw_desc &= 0xFFFFFFFEu;                               /* Validate Next Link Ptr pointed to siTD to insert     */
-       CPU_DCACHE_RANGE_FLUSH(p_hw_desc, sizeof(CPU_INT32U));
+       DCACHE_CleanByRange((uint32_t)p_hw_desc, sizeof(CPU_INT32U));
 
         buf_page  += frame_len;
         frame_nbr += frame_interval;
@@ -3155,7 +3158,7 @@ static  USBH_ERR  EHCI_ITDListPrepare (USBH_HC_DRV        *p_hc_drv,
     p_ep_desc->AppStartFrame = frame_nbr;
     p_ep_desc->NbrFrame      = p_urb->IsocDescPtr->NbrFrm;
 
-    p_urb_info = (EHCI_ISOC_EP_URB *)Mem_PoolBlkGet(&p_ehci->HC_Isoc_EP_URBPool,
+    p_urb_info = (EHCI_ISOC_EP_URB *)Mem_PoolBlkGet(&HC_Isoc_EP_URBPool,
                                                      sizeof(EHCI_ISOC_EP_URB),
                                                     &err_lib);
     if (err_lib != LIB_MEM_ERR_NONE) {
@@ -3170,7 +3173,7 @@ static  USBH_ERR  EHCI_ITDListPrepare (USBH_HC_DRV        *p_hc_drv,
                                                                 /* Init each iTD that composed for the transfer        */
     for (i = 0u; i < nbr_of_iTDs_for_xfer; i++) {
 
-        p_new_itd = (EHCI_ITD *)Mem_PoolBlkGet(&p_ehci->HC_ITDPool,
+        p_new_itd = (EHCI_ITD *)Mem_PoolBlkGet(&HC_ITDPool,
                                                 sizeof(EHCI_ITD),
                                                &err_lib);
         if (err_lib != LIB_MEM_ERR_NONE) {
@@ -3249,18 +3252,18 @@ static  USBH_ERR  EHCI_ITDListPrepare (USBH_HC_DRV        *p_hc_drv,
 
                                                                 /* ----------- Isochronous EP Insertion  ------------- */
         p_hw_desc = (CPU_INT32U *)USBH_OS_BusToVir((void *)(p_ehci->PeriodicListBase[frame_nbr] & 0xFFFFFFE0));
-        CPU_DCACHE_RANGE_INV(p_hw_desc, sizeof(CPU_INT32U));
+        DCACHE_InvalidateByRange((uint32_t)p_hw_desc, sizeof(CPU_INT32U));
 
                                                                 /* While Type in Next Link Pointer is not QH           */
                                                                 /* go to next pointer                                  */
         while ((*p_hw_desc & 0x06u) != HOR_LNK_PTR_TYP(DWORD1_TYP_QH)) {
 
             p_hw_desc = (CPU_INT32U *)USBH_OS_BusToVir((void *)*p_hw_desc);
-            CPU_DCACHE_RANGE_INV(p_hw_desc, sizeof(CPU_INT32U));
+            DCACHE_InvalidateByRange((uint32_t)p_hw_desc, sizeof(CPU_INT32U));
         }
 
         p_new_itd->ITDNxtLinkPtr = *p_hw_desc;
-        CPU_DCACHE_RANGE_FLUSH(p_new_itd, sizeof(EHCI_ITD));
+        DCACHE_CleanByRange((uint32_t)p_new_itd, sizeof(EHCI_ITD));
 
        *p_hw_desc = HOR_LNK_PTR_T(DWORD1_T_INVALID);            /* Set to invalid so that insertion is not compromised. */
 
@@ -3268,7 +3271,7 @@ static  USBH_ERR  EHCI_ITDListPrepare (USBH_HC_DRV        *p_hc_drv,
                       HOR_LNK_PTR_TYP(DWORD1_TYP_ITD);          /* Set insertion Type to iTD                            */
 
        *p_hw_desc &= 0xFFFFFFFEu;                               /* Set to valid when insertion is done.                 */
-        CPU_DCACHE_RANGE_FLUSH(p_hw_desc, sizeof(CPU_INT32U));
+        DCACHE_CleanByRange((uint32_t)p_hw_desc, sizeof(CPU_INT32U));
 
         frame_nbr += frame_interval;
     }
@@ -3344,9 +3347,9 @@ static  void  EHCI_ISR (void  *p_data)
         ((int_status & EHCI_USBSTS_RD_USBEI) != 0u)) {
 
                                                                 /* (1)       Control and Bulk qTD processing            */
-        CPU_DCACHE_RANGE_INV(p_ehci->AsyncQHHead, sizeof(EHCI_QH));
+        DCACHE_InvalidateByRange((uint32_t)p_ehci->AsyncQHHead, sizeof(EHCI_QH));
         p_qh = (EHCI_QH *)USBH_OS_BusToVir((void *)(p_ehci->AsyncQHHead->QHHorLinkPtr & 0xFFFFFFE0));
-        CPU_DCACHE_RANGE_INV(p_qh, sizeof(EHCI_QH));
+        DCACHE_InvalidateByRange((uint32_t)p_qh, sizeof(EHCI_QH));
 
         while (p_qh != (EHCI_QH *)p_ehci->AsyncQHHead) {        /* Search in the async list until  async head is found  */
 
@@ -3355,7 +3358,7 @@ static  void  EHCI_ISR (void  *p_data)
             }
 
             p_qh = (EHCI_QH *)USBH_OS_BusToVir((void *)(p_qh->QHHorLinkPtr & 0xFFFFFFE0));
-            CPU_DCACHE_RANGE_INV(p_qh, sizeof(EHCI_QH));
+            DCACHE_InvalidateByRange((uint32_t)p_qh, sizeof(EHCI_QH));
         }
 
 #if (USBH_EHCI_CFG_PERIODIC_EN == DEF_ENABLED)
@@ -3370,15 +3373,15 @@ static  void  EHCI_ISR (void  *p_data)
                                                                 /* T-bit = 0 => QH Horizontal link ptr is valid          */
             if (DEF_BIT_IS_SET(p_intr_qh_placeholder->QHHorLinkPtr, DWORD1_T) == DEF_NO) {
 
-                CPU_DCACHE_RANGE_INV(p_intr_qh_placeholder, sizeof(EHCI_QH));
+                DCACHE_InvalidateByRange((uint32_t)p_intr_qh_placeholder, sizeof(EHCI_QH));
                 p_qh = (EHCI_QH *)USBH_OS_BusToVir((void *)(p_intr_qh_placeholder->QHHorLinkPtr & 0xFFFFFFE0));
-                CPU_DCACHE_RANGE_INV(p_qh, sizeof(EHCI_QH));
+                DCACHE_InvalidateByRange((uint32_t)p_qh, sizeof(EHCI_QH));
 
                                                                 /* Search polling interval list matching to open qH.    */
                 while (p_qh->FrameInterval != frame_interval) {
 
                     p_qh = (EHCI_QH *)USBH_OS_BusToVir((void *)(p_qh->QHHorLinkPtr & 0xFFFFFFE0));
-                    CPU_DCACHE_RANGE_INV(p_qh, sizeof(EHCI_QH));
+                    DCACHE_InvalidateByRange((uint32_t)p_qh, sizeof(EHCI_QH));
                 }
                                                                 /* From this placeholder, get all active Intr qH.       */
                 while (p_qh->FrameInterval == frame_interval) {
@@ -3391,7 +3394,7 @@ static  void  EHCI_ISR (void  *p_data)
                         break;
                     } else {                                    /* Get next active qH.                                  */
                         p_qh = (EHCI_QH *)USBH_OS_BusToVir((void *)(p_qh->QHHorLinkPtr & 0xFFFFFFE0u));
-                        CPU_DCACHE_RANGE_INV(p_qh, sizeof(EHCI_QH));
+                        DCACHE_InvalidateByRange((uint32_t)p_qh, sizeof(EHCI_QH));
                     }
                 }
             }
@@ -3415,7 +3418,7 @@ static  void  EHCI_ISR (void  *p_data)
                                                                 /* Retrieve the last iTD associated with this URB       */
                         p_urb_info = (EHCI_ISOC_EP_URB *)p_urb->ArgPtr;
                         p_itd      = (EHCI_ITD         *)p_urb_info->iTD_Addr;
-                        CPU_DCACHE_RANGE_INV(p_itd, sizeof(EHCI_ITD));
+                        DCACHE_InvalidateByRange((uint32_t)p_itd, sizeof(EHCI_ITD));
 
                         for (index = 0u; index < 8u; index++){  /* Search the last transaction of the iTD               */
 
@@ -3447,7 +3450,7 @@ static  void  EHCI_ISR (void  *p_data)
                                     p_urb->URB_DoneSignal          = DEF_TRUE;
                                     p_urb_previous->URB_DoneSignal = DEF_FALSE;
                                 } else {
-                                                                /* Empty Else Statement                                 */                                    
+                                                                /* Empty Else Statement                                 */
                                 }
                                 break;
                             }
@@ -3457,7 +3460,7 @@ static  void  EHCI_ISR (void  *p_data)
                                                                 /* Retrieve the last siTD associated with this URB      */
                         p_urb_info = (EHCI_ISOC_EP_URB *)p_urb->ArgPtr;
                         p_sitd     = (EHCI_SITD        *)p_urb_info->iTD_Addr;
-                        CPU_DCACHE_RANGE_INV(p_sitd, sizeof(EHCI_SITD));
+                        DCACHE_InvalidateByRange((uint32_t)p_sitd, sizeof(EHCI_SITD));
 
                                                                 /* Is Isoc transfer completed?                          */
                         if (DEF_BIT_IS_SET(p_sitd->SITDStsCtrl, DWORD3_SITD_STATUS_ACTIVE) == DEF_NO) {
@@ -3595,7 +3598,6 @@ static  void  EHCI_CapRegRead (EHCI_DEV  *p_ehci,
 static  USBH_ERR  EHCI_DMA_Init (USBH_HC_DRV  *p_hc_drv)
 {
     LIB_ERR       err_lib;
-    CPU_SIZE_T    octets_reqd;
     CPU_INT32U    max_nbr_qh;
     CPU_INT32U    max_nbr_qh_alloc;
     CPU_INT32U    max_nbr_qtd;
@@ -3635,7 +3637,6 @@ static  USBH_ERR  EHCI_DMA_Init (USBH_HC_DRV  *p_hc_drv)
     max_nbr_itd  += max_ep_desc * EHCI_MAX_SITD * 8u;           /* See Note #1.                                         */
 #endif
 
-                                                                    /* 1 is added to take the ceiling value                 */
     max_nbr_qtd  = max_nbr_qh * ((p_hc_cfg->DataBufMaxLen / (20u * 1024u)) + 1u);
 
     if (p_hc_cfg->DedicatedMemAddr != (CPU_ADDR)0) {            /* --------------- DEDICATED MEMORY ------------------- */
@@ -3660,7 +3661,8 @@ static  USBH_ERR  EHCI_DMA_Init (USBH_HC_DRV  *p_hc_drv)
 #endif
 
         if (total_mem_req > ((p_hc_cfg->DedicatedMemAddr + p_hc_cfg->DedicatedMemSize) - (CPU_ADDR)p_dedicated_mem)) {
-            return (USBH_ERR_ALLOC);
+	    return (USBH_ERR_ALLOC);
+
         }
 
                                                                 /* Align first byte of dedicated mem on 4096 for ...    */
@@ -3681,158 +3683,164 @@ static  USBH_ERR  EHCI_DMA_Init (USBH_HC_DRV  *p_hc_drv)
 
         p_ehci->DMA_EHCI.BufPtr  = (void *)p_dedicated_mem;
 
-        Mem_PoolCreate(       &p_ehci->HC_QHPool,              /* Create DMA QH Pool                                   */
-                       (void *)p_ehci->DMA_EHCI.QHPtr,
-                               max_nbr_qh_alloc * sizeof(EHCI_QH),
-                               max_nbr_qh_alloc,
-                               sizeof(EHCI_QH),
-                               32u,                            /* qH must be aligned on 32-byte boundary               */
-                              &octets_reqd,
-                              &err_lib);
-        if (err_lib != LIB_MEM_ERR_NONE) {
-            return (USBH_ERR_ALLOC);
-        }
+        // Mem_PoolCreate(       &p_ehci->HC_QHPool,              /* Create DMA QH Pool                                   */
+        //                (void *)p_ehci->DMA_EHCI.QHPtr,
+        //                        max_nbr_qh_alloc * sizeof(EHCI_QH),
+        //                        max_nbr_qh_alloc,
+        //                        sizeof(EHCI_QH),
+        //                        32u,                            /* qH must be aligned on 32-byte boundary               */
+        //                       &octets_reqd,
+        //                       &err_lib);
+        // if (err_lib != LIB_MEM_ERR_NONE) {
+        //     return (USBH_ERR_ALLOC);
+        // }
 
-        Mem_PoolCreate(      &p_ehci->HC_QTDPool,             /* Create DMA QTD Pool                                  */
-                       (void *)p_ehci->DMA_EHCI.QTDPtr,
-                               ((max_nbr_qtd + 1u) * sizeof(EHCI_QTD)),
-                               max_nbr_qtd,
-                               sizeof(EHCI_QTD),
-                               32u,                            /* qTD must be aligned on 32-byte boundary              */
-                              &octets_reqd,
-                              &err_lib);
-        if (err_lib != LIB_MEM_ERR_NONE) {
-            return (USBH_ERR_ALLOC);
-        }
+        // Mem_PoolCreate(      &p_ehci->HC_QTDPool,             /* Create DMA QTD Pool                                  */
+        //                (void *)p_ehci->DMA_EHCI.QTDPtr,
+        //                        ((max_nbr_qtd + 1u) * sizeof(EHCI_QTD)),
+        //                        max_nbr_qtd,
+        //                        sizeof(EHCI_QTD),
+        //                        32u,                            /* qTD must be aligned on 32-byte boundary              */
+        //                       &octets_reqd,
+        //                       &err_lib);
+        // if (err_lib != LIB_MEM_ERR_NONE) {
+        //     return (USBH_ERR_ALLOC);
+        // }
 
 #if (USBH_EHCI_CFG_PERIODIC_EN == DEF_ENABLED)
-        Mem_PoolCreate(      &p_ehci->HC_ITDPool,             /* Create DMA iTD/siTD Pool                             */
-                       (void *)p_ehci->DMA_EHCI.ITDPtr,
-                               (max_nbr_itd * sizeof(EHCI_ITD)),
-                               max_nbr_itd,
-                               sizeof(EHCI_ITD),
-                               32u,                            /* iTD must be aligned on a 32-byte boundary.           */
-                              &octets_reqd,
-                              &err_lib);
-        if (err_lib != LIB_MEM_ERR_NONE) {
-            return (USBH_ERR_ALLOC);
-        }
+
+        // Mem_PoolCreate(      &p_ehci->HC_ITDPool,             /* Create DMA iTD/siTD Pool                             */
+        //                (void *)p_ehci->DMA_EHCI.ITDPtr,
+        //                        (max_nbr_itd * sizeof(EHCI_ITD)),
+        //                        max_nbr_itd,
+        //                        sizeof(EHCI_ITD),
+        //                        32u,                            /* iTD must be aligned on a 32-byte boundary.           */
+        //                       &octets_reqd,
+        //                       &err_lib);
+        // if (err_lib != LIB_MEM_ERR_NONE) {
+        //     return (USBH_ERR_ALLOC);
+        // }
 #endif
-    } else {                                                    /* ---------------- SYSTEM MEMORY --------------------- */
-        Mem_PoolCreate(       &p_ehci->HC_QHPool,               /* Create DMA QH Pool                                   */
-                       (void *)0,                               /* Allocate from HEAP region                            */
-                               max_nbr_qh_alloc * sizeof(EHCI_QH),
-                               max_nbr_qh_alloc,
-                               sizeof(EHCI_QH),
-                               32u,                             /* qH must be aligned on 32-byte boundary               */
-                              &octets_reqd,
-                              &err_lib);
-        if (err_lib != LIB_MEM_ERR_NONE) {
-            return (USBH_ERR_ALLOC);
+    } else {
+                                               /* ---------------- SYSTEM MEMORY --------------------- */
+        // Mem_PoolCreate(       &p_ehci->HC_QHPool,               /* Create DMA QH Pool                                   */
+        //                (void *)0,                               /* Allocate from HEAP region                            */
+        //                        max_nbr_qh_alloc * sizeof(EHCI_QH),
+        //                        max_nbr_qh_alloc,
+        //                        sizeof(EHCI_QH),
+        //                        32u,                             /* qH must be aligned on 32-byte boundary               */
+        //                       &octets_reqd,
+        //                       &err_lib);
+        // if (err_lib != LIB_MEM_ERR_NONE) {
+        //     return (USBH_ERR_ALLOC);
+        // }
+
+        // p_ehci->DMA_EHCI.QHPtr = (EHCI_QH *)p_ehci->HC_QHPool.PoolAddrStart;
+
+        // Mem_PoolCreate (       &p_ehci->HC_QTDPool,             /* Create DMA QTD Pool                                  */
+        //                 (void *)0,                              /* Allocate from HEAP region                            */
+        //                         ((max_nbr_qtd + 1u) * sizeof(EHCI_QTD)),
+        //                           max_nbr_qtd + 1u,
+        //                         sizeof(EHCI_QTD),
+        //                         32u,                            /* qTD must be aligned on 32-byte boundary              */
+        //                        &octets_reqd,
+        //                        &err_lib);
+        // if (err_lib != LIB_MEM_ERR_NONE) {
+        //     return (USBH_ERR_ALLOC);
         }
 
-        p_ehci->DMA_EHCI.QHPtr = (EHCI_QH *)p_ehci->HC_QHPool.PoolAddrStart;
-
-        Mem_PoolCreate (       &p_ehci->HC_QTDPool,             /* Create DMA QTD Pool                                  */
-                        (void *)0,                              /* Allocate from HEAP region                            */
-                                ((max_nbr_qtd + 1u) * sizeof(EHCI_QTD)),
-                                  max_nbr_qtd + 1u,
-                                sizeof(EHCI_QTD),
-                                32u,                            /* qTD must be aligned on 32-byte boundary              */
-                               &octets_reqd,
-                               &err_lib);
-        if (err_lib != LIB_MEM_ERR_NONE) {
-            return (USBH_ERR_ALLOC);
-        }
-
-        p_ehci->DMA_EHCI.QTDPtr = (EHCI_QTD *)p_ehci->HC_QTDPool.PoolAddrStart;
+        // p_ehci->DMA_EHCI.QTDPtr = (EHCI_QTD *)p_ehci->HC_QTDPool.PoolAddrStart;
 
 #if (USBH_EHCI_CFG_PERIODIC_EN == DEF_ENABLED)
                                                                 /* Create DMA iTD/siTD Pool                             */
-        Mem_PoolCreate (       &p_ehci->HC_ITDPool,
-                        (void *)0,                              /* Allocate from HEAP region                            */
-                                (max_nbr_itd * sizeof(EHCI_ITD)),
-                                 max_nbr_itd,
-                                sizeof(EHCI_ITD),
-                                32u,                            /* iTD must be aligned on a 32-byte boundary.           */
-                               &octets_reqd,
-                               &err_lib);
-        if (err_lib != LIB_MEM_ERR_NONE) {
-            return (USBH_ERR_ALLOC);
-        }
+        // Mem_PoolCreate (       &p_ehci->HC_ITDPool,
+        //                 (void *)0,                              /* Allocate from HEAP region                            */
+        //                         (max_nbr_itd * sizeof(EHCI_ITD)),
+        //                          max_nbr_itd,
+        //                         sizeof(EHCI_ITD),
+        //                         32u,                            /* iTD must be aligned on a 32-byte boundary.           */
+        //                        &octets_reqd,
+        //                        &err_lib);
+        // if (err_lib != LIB_MEM_ERR_NONE) {
+        //     return (USBH_ERR_ALLOC);
+        // }
 
-        p_ehci->DMA_EHCI.ITDPtr  = (EHCI_ITD   *)p_ehci->HC_ITDPool.PoolAddrStart;
+        // p_ehci->DMA_EHCI.ITDPtr  = (EHCI_ITD   *)p_ehci->HC_ITDPool.PoolAddrStart;
                                                                 /* Get a mem block for Periodic Frame List              */
         p_ehci->PeriodicListBase = (CPU_INT32U *)Mem_HeapAlloc(512u * sizeof(CPU_INT32U),
                                                                4096u,
                                                               &octets_reqd,
                                                               &err_lib);
-        if (err_lib != LIB_MEM_ERR_NONE) {
+        if (p_ehci->PeriodicListBase == NULL) {
+		printk("test\n");
+
             return (USBH_ERR_ALLOC);
         }
 #endif
-    }
+//     }
 
 #if (USBH_EHCI_CFG_PERIODIC_EN == DEF_ENABLED)
     if (max_ep_desc > 0u) {
-        Mem_PoolCreate (       &p_ehci->HC_Isoc_EP_DescPool,        /* Create Isochronous EP Pool                           */
-                        (void *)0,                                  /* Allocate from HEAP region                            */
-                                (max_ep_desc * sizeof(EHCI_ISOC_EP_DESC)),
-                                 max_ep_desc,
-                                sizeof(EHCI_ISOC_EP_DESC),
-                                sizeof(CPU_ALIGN),
-                               &octets_reqd,
-                               &err_lib);
-        if (err_lib != LIB_MEM_ERR_NONE) {
-            return (USBH_ERR_ALLOC);
-        }
 
-        Mem_PoolCreate (       &p_ehci->HC_Isoc_EP_URBPool,         /* Create pool for storing URB info during ongoing xfer */
-                        (void *)0,                                  /* Allocate from HEAP region                            */
-                                (max_ep_desc * 2u * sizeof(EHCI_ISOC_EP_URB)),
-                                (max_ep_desc * 2u),
-                                sizeof(EHCI_ISOC_EP_URB),
-                                sizeof(CPU_ALIGN),
-                               &octets_reqd,
-                               &err_lib);
-        if (err_lib != LIB_MEM_ERR_NONE) {
-            return (USBH_ERR_ALLOC);
-        }
+        // Mem_PoolCreate (       &p_ehci->HC_Isoc_EP_DescPool,        /* Create Isochronous EP Pool                           */
+        //                 (void *)0,                                  /* Allocate from HEAP region                            */
+        //                         (max_ep_desc * sizeof(EHCI_ISOC_EP_DESC)),
+        //                          max_ep_desc,
+        //                         sizeof(EHCI_ISOC_EP_DESC),
+        //                         sizeof(CPU_ALIGN),
+        //                        &octets_reqd,
+        //                        &err_lib);
+        // if (err_lib != LIB_MEM_ERR_NONE) {
+        //     return (USBH_ERR_ALLOC);
+        // }
+
+        // Mem_PoolCreate (       &p_ehci->HC_Isoc_EP_URBPool,         /* Create pool for storing URB info during ongoing xfer */
+        //                 (void *)0,                                  /* Allocate from HEAP region                            */
+        //                         (max_ep_desc * 2u * sizeof(EHCI_ISOC_EP_URB)),
+        //                         (max_ep_desc * 2u),
+        //                         sizeof(EHCI_ISOC_EP_URB),
+        //                         sizeof(CPU_ALIGN),
+        //                        &octets_reqd,
+        //                        &err_lib);
+        // if (err_lib != LIB_MEM_ERR_NONE) {
+        //     return (USBH_ERR_ALLOC);
+        // }
     }
 #endif
 
     if ((p_hc_cfg->DedicatedMemAddr    != (CPU_ADDR)0) &&
         (p_hc_cfg->DataBufFromSysMemEn == DEF_DISABLED)) {      /* ----------- DATA BUF FROM DEDICATED MEM ------------ */
 
-        Mem_PoolCreate (       &p_ehci->BufPool,                /* Create Data buffer Pool                              */
-                        (void *)p_ehci->DMA_EHCI.BufPtr,
-                                (p_hc_cfg->DataBufMaxLen * max_data_buf),
-                                max_data_buf,
-                                p_hc_cfg->DataBufMaxLen,
-#if (CPU_CFG_CACHE_MGMT_EN == DEF_ENABLED)
-                                CPU_Cache_Linesize,
-#else
-                                sizeof(CPU_ALIGN),
-#endif
-                               &octets_reqd,
-                               &err_lib);
-        if (err_lib != LIB_MEM_ERR_NONE) {
-            return (USBH_ERR_ALLOC);
-        }
+//         Mem_PoolCreate (       &p_ehci->BufPool,                /* Create Data buffer Pool                              */
+//                         (void *)p_ehci->DMA_EHCI.BufPtr,
+//                                 (p_hc_cfg->DataBufMaxLen * max_data_buf),
+//                                 max_data_buf,
+//                                 p_hc_cfg->DataBufMaxLen,
+// #if (CPU_CFG_CACHE_MGMT_EN == DEF_ENABLED)
+//                                 CPU_Cache_Linesize,
+// #else
+//                                 sizeof(CPU_ALIGN),
+// #endif
+//                                &octets_reqd,
+//                                &err_lib);
+//         if (err_lib != LIB_MEM_ERR_NONE) {
+//             return (USBH_ERR_ALLOC);
+//         }
     }
 
 #if (USBH_EHCI_CFG_PERIODIC_EN == DEF_ENABLED)
-    Mem_PoolCreate (       &p_ehci->IntrInfoPool,               /* Create Intr info pool used for completed Intr xfer.  */
-                    (void *)0,                                  /* Allocate from HEAP region                            */
-                            (p_hc_cfg->MaxNbrEP_IntrOpen * sizeof(EHCI_INTR_INFO)),
-                            (p_hc_cfg->MaxNbrEP_IntrOpen),
-                            sizeof(EHCI_INTR_INFO),
-                            sizeof(CPU_ALIGN),
-                           &octets_reqd,
-                           &err_lib);
-    if (err_lib != LIB_MEM_ERR_NONE) {
-        return (USBH_ERR_ALLOC);
-    }
+
+//     Mem_PoolCreate (       &p_ehci->IntrInfoPool,               /* Create Intr info pool used for completed Intr xfer.  */
+//                     (void *)0,                                  /* Allocate from HEAP region                            */
+//                             (p_hc_cfg->MaxNbrEP_IntrOpen * sizeof(EHCI_INTR_INFO)),
+//                             (p_hc_cfg->MaxNbrEP_IntrOpen),
+//                             sizeof(EHCI_INTR_INFO),
+//                             sizeof(CPU_ALIGN),
+//                            &octets_reqd,
+//                            &err_lib);
+//     if (err_lib != LIB_MEM_ERR_NONE) {
+//         return (USBH_ERR_ALLOC);
+//     }
 
     p_ehci->HeadIntrInfo = (EHCI_INTR_INFO *)0;
 #endif
@@ -4015,10 +4023,9 @@ static  CPU_INT32U  EHCI_QTDRemove (USBH_HC_DRV  *p_hc_drv,
     EHCI_DEV    *p_ehci;
     CPU_INT32U   rem_len;
     CPU_INT32U   terminate;
-    LIB_ERR      err_lib;
 
 
-    CPU_DCACHE_RANGE_INV(p_qh, sizeof(EHCI_QH));
+    DCACHE_InvalidateByRange((uint32_t)p_qh, sizeof(EHCI_QH));
     p_qtd     = (EHCI_QTD *)p_qh->QTDHead;
     if (p_qtd == (CPU_INT32U)0) {
         return (0u);
@@ -4029,8 +4036,8 @@ static  CPU_INT32U  EHCI_QTDRemove (USBH_HC_DRV  *p_hc_drv,
     terminate     = 0u;
     rem_len       = 0u;
 
-    CPU_DCACHE_RANGE_FLUSH(p_qh, sizeof(EHCI_QH));
-    CPU_DCACHE_RANGE_INV(p_qtd, sizeof(EHCI_QTD));
+    DCACHE_CleanByRange((uint32_t)p_qh, sizeof(EHCI_QH));
+    DCACHE_InvalidateByRange((uint32_t)p_qtd, sizeof(EHCI_QTD));
 
     while (terminate != 1u) {                                   /* Until QTD terminate bit set is found                 */
         rem_len += ((p_qtd->QTDToken >> 16u) & 0x7FFFu);        /* Bits 16-30 represent, bytes that are not transferred */
@@ -4038,11 +4045,11 @@ static  CPU_INT32U  EHCI_QTDRemove (USBH_HC_DRV  *p_hc_drv,
         p_qtd_next = (EHCI_QTD *)USBH_OS_BusToVir((void *)(p_qtd->QTDNxtPtr & 0xFFFFFFE0));
         terminate  = (p_qtd->QTDNxtPtr & 1u);
                                                                 /* Free the QTD                                         */
-        Mem_PoolBlkFree(&p_ehci->HC_QTDPool, (void *)p_qtd, (LIB_ERR *)&err_lib);
+        Mem_PoolBlkFree(&HC_QTDPool, (void *)p_qtd, (LIB_ERR *)&err_lib);
 
         if (terminate != 1u) {
             p_qtd = p_qtd_next;
-            CPU_DCACHE_RANGE_INV(p_qtd, sizeof(EHCI_QTD));
+            DCACHE_InvalidateByRange((uint32_t)p_qtd, sizeof(EHCI_QTD));
         }
     }
 
@@ -4114,7 +4121,7 @@ static  USBH_ERR  EHCI_PeriodicListInit (USBH_HC_DRV  *p_hc_drv)
                                                                 /* Build Intr QH lists with disabled QH (see Note #1).  */
     for (list_ix = EHCI_QH_LIST_256MS; list_ix <= EHCI_QH_LIST_01MS; list_ix++) {
                                                                 /* Get dummy qH used as placeholder for Intr xfer.      */
-        p_new_qh = (EHCI_QH *)Mem_PoolBlkGet(&p_ehci->HC_QHPool,
+        p_new_qh = (EHCI_QH *)Mem_PoolBlkGet(&HC_QHPool,
                                               sizeof(EHCI_QH),
                                              &err_lib);
         if (err_lib != LIB_MEM_ERR_NONE) {
@@ -4156,7 +4163,7 @@ static  USBH_ERR  EHCI_PeriodicListInit (USBH_HC_DRV  *p_hc_drv)
             ix_prev = EHCI_QH_LIST_02MS + ((list_ix - EHCI_QH_LIST_01MS) * 2u);
             p_new_qh->FrameInterval = 1u;
         } else {
-                                                                /* Empty Else Statement                                 */            
+                                                                /* Empty Else Statement                                 */
         }
 
         p_new_qh->QHHorLinkPtr = HOR_LNK_PTR_TYP(DWORD1_TYP_QH);
@@ -4167,31 +4174,31 @@ static  USBH_ERR  EHCI_PeriodicListInit (USBH_HC_DRV  *p_hc_drv)
             p_new_qh->QHHorLinkPtr |= HOR_LNK_PTR_T(DWORD1_T_INVALID);
         }
 
-        CPU_DCACHE_RANGE_FLUSH(p_new_qh, sizeof(EHCI_QH));
+        DCACHE_CleanByRange((uint32_t)p_new_qh, sizeof(EHCI_QH));
 
         if ((list_ix >= EHCI_QH_LIST_128MS) && (list_ix < EHCI_QH_LIST_64MS)) {
 
             p_ehci->QHLists[EHCI_BranchArray[ix_prev]]->QHHorLinkPtr      |= (CPU_INT32U)USBH_OS_VirToBus((void *)p_new_qh);
             p_ehci->QHLists[EHCI_BranchArray[ix_prev + 1u]]->QHHorLinkPtr |= (CPU_INT32U)USBH_OS_VirToBus((void *)p_new_qh);
 
-            CPU_DCACHE_RANGE_FLUSH(p_ehci->QHLists[EHCI_BranchArray[ix_prev]],      sizeof(EHCI_QH));
-            CPU_DCACHE_RANGE_FLUSH(p_ehci->QHLists[EHCI_BranchArray[ix_prev + 1u]], sizeof(EHCI_QH));
+            DCACHE_CleanByRange((uint32_t)p_ehci->QHLists[EHCI_BranchArray[ix_prev]],      sizeof(EHCI_QH));
+            DCACHE_CleanByRange((uint32_t)p_ehci->QHLists[EHCI_BranchArray[ix_prev + 1u]], sizeof(EHCI_QH));
 
         } else if ((list_ix >= EHCI_QH_LIST_64MS) && (list_ix <= EHCI_QH_LIST_01MS)) {
 
             p_ehci->QHLists[ix_prev]->QHHorLinkPtr      |= (CPU_INT32U)USBH_OS_VirToBus((void *)p_new_qh);
             p_ehci->QHLists[ix_prev + 1u]->QHHorLinkPtr |= (CPU_INT32U)USBH_OS_VirToBus((void *)p_new_qh);
 
-            CPU_DCACHE_RANGE_FLUSH(p_ehci->QHLists[ix_prev],      sizeof(EHCI_QH));
-            CPU_DCACHE_RANGE_FLUSH(p_ehci->QHLists[ix_prev + 1u], sizeof(EHCI_QH));
+            DCACHE_CleanByRange((uint32_t)p_ehci->QHLists[ix_prev],      sizeof(EHCI_QH));
+            DCACHE_CleanByRange((uint32_t)p_ehci->QHLists[ix_prev + 1u], sizeof(EHCI_QH));
         } else {
-                                                                /* Empty Else Statement                                 */            
+                                                                /* Empty Else Statement                                 */
         }
     }
 
     for (list_ix = EHCI_QH_LIST_256MS; list_ix < EHCI_QH_LIST_128MS; list_ix++) {
 
-        p_new_sitd = (EHCI_SITD *)Mem_PoolBlkGet(&p_ehci->HC_ITDPool,
+        p_new_sitd = (EHCI_SITD *)Mem_PoolBlkGet(&HC_ITDPool,
                                                   sizeof(EHCI_SITD),
                                                  &err_lib);
         if (err_lib != LIB_MEM_ERR_NONE) {
@@ -4203,12 +4210,12 @@ static  USBH_ERR  EHCI_PeriodicListInit (USBH_HC_DRV  *p_hc_drv)
         p_new_sitd->SITDNxtLinkPtr        = (CPU_INT32U)USBH_OS_VirToBus(p_ehci->QHLists[list_ix]) |
                                              HOR_LNK_PTR_TYP(DWORD1_TYP_QH) |
                                              HOR_LNK_PTR_T(DWORD1_T_VALID);
-        CPU_DCACHE_RANGE_FLUSH(p_new_sitd, sizeof(EHCI_SITD));
+        DCACHE_CleanByRange((uint32_t)p_new_sitd, sizeof(EHCI_SITD));
 
                                                                 /* Insert this SiTD into periodic frame list            */
         p_ehci->PeriodicListBase[list_ix] = (CPU_INT32U)USBH_OS_VirToBus((void *)p_new_sitd) |
                                              HOR_LNK_PTR_TYP(DWORD1_TYP_SITD);
-        CPU_DCACHE_RANGE_FLUSH(&p_ehci->PeriodicListBase[list_ix], sizeof(CPU_INT32U));
+        DCACHE_CleanByRange((uint32_t)&p_ehci->PeriodicListBase[list_ix], sizeof(CPU_INT32U));
     }
                                                                 /* Update the periodic list base address                */
     PERIODICLISTBASE = (CPU_INT32U)USBH_OS_VirToBus((void *)p_ehci->PeriodicListBase);
@@ -4246,7 +4253,7 @@ static  USBH_ERR  EHCI_AsyncListInit (USBH_HC_DRV  *p_hc_drv)
 
 
     p_ehci   = (EHCI_DEV *)p_hc_drv->DataPtr;
-    p_new_qh = (EHCI_QH  *)Mem_PoolBlkGet(&p_ehci->HC_QHPool,
+    p_new_qh = (EHCI_QH  *)Mem_PoolBlkGet(&HC_QHPool,
                                            sizeof(EHCI_QH),
                                           &err_lib);
     if (err_lib != LIB_MEM_ERR_NONE) {
@@ -4269,7 +4276,7 @@ static  USBH_ERR  EHCI_AsyncListInit (USBH_HC_DRV  *p_hc_drv)
     p_new_qh->QHBufPagePtrList[2] = (CPU_INT32U)0;
     p_new_qh->QHBufPagePtrList[3] = (CPU_INT32U)0;
     p_new_qh->QHBufPagePtrList[4] = (CPU_INT32U)0;
-    CPU_DCACHE_RANGE_FLUSH(p_new_qh, sizeof(EHCI_QH));
+    DCACHE_CleanByRange((uint32_t)p_new_qh, sizeof(EHCI_QH));
     p_ehci->AsyncQHHead           = p_new_qh;
                                                                 /* Update the async list base address                   */
     ASYNCLISTADDR = (CPU_INT32U)(USBH_OS_VirToBus(p_new_qh));
@@ -4305,7 +4312,7 @@ static  void  EHCI_QHDone (USBH_HC_DRV  *p_hc_drv,
     USBH_EP       *p_ep;
 
 
-    CPU_DCACHE_RANGE_INV(p_qh, sizeof(EHCI_QH));
+    DCACHE_InvalidateByRange((uint32_t)p_qh, sizeof(EHCI_QH));
     p_ep    = p_qh->EPPtr;
     err_sts = (p_qh->QHToken) & 0x000000FFu;
                                                                 /* Search the URB associated with this transfer */
@@ -4352,10 +4359,10 @@ static  void  EHCI_QHDone (USBH_HC_DRV  *p_hc_drv,
         p_urb->XferLen    = p_urb->DMA_BufLen - bytes_to_xfer;
         USBH_URB_Done(p_urb);
     } else {
-                                                                /* Empty Else Statement                                 */        
+                                                                /* Empty Else Statement                                 */
     }
 
-    CPU_DCACHE_RANGE_FLUSH(p_qh, sizeof(EHCI_QH));
+    DCACHE_CleanByRange((uint32_t)p_qh, sizeof(EHCI_QH));
 }
 
 
@@ -4398,7 +4405,6 @@ static  CPU_INT32U  EHCI_SITDDone (USBH_HC_DRV        *p_hc_drv,
     CPU_INT32U         total_len_rem;
     CPU_INT32U         i;
     USBH_ERR           err;
-    LIB_ERR            err_lib;
     EHCI_ISOC_EP_URB  *p_urb_info;
     CPU_INT08U         ep_dir;
     EHCI_DEV          *p_ehci;
@@ -4415,19 +4421,19 @@ static  CPU_INT32U  EHCI_SITDDone (USBH_HC_DRV        *p_hc_drv,
 
         frame_nbr %= 256;                                       /* Keep the Periodic Frame List index between 0 and 255 */
         p_hw_desc  = (CPU_INT32U *)USBH_OS_BusToVir((void *)(p_ehci->PeriodicListBase[frame_nbr] & 0xFFFFFFE0));
-        CPU_DCACHE_RANGE_INV(p_hw_desc, sizeof(CPU_INT32U));
+        DCACHE_InvalidateByRange((uint32_t)p_hw_desc, sizeof(CPU_INT32U));
 
         while ((*p_hw_desc & 0x01u) == 0u) {
 
             if ((*p_hw_desc & 0x06u) == HOR_LNK_PTR_TYP(DWORD1_TYP_SITD)) {
                 p_sitd = (EHCI_SITD *)USBH_OS_BusToVir((void *)(*p_hw_desc & 0xFFFFFFE0));
-                CPU_DCACHE_RANGE_INV(p_sitd, sizeof(EHCI_SITD));
+                DCACHE_InvalidateByRange((uint32_t)p_sitd, sizeof(EHCI_SITD));
 
                 if (((p_sitd->SITDEpCapChar[0] & 0x0000007Fu)         == dev_addr)  &&
                     (((p_sitd->SITDEpCapChar[0] & 0x00000F00u) >> 8u) == ep_addr )) {
 
                    *p_hw_desc = p_sitd->SITDNxtLinkPtr;
-                    CPU_DCACHE_RANGE_FLUSH(p_hw_desc, sizeof(CPU_INT32U));
+                    DCACHE_CleanByRange((uint32_t)p_hw_desc, sizeof(CPU_INT32U));
 
                     err_sts = p_sitd->SITDStsCtrl & 0x000000F2u;
 
@@ -4451,7 +4457,7 @@ static  CPU_INT32U  EHCI_SITDDone (USBH_HC_DRV        *p_hc_drv,
                         total_len_rem = 0u;                     /* Nbr of bytes sent. See Note #1                       */
                     }
                                                                 /* Free the siTD structure                              */
-                    Mem_PoolBlkFree(       &p_ehci->HC_ITDPool,
+                    Mem_PoolBlkFree(       &HC_ITDPool,
                                     (void *)p_sitd,
                                            &err_lib);
 
@@ -4461,13 +4467,13 @@ static  CPU_INT32U  EHCI_SITDDone (USBH_HC_DRV        *p_hc_drv,
             }
 
             p_hw_desc = (CPU_INT32U *)USBH_OS_BusToVir((void *)(*p_hw_desc & 0xFFFFFFE0u));
-            CPU_DCACHE_RANGE_INV(p_hw_desc, sizeof(CPU_INT32U));
+            DCACHE_InvalidateByRange((uint32_t)p_hw_desc, sizeof(CPU_INT32U));
         }
 
         frame_nbr += p_ep_desc->FrameInterval;
     }
 
-    Mem_PoolBlkFree(       &p_ehci->HC_Isoc_EP_URBPool,
+    Mem_PoolBlkFree(       &HC_Isoc_EP_URBPool,
                     (void *)p_urb_info,
                            &err_lib);
 
@@ -4519,7 +4525,6 @@ static  CPU_INT32U  EHCI_ITDDone (USBH_HC_DRV        *p_hc_drv,
     CPU_INT32U         total_len_rxd;
     CPU_INT08U         index;
     USBH_ERR           err;
-    LIB_ERR            err_lib;
     EHCI_ISOC_EP_URB  *p_urb_info;
     CPU_INT08U         ep_dir;
     EHCI_DEV          *p_ehci;
@@ -4537,20 +4542,20 @@ static  CPU_INT32U  EHCI_ITDDone (USBH_HC_DRV        *p_hc_drv,
         frame_nbr %= 256;                                       /* Keep the Periodic Frame List index between 0 and 255 */
                                                                 /* Retrieve the 1st linked data structure at this frame */
         p_hw_desc = (CPU_INT32U *)USBH_OS_BusToVir((void *)(p_ehci->PeriodicListBase[frame_nbr] & 0xFFFFFFE0));
-        CPU_DCACHE_RANGE_INV(p_hw_desc, sizeof(CPU_INT32U));
+        DCACHE_InvalidateByRange((uint32_t)p_hw_desc, sizeof(CPU_INT32U));
 
         while ((*p_hw_desc & 0x01u) == 0) {                     /* While Link Pointer is valid, browse the linked list  */
                                                                 /* Is the data structure referenced by a iTD ?          */
             if (((*p_hw_desc & 0x06u) == HOR_LNK_PTR_TYP(DWORD1_TYP_ITD))) {
                                                                 /* Retrieve the physical addr of the iTD                */
                 p_itd = (EHCI_ITD *)USBH_OS_BusToVir((void *)(*p_hw_desc & 0xFFFFFFE0u));
-                CPU_DCACHE_RANGE_INV(p_itd, sizeof(EHCI_ITD));
+                DCACHE_InvalidateByRange((uint32_t)p_itd, sizeof(EHCI_ITD));
 
                 if (((p_itd->ITDBufPagePtrList[0] & 0x0000007Fu)         == dev_addr)  ||
                     (((p_itd->ITDBufPagePtrList[0] & 0x00000F00u) >> 8u) == ep_addr)) {
 
                    *p_hw_desc = p_itd->ITDNxtLinkPtr;           /* Remove the iTD from this Periodic Frame List location*/
-                    CPU_DCACHE_RANGE_FLUSH(p_hw_desc, sizeof(CPU_INT32U));
+                    DCACHE_CleanByRange((uint32_t)p_hw_desc, sizeof(CPU_INT32U));
 
                                                                 /* Get the completion status for each microframe        */
                     for (micro_frame_nbr = 0; micro_frame_nbr < 8u; micro_frame_nbr++) {
@@ -4580,7 +4585,7 @@ static  CPU_INT32U  EHCI_ITDDone (USBH_HC_DRV        *p_hc_drv,
                                                                 /* Save the completion status of the xfer               */
                     p_urb->IsocDescPtr->FrmErr[i] = err;
                                                                 /* Free the iTD structure                               */
-                    Mem_PoolBlkFree(       &p_ehci->HC_ITDPool,
+                    Mem_PoolBlkFree(       &HC_ITDPool,
                                     (void *)p_itd,
                                            &err_lib);
                     break;
@@ -4588,13 +4593,13 @@ static  CPU_INT32U  EHCI_ITDDone (USBH_HC_DRV        *p_hc_drv,
             }
 
             p_hw_desc = (CPU_INT32U *)USBH_OS_BusToVir((void *)(*p_hw_desc & 0xFFFFFFE0));
-            CPU_DCACHE_RANGE_INV(p_hw_desc, sizeof(CPU_INT32U));
+            DCACHE_InvalidateByRange((uint32_t)p_hw_desc, sizeof(CPU_INT32U));
         }
 
         frame_nbr += p_ep_desc->FrameInterval;
     }
                                                                 /* Free the HCD Isoc EP structure                       */
-    Mem_PoolBlkFree(       &p_ehci->HC_Isoc_EP_URBPool,
+    Mem_PoolBlkFree(       &HC_Isoc_EP_URBPool,
                     (void *)p_urb_info,
                            &err_lib);
 
@@ -4760,7 +4765,7 @@ static  USBH_ERR  EHCI_BW_Get (USBH_HC_DRV  *p_hc_drv,
                     max_of_min_avail   = min_avail;             /* Take maximum of all minimum available                */
                     p_qh->BWStartFrame = branch_nbr;            /* Update starting frame number                         */
                     p_qh->SMask        = s_mask;                /* Update S-Mask                                        */
-                    CPU_DCACHE_RANGE_FLUSH(p_qh, sizeof(EHCI_QH));
+                    DCACHE_CleanByRange((uint32_t)p_qh, sizeof(EHCI_QH));
                 }
             }
 
@@ -4782,7 +4787,7 @@ static  USBH_ERR  EHCI_BW_Get (USBH_HC_DRV  *p_hc_drv,
         } else if (ep_dir == USBH_EP_DIR_OUT) {
             c_mask = 0u;
         } else {
-                                                                /* Empty Else Statement                                 */            
+                                                                /* Empty Else Statement                                 */
         }
 
         switch (p_ep_desc->TCnt) {
@@ -4793,7 +4798,7 @@ static  USBH_ERR  EHCI_BW_Get (USBH_HC_DRV  *p_hc_drv,
                 } else if (ep_dir == USBH_EP_DIR_IN) {
                     c_mask = C_MASK_SPLIT_0_MICROFRM;
                 } else {
-                                                                /* Empty Else Statement                                 */                    
+                                                                /* Empty Else Statement                                 */
                 }
                 break;
 
@@ -4813,7 +4818,7 @@ static  USBH_ERR  EHCI_BW_Get (USBH_HC_DRV  *p_hc_drv,
                  } else if (ep_dir == USBH_EP_DIR_IN) {
                      c_mask = C_MASK_SPLIT_012_MICROFRM;
                  } else {
-                                                                /* Empty Else Statement                                 */                     
+                                                                /* Empty Else Statement                                 */
                  }
                  break;
 
@@ -4823,7 +4828,7 @@ static  USBH_ERR  EHCI_BW_Get (USBH_HC_DRV  *p_hc_drv,
                  } else if (ep_dir == USBH_EP_DIR_IN) {
                      c_mask = C_MASK_SPLIT_0123_MICROFRM;
                  } else {
-                                                                /* Empty Else Statement                                 */                     
+                                                                /* Empty Else Statement                                 */
                  }
                  break;
 
@@ -4833,7 +4838,7 @@ static  USBH_ERR  EHCI_BW_Get (USBH_HC_DRV  *p_hc_drv,
                  } else if (ep_dir == USBH_EP_DIR_IN) {
                      c_mask = C_MASK_SPLIT_01234_MICROFRM;
                  } else {
-                                                                /* Empty Else Statement                                 */                     
+                                                                /* Empty Else Statement                                 */
                  }
                  break;
 
@@ -4843,7 +4848,7 @@ static  USBH_ERR  EHCI_BW_Get (USBH_HC_DRV  *p_hc_drv,
                  } else if (ep_dir == USBH_EP_DIR_IN) {
                      c_mask = C_MASK_SPLIT_012345_MICROFRM;
                  } else {
-                                                                /* Empty Else Statement                                 */                     
+                                                                /* Empty Else Statement                                 */
                  }
                  break;
 
@@ -4954,7 +4959,7 @@ static  void  EHCI_BW_Update(USBH_HC_DRV  *p_hc_drv,
     if (ep_type == USBH_EP_TYPE_INTR) {
         p_qh            = (EHCI_QH *)p_data;
 
-        CPU_DCACHE_RANGE_INV(p_qh, sizeof(EHCI_QH));
+        DCACHE_InvalidateByRange((uint32_t)p_qh, sizeof(EHCI_QH));
         s_mask          = p_qh->SMask;
         frame_interval  = p_qh->FrameInterval;
         start_frame_nbr = p_qh->BWStartFrame;
@@ -5029,16 +5034,16 @@ static  void  EHCI_IntrEPInsert(USBH_HC_DRV  *p_hc_drv,
 
     p_ehci = (EHCI_DEV *)p_hc_drv->DataPtr;
 
-    CPU_DCACHE_RANGE_INV(p_qh_to_insert, sizeof(EHCI_QH));
+    DCACHE_InvalidateByRange((uint32_t)p_qh_to_insert, sizeof(EHCI_QH));
     frame_interval = p_qh_to_insert->FrameInterval;             /* Get ep polling interval to which belongs qH.         */
                                                                 /* Get a qH placeholder.                                */
     p_prev_qh      = p_ehci->QHLists[p_qh_to_insert->BWStartFrame];
 
-    CPU_DCACHE_RANGE_INV(p_prev_qh, sizeof(EHCI_QH));
+    DCACHE_InvalidateByRange((uint32_t)p_prev_qh, sizeof(EHCI_QH));
     while (p_prev_qh->FrameInterval != frame_interval) {        /* Search polling interval list matching to qH to insert*/
 
         p_prev_qh = (EHCI_QH *)USBH_OS_BusToVir((void *)(p_prev_qh->QHHorLinkPtr & 0xFFFFFFE0));
-        CPU_DCACHE_RANGE_INV(p_prev_qh, sizeof(EHCI_QH));
+        DCACHE_InvalidateByRange((uint32_t)p_prev_qh, sizeof(EHCI_QH));
     }
 
                                                                 /* Insert qH at the selected placeholder.               */
@@ -5048,8 +5053,8 @@ static  void  EHCI_IntrEPInsert(USBH_HC_DRV  *p_hc_drv,
                               HOR_LNK_PTR_TYP(DWORD1_TYP_QH);
     p_prev_qh->QHHorLinkPtr |= HOR_LNK_PTR_T(DWORD1_T_VALID);   /* Validate Next Link Ptr pointed to QH to insert.      */
 
-    CPU_DCACHE_RANGE_FLUSH(p_qh_to_insert, sizeof(EHCI_QH));
-    CPU_DCACHE_RANGE_FLUSH(p_prev_qh,      sizeof(EHCI_QH));
+    DCACHE_CleanByRange((uint32_t)p_qh_to_insert, sizeof(EHCI_QH));
+    DCACHE_CleanByRange((uint32_t)p_prev_qh,      sizeof(EHCI_QH));
 }
 #endif
 
@@ -5110,7 +5115,7 @@ static  CPU_BOOLEAN  EHCI_PortStatusGet (USBH_HC_DRV           *p_hc_drv,
         } else if ((portsc & EHCI_PORTSC_RD_PED) != 0u) {
             status |= USBH_HUB_STATUS_PORT_HIGH_SPD;
         } else {
-                                                                /* Empty Else Statement                                 */            
+                                                                /* Empty Else Statement                                 */
         }
 
     } else {                                                    /* Port speed detection (Synopsys USB 2.0 Host IP).     */

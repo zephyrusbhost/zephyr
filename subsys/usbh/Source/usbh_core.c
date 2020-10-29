@@ -661,7 +661,7 @@ USBH_ERR USBH_HC_Start(CPU_INT08U hc_nbr)
 
 	if (hc_nbr >=
 		USBH_Host.HC_NbrNext)
-	{ /* Chk if HC nbr is valid.  
+	{ /* Chk if HC nbr is valid.
 		                            */
 		LOG_DBG("Start HC nbr invalid.");
 		return (USBH_ERR_INVALID_ARG);
@@ -923,7 +923,7 @@ CPU_INT32U USBH_HC_FrameNbrGet(CPU_INT08U hc_nbr, USBH_ERR *p_err)
 
 USBH_ERR USBH_DevConn(USBH_DEV *p_dev)
 {
-	LOG_DBG("DevConn");
+	printk("DevConn\n");
 	USBH_ERR err;
 	CPU_INT08U nbr_cfgs;
 	CPU_INT08U cfg_ix;
@@ -933,14 +933,14 @@ USBH_ERR USBH_DevConn(USBH_DEV *p_dev)
 	p_dev->ClassDrvRegPtr = (USBH_CLASS_DRV_REG *)0;
 	Mem_Clr(p_dev->DevDesc, USBH_LEN_DESC_DEV);
 
-	LOG_DBG("DftlEP_Open");
+	printk("DftlEP_Open\n");
 	err = USBH_DfltEP_Open(p_dev);
 	if (err != USBH_ERR_NONE)
 	{
 		return (err);
 	}
 
-	LOG_DBG("DevDescRd");
+	printk("DevDescRd\n");
 	err = USBH_DevDescRd(
 		p_dev); /* ------------------- RD DEV DESC -------------------- */
 	if (err != USBH_ERR_NONE)
@@ -948,7 +948,7 @@ USBH_ERR USBH_DevConn(USBH_DEV *p_dev)
 		return (err);
 	}
 
-	LOG_DBG("DevAddrSet");
+	printk("DevAddrSet\n");
 	err = USBH_DevAddrSet(
 		p_dev); /* -------------- ASSIGN NEW ADDR TO DEV -------------- */
 	if (err != USBH_ERR_NONE)
@@ -956,7 +956,7 @@ USBH_ERR USBH_DevConn(USBH_DEV *p_dev)
 		return (err);
 	}
 
-	LOG_DBG("Port %d: Device Address: %d.\r\n", p_dev->PortNbr,
+	printk("Port %d: Device Address: %d.\r\n", p_dev->PortNbr,
 			p_dev->DevAddr);
 
 	// if (p_dev->DevDesc[14] != 0u)
@@ -1001,7 +1001,7 @@ USBH_ERR USBH_DevConn(USBH_DEV *p_dev)
 		}
 	}
 
-	LOG_DBG("Call ClassDrvConn");
+	printk("Call ClassDrvConn\n");
 	err = USBH_ClassDrvConn(
 		p_dev); /* ------------- PROBE/LOAD CLASS DRV(S) -------------- */
 

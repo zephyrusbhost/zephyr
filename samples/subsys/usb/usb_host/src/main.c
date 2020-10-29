@@ -9,6 +9,7 @@
 #include <usbh_hc_cfg.h>
 #include <bsp_usbh_template.h>
 #include <usbh_msc.h>
+#include <usbh_hcd_ehci.h>
 
 #include <logging/log.h>
 LOG_MODULE_REGISTER(main);
@@ -84,8 +85,8 @@ void main(void)
 	printk("Init return %d\n", err);
 
 	uint8_t hc_nbr =
-		USBH_HC_Add(&USBH_HC_TemplateCfg, &USBH_ATSAMX_HCD_DrvAPI,
-			    &USBH_ATSAMX_HCD_RH_API, &USBH_DrvBSP_Template,
+		USBH_HC_Add(&USBH_HC_TemplateCfg, &EHCI_DrvAPI_Synopsys,
+			    &EHCI_RH_API, &USBH_DrvBSP_Template,
 			    &err);
 
 	err = USBH_ClassDrvReg(

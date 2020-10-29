@@ -376,13 +376,13 @@ USBH_ERR USBH_ClassDrvConn(USBH_DEV *p_dev)
     USBH_CFG *p_cfg;
     USBH_IF *p_if;
 
-    LOG_DBG("ProbeDev");
+    printk("ProbeDev\n");
     err = USBH_ClassProbeDev(p_dev);
     if (err == USBH_ERR_NONE)
     {
         p_if = (USBH_IF *)0;
 
-        LOG_DBG("ClassNotify");
+        printk("ClassNotify\n");
         USBH_ClassNotify(p_dev, /* Find a class drv matching dev desc.                  */
                          p_if,
                          p_dev->ClassDevPtr,
@@ -630,7 +630,7 @@ static USBH_ERR USBH_ClassProbeIF(USBH_DEV *p_dev,
 
     err = USBH_ERR_CLASS_DRV_NOT_FOUND;
     for (ix = 0u; ix < USBH_CFG_MAX_NBR_CLASS_DRVS; ix++)
-    { /* Search drv list for matching IF class.  
+    { /* Search drv list for matching IF class.
                  */
         if (USBH_ClassDrvList[ix].InUse != 0u)
         {

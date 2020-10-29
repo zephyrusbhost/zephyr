@@ -106,6 +106,8 @@ typedef struct k_mem_pool MEM_POOL;
 #define DEF_BIT_CLR_32(val, mask) ((val) = (CPU_INT32U)(((CPU_INT32U)(val)) & (CPU_INT32U)(~((CPU_INT32U)(mask)))))
 #define DEF_BIT_CLR(val, mask) ((sizeof((val)) == CPU_WORD_SIZE_08) ? DEF_BIT_CLR_08((val), (mask)) : ((sizeof((val)) == CPU_WORD_SIZE_16) ? DEF_BIT_CLR_16((val), (mask)) : ((sizeof((val)) == CPU_WORD_SIZE_32) ? DEF_BIT_CLR_32((val), (mask)) : 0)))
 
+#define  DEF_BIT_NONE                                   0x00u
+
 #define DEF_BIT(n) BIT(n)
 #define DEF_BIT_00 BIT(0)
 #define DEF_BIT_01 BIT(1)
@@ -118,5 +120,12 @@ typedef struct k_mem_pool MEM_POOL;
 #define DEF_BIT_08 BIT(8)
 #define DEF_BIT_09 BIT(9)
 #define DEF_BIT_10 BIT(10)
+#define DEF_BIT_11 BIT(11)
+#define DEF_BIT_12 BIT(12)
+#define DEF_BIT_15 BIT(15)
+
+#define DEF_BIT_26 BIT(26)
+#define DEF_BIT_27 BIT(27)
+#define DEF_BIT_31 BIT(31)
 
 #endif /* _USBH_LIB_MEM_H_ */
